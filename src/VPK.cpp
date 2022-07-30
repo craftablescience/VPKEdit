@@ -180,7 +180,7 @@ bool VPK::readEntry(const VPKEntry& entry, std::vector<byte>& output) const {
                 return false;
             }
             char name[1024] {0};
-            sprintf_s(name, "%s_%03d.vpk", this->fileName.c_str(), entry.archiveIndex);
+            snprintf(name,1023, "%s_%03d.vpk", this->fileName.c_str(), entry.archiveIndex);
             FileInputStream stream{name};
             if (!stream) {
                 return false;
