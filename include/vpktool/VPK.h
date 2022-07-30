@@ -99,7 +99,6 @@ struct VPK {
     explicit operator bool() const;
     bool operator!() const;
 
-    bool isValid = true;
     bool isDirVPK = false;
     unsigned int headerSize = 0;
     /// Gets the filename.
@@ -132,6 +131,7 @@ struct VPK {
     std::vector<ArchiveMD5SectionEntry> archiveMD5Entries;
 private:
     FileInputStream reader;
+    bool isValid = true;
 };
 
 } // namespace vpktool
