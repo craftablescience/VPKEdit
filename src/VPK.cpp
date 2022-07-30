@@ -13,6 +13,11 @@ using namespace vpktool;
 
 VPK::VPK(const std::string& vpkName) : reader(vpkName) {
     this->fileName = vpkName;
+    if (!std::filesystem::exists(this->fileName)) {
+        // File does not exist
+        this->isValid = false;
+        return;
+    }
 
     if (this->fileName.length() >= 4 && this->fileName.substr(this->fileName.length() - 4) == ".vpk") {
         this->fileName = this->fileName.substr(0, this->fileName.length() - 4);

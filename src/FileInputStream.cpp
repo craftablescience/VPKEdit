@@ -1,4 +1,5 @@
 #include <vpktool/FileInputStream.h>
+
 #include <tuple>
 
 using namespace vpktool;
