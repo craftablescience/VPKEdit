@@ -16,10 +16,10 @@ endif()
 add_library(
         ${PROJECT_NAME}
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/FileInputStream.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/InputStream.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/VPK.h
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/FileInputStream.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/InputStream.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/VPK.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

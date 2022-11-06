@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "FileInputStream.h"
+#include "InputStream.h"
 
 namespace vpktool {
 
@@ -77,6 +77,7 @@ struct VPK {
     };
 
     explicit VPK(const std::string& vpkName);
+    explicit VPK(byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK = true);
 
     /// Searches for a given file entry in the file list.
     /// filePath is the full path to the file to find.
@@ -130,8 +131,10 @@ struct VPK {
     /// Gets the archive MD5 checksum section entries. Also known as cache line hashes.
     std::vector<ArchiveMD5SectionEntry> archiveMD5Entries;
 private:
-    FileInputStream reader;
+    InputStream reader;
     bool isValid = true;
+
+    void setupVPK();
 };
 
 } // namespace vpktool

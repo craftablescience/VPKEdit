@@ -11,7 +11,8 @@
 
 using namespace vpktool;
 
-VPK::VPK(const std::string& vpkName) : reader(vpkName) {
+VPK::VPK(const std::string& vpkName)
+    : reader{vpkName} {
     this->fileName = vpkName;
     if (!std::filesystem::exists(this->fileName)) {
         // File does not exist
@@ -28,6 +29,16 @@ VPK::VPK(const std::string& vpkName) : reader(vpkName) {
         this->fileName = this->fileName.substr(0, this->fileName.length() - 4);
     }
 
+    this->setupVPK();
+}
+
+VPK::VPK(byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK /*= true*/)
+    : reader{vpkBuffer, vpkBufferLength} {
+    this->isDirVPK = dirVPK;
+    this->setupVPK();
+}
+
+void VPK::setupVPK() {
     this->reader.seek(0);
     if (this->reader.read<std::uint32_t>() != 0x55AA1234) {
         // File is not a VPK
@@ -186,14 +197,14 @@ bool VPK::readEntry(const VPKEntry& entry, std::vector<byte>& output) const {
             }
             char name[1024] {0};
             snprintf(name,1023, "%s_%03d.vpk", this->fileName.c_str(), entry.archiveIndex);
-            FileInputStream stream{name};
+            InputStream stream{name};
             if (!stream) {
                 return false;
             }
             stream.seek(static_cast<long>(entry.offset));
             output = stream.readBytes(entry.length);
         } else {
-            FileInputStream stream{this->fileName + ".vpk"};
+            InputStream stream{this->fileName + ".vpk"};
             if (!stream) {
                 return false;
             }
