@@ -6,12 +6,12 @@
 #include <fstream>
 #include <vector>
 
-std::vector<unsigned char> readFileBytes(const std::string& filename) {
+std::vector<std::byte> readFileBytes(const std::string& filename) {
     std::ifstream file{filename, std::ios::binary};
     file.seekg(0, std::ios::end);
     auto fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
-    std::vector<unsigned char> fileData;
+    std::vector<std::byte> fileData;
     fileData.reserve(fileSize);
     file.read(reinterpret_cast<char*>(fileData.data()), fileSize);
     return fileData;

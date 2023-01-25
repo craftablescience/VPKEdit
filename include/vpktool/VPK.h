@@ -37,7 +37,7 @@ struct VPKEntry {
     }
 
     /// Gets or sets the preloaded bytes.
-    std::vector<byte> smallData;
+    std::vector<std::byte> smallData;
 
     /// Returns the file name and extension.
     [[nodiscard]] std::string getFileName() const {
@@ -59,6 +59,7 @@ private:
 };
 
 struct VPK {
+#pragma pack(push, 1)
     struct ArchiveMD5SectionEntry {
         /// The CRC32 checksum of this entry.
         std::uint32_t archiveIndex;
@@ -67,17 +68,12 @@ struct VPK {
         /// The length in bytes.
         std::uint32_t length;
         /// The expected Checksum checksum.
-        std::vector<byte> checksum;
-
-        ArchiveMD5SectionEntry(std::uint32_t archiveIndex_, std::uint32_t offset_, std::uint32_t length_, std::vector<byte> checksum_)
-                : archiveIndex(archiveIndex_)
-                , offset(offset_)
-                , length(length_)
-                , checksum(std::move(checksum_)) {}
+        std::byte checksum[16];
     };
+#pragma pack(pop)
 
     explicit VPK(const std::string& vpkName);
-    explicit VPK(byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK = true);
+    explicit VPK(std::byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK = true);
 
     /// Searches for a given file entry in the file list.
     /// filePath is the full path to the file to find.
@@ -95,7 +91,7 @@ struct VPK {
     /// Reads the entry from the VPK package. Returns true on success, false on error.
     /// entry: Package entry
     /// output: Output buffer
-    bool readEntry(const VPKEntry& entry, std::vector<byte>& output) const;
+    bool readEntry(const VPKEntry& entry, std::vector<std::byte>& output) const;
 
     explicit operator bool() const;
     bool operator!() const;
@@ -117,15 +113,15 @@ struct VPK {
     /// Gets the size in bytes of the section containing the public key and signature.
     unsigned int signatureSectionSize = 0;
     /// Gets the MD5 checksum of the file tree.
-    std::vector<byte> treeChecksum;
+    std::array<std::byte, 16> treeChecksum{};
     /// Gets the MD5 checksum of the archive MD5 checksum section entries.
-    std::vector<byte> archiveMD5EntriesChecksum;
+    std::array<std::byte, 16> archiveMD5EntriesChecksum{};
     /// Gets the MD5 checksum of the complete package until the signature structure.
-    std::vector<byte> wholeFileChecksum;
+    std::array<std::byte, 16> wholeFileChecksum{};
     /// Gets the public key.
-    std::vector<byte> publicKey;
+    std::vector<std::byte> publicKey;
     /// Gets the signature.
-    std::vector<byte> signature;
+    std::vector<std::byte> signature;
     /// Gets the package entries.
     std::unordered_map<std::string, std::vector<VPKEntry>> entries;
     /// Gets the archive MD5 checksum section entries. Also known as cache line hashes.

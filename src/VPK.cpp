@@ -32,7 +32,7 @@ VPK::VPK(const std::string& vpkName)
     this->setupVPK();
 }
 
-VPK::VPK(byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK /*= true*/)
+VPK::VPK(std::byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK /*= true*/)
     : reader{vpkBuffer, vpkBufferLength} {
     this->isDirVPK = dirVPK;
     this->setupVPK();
@@ -68,7 +68,8 @@ void VPK::setupVPK() {
         if (typeName.empty())
             break;
 
-        std::vector<VPKEntry> vpkEntries;
+        this->entries[typeName] = std::vector<VPKEntry>{};
+        auto& vpkEntries = this->entries[typeName];
 
         // Directories
         while (true) {
@@ -100,7 +101,6 @@ void VPK::setupVPK() {
                 vpkEntries.push_back(entry);
             }
         }
-        this->entries[typeName] = vpkEntries;
     }
 
     // Read VPK2-specific data
@@ -111,21 +111,15 @@ void VPK::setupVPK() {
         this->archiveMD5Entries.clear();
         if (this->archiveMD5SectionSize == 0)
             return;
-        // 28 is sizeof(VPK_MD5SectionEntry), which is int + int + int + 16 chars
-        unsigned int entryNum = this->archiveMD5SectionSize / 28;
+        unsigned int entryNum = this->archiveMD5SectionSize / sizeof(ArchiveMD5SectionEntry);
         for (unsigned int i = 0; i < entryNum; i++)
-            this->archiveMD5Entries.emplace_back(
-                    this->reader.read<std::uint32_t>(),
-                    this->reader.read<std::uint32_t>(),
-                    this->reader.read<std::uint32_t>(),
-                    this->reader.readBytes(16)
-            );
+            this->archiveMD5Entries.push_back(this->reader.read<ArchiveMD5SectionEntry>());
 
-        //if (this->otherMD5SectionSize != 48)
-        //    Logger::log(LogType::LOG_ERROR, "VPK", TRF("error.vpk.md5_section_bad_size", this->otherMD5SectionSize));
-        this->treeChecksum              = this->reader.readBytes(16);
-        this->archiveMD5EntriesChecksum = this->reader.readBytes(16);
-        this->wholeFileChecksum         = this->reader.readBytes(16);
+        if (this->otherMD5SectionSize != 48)
+            return;
+        this->treeChecksum              = this->reader.readBytes<16>();
+        this->archiveMD5EntriesChecksum = this->reader.readBytes<16>();
+        this->wholeFileChecksum         = this->reader.readBytes<16>();
 
         if (this->signatureSectionSize == 0)
             return;
@@ -183,7 +177,7 @@ VPKEntry VPK::findEntry(const std::string& directory, const std::string& fileNam
     return {};
 }
 
-bool VPK::readEntry(const VPKEntry& entry, std::vector<byte>& output) const {
+bool VPK::readEntry(const VPKEntry& entry, std::vector<std::byte>& output) const {
     output.clear();
     output.reserve(entry.smallData.size() + entry.length);
 
