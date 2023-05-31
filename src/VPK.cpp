@@ -57,19 +57,22 @@ bool VPK::open(VPK& vpk) {
 
     // Extensions
     while (true) {
-        auto extension = vpk.reader.read<std::string>();
+        std::string extension;
+        vpk.reader.read(extension);
         if (extension.empty())
             break;
 
         // Directories
         while (true) {
-            auto directory = vpk.reader.read<std::string>();
+            std::string directory;
+            vpk.reader.read(directory);
             if (directory.empty())
                 break;
 
             // Files
             while (true) {
-                auto entryname = vpk.reader.read<std::string>();
+                std::string entryname;
+                vpk.reader.read(entryname);
                 if (entryname.empty())
                     break;
 

@@ -46,37 +46,8 @@ public:
     template<typename T>
     [[nodiscard]] T read() {
         T obj{};
-        if (this->isFile) {
-            this->streamFile.read(reinterpret_cast<char*>(&obj), static_cast<std::streamsize>(sizeof(T)));
-        } else {
-            for (int i = 0; i < sizeof(T); i++, this->streamPos++) {
-                reinterpret_cast<std::byte*>(&obj)[i] = this->streamBuffer[this->streamPos];
-            }
-        }
+        this->read(obj);
         return obj;
-    }
-
-    template<>
-    [[nodiscard]] char read() {
-        char obj;
-        if (this->isFile) {
-            this->streamFile.read(&obj, static_cast<std::streamsize>(sizeof(char)));
-        } else {
-            obj = static_cast<char>(this->streamBuffer[this->streamPos++]);
-        }
-        return obj;
-    }
-
-    template<>
-    [[nodiscard]] std::string read<std::string>() {
-        std::string out;
-        char temp;
-        temp = this->read<char>();
-        while (temp != '\0') {
-            out += temp;
-            temp = this->read<char>();
-        }
-        return out;
     }
 
     template<typename T>
@@ -90,17 +61,7 @@ public:
         }
     }
 
-    template<>
-    void read(char& obj) {
-        if (this->isFile) {
-            this->streamFile.read(&obj, static_cast<std::streamsize>(sizeof(char)));
-        } else {
-            obj = static_cast<char>(this->streamBuffer[this->streamPos++]);
-        }
-    }
-
-    template<>
-    void read<std::string>(std::string& obj) {
+    void read(std::string& obj) {
         char temp;
         temp = this->read<char>();
         while (temp != '\0') {
