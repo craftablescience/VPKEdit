@@ -43,7 +43,7 @@ public:
 
     [[nodiscard]] std::vector<std::byte> readBytes(std::uint64_t length);
 
-    template<typename T>
+    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T> && std::is_trivially_constructible_v<T>, bool> = true>
     [[nodiscard]] T read() {
         T obj{};
         this->read(obj);
