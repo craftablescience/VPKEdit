@@ -116,31 +116,32 @@ bool VPK::open(VPK& vpk) {
     }
 
     // Read VPK2-specific data
-    if (vpk.header1.version == 2) {
-        // Skip over file data, if any
-        vpk.reader.seek(static_cast<long>(vpk.header2.fileDataSectionSize), std::ios_base::cur);
+    if (vpk.header1.version != 2)
+        return true;
 
-        if (vpk.header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
-            return false;
+    // Skip over file data, if any
+    vpk.reader.seek(static_cast<long>(vpk.header2.fileDataSectionSize), std::ios_base::cur);
 
-        vpk.md5Entries.clear();
-        unsigned int entryNum = vpk.header2.archiveMD5SectionSize / sizeof(MD5Entry);
-        for (unsigned int i = 0; i < entryNum; i++)
-            vpk.md5Entries.push_back(vpk.reader.read<MD5Entry>());
+    if (vpk.header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
+        return false;
 
-        if (vpk.header2.otherMD5SectionSize != 48)
-            return false;
+    vpk.md5Entries.clear();
+    unsigned int entryNum = vpk.header2.archiveMD5SectionSize / sizeof(MD5Entry);
+    for (unsigned int i = 0; i < entryNum; i++)
+        vpk.md5Entries.push_back(vpk.reader.read<MD5Entry>());
 
-        vpk.treeChecksum = vpk.reader.readBytes<16>();
-        vpk.md5EntriesChecksum = vpk.reader.readBytes<16>();
-        vpk.wholeFileChecksum = vpk.reader.readBytes<16>();
+    if (vpk.header2.otherMD5SectionSize != 48)
+        return false;
 
-        if (!vpk.header2.signatureSectionSize)
-            return true;
+    vpk.treeChecksum = vpk.reader.readBytes<16>();
+    vpk.md5EntriesChecksum = vpk.reader.readBytes<16>();
+    vpk.wholeFileChecksum = vpk.reader.readBytes<16>();
 
-        vpk.publicKey = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
-        vpk.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
-    }
+    if (!vpk.header2.signatureSectionSize)
+        return true;
+
+    vpk.publicKey = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
+    vpk.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
 
     return true;
 }
