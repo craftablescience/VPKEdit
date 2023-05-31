@@ -16,18 +16,23 @@ struct VPKEntry {
     /// File name of this entry (e.g. "cable.vmt")
     std::string filename;
     /// CRC32 checksum
-    std::uint32_t crc32;
+    std::uint32_t crc32 = 0;
     /// Length in bytes
-    std::uint32_t length;
+    std::uint32_t length = 0;
     /// Offset in the VPK
-    std::uint32_t offset;
+    std::uint32_t offset = 0;
     /// Which VPK this entry is in
-    std::uint16_t archiveIndex;
+    std::uint16_t archiveIndex = 0;
     /// Preloaded data
     std::vector<std::byte> preloadedData;
+
+private:
+    friend class VPK;
+    VPKEntry() = default;
 };
 
-struct VPK {
+class VPK {
+private:
 #pragma pack(push, 1)
     struct Header1 {
         std::uint32_t signature;
@@ -54,6 +59,7 @@ struct VPK {
     };
 #pragma pack(pop)
 
+public:
     [[nodiscard]] static std::optional<VPK> open(const std::string& path);
 
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
@@ -74,6 +80,8 @@ struct VPK {
     }
 
 protected:
+    VPK(InputStream&& reader_, std::string filename_);
+
     std::string filename;
 
     Header1 header1{};
@@ -90,8 +98,6 @@ protected:
     InputStream reader;
 
 private:
-    VPK(InputStream&& reader_, std::string filename_);
-
     [[nodiscard]] static bool open(VPK& vpk);
 };
 
