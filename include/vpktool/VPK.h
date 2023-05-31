@@ -1,7 +1,4 @@
-/*
- * Contents of this file are part of a C++ port of https://github.com/SteamDatabase/ValvePak, which is licensed under MIT.
- * This port adds VPK1 support and removes CRC checks.
- */
+#pragma once
 
 #include <optional>
 #include <unordered_map>
