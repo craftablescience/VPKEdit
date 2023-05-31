@@ -208,7 +208,7 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
         }
         stream.seek(static_cast<long>(entry.offset) + static_cast<long>(this->getHeaderLength()) + static_cast<long>(this->header1.treeSize));
         auto bytes = stream.readBytes(entry.length);
-        std::copy(bytes.begin(), bytes.end(), std::back_inserter(output));
+        std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
     }
 
     return output;
