@@ -86,10 +86,9 @@ protected:
     std::vector<MD5Entry> md5Entries;
 
     InputStream reader;
-    bool isDirVPK = true;
 
 private:
-    VPK(InputStream&& reader_, std::string filename_, bool dirVPK);
+    VPK(InputStream&& reader_, std::string filename_);
 
     [[nodiscard]] static bool open(VPK& vpk);
 };

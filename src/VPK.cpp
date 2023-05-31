@@ -12,10 +12,9 @@
 
 using namespace vpktool;
 
-VPK::VPK(InputStream&& reader_, std::string filename_, bool dirVPK)
+VPK::VPK(InputStream&& reader_, std::string filename_)
         : reader(std::move(reader_))
-        , filename(std::move(filename_))
-        , isDirVPK(dirVPK) {}
+        , filename(std::move(filename_)) {}
 
 std::optional<VPK> VPK::open(const std::string& path) {
     if (!std::filesystem::exists(path)) {
@@ -28,13 +27,13 @@ std::optional<VPK> VPK::open(const std::string& path) {
         filename = filename.substr(0, filename.length() - 4);
     }
 
-    bool dirVPK = false;
+    // This indicates it's a dir VPK, but some people ignore this convention...
+    // It should fail later if it's not a proper dir VPK
     if (filename.length() >= 4 && filename.substr(filename.length() - 4) == "_dir") {
-        dirVPK = true;
         filename = filename.substr(0, filename.length() - 4);
     }
 
-    VPK vpk{InputStream{path}, filename, dirVPK};
+    VPK vpk{InputStream{path}, filename};
     if (open(vpk)) {
         return vpk;
     }
@@ -187,11 +186,7 @@ std::vector<std::byte> VPK::readEntry(const VPKEntry& entry) const {
         return output;
     }
 
-    if (entry.archiveIndex != 0x7FFF) {
-        if (!this->isDirVPK) {
-            // Error!
-            return {};
-        }
+    if (entry.archiveIndex != 0x7fff) {
         char name[1024] {0};
         snprintf(name, sizeof(name) - 1, "%s_%03d.vpk", this->filename.c_str(), entry.archiveIndex);
         InputStream stream{name};
