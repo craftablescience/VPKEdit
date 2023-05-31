@@ -1,41 +1,23 @@
 #include <vpktool/InputStream.h>
 
-#include <tuple>
-
 using namespace vpktool;
 
-InputStream::InputStream(const std::string& filepath, bool binary) {
-    this->stream = reinterpret_cast<std::byte*>(fopen(filepath.c_str(), binary ? "rb" : "r"));
-    this->streamLen = -1;
-    this->streamPos = 0;
-}
-
-InputStream::InputStream(std::byte* buffer, std::uint64_t bufferLen) {
-    this->stream = buffer;
-    this->streamLen = bufferLen;
+InputStream::InputStream(const std::string& filepath) {
+    this->isFile = true;
+    this->streamFile.open(filepath, std::ios::in | std::ios::binary);
+    this->streamBuffer = nullptr;
+    this->streamLen = 0;
     this->streamPos = 0;
 }
 
 InputStream::~InputStream() {
-    if (this->streamLen > 0)
-        fclose(reinterpret_cast<FILE*>(this->stream));
-}
-
-InputStream::InputStream(InputStream&& other) noexcept {
-    this->stream = other.stream;
-    this->streamLen = other.streamLen;
-    this->streamPos = other.streamPos;
-}
-
-InputStream& InputStream::operator=(InputStream&& other) noexcept {
-    this->stream = other.stream;
-    this->streamLen = other.streamLen;
-    this->streamPos = other.streamPos;
-    return *this;
+    if (this->isFile && this->streamFile.is_open()) {
+        this->streamFile.close();
+    }
 }
 
 InputStream::operator bool() const {
-    return static_cast<bool>(this->stream);
+    return static_cast<bool>(this->streamFile);
 }
 
 bool InputStream::operator!() const {
@@ -43,60 +25,45 @@ bool InputStream::operator!() const {
 }
 
 void InputStream::seek(std::uint64_t pos) {
-    this->seek(pos, SEEK_SET);
+    this->seek(pos, std::ios::beg);
 }
 
-void InputStream::seek(std::uint64_t offset, int offsetFrom) {
-    if (this->streamLen > 0)
-        fseek(reinterpret_cast<FILE*>(this->stream), static_cast<long>(offset), offsetFrom);
-    else {
-        if (offsetFrom == SEEK_SET)
+void InputStream::seek(std::uint64_t offset, std::ios::seekdir offsetFrom) {
+    if (this->isFile) {
+        this->streamFile.seekg(static_cast<long>(offset), offsetFrom);
+    } else {
+        if (offsetFrom == std::ios::beg)
             this->streamPos = offset;
-        else if (offsetFrom == SEEK_CUR)
+        else if (offsetFrom == std::ios::cur)
             this->streamPos += offsetFrom;
-        else if (offsetFrom == SEEK_END)
+        else if (offsetFrom == std::ios::end)
             this->streamPos = this->streamLen + offsetFrom;
     }
 }
 
-long InputStream::tell() const {
-    if (this->streamLen > 0)
-        return ftell(reinterpret_cast<FILE*>(this->stream));
-    return static_cast<long>(this->streamPos);
+std::uint64_t InputStream::tell() {
+    if (this->isFile) {
+        return this->streamFile.tellg();
+    }
+    return this->streamPos;
 }
 
-std::vector<std::byte> InputStream::readBytes(unsigned int length) {
+std::vector<std::byte> InputStream::readBytes(std::uint64_t length) {
     std::vector<std::byte> out;
-    out.reserve(length);
-    if (this->streamLen > 0)
-        std::ignore = fread(out.data(), 1, length, reinterpret_cast<FILE*>(this->stream));
-    else {
+    out.resize(length);
+    if (this->isFile) {
+        this->streamFile.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(length));
+    } else {
         for (int i = 0; i < length; i++, this->streamPos++) {
-            out.push_back(this->stream[this->streamPos]);
+            out.push_back(this->streamBuffer[this->streamPos]);
         }
     }
     return out;
 }
 
-std::string InputStream::readString() {
-    std::string out;
-    char temp;
-    temp = this->read<char>();
-    while (temp != '\0') {
-        out += temp;
-        temp = this->read<char>();
-    }
-    return out;
-}
-
 std::byte InputStream::peek(long offset) {
-    auto out = static_cast<std::byte>('\0');
-    if (this->streamLen > 0) {
-        this->seek(offset, SEEK_CUR);
-        std::ignore = fread(&out, 1, 1, reinterpret_cast<FILE*>(this->stream));
-        this->seek(-offset - 1, SEEK_CUR);
-    } else {
-        out = this->stream[this->streamPos + offset];
+    if (this->isFile) {
+        return static_cast<std::byte>(this->streamFile.peek());
     }
-    return out;
+    return this->streamBuffer[this->streamPos + offset];
 }

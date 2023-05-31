@@ -8,212 +8,204 @@
 #include <algorithm>
 #include <iterator>
 #include <filesystem>
+#include <utility>
 
 using namespace vpktool;
 
-VPK::VPK(const std::string& vpkName)
-    : reader{vpkName} {
-    this->fileName = vpkName;
-    if (!std::filesystem::exists(this->fileName)) {
+VPK::VPK(InputStream&& reader_, std::string filename_, bool dirVPK)
+        : reader(std::move(reader_))
+        , filename(std::move(filename_))
+        , isDirVPK(dirVPK) {}
+
+std::optional<VPK> VPK::open(const std::string& path) {
+    if (!std::filesystem::exists(path)) {
         // File does not exist
-        this->isValid = false;
-        return;
+        return std::nullopt;
     }
 
-    if (this->fileName.length() >= 4 && this->fileName.substr(this->fileName.length() - 4) == ".vpk") {
-        this->fileName = this->fileName.substr(0, this->fileName.length() - 4);
+    std::string filename = path;
+    if (filename.length() >= 4 && filename.substr(filename.length() - 4) == ".vpk") {
+        filename = filename.substr(0, filename.length() - 4);
     }
 
-    if (this->fileName.length() >= 4 && this->fileName.substr(this->fileName.length() - 4) == "_dir") {
-        this->isDirVPK = true;
-        this->fileName = this->fileName.substr(0, this->fileName.length() - 4);
+    bool dirVPK = false;
+    if (filename.length() >= 4 && filename.substr(filename.length() - 4) == "_dir") {
+        dirVPK = true;
+        filename = filename.substr(0, filename.length() - 4);
     }
 
-    this->setupVPK();
+    VPK vpk{InputStream{path}, filename, dirVPK};
+    if (open(vpk)) {
+        return vpk;
+    }
+    return std::nullopt;
 }
 
-VPK::VPK(std::byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK /*= true*/)
-    : reader{vpkBuffer, vpkBufferLength} {
-    this->isDirVPK = dirVPK;
-    this->setupVPK();
-}
-
-void VPK::setupVPK() {
-    this->reader.seek(0);
-    if (this->reader.read<std::uint32_t>() != 0x55AA1234) {
+bool VPK::open(VPK& vpk) {
+    vpk.reader.seek(0);
+    vpk.reader.read(vpk.header1);
+    if (vpk.header1.signature != 0x55AA1234) {
         // File is not a VPK
-        this->isValid = false;
-        return;
+        return false;
     }
-
-    this->version  = this->reader.read<std::uint32_t>();
-    this->treeSize = this->reader.read<std::uint32_t>();
-
-    if (this->version == 2) {
-        this->fileDataSectionSize   = this->reader.read<std::uint32_t>();
-        this->archiveMD5SectionSize = this->reader.read<std::uint32_t>();
-        this->otherMD5SectionSize   = this->reader.read<std::uint32_t>();
-        this->signatureSectionSize  = this->reader.read<std::uint32_t>();
-    } else if (this->version == 0x00030002 || this->version != 1) {
+    if (vpk.header1.version == 2) {
+        vpk.reader.read(vpk.header2);
+    } else if (vpk.header1.version != 1) {
         // Apex Legends, Titanfall, etc. are not supported
-        this->isValid = false;
-        return;
+        return false;
     }
 
-    this->headerSize = this->reader.tell();
-
-    // Read entries
+    // Extensions
     while (true) {
-        std::string typeName = this->reader.readString();
-        if (typeName.empty())
+        auto extension = vpk.reader.read<std::string>();
+        if (extension.empty())
             break;
-
-        this->entries[typeName] = std::vector<VPKEntry>{};
-        auto& vpkEntries = this->entries[typeName];
 
         // Directories
         while (true) {
-            std::string directoryName = this->reader.readString();
-            if (directoryName.empty())
+            auto directory = vpk.reader.read<std::string>();
+            if (directory.empty())
                 break;
 
             // Files
             while (true) {
-                std::string filename = this->reader.readString();
-                if (filename.empty())
+                auto entryname = vpk.reader.read<std::string>();
+                if (entryname.empty())
                     break;
 
                 VPKEntry entry{};
-                entry.fileName = filename;
-                entry.directoryName = directoryName;
-                entry.typeName = typeName;
-                entry.crc32 = this->reader.read<std::uint32_t>();
-                auto smallDataSize = this->reader.read<std::uint16_t>();
-                entry.archiveIndex = this->reader.read<std::uint16_t>();
-                entry.offset = this->reader.read<std::uint32_t>();
-                entry.length = this->reader.read<std::uint32_t>();
 
-                if (this->reader.read<std::uint16_t>() != 0xFFFF) {
-                    // Invalid terminator! Not much we can do...
+                if (extension == " ") {
+                    entry.filename = entryname;
+                } else {
+                    entry.filename = entryname + '.';
+                    entry.filename += extension;
                 }
-                if (smallDataSize > 0)
-                    entry.smallData = this->reader.readBytes(smallDataSize);
-                vpkEntries.push_back(entry);
+
+                std::string fullDir;
+                if (directory == " ") {
+                    fullDir = "";
+                } else {
+                    fullDir = directory;
+                }
+                if (!vpk.entries.count(fullDir)) {
+                    vpk.entries[fullDir] = {};
+                }
+
+                vpk.reader.read(entry.crc32);
+                auto preloadedDataSize = vpk.reader.read<std::uint16_t>();
+                vpk.reader.read(entry.archiveIndex);
+                vpk.reader.read(entry.offset);
+                vpk.reader.read(entry.length);
+
+                if (vpk.reader.read<std::uint16_t>() != 0xffff) {
+                    // Invalid terminator!
+                    return false;
+                }
+
+                if (preloadedDataSize > 0) {
+                    entry.preloadedData = vpk.reader.readBytes(preloadedDataSize);
+                    entry.length += preloadedDataSize;
+                }
+
+                vpk.entries[fullDir].push_back(entry);
             }
         }
     }
 
     // Read VPK2-specific data
-    if (this->version == 2) {
+    if (vpk.header1.version == 2) {
         // Skip over file data, if any
-        this->reader.seek(static_cast<long>(this->fileDataSectionSize), std::ios_base::cur);
+        vpk.reader.seek(static_cast<long>(vpk.header2.fileDataSectionSize), std::ios_base::cur);
 
-        this->archiveMD5Entries.clear();
-        if (this->archiveMD5SectionSize == 0)
-            return;
-        unsigned int entryNum = this->archiveMD5SectionSize / sizeof(ArchiveMD5SectionEntry);
+        if (vpk.header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
+            return false;
+
+        vpk.md5Entries.clear();
+        unsigned int entryNum = vpk.header2.archiveMD5SectionSize / sizeof(MD5Entry);
         for (unsigned int i = 0; i < entryNum; i++)
-            this->archiveMD5Entries.push_back(this->reader.read<ArchiveMD5SectionEntry>());
+            vpk.md5Entries.push_back(vpk.reader.read<MD5Entry>());
 
-        if (this->otherMD5SectionSize != 48)
-            return;
-        this->treeChecksum              = this->reader.readBytes<16>();
-        this->archiveMD5EntriesChecksum = this->reader.readBytes<16>();
-        this->wholeFileChecksum         = this->reader.readBytes<16>();
+        if (vpk.header2.otherMD5SectionSize != 48)
+            return false;
 
-        if (this->signatureSectionSize == 0)
-            return;
-        this->publicKey = this->reader.readBytes(this->reader.read<std::int32_t>());
-        this->signature = this->reader.readBytes(this->reader.read<std::int32_t>());
+        vpk.treeChecksum = vpk.reader.readBytes<16>();
+        vpk.md5EntriesChecksum = vpk.reader.readBytes<16>();
+        vpk.wholeFileChecksum = vpk.reader.readBytes<16>();
+
+        if (!vpk.header2.signatureSectionSize)
+            return false;
+
+        vpk.publicKey = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
+        vpk.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
     }
+
+    return true;
 }
 
-VPKEntry VPK::findEntry(const std::string& filePath) const {
-    std::string filepathCopy = filePath;
-    std::replace(filepathCopy.begin(), filepathCopy.end(), '\\', '/');
-    auto lastSeparator = filepathCopy.rfind('/');
-    auto directory = lastSeparator != std::string::npos ? filepathCopy.substr(0, lastSeparator) : "";
-    auto fileName_ = filepathCopy.substr((lastSeparator + 1));
-    return this->findEntry(directory, fileName_);
-}
+std::optional<VPKEntry> VPK::findEntry(const std::string& filename_) const {
+    auto name = filename_;
+    std::replace(name.begin(), name.end(), '\\', '/');
+    auto lastSeparator = name.rfind('/');
+    auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
+    name = filename_.substr((lastSeparator + 1));
 
-VPKEntry VPK::findEntry(const std::string& directory, const std::string& fileName_) const {
-    std::string extension;
-    std::string filename;
-    if (auto dot = fileName_.rfind('.'); dot != std::string::npos) {
-        extension = fileName_.substr(dot + 1);
-        filename = fileName_.substr(0, dot);
-    } else {
-        // Valve uses a space for missing extensions
-        extension = " ";
-        filename = fileName_;
-    }
-    return this->findEntry(directory, filename, extension);
-}
-
-VPKEntry VPK::findEntry(const std::string& directory, const std::string& fileName_, const std::string& extension) const {
-    if (this->entries.count(extension) == 0) {
+    if (!this->entries.count(dir)) {
         // There are no files with this extension
-        return {};
+        return std::nullopt;
     }
-    std::string dir = directory;
+
     if (!dir.empty()) {
         std::replace(dir.begin(), dir.end(), '\\', '/');
-        if (dir.length() > 1 && dir.substr(0,1) == "/") {
+        if (dir.length() > 1 && dir.substr(0, 1) == "/") {
             dir = dir.substr(1);
         }
         if (dir.length() > 2 && dir.substr(dir.length() - 1) == "/") {
             dir = dir.substr(0, dir.length() - 2);
         }
-    } else {
-        // If the directory is empty after trimming, set it to a space to match Valve's behavior
-        dir = " ";
     }
-    for (const VPKEntry& entry : this->entries.at(extension)) {
-        if (entry.directoryName == dir && entry.fileName == fileName_) {
+    for (const VPKEntry& entry : this->entries.at(dir)) {
+        if (entry.filename == name) {
             return entry;
         }
     }
-    return {};
+
+    return std::nullopt;
 }
 
-bool VPK::readEntry(const VPKEntry& entry, std::vector<std::byte>& output) const {
-    output.clear();
-    output.reserve(entry.smallData.size() + entry.length);
+std::optional<std::vector<std::byte>> VPK::readEntry(const VPKEntry& entry) const {
+    std::vector<std::byte> output(entry.preloadedData.size() + entry.length, static_cast<std::byte>(0));
 
-    if (!entry.smallData.empty())
-        std::copy(entry.smallData.begin(), entry.smallData.end(), std::back_inserter(output));
-
-    if (entry.length > 0) {
-        if (entry.archiveIndex != 0x7FFF) {
-            if (!this->isDirVPK) {
-                return false;
-            }
-            char name[1024] {0};
-            snprintf(name,1023, "%s_%03d.vpk", this->fileName.c_str(), entry.archiveIndex);
-            InputStream stream{name};
-            if (!stream) {
-                return false;
-            }
-            stream.seek(static_cast<long>(entry.offset));
-            output = stream.readBytes(entry.length);
-        } else {
-            InputStream stream{this->fileName + ".vpk"};
-            if (!stream) {
-                return false;
-            }
-            stream.seek(static_cast<long>(entry.offset) + static_cast<long>(this->headerSize) + static_cast<long>(this->treeSize));
-            output = stream.readBytes(entry.length);
-        }
-        return true;
+    if (!entry.preloadedData.empty()) {
+        std::copy(entry.preloadedData.begin(), entry.preloadedData.end(), output.begin());
     }
-    return false;
-}
 
-VPK::operator bool() const {
-    return this->isValid;
-}
+    if (entry.length == entry.preloadedData.size()) {
+        return output;
+    }
 
-bool VPK::operator!() const {
-    return !this->operator bool();
+    if (entry.archiveIndex != 0x7FFF) {
+        if (!this->isDirVPK) {
+            return std::nullopt;
+        }
+        char name[1024] {0};
+        snprintf(name, sizeof(name) - 1, "%s_%03d.vpk", this->filename.c_str(), entry.archiveIndex);
+        InputStream stream{name};
+        if (!stream) {
+            return std::nullopt;
+        }
+        stream.seek(static_cast<long>(entry.offset));
+        auto bytes = stream.readBytes(entry.length);
+        std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
+    } else {
+        InputStream stream{this->filename + ".vpk"};
+        if (!stream) {
+            return std::nullopt;
+        }
+        stream.seek(static_cast<long>(entry.offset) + static_cast<long>(this->getHeaderLength()) + static_cast<long>(this->header1.treeSize));
+        auto bytes = stream.readBytes(entry.length);
+        std::copy(bytes.begin(), bytes.end(), std::back_inserter(output));
+    }
+
+    return output;
 }

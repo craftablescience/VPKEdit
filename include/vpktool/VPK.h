@@ -3,64 +3,46 @@
  * This port adds VPK1 support and removes CRC checks.
  */
 
+#include <optional>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "InputStream.h"
 
 namespace vpktool {
 
 struct VPKEntry {
-    /// Gets or sets file name of this entry.
-    std::string fileName;
-    /// Gets or sets the name of the directory this file is in.
-    /// '/' is always used as a dictionary separator in Valve's implementation.
-    /// Directory names are also always lower cased in Valve's implementation.
-    std::string directoryName;
-    /// Gets or sets the file extension.
-    /// If the file has no extension, this is an empty string.
-    std::string typeName;
+    /// File name of this entry (e.g. "cable.vmt")
+    std::string filename;
     /// CRC32 checksum
     std::uint32_t crc32;
-    /// Gets or sets the length in bytes.
-    unsigned int length;
-    /// Gets or sets the offset in the package.
-    unsigned int offset;
-    /// Gets or sets which archive this entry is in.
-    unsigned short archiveIndex;
-
-    unsigned int getTotalLength() {
-        this->totalLength = this->length;
-        if (!this->smallData.empty())
-            this->totalLength += this->smallData.size();
-        return this->totalLength;
-    }
-
-    /// Gets or sets the preloaded bytes.
-    std::vector<std::byte> smallData;
-
-    /// Returns the file name and extension.
-    [[nodiscard]] std::string getFileName() const {
-        if (this->typeName == " ")
-            return this->fileName;
-        return this->fileName + "." + this->typeName;
-    }
-
-    /// Returns the absolute path of the file in the package.
-    [[nodiscard]] std::string getFullPath() const {
-        if (this->directoryName == " ")
-            return this->getFileName();
-        return this->directoryName + '/' + this->getFileName();
-    }
-
-private:
-    /// Gets the length in bytes by adding Length and length of SmallData.
-    unsigned int totalLength;
+    /// Length in bytes
+    std::uint32_t length;
+    /// Offset in the VPK
+    std::uint32_t offset;
+    /// Which VPK this entry is in
+    std::uint16_t archiveIndex;
+    /// Preloaded data
+    std::vector<std::byte> preloadedData;
 };
 
 struct VPK {
 #pragma pack(push, 1)
-    struct ArchiveMD5SectionEntry {
+    struct Header1 {
+        std::uint32_t signature;
+        std::uint32_t version;
+        std::uint32_t treeSize;
+    };
+
+    struct Header2 {
+        std::uint32_t fileDataSectionSize;
+        std::uint32_t archiveMD5SectionSize;
+        std::uint32_t otherMD5SectionSize;
+        std::uint32_t signatureSectionSize;
+    };
+
+    struct MD5Entry {
         /// The CRC32 checksum of this entry.
         std::uint32_t archiveIndex;
         /// The offset in the package.
@@ -72,65 +54,44 @@ struct VPK {
     };
 #pragma pack(pop)
 
-    explicit VPK(const std::string& vpkName);
-    explicit VPK(std::byte* vpkBuffer, std::uint64_t vpkBufferLength, bool dirVPK = true);
+    [[nodiscard]] static std::optional<VPK> open(const std::string& path);
 
-    /// Searches for a given file entry in the file list.
-    /// filePath is the full path to the file to find.
-    [[nodiscard]] VPKEntry findEntry(const std::string& filePath) const;
+    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
 
-    /// Searches for a given file entry in the file list.
-    [[nodiscard]] VPKEntry findEntry(const std::string& directory, const std::string& fileName_) const;
+    [[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const VPKEntry& entry) const;
 
-    /// Searches for a given file entry in the file list.
-    /// directory: Directory to search in
-    /// fileName: File name to find, without the extension
-    /// extension: File extension, without the leading dot
-    [[nodiscard]] VPKEntry findEntry(const std::string& directory, const std::string& fileName_, const std::string& extension) const;
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getEntries() const {
+        return this->entries;
+    }
 
-    /// Reads the entry from the VPK package. Returns true on success, false on error.
-    /// entry: Package entry
-    /// output: Output buffer
-    bool readEntry(const VPKEntry& entry, std::vector<std::byte>& output) const;
+    [[nodiscard]] std::uint32_t getHeaderLength() const {
+        if (!this->header2.fileDataSectionSize) {
+            return sizeof(Header1);
+        }
+        return sizeof(Header1) + sizeof(Header2);
+    }
 
-    explicit operator bool() const;
-    bool operator!() const;
+protected:
+    std::string filename;
 
-    bool isDirVPK = false;
-    unsigned int headerSize = 0;
-    /// Gets the filename.
-    std::string fileName;
-    /// Gets the VPK version.
-    unsigned int version = 0;
-    /// Gets the size in bytes of the directory tree.
-    unsigned int treeSize = 0;
-    /// Gets how many bytes of file content are stored in this VPK file (0 in CSGO).
-    unsigned int fileDataSectionSize = 0;
-    /// Gets the size in bytes of the section containing MD5 checksums for external archive content.
-    unsigned int archiveMD5SectionSize = 0;
-    /// Gets the size in bytes of the section containing MD5 checksums for content in this file.
-    unsigned int otherMD5SectionSize = 0;
-    /// Gets the size in bytes of the section containing the public key and signature.
-    unsigned int signatureSectionSize = 0;
-    /// Gets the MD5 checksum of the file tree.
+    Header1 header1{};
+    Header2 header2{};
     std::array<std::byte, 16> treeChecksum{};
-    /// Gets the MD5 checksum of the archive MD5 checksum section entries.
-    std::array<std::byte, 16> archiveMD5EntriesChecksum{};
-    /// Gets the MD5 checksum of the complete package until the signature structure.
+    std::array<std::byte, 16> md5EntriesChecksum{};
     std::array<std::byte, 16> wholeFileChecksum{};
-    /// Gets the public key.
     std::vector<std::byte> publicKey;
-    /// Gets the signature.
     std::vector<std::byte> signature;
-    /// Gets the package entries.
-    std::unordered_map<std::string, std::vector<VPKEntry>> entries;
-    /// Gets the archive MD5 checksum section entries. Also known as cache line hashes.
-    std::vector<ArchiveMD5SectionEntry> archiveMD5Entries;
-private:
-    InputStream reader;
-    bool isValid = true;
 
-    void setupVPK();
+    std::unordered_map<std::string, std::vector<VPKEntry>> entries;
+    std::vector<MD5Entry> md5Entries;
+
+    InputStream reader;
+    bool isDirVPK = true;
+
+private:
+    VPK(InputStream&& reader_, std::string filename_, bool dirVPK);
+
+    [[nodiscard]] static bool open(VPK& vpk);
 };
 
 } // namespace vpktool

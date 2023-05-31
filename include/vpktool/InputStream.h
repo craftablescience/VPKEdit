@@ -4,69 +4,121 @@
 #include <cstddef>
 #include <cstring>
 #include <cstdint>
-#include <cstdio>
+#include <fstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace vpktool {
 
-/// Changes the endianness of a type. Should only be used with numbers.
-template<typename T> inline T swapEndian(T t) {
-    union {
-        T t;
-        std::byte u8[sizeof(T)];
-    } source{}, dest{};
-    source.t = t;
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-    return dest.t;
-}
-
 class InputStream {
 public:
-    explicit InputStream(const std::string& filepath, bool binary = true);
-    InputStream(std::byte* buffer, std::uint64_t bufferLen);
+    explicit InputStream(const std::string& filepath);
     ~InputStream();
     InputStream(const InputStream& other) = delete;
     InputStream& operator=(const InputStream& other) = delete;
-    InputStream(InputStream&& other) noexcept;
-    InputStream& operator=(InputStream&& other) noexcept;
+    InputStream(InputStream&& other) noexcept = default;
+    InputStream& operator=(InputStream&& other) noexcept = default;
 
     explicit operator bool() const;
     bool operator!() const;
 
     void seek(std::uint64_t pos);
-    void seek(std::uint64_t offset, int offsetFrom);
+    void seek(std::uint64_t offset, std::ios::seekdir offsetFrom);
 
-    [[nodiscard]] long tell() const;
+    [[nodiscard]] std::uint64_t tell();
 
-    template<std::size_t L>
+    template<std::uint64_t L>
     [[nodiscard]] std::array<std::byte, L> readBytes() {
         std::array<std::byte, L> out;
-        if (this->streamLen > 0)
-            std::ignore = fread(out.data(), 1, L, reinterpret_cast<FILE*>(this->stream));
-        else {
+        if (this->isFile) {
+            this->streamFile.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(L));
+        } else {
             for (int i = 0; i < L; i++, this->streamPos++) {
-                out[i] = this->stream[this->streamPos];
+                out[i] = this->streamBuffer[this->streamPos];
             }
         }
         return out;
     }
-    [[nodiscard]] std::vector<std::byte> readBytes(unsigned int length);
+
+    [[nodiscard]] std::vector<std::byte> readBytes(std::uint64_t length);
 
     template<typename T>
-    T read(bool swapEndian_ = false) {
-        T wrongEndian;
-        auto bytes = this->readBytes<sizeof(T)>();
-        std::memcpy(&wrongEndian, bytes.data(), sizeof(T));
-        return swapEndian_ ? swapEndian<T>(wrongEndian) : wrongEndian;
+    [[nodiscard]] T read() {
+        T obj{};
+        if (this->isFile) {
+            this->streamFile.read(reinterpret_cast<char*>(&obj), static_cast<std::streamsize>(sizeof(T)));
+        } else {
+            for (int i = 0; i < sizeof(T); i++, this->streamPos++) {
+                reinterpret_cast<std::byte*>(&obj)[i] = this->streamBuffer[this->streamPos];
+            }
+        }
+        return obj;
     }
-    [[nodiscard]] std::string readString();
+
+    template<>
+    [[nodiscard]] char read() {
+        char obj;
+        if (this->isFile) {
+            this->streamFile.read(&obj, static_cast<std::streamsize>(sizeof(char)));
+        } else {
+            obj = static_cast<char>(this->streamBuffer[this->streamPos++]);
+        }
+        return obj;
+    }
+
+    template<>
+    [[nodiscard]] std::string read<std::string>() {
+        std::string out;
+        char temp;
+        temp = this->read<char>();
+        while (temp != '\0') {
+            out += temp;
+            temp = this->read<char>();
+        }
+        return out;
+    }
+
+    template<typename T>
+    void read(T& obj) {
+        if (this->isFile) {
+            this->streamFile.read(reinterpret_cast<char*>(&obj), static_cast<std::streamsize>(sizeof(T)));
+        } else {
+            for (int i = 0; i < sizeof(T); i++, this->streamPos++) {
+                reinterpret_cast<std::byte*>(&obj)[i] = this->streamBuffer[this->streamPos];
+            }
+        }
+    }
+
+    template<>
+    void read(char& obj) {
+        if (this->isFile) {
+            this->streamFile.read(&obj, static_cast<std::streamsize>(sizeof(char)));
+        } else {
+            obj = static_cast<char>(this->streamBuffer[this->streamPos++]);
+        }
+    }
+
+    template<>
+    void read<std::string>(std::string& obj) {
+        char temp;
+        temp = this->read<char>();
+        while (temp != '\0') {
+            obj += temp;
+            temp = this->read<char>();
+        }
+    }
+
     [[nodiscard]] std::byte peek(long offset = 0);
+
 protected:
-    std::byte* stream;
+    std::ifstream streamFile;
+
+    std::byte* streamBuffer;
     std::uint64_t streamLen;
     std::uint64_t streamPos;
+
+    bool isFile;
 };
 
 } // namespace vpktool

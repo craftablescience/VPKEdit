@@ -2,32 +2,38 @@
 
 #include <vpktool/VPK.h>
 
-#include <iostream>
 #include <fstream>
+#include <string_view>
 #include <vector>
 
-std::vector<std::byte> readFileBytes(const std::string& filename) {
-    std::ifstream file{filename, std::ios::binary};
-    file.seekg(0, std::ios::end);
-    auto fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-    std::vector<std::byte> fileData;
-    fileData.reserve(fileSize);
-    file.read(reinterpret_cast<char*>(fileData.data()), fileSize);
-    return fileData;
-}
+using namespace vpktool;
 
 TEST(VPK, read) {
     // Going to assume this is my computer lol
     // Install Portal 2 on your Windows C drive for this to work
-    auto bytes = readFileBytes(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
-    vpktool::VPK vpk{bytes.data(), bytes.size()};
+    auto vpk = VPK::open(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
     ASSERT_TRUE(vpk);
 
-    for (const auto& [extension, files] : vpk.entries) {
+    for (const auto& [directory, files] : vpk->getEntries()) {
         for (const auto& file : files) {
             // Terminal explosion
-            std::cout << file.getFullPath() << '\n';
+            std::cout << directory << '/' << file.filename << '\n';
         }
     }
+}
+
+TEST(VPK, readContents) {
+    // Ditto
+    auto vpk = VPK::open(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
+    ASSERT_TRUE(vpk);
+
+    auto cableVMT = vpk->findEntry("materials/cable/cable.vmt");
+    ASSERT_TRUE(cableVMT);
+
+    ASSERT_EQ(cableVMT->length, 46);
+
+    std::string_view expectedContents = "SplineRope\r\n{\r\n$basetexture \"cable\\black\"\r\n}\r\n";
+    auto actualContents = vpk->readEntry(*cableVMT);
+    ASSERT_TRUE(actualContents);
+    ASSERT_STREQ(reinterpret_cast<char*>(actualContents->data()), expectedContents.data());
 }
