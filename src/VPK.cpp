@@ -149,15 +149,22 @@ bool VPK::open(VPK& vpk) {
 std::optional<VPKEntry> VPK::findEntry(const std::string& filename_) const {
     auto name = filename_;
     std::replace(name.begin(), name.end(), '\\', '/');
+
     auto lastSeparator = name.rfind('/');
+
     auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
     name = filename_.substr((lastSeparator + 1));
 
-    if (!this->entries.count(dir)) {
+    return this->findEntry(dir, name);
+}
+
+std::optional<VPKEntry> VPK::findEntry(const std::string& directory, const std::string& filename_) const {
+    if (!this->entries.count(directory)) {
         // There are no files with this extension
         return std::nullopt;
     }
 
+    std::string dir = directory;
     if (!dir.empty()) {
         std::replace(dir.begin(), dir.end(), '\\', '/');
         if (dir.length() > 1 && dir.substr(0, 1) == "/") {
@@ -168,7 +175,7 @@ std::optional<VPKEntry> VPK::findEntry(const std::string& filename_) const {
         }
     }
     for (const VPKEntry& entry : this->entries.at(dir)) {
-        if (entry.filename == name) {
+        if (entry.filename == filename_) {
             return entry;
         }
     }

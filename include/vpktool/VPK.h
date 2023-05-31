@@ -57,6 +57,7 @@ struct VPK {
     [[nodiscard]] static std::optional<VPK> open(const std::string& path);
 
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
+    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_) const;
 
     [[nodiscard]] std::vector<std::byte> readEntry(const VPKEntry& entry) const;
 
