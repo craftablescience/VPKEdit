@@ -136,7 +136,7 @@ bool VPK::open(VPK& vpk) {
         vpk.wholeFileChecksum = vpk.reader.readBytes<16>();
 
         if (!vpk.header2.signatureSectionSize)
-            return false;
+            return true;
 
         vpk.publicKey = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
         vpk.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
