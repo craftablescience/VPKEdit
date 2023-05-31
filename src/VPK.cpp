@@ -35,6 +35,14 @@ std::optional<VPK> VPK::open(const std::string& path) {
     return std::nullopt;
 }
 
+std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen) {
+    VPK vpk{InputStream{buffer, bufferLen}, ""};
+    if (open(vpk)) {
+        return vpk;
+    }
+    return std::nullopt;
+}
+
 bool VPK::open(VPK& vpk) {
     vpk.reader.seek(0);
     vpk.reader.read(vpk.header1);
@@ -200,7 +208,7 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
         stream.seek(static_cast<long>(entry.offset));
         auto bytes = stream.readBytes(entry.length);
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
-    } else {
+    } else if (!filename.empty()) {
         InputStream stream{this->filename + ".vpk"};
         if (!stream) {
             // Error!
@@ -209,6 +217,9 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
         stream.seek(static_cast<long>(entry.offset) + static_cast<long>(this->getHeaderLength()) + static_cast<long>(this->header1.treeSize));
         auto bytes = stream.readBytes(entry.length);
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
+    } else {
+        // Loaded from memory, but file is not in the directory VPK!
+        return {};
     }
 
     return output;

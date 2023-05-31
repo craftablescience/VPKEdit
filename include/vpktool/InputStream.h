@@ -14,6 +14,7 @@ namespace vpktool {
 class InputStream {
 public:
     explicit InputStream(const std::string& filepath);
+    InputStream(std::byte* buffer, std::uint64_t bufferLength);
     ~InputStream();
     InputStream(const InputStream& other) = delete;
     InputStream& operator=(const InputStream& other) = delete;

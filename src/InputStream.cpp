@@ -10,6 +10,13 @@ InputStream::InputStream(const std::string& filepath) {
     this->streamPos = 0;
 }
 
+InputStream::InputStream(std::byte* buffer, std::uint64_t bufferLength) {
+    this->isFile = false;
+    this->streamBuffer = buffer;
+    this->streamLen = bufferLength;
+    this->streamPos = 0;
+}
+
 InputStream::~InputStream() {
     if (this->isFile && this->streamFile.is_open()) {
         this->streamFile.close();

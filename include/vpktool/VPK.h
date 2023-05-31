@@ -57,7 +57,12 @@ private:
 #pragma pack(pop)
 
 public:
+    /// Open a directory VPK file
     [[nodiscard]] static std::optional<VPK> open(const std::string& path);
+
+    /// Open a directory VPK from memory
+    /// Note that any content not stored in the directory VPK will fail to load!
+    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen);
 
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_) const;
