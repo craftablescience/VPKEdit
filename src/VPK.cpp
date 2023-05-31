@@ -173,7 +173,7 @@ std::optional<VPKEntry> VPK::findEntry(const std::string& filename_) const {
     return std::nullopt;
 }
 
-std::optional<std::vector<std::byte>> VPK::readEntry(const VPKEntry& entry) const {
+std::vector<std::byte> VPK::readEntry(const VPKEntry& entry) const {
     std::vector<std::byte> output(entry.preloadedData.size() + entry.length, static_cast<std::byte>(0));
 
     if (!entry.preloadedData.empty()) {
@@ -186,13 +186,15 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const VPKEntry& entry) cons
 
     if (entry.archiveIndex != 0x7FFF) {
         if (!this->isDirVPK) {
-            return std::nullopt;
+            // Error!
+            return {};
         }
         char name[1024] {0};
         snprintf(name, sizeof(name) - 1, "%s_%03d.vpk", this->filename.c_str(), entry.archiveIndex);
         InputStream stream{name};
         if (!stream) {
-            return std::nullopt;
+            // Error!
+            return {};
         }
         stream.seek(static_cast<long>(entry.offset));
         auto bytes = stream.readBytes(entry.length);
@@ -200,7 +202,8 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const VPKEntry& entry) cons
     } else {
         InputStream stream{this->filename + ".vpk"};
         if (!stream) {
-            return std::nullopt;
+            // Error!
+            return {};
         }
         stream.seek(static_cast<long>(entry.offset) + static_cast<long>(this->getHeaderLength()) + static_cast<long>(this->header1.treeSize));
         auto bytes = stream.readBytes(entry.length);
