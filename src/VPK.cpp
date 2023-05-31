@@ -183,7 +183,7 @@ std::optional<VPKEntry> VPK::findEntry(const std::string& directory, const std::
     return std::nullopt;
 }
 
-std::vector<std::byte> VPK::readEntry(const VPKEntry& entry) const {
+std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
     std::vector<std::byte> output(entry.preloadedData.size() + entry.length, static_cast<std::byte>(0));
 
     if (!entry.preloadedData.empty()) {
@@ -217,4 +217,15 @@ std::vector<std::byte> VPK::readEntry(const VPKEntry& entry) const {
     }
 
     return output;
+}
+
+std::string VPK::readTextEntry(const VPKEntry& entry) const {
+    auto bytes = this->readBinaryEntry(entry);
+    std::string out;
+    for (auto byte : bytes) {
+        if (byte == std::byte(0))
+            break;
+        out += static_cast<char>(byte);
+    }
+    return out;
 }

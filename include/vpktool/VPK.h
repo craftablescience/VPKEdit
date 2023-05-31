@@ -59,7 +59,8 @@ struct VPK {
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_) const;
 
-    [[nodiscard]] std::vector<std::byte> readEntry(const VPKEntry& entry) const;
+    [[nodiscard]] std::vector<std::byte> readBinaryEntry(const VPKEntry& entry) const;
+    [[nodiscard]] std::string readTextEntry(const VPKEntry& entry) const;
 
     [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getEntries() const {
         return this->entries;
