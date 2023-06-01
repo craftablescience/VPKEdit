@@ -5,3 +5,6 @@
 
 # Project exclude paths
 cmake-build-*/
+
+# Generated
+src/gui/Config.h

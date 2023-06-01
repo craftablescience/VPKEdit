@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QStyle>
 
+#include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -15,7 +16,7 @@ using namespace vpktool;
 
 Window::Window(QWidget* parent)
         : QMainWindow(parent) {
-    this->setWindowTitle("VPKTool");
+    this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(600, 500);
     this->showMaximized();

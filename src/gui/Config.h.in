@@ -1,0 +1,3 @@
+#pragma once
+
+#cmakedefine VPKTOOL_PROJECT_VERSION "@VPKTOOL_PROJECT_VERSION@"
