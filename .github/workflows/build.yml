@@ -43,7 +43,7 @@ jobs:
           cache: true
 
       - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.1/win64_msvc2019_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.1/msvc2019_64"
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
