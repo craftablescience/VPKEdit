@@ -35,6 +35,7 @@ void FileViewer::displayEntry(const QString& path) {
     this->clearContents();
     if (path.endsWith(".txt") ||
         path.endsWith(".md")  ||
+        path.endsWith(".gi")  ||
         path.endsWith(".res") ||
         path.endsWith(".nut") ||
         path.endsWith(".lua") ||
@@ -51,11 +52,6 @@ void FileViewer::displayEntry(const QString& path) {
         // VTF (image)
         this->image->setImage(this->window->readBinaryEntry(path));
         this->setImageVisible();
-    } else if (path.endsWith(".wav") ||
-               path.endsWith(".ogg") ||
-               path.endsWith(".mp3")) {
-        // Audio
-        // todo: audio previewer
     }
 }
 
