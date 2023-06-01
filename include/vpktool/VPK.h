@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -57,6 +58,11 @@ private:
 #pragma pack(pop)
 
 public:
+    VPK(const VPK& other) = delete;
+    VPK& operator=(const VPK& other) = delete;
+    VPK(VPK&& other) noexcept = default;
+    VPK& operator=(VPK&& other) noexcept = default;
+
     /// Open a directory VPK file
     [[nodiscard]] static std::optional<VPK> open(const std::string& path);
 
@@ -79,6 +85,14 @@ public:
             return sizeof(Header1);
         }
         return sizeof(Header1) + sizeof(Header2);
+    }
+
+    [[nodiscard]] std::string_view getPrettyFileName() const {
+        // Find the last occurrence of the slash character
+        if (std::size_t lastSlashIndex = this->filename.find_last_of('/'); lastSlashIndex != std::string::npos) {
+            return {this->filename.data() + lastSlashIndex + 1, this->filename.length() - lastSlashIndex - 1};
+        }
+        return this->filename; // not much else to do, should never happen
     }
 
 protected:

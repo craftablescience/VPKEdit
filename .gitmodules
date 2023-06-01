@@ -1,0 +1,3 @@
+[submodule "src/gui/thirdparty/vtflib"]
+	path = src/gui/thirdparty/vtflib
+	url = https://github.com/StrataSource/VTFLib
