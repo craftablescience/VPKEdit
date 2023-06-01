@@ -63,8 +63,13 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.cpp")
 
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib Qt6::Core Qt6::Gui Qt6::Widgets)
+    if(WIN32)
+        find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+        target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib Qt6::Core Qt6::Gui Qt6::Widgets)
+    else()
+        find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets DBus)
+        target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib Qt6::Core Qt6::Gui Qt6::Widgets Qt6::DBus)
+    endif()
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -97,6 +102,7 @@ if(VPKTOOL_BUILD_GUI)
         configure_file("${QT_BASEDIR}/lib/libQt6Core.so"    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"    COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Gui.so"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6" COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6DBus.so"    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"    COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/platforms/libqminimal.so" "${CMAKE_BINARY_DIR}/platforms/libqminimal.so" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/platforms/libqxcb.so"     "${CMAKE_BINARY_DIR}/platforms/libqxcb.so"     COPYONLY)
 
