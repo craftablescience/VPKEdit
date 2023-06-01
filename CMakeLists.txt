@@ -65,9 +65,9 @@ if(VPKTOOL_BUILD_GUI)
             ${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${QT_INCLUDE}"
-            "${QT_INCLUDE}/QtWidgets"
+            "${QT_INCLUDE}/QtCore"
             "${QT_INCLUDE}/QtGui"
-            "${QT_INCLUDE}/QtCore")
+            "${QT_INCLUDE}/QtWidgets")
     if(WIN32 AND MSVC)
         target_link_options(
                 ${PROJECT_NAME} PRIVATE
