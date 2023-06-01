@@ -5,7 +5,6 @@
 #include <QPainter>
 #include <QSlider>
 #include <QSpinBox>
-#include <VTFLib.h>
 
 using namespace VTFLib;
 

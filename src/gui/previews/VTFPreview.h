@@ -5,15 +5,10 @@
 
 #include <QImage>
 #include <QWidget>
+#include <VTFLib.h>
 
 class QSlider;
 class QSpinBox;
-
-namespace VTFLib {
-
-class CVTFFile;
-
-} // namespace VTFLib
 
 class VTFImage : public QWidget {
     Q_OBJECT;
