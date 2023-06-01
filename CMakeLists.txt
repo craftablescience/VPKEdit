@@ -19,6 +19,10 @@ target_include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if(VPKTOOL_BUILD_GUI)
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+    set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+    set(CMAKE_INSTALL_RPATH $ORIGIN)
+
     set(VTFLIB_STATIC OFF CACHE BOOL "" FORCE)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/vtflib")
     set_target_properties(
