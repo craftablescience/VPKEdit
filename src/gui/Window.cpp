@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMenuBar>
@@ -60,6 +61,11 @@ Window::Window(QWidget* parent)
 
     this->fileViewer = new FileViewer(this, splitter);
     hbox->addWidget(this->fileViewer);
+
+    const auto& args = QApplication::arguments();
+    if (args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) {
+        this->open(args[1]);
+    }
 }
 
 void Window::open() {
@@ -67,7 +73,10 @@ void Window::open() {
     if (path.isEmpty()) {
         return;
     }
+    this->open(path);
+}
 
+void Window::open(const QString& path) {
     this->clearContents();
     this->vpk = VPK::open(path.toStdString());
     if (!this->vpk) {

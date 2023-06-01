@@ -17,6 +17,8 @@ public:
 
     void open();
 
+    void open(const QString& path);
+
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const QString& path);
 
     [[nodiscard]] QString readTextEntry(const QString& path);
