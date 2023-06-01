@@ -1,0 +1,120 @@
+name: Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    # nothing here
+
+env:
+  BUILD_DIR: ${{github.workspace}}/build
+
+jobs:
+  build-msvc:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          spectre: true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: '6.5.1'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          dir: ${{github.workspace}}/qt
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.1/win64_msvc2019_64"
+
+      - name: Build
+        working-directory: ${{env.BUILD_DIR}}
+        run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j%NUMBER_OF_PROCESSORS%
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKTool-Windows-msvc-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpktool.exe
+            ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/styles/*.dll
+          retention-days: 7
+
+
+  build-linux:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+        compiler: [gcc, clang]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Necessary Packages
+        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build
+
+      - name: Install GCC
+        if: ${{ matrix.compiler == 'gcc' }}
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 12
+          platform: x64
+
+      - name: Install Clang
+        if: ${{ matrix.compiler == 'clang' }}
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: 15
+          platform: x64
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: '6.5.1'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          dir: ${{github.workspace}}/qt
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.1/gcc_64"
+
+      - name: Build
+        working-directory: ${{env.BUILD_DIR}}
+        run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j$(nproc)
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKTool-Linux-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpktool
+            ${{env.BUILD_DIR}}/*.so*
+            ${{env.BUILD_DIR}}/platforms/*.so*
+            ${{env.BUILD_DIR}}/styles/*.so*
+          retention-days: 7
