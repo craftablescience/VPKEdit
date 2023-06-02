@@ -20,7 +20,6 @@ Window::Window(QWidget* parent)
     this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(600, 500);
-    this->showMaximized();
 
     // File menu
     auto* fileMenu = menuBar()->addMenu(tr("File"));
@@ -61,6 +60,8 @@ Window::Window(QWidget* parent)
 
     this->fileViewer = new FileViewer(this, splitter);
     hbox->addWidget(this->fileViewer);
+
+    splitter->setStretchFactor(1, 2);
 
     const auto& args = QApplication::arguments();
     if (args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) {
