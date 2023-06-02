@@ -49,7 +49,7 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j%NUMBER_OF_PROCESSORS%
 
-      - name: Upload Artifact
+      - name: Upload Standalone
         uses: actions/upload-artifact@v3
         with:
           name: VPKTool-Windows-Standalone-msvc-${{matrix.build_type}}
@@ -129,7 +129,7 @@ jobs:
         working-directory: ${{env.BUILD_DIR}}
         run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j$(nproc)
 
-      - name: Upload Artifact
+      - name: Upload Standalone
         uses: actions/upload-artifact@v3
         with:
           name: VPKTool-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
