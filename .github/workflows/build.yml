@@ -52,12 +52,33 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Windows-msvc-${{matrix.build_type}}
+          name: VPKTool-Windows-Standalone-msvc-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/vpktool.exe
             ${{env.BUILD_DIR}}/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
+          retention-days: 7
+
+      - name: Install NSIS
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          scoop update
+          scoop bucket add extras
+          scoop install nsis
+          makensis -VERSION
+
+      - name: Create Installer
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKTool-Windows-Installer-msvc-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpktool-*-win64.exe
           retention-days: 7
 
 
@@ -111,7 +132,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Linux-${{matrix.compiler}}-${{matrix.build_type}}
+          name: VPKTool-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/vpktool
             ${{env.BUILD_DIR}}/*.so*
