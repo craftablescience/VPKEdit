@@ -19,7 +19,9 @@ public slots:
     void onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* /*previous*/);
 
 private:
-    [[nodiscard]] static QString getItemPath(QTreeWidgetItem* item);
+    [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);
 
     Window* window;
+
+    QTreeWidgetItem* root;
 };
