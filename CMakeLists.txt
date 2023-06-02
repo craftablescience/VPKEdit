@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 project(vpktool VERSION 2.0.0 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
 set(CMAKE_CXX_STANDARD 17)
 
 option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
+option(VPKTOOL_BUILD_INSTALLER "Build installer for VPKTool GUI application" ON)
 option(VPKTOOL_BUILD_TESTS "Run library tests" OFF)
 
 add_library(
@@ -34,6 +35,8 @@ if(VPKTOOL_BUILD_GUI)
 
     if(WIN32)
         if(DEFINED QT_BASEDIR)
+            string(REPLACE "\\" "/" QT_BASEDIR ${QT_BASEDIR})
+
             # Add it to the prefix path so find_package can find it
             list(APPEND CMAKE_PREFIX_PATH "${QT_BASEDIR}")
             set(QT_INCLUDE "${QT_BASEDIR}/include")
@@ -54,9 +57,7 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
             @ONLY)
 
-    add_executable(
-            ${PROJECT_NAME} WIN32
-
+    list(APPEND ${PROJECT_NAME}_SOURCES
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
@@ -70,6 +71,14 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Main.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.cpp")
+    if(WIN32)
+        list(APPEND ${PROJECT_NAME}_SOURCES
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon.rc")
+    endif()
+
+    add_executable(
+            ${PROJECT_NAME} WIN32
+            ${${PROJECT_NAME}_SOURCES})
 
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
     target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib Qt6::Core Qt6::Gui Qt6::Widgets)
@@ -84,6 +93,39 @@ if(VPKTOOL_BUILD_GUI)
         target_link_options(
                 ${PROJECT_NAME} PRIVATE
                 "/ENTRY:mainCRTStartup")
+    endif()
+
+    # Set up install rules
+    install(TARGETS ${PROJECT_NAME} vtflib
+            CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+            RUNTIME DESTINATION .
+            LIBRARY DESTINATION .)
+    install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets
+            RUNTIME DESTINATION .
+            LIBRARY DESTINATION .)
+    if(WIN32)
+        # No convenient libraries for these... ugh
+        if(CMAKE_BUILD_TYPE MATCHES Debug)
+            install(FILES "${QT_BASEDIR}/plugins/platforms/qwindowsd.dll"
+                    DESTINATION platforms)
+            install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyled.dll"
+                    DESTINATION styles)
+        else()
+            install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows.dll"
+                    DESTINATION platforms)
+            install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle.dll"
+                    DESTINATION styles)
+        endif()
+    elseif(UNIX)
+        install(FILES
+                    "${QT_BASEDIR}/plugins/platforms/libqminimal.so"
+                    "${QT_BASEDIR}/plugins/platforms/libqxcb.so"
+                DESTINATION platforms)
+        install(FILES
+                    "${QT_BASEDIR}/lib/libicui18n.so.56"
+                    "${QT_BASEDIR}/lib/libicuuc.so.56"
+                    "${QT_BASEDIR}/lib/libicudata.so.56"
+                DESTINATION .)
     endif()
 
     # Copy these so the user doesn't have to
@@ -111,6 +153,45 @@ if(VPKTOOL_BUILD_GUI)
         configure_file("${QT_BASEDIR}/lib/libicui18n.so.56" "${CMAKE_BINARY_DIR}/libicui18n.so.56" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libicuuc.so.56"   "${CMAKE_BINARY_DIR}/libicuuc.so.56"   COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libicudata.so.56" "${CMAKE_BINARY_DIR}/libicudata.so.56" COPYONLY)
+    endif()
+
+    if(VPKTOOL_BUILD_INSTALLER)
+        set(CPACK_PACKAGE_VENDOR "craftablescience")
+        set(CPACK_PACKAGE_DESCRIPTION "A tool to read and extract data from VPK files")
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
+        set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+        set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+        set(CPACK_MONOLITHIC_INSTALL ON)
+        set(CPACK_PACKAGE_EXECUTABLES "vpktool;VPKTool")
+        if(WIN32)
+            set(CPACK_GENERATOR "NSIS")
+            set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+            set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+            set(CPACK_NSIS_DISPLAY_NAME "VPKTool")
+            set(CPACK_NSIS_PACKAGE_NAME "VPKTool")
+            set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon.ico")
+            set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
+            set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
+            set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
+            set(HELP_QUOTE "\"") # CMake is shit
+            set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+                WriteRegStr HKCR '.vpk' '' 'VPKTool'
+                WriteRegStr HKCR 'VPKTool' '' 'Valve PacK'
+                WriteRegStr HKCR 'VPKTool\\\\shell' '' 'open'
+                WriteRegStr HKCR 'VPKTool\\\\DefaultIcon' '' '$INSTDIR\\\\vpktool.exe,0'
+                WriteRegStr HKCR 'VPKTool\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\vpktool.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+                WriteRegStr HKCR 'VPKTool\\\\shell\\\\edit' '' 'Browse VPK'
+                WriteRegStr HKCR 'VPKTool\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\vpktool.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+                System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
+            ")
+            set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+                DeleteRegKey HKCR '.vpk'
+                DeleteRegKey HKCR 'VPKTool'
+            ")
+        else()
+            message(STATUS "Installers on non-Windows platforms are not implemented")
+        endif()
+        include(CPack)
     endif()
 endif()
 
