@@ -12,13 +12,13 @@ VTFImage::VTFImage(QWidget* parent)
         : QWidget(parent)
         , currentFace(1)
         , currentFrame(1)
-        , currentMip(1)
+        , currentMip(0)
         , zoom(1.f) {}
 
 void VTFImage::setImage(const std::vector<std::byte>& data) {
     this->vtf = std::make_unique<VTFLib::CVTFFile>();
     this->vtf->Load(data.data(), data.size());
-    this->decodeImage(1, 1, 1);
+    this->decodeImage(1, 1, 0);
     this->zoom = 1.f;
 }
 
@@ -64,7 +64,7 @@ void VTFImage::paintEvent(QPaintEvent* event) {
             this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
             this->currentMip, imageWidth, imageHeight, imageDepth);
 
-    auto realZoom = pow(2, this->currentMip - 1) * this->zoom;
+    auto realZoom = pow(2, this->currentMip) * this->zoom;
 
     QRect target = QRect((this->width() - (int) ((float) imageWidth * realZoom)) / 2,
                          (this->height() - (int) ((float) imageHeight * realZoom)) / 2,
@@ -144,7 +144,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     auto* mipSpinLabel = new QLabel(tr("Mip"), mipSpinParent);
     mipSpinLayout->addWidget(mipSpinLabel);
     this->mipSpin = new QSpinBox(controls);
-    this->mipSpin->setMinimum(1);
+    this->mipSpin->setMinimum(0);
     connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
         this->image->setMip(this->mipSpin->value());
         this->image->repaint();
@@ -174,8 +174,8 @@ void VTFPreview::setImage(const std::vector<std::byte>& data) {
     this->faceSpin->setValue(1);
     this->faceSpin->setDisabled(this->image->getMaxFace() == 1);
 
-    this->mipSpin->setMaximum(this->image->getMaxMip());
-    this->mipSpin->setValue(1);
+    this->mipSpin->setMaximum(this->image->getMaxMip() - 1);
+    this->mipSpin->setValue(0);
     this->mipSpin->setDisabled(this->image->getMaxMip() == 1);
 
     this->zoomSlider->setValue(100);
