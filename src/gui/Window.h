@@ -19,6 +19,8 @@ public:
 
     void open(const QString& path);
 
+    void closeFile();
+
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const QString& path);
 
     [[nodiscard]] QString readTextEntry(const QString& path);
@@ -40,6 +42,7 @@ private:
     FileViewer* fileViewer;
     std::optional<vpktool::VPK> vpk;
 
+    QAction* closeFileAction;
     QAction* extractAllAction;
 
     void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);

@@ -19,15 +19,19 @@ Window::Window(QWidget* parent)
         : QMainWindow(parent) {
     this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
-    this->setMinimumSize(600, 500);
+    this->setMinimumSize(800, 500);
 
     // File menu
     auto* fileMenu = menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogOpenButton), tr("Open"), [=] {
+    fileMenu->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open"), [=] {
         this->open();
     });
+    this->closeFileAction = fileMenu->addAction(style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
+        this->closeFile();
+    });
+    this->closeFileAction->setDisabled(true);
     fileMenu->addSeparator();
-    fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogCloseButton), tr("Exit"), [=] {
+    fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
         this->close();
     });
 
@@ -83,12 +87,20 @@ void Window::open(const QString& path) {
     if (!this->vpk) {
         QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
                                                  "\"directory\" VPK (typically ending in _dir), not a VPK that "
-                                                 "ends with 3 numbers.");
+                                                 "ends with 3 numbers. Loading a directory VPK will allow you "
+                                                 "to browse the contents of the numbered archives next to it.");
         return;
     }
 
+    this->closeFileAction->setDisabled(false);
     this->extractAllAction->setDisabled(false);
     this->entryTree->loadVPK(this->vpk.value());
+    this->fileViewer->displayDir(QString());
+}
+
+void Window::closeFile() {
+    this->clearContents();
+    this->vpk = std::nullopt;
 }
 
 std::vector<std::byte> Window::readBinaryEntry(const QString& path) {
@@ -176,6 +188,7 @@ void Window::extractAll(QString saveDir) {
 void Window::clearContents() {
     this->entryTree->clearContents();
     this->fileViewer->clearContents();
+    this->closeFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
 }
 
