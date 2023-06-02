@@ -60,15 +60,6 @@ jobs:
             ${{env.BUILD_DIR}}/styles/*.dll
           retention-days: 7
 
-      - name: Install NSIS
-        run: |
-          iwr -useb get.scoop.sh -outfile 'install.ps1'
-          .\install.ps1 -RunAsAdmin
-          scoop update
-          scoop bucket add extras
-          scoop install nsis
-          makensis -VERSION
-
       - name: Create Installer
         working-directory: ${{env.BUILD_DIR}}
         run: cpack
