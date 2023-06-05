@@ -54,8 +54,8 @@ Window::Window(QWidget* parent)
                            "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
                            "modified by Joshua Ashton and Strata Source Contributors");
     });
-    helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [] {
-        qApp->aboutQt(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
+        QMessageBox::aboutQt(this);
     });
 
     // Split content into two resizeable panes
