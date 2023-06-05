@@ -2,6 +2,7 @@
 Code was based off of https://github.com/SteamDatabase/ValvePak and the Valve Developer Wiki.
 The libvpktool library allows the user to read entries in a VPK, as well as their contents.
 
-A GUI is also included to visually read and extract data from VPKs:
+A GUI is also included to visually read and extract data from VPKs.
+It has all the capabilities of GCFScape plus a few extra features:
 
-![image](https://github.com/craftablescience/VPKTool/assets/26600014/16e4273d-63ca-4502-8688-23d158ecb65c)
+![image](https://media.discordapp.net/attachments/778091243723948074/1115127477619142686/image.png?width=1125&height=662)
