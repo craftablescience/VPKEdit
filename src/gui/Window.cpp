@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <cstdlib>
+
 #include <QApplication>
 #include <QFile>
 #include <QFileDialog>
@@ -101,9 +103,10 @@ Window::Window(QWidget* parent)
     this->clearContents();
 
     // Load the VPK if given one through the command-line or double-clicking a file
+    // An error here means shut the application down
     const auto& args = QApplication::arguments();
-    if (args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) {
-        this->open(args[1]);
+    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->open(args[1])) {
+        exit(1);
     }
 }
 
@@ -115,7 +118,7 @@ void Window::open() {
     this->open(path);
 }
 
-void Window::open(const QString& path) {
+bool Window::open(const QString& path) {
     QString fixedPath(path);
     fixedPath.replace('\\', '/');
 
@@ -126,7 +129,7 @@ void Window::open(const QString& path) {
                                                  "\"directory\" VPK (typically ending in _dir), not a VPK that "
                                                  "ends with 3 numbers. Loading a directory VPK will allow you "
                                                  "to browse the contents of the numbered archives next to it.");
-        return;
+        return false;
     }
 
     this->statusText->hide();
@@ -142,6 +145,8 @@ void Window::open(const QString& path) {
         this->statusText->show();
         this->statusProgressBar->hide();
     });
+
+    return true;
 }
 
 void Window::closeFile() {

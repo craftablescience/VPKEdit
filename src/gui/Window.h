@@ -21,7 +21,7 @@ public:
 
     void open();
 
-    void open(const QString& path);
+    bool open(const QString& path);
 
     void closeFile();
 
