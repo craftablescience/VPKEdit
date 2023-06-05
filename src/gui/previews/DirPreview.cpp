@@ -49,21 +49,23 @@ void DirPreview::setPath(const QList<QString>& subfolders, const QList<QString>&
         auto* typeItem = new QTableWidgetItem(QString(entry->filename.c_str()).split(".")[1].toUpper());
         this->setItem(this->rowCount() - 1, 1, typeItem);
 
-        auto size = static_cast<double>(entry->length);
-        QString extension(" bytes");
-        if (size >= 1024) {
-            size /= 1024.0;
-            extension = " kb";
+        QTableWidgetItem* sizeItem;
+        if (entry->length < 1024) {
+            sizeItem = new QTableWidgetItem(QString::number(entry->length) + " bytes");
+        } else {
+            auto size = static_cast<double>(entry->length) / 1024.0;
+            QString extension(" kb");
+
+            if (size >= 1024) {
+                size /= 1024.0;
+                extension = " mb";
+            }
+            if (size >= 1024) {
+                size /= 1024.0;
+                extension = " gb";
+            }
+            sizeItem = new QTableWidgetItem(QString::number(size, 'f', 2) + extension);
         }
-        if (size >= 1024) {
-            size /= 1024.0;
-            extension = " mb";
-        }
-        if (size >= 1024) {
-            size /= 1024.0;
-            extension = " gb";
-        }
-        auto* sizeItem = new QTableWidgetItem(QString::number(size, 'f', 2) + extension);
         this->setItem(this->rowCount() - 1, 2, sizeItem);
 
         auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->preloadedData.size()) + " bytes");
