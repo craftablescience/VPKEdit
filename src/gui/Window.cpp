@@ -47,7 +47,7 @@ Window::Window(QWidget* parent)
     helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
         QMessageBox::about(this, tr("About"),
                            "VPKTool created by craftablescience\n\n"
-                           "Uses VTFLib by Neil 'Jed' Jedrzejewski & Ryan Gregg, "
+                           "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
                            "modified by Joshua Ashton and Strata Source Contributors");
     });
     helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [] {
