@@ -5,4 +5,4 @@ The libvpktool library allows the user to read entries in a VPK, as well as thei
 A GUI is also included to visually read and extract data from VPKs.
 It has all the capabilities of GCFScape plus a few extra features:
 
-![image](https://media.discordapp.net/attachments/778091243723948074/1115127477619142686/image.png?width=1125&height=662)
+![image](https://media.discordapp.net/attachments/778091243723948074/1115176412618432553/image.png)
