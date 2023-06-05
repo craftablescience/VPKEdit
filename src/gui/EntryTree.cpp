@@ -106,6 +106,38 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
     workerThread->start();
 }
 
+void EntryTree::setSearchQuery(const QString& query) {
+    for (QTreeWidgetItemIterator it(this); *it; ++it) {
+        QTreeWidgetItem* item = (*it);
+        item->setHidden(false);
+        if (item->childCount() == 0 && !item->text(0).contains(query, Qt::CaseInsensitive)) {
+            item->setHidden(true);
+        }
+    }
+    int dirsTouched;
+    do {
+        dirsTouched = 0;
+        for (QTreeWidgetItemIterator it(this); *it; ++it) {
+            QTreeWidgetItem* item = (*it);
+            if (item->isHidden() || item->childCount() == 0) {
+                continue;
+            }
+            bool hasChildNotHidden = false;
+            for (int i = 0; i < item->childCount(); i++) {
+                if (!item->child(i)->isHidden()) {
+                    hasChildNotHidden = true;
+                }
+            }
+            if (!hasChildNotHidden) {
+                dirsTouched++;
+                item->setHidden(true);
+            }
+        }
+    } while (dirsTouched != 0);
+
+    this->root->setHidden(false);
+}
+
 void EntryTree::clearContents() {
     this->root = nullptr;
     this->clear();

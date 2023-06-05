@@ -69,6 +69,9 @@ Window::Window(QWidget* parent)
 
     this->searchBar = new QLineEdit(leftPane);
     this->searchBar->setPlaceholderText(QString("Find..."));
+    connect(this->searchBar, &QLineEdit::returnPressed, this, [=] {
+        this->entryTree->setSearchQuery(this->searchBar->text());
+    });
     leftPaneLayout->addWidget(this->searchBar);
 
     this->entryTree = new EntryTree(this, leftPane);
@@ -233,6 +236,7 @@ void Window::clearContents() {
     this->statusText->setText(' ' + tr("Ready"));
     this->statusProgressBar->hide();
 
+    this->searchBar->setText(QString(""));
     this->searchBar->setDisabled(true);
 
     this->entryTree->clearContents();
@@ -241,9 +245,6 @@ void Window::clearContents() {
 
     this->closeFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
-
-    // todo: make a search bar
-    this->searchBar->hide();
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {

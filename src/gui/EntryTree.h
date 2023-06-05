@@ -20,6 +20,8 @@ public:
 
     void loadVPK(vpktool::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
+    void setSearchQuery(const QString& query);
+
     void clearContents();
 
 public slots:
