@@ -1,8 +1,9 @@
 #include "FileViewer.h"
 
 #include <QHBoxLayout>
-#include <QTextEdit>
 
+#include "previews/DirPreview.h"
+#include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
 #include "Window.h"
 
@@ -14,21 +15,17 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    this->textEdit = new QTextEdit(this);
-    this->textEdit->setReadOnly(true);
+    this->dirPreview = new DirPreview(this);
+    layout->addWidget(this->dirPreview);
 
-    QFont monospace;
-    monospace.setFamily("Lucida Console");
-    monospace.setStyleHint(QFont::Monospace);
-    this->textEdit->setFont(monospace);
+    this->textPreview = new TextPreview(this);
+    layout->addWidget(this->textPreview);
 
-    layout->addWidget(textEdit);
-
-    this->image = new VTFPreview(this);
-    layout->addWidget(this->image);
+    this->imagePreview = new VTFPreview(this);
+    layout->addWidget(this->imagePreview);
 
     this->clearContents();
-    this->setTextEditVisible();
+    this->setTextPreviewVisible();
 }
 
 void FileViewer::displayEntry(const QString& path) {
@@ -46,26 +43,40 @@ void FileViewer::displayEntry(const QString& path) {
         path.endsWith(".vmf") || // hey you never know
         path.endsWith(".vmt")) {
         // It's text
-        this->textEdit->setText(this->window->readTextEntry(path));
-        this->setTextEditVisible();
+        this->textPreview->setText(this->window->readTextEntry(path));
+        this->setTextPreviewVisible();
     } else if (path.endsWith(".vtf")) {
         // VTF (image)
-        this->image->setImage(this->window->readBinaryEntry(path));
-        this->setImageVisible();
+        this->imagePreview->setImage(this->window->readBinaryEntry(path));
+        this->setImagePreviewVisible();
     }
 }
 
+void FileViewer::displayDir(const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
+    this->clearContents();
+    this->dirPreview->setPath(subfolders, entryPaths, vpk);
+    this->setDirPreviewVisible();
+}
+
 void FileViewer::clearContents() {
-    this->textEdit->setText("");
-    this->setTextEditVisible();
+    this->textPreview->setText("");
+    this->setTextPreviewVisible();
 }
 
-void FileViewer::setTextEditVisible() {
-    this->textEdit->show();
-    this->image->hide();
+void FileViewer::setDirPreviewVisible() {
+    this->dirPreview->show();
+    this->textPreview->hide();
+    this->imagePreview->hide();
 }
 
-void FileViewer::setImageVisible() {
-    this->image->show();
-    this->textEdit->hide();
+void FileViewer::setTextPreviewVisible() {
+    this->dirPreview->hide();
+    this->textPreview->show();
+    this->imagePreview->hide();
+}
+
+void FileViewer::setImagePreviewVisible() {
+    this->dirPreview->hide();
+    this->textPreview->hide();
+    this->imagePreview->show();
 }

@@ -16,7 +16,7 @@ public:
     void clearContents();
 
 public slots:
-    void onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* /*previous*/);
+    void onItemClicked(QTreeWidgetItem* item, int /*column*/);
 
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);

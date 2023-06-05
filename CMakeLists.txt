@@ -62,6 +62,10 @@ if(VPKTOOL_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
 
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/EntryTree.h"

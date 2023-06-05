@@ -27,6 +27,8 @@ public:
 
     void selectEntry(const QString& path);
 
+    void selectDir(const QList<QString>& subfolders, const QList<QString>& entryPaths);
+
     void extractFile(const QString& path, QString savePath = QString());
 
     void extractFilesIf(const QString& saveDir, const std::function<bool(const QString&)>& predicate);

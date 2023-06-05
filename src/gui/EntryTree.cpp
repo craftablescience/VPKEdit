@@ -54,7 +54,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
         }
     });
 
-    connect(this, &QTreeWidget::currentItemChanged, this, &EntryTree::onCurrentItemChanged);
+    connect(this, &QTreeWidget::itemClicked, this, &EntryTree::onItemClicked);
 
     this->clearContents();
 }
@@ -62,7 +62,6 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 void EntryTree::loadVPK(VPK& vpk) {
     this->root = new QTreeWidgetItem(this);
     this->root->setText(0, vpk.getPrettyFileName().data());
-    this->root->setExpanded(true);
 
     for (const auto& [directory, entries] : vpk.getEntries()) {
         for (const auto& entry : entries) {
@@ -97,6 +96,9 @@ void EntryTree::loadVPK(VPK& vpk) {
         }
     }
     this->sortItems(0, Qt::AscendingOrder);
+    this->root->setSelected(true);
+    // Fire the click manually to show root contents
+    this->onItemClicked(this->root, 0);
 }
 
 void EntryTree::clearContents() {
@@ -104,12 +106,25 @@ void EntryTree::clearContents() {
     this->clear();
 }
 
-void EntryTree::onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* /*previous*/) {
-    if (!current || current->childCount() != 0) {
-        return;
+void EntryTree::onItemClicked(QTreeWidgetItem* item, int /*column*/) {
+    item->setExpanded(!item->isExpanded());
+
+    auto path = this->getItemPath(item);
+    if (item->childCount() == 0) {
+        this->window->selectEntry(path);
+    } else {
+        QList<QString> subfolders;
+        QList<QString> entryPaths;
+        for (int i = 0; i < item->childCount(); i++) {
+            auto* child = item->child(i);
+            if (child->childCount() == 0) {
+                entryPaths << this->getItemPath(child);
+            } else {
+                subfolders << child->text(0);
+            }
+        }
+        this->window->selectDir(subfolders, entryPaths);
     }
-    auto path = this->getItemPath(current);
-    this->window->selectEntry(path);
 }
 
 QString EntryTree::getItemPath(QTreeWidgetItem* item) {

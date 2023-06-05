@@ -19,7 +19,7 @@ Window::Window(QWidget* parent)
         : QMainWindow(parent) {
     this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
-    this->setMinimumSize(800, 500);
+    this->setMinimumSize(900, 500);
 
     // File menu
     auto* fileMenu = menuBar()->addMenu(tr("File"));
@@ -95,7 +95,6 @@ void Window::open(const QString& path) {
     this->closeFileAction->setDisabled(false);
     this->extractAllAction->setDisabled(false);
     this->entryTree->loadVPK(this->vpk.value());
-    this->fileViewer->displayDir(QString());
 }
 
 void Window::closeFile() {
@@ -121,6 +120,10 @@ QString Window::readTextEntry(const QString& path) {
 
 void Window::selectEntry(const QString& path) {
     this->fileViewer->displayEntry(path);
+}
+
+void Window::selectDir(const QList<QString>& subfolders, const QList<QString>& entryPaths) {
+    this->fileViewer->displayDir(subfolders, entryPaths, this->vpk.value());
 }
 
 void Window::extractFile(const QString& path, QString savePath) {

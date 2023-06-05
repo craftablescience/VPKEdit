@@ -4,6 +4,14 @@
 
 class QTextEdit;
 
+namespace vpktool {
+
+class VPK;
+
+} // namespace vpktool
+
+class DirPreview;
+class TextPreview;
 class VTFPreview;
 class Window;
 
@@ -15,14 +23,18 @@ public:
 
     void displayEntry(const QString& path);
 
+    void displayDir(const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+
     void clearContents();
 
 private:
     Window* window;
 
-    QTextEdit* textEdit;
-    VTFPreview* image;
+    DirPreview* dirPreview;
+    TextPreview* textPreview;
+    VTFPreview* imagePreview;
 
-    void setTextEditVisible();
-    void setImageVisible();
+    void setDirPreviewVisible();
+    void setTextPreviewVisible();
+    void setImagePreviewVisible();
 };
