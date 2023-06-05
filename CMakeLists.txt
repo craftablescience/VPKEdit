@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
-project(vpktool VERSION 2.1.0 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
+project(vpktool VERSION 2.1.1 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
 set(CMAKE_CXX_STANDARD 17)
 
 option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
