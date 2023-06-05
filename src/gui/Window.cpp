@@ -116,8 +116,11 @@ void Window::open() {
 }
 
 void Window::open(const QString& path) {
+    QString fixedPath(path);
+    fixedPath.replace('\\', '/');
+
     this->clearContents();
-    this->vpk = VPK::open(path.toStdString());
+    this->vpk = VPK::open(fixedPath.toStdString());
     if (!this->vpk) {
         QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
                                                  "\"directory\" VPK (typically ending in _dir), not a VPK that "
