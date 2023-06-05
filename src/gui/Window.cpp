@@ -4,9 +4,12 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSplitter>
+#include <QStatusBar>
 #include <QStyle>
 
 #include "Config.h"
@@ -54,19 +57,43 @@ Window::Window(QWidget* parent)
         qApp->aboutQt(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
     });
 
+    // Split content into two resizeable panes
     auto* splitter = new QSplitter(Qt::Horizontal, this);
     this->setCentralWidget(splitter);
 
-    auto* hbox = new QHBoxLayout(splitter);
+    // Left pane
+    auto* leftPane = new QWidget(splitter);
+    auto* leftPaneLayout = new QVBoxLayout(leftPane);
+    leftPaneLayout->setContentsMargins(4, 4, 0, 0);
 
-    this->entryTree = new EntryTree(this, splitter);
-    hbox->addWidget(this->entryTree);
+    this->searchBar = new QLineEdit(leftPane);
+    this->searchBar->setPlaceholderText(QString("Find..."));
+    leftPaneLayout->addWidget(this->searchBar);
 
-    this->fileViewer = new FileViewer(this, splitter);
-    hbox->addWidget(this->fileViewer);
+    this->entryTree = new EntryTree(this, leftPane);
+    leftPaneLayout->addWidget(this->entryTree);
 
-    splitter->setStretchFactor(1, 2);
+    splitter->addWidget(leftPane);
 
+    // Right pane
+    auto* rightPane = new QWidget(splitter);
+    auto* rightPaneLayout = new QVBoxLayout(rightPane);
+    rightPaneLayout->setContentsMargins(0, 4, 4, 0);
+
+    this->fileViewer = new FileViewer(this, rightPane);
+    rightPaneLayout->addWidget(this->fileViewer);
+
+    splitter->addWidget(rightPane);
+
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 20); // qt "stretch factor" can go fuck itself this is a magic number that works
+
+    this->statusText = new QLabel(this->statusBar());
+    this->statusBar()->addPermanentWidget(this->statusText, 1);
+
+    this->clearContents();
+
+    // Load the VPK if given one through the command-line or double-clicking a file
     const auto& args = QApplication::arguments();
     if (args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) {
         this->open(args[1]);
@@ -91,10 +118,18 @@ void Window::open(const QString& path) {
                                                  "to browse the contents of the numbered archives next to it.");
         return;
     }
+    // In case I add a progress bar on the status bar one day
+    this->statusText->hide();
+
+    this->searchBar->setDisabled(false);
+
+    this->entryTree->loadVPK(this->vpk.value());
 
     this->closeFileAction->setDisabled(false);
     this->extractAllAction->setDisabled(false);
-    this->entryTree->loadVPK(this->vpk.value());
+
+    this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
+    this->statusText->show();
 }
 
 void Window::closeFile() {
@@ -189,10 +224,19 @@ void Window::extractAll(QString saveDir) {
 }
 
 void Window::clearContents() {
+    this->statusText->setText(' ' + tr("Ready"));
+
+    this->searchBar->setDisabled(true);
+
     this->entryTree->clearContents();
+
     this->fileViewer->clearContents();
+
     this->closeFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
+
+    // todo: make a search bar
+    this->searchBar->hide();
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {

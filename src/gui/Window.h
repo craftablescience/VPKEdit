@@ -6,6 +6,9 @@
 #include <QMainWindow>
 #include <vpktool/VPK.h>
 
+class QLabel;
+class QLineEdit;
+
 class EntryTree;
 class FileViewer;
 
@@ -40,6 +43,8 @@ public:
     void clearContents();
 
 private:
+    QLabel* statusText;
+    QLineEdit* searchBar;
     EntryTree* entryTree;
     FileViewer* fileViewer;
     std::optional<vpktool::VPK> vpk;

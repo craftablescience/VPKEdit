@@ -10,6 +10,7 @@ using namespace vpktool;
 EntryTree::EntryTree(Window* window_, QWidget* parent)
         : QTreeWidget(parent)
         , window(window_) {
+    this->setMinimumWidth(200);
     this->setHeaderHidden(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
