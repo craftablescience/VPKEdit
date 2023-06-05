@@ -46,7 +46,7 @@ std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen) {
 bool VPK::open(VPK& vpk) {
     vpk.reader.seek(0);
     vpk.reader.read(vpk.header1);
-    if (vpk.header1.signature != 0x55AA1234) {
+    if (vpk.header1.signature != VPK_ID) {
         // File is not a VPK
         return false;
     }
@@ -136,15 +136,23 @@ bool VPK::open(VPK& vpk) {
     if (vpk.header2.otherMD5SectionSize != 48)
         return false;
 
-    vpk.treeChecksum = vpk.reader.readBytes<16>();
-    vpk.md5EntriesChecksum = vpk.reader.readBytes<16>();
-    vpk.wholeFileChecksum = vpk.reader.readBytes<16>();
+    vpk.footer2.treeChecksum = vpk.reader.readBytes<16>();
+    vpk.footer2.md5EntriesChecksum = vpk.reader.readBytes<16>();
+    vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
 
-    if (!vpk.header2.signatureSectionSize)
+    vpk.footer2.cs2VPK = false;
+    if (!vpk.header2.signatureSectionSize) {
         return true;
+    }
 
-    vpk.publicKey = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
-    vpk.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
+    auto publicKeySize = vpk.reader.read<std::int32_t>();
+    if (vpk.header2.signatureSectionSize == 20 && publicKeySize == VPK_ID) {
+        vpk.footer2.cs2VPK = true;
+        return true;
+    }
+
+    vpk.footer2.publicKey = vpk.reader.readBytes(publicKeySize);
+    vpk.footer2.signature = vpk.reader.readBytes(vpk.reader.read<std::int32_t>());
 
     return true;
 }
@@ -197,7 +205,7 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
         return output;
     }
 
-    if (entry.archiveIndex != 0x7fff) {
+    if (entry.archiveIndex != VPK_DIR_INDEX) {
         char name[1024] {0};
         snprintf(name, sizeof(name) - 1, "%s_%03d.vpk", this->filename.c_str(), entry.archiveIndex);
         InputStream stream{name};

@@ -28,35 +28,35 @@ Window::Window(QWidget* parent)
     this->setMinimumSize(900, 500);
 
     // File menu
-    auto* fileMenu = menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open"), [=] {
+    auto* fileMenu = this->menuBar()->addMenu(tr("File"));
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open"), [=] {
         this->open();
     });
-    this->closeFileAction = fileMenu->addAction(style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
+    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
         this->closeFile();
     });
     this->closeFileAction->setDisabled(true);
     fileMenu->addSeparator();
-    fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
         this->close();
     });
 
     // Edit menu
-    auto* editMenu = menuBar()->addMenu(tr("Edit"));
-    this->extractAllAction = editMenu->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"), [=] {
+    auto* editMenu = this->menuBar()->addMenu(tr("Edit"));
+    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"), [=] {
         this->extractAll();
     });
     this->extractAllAction->setDisabled(true);
 
     // Help menu
-    auto* helpMenu = menuBar()->addMenu(tr("Help"));
-    helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
+    auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
         QMessageBox::about(this, tr("About"),
                            "VPKTool created by craftablescience\n\n"
                            "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
                            "modified by Joshua Ashton and Strata Source Contributors");
     });
-    helpMenu->addAction(style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
         QMessageBox::aboutQt(this);
     });
 

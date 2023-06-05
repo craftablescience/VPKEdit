@@ -72,8 +72,8 @@ void DirPreview::setPath(const QList<QString>& subfolders, const QList<QString>&
         this->setItem(this->rowCount() - 1, 3, preloadedSizeItem);
 
         auto archiveIndex = entry->archiveIndex;
-        // If the archive index is 0x7fff, it's included in the directory VPK
-        auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == 0x7fff ? QString("N/A") : QString::number(archiveIndex));
+        // If the archive index is the dir index, it's included in the directory VPK
+        auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
         this->setItem(this->rowCount() - 1, 4, archiveIndexItem);
     }
 }

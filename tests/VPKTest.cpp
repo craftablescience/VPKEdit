@@ -9,8 +9,8 @@
 using namespace vpktool;
 
 TEST(VPK, read) {
-    // Going to assume this is my computer lol
-    // Install Portal 2 on your Windows C drive for this to work
+    // Going to assume this is my (Windows) computer lol
+    // Needs Portal 2 installed on your C drive
     auto vpk = VPK::open(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
     ASSERT_TRUE(vpk);
 

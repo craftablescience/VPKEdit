@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
@@ -9,6 +10,9 @@
 #include "InputStream.h"
 
 namespace vpktool {
+
+constexpr std::uint32_t VPK_ID = 0x55aa1234;
+constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
 
 struct VPKEntry {
     /// File name of this entry (e.g. "cable.vmt")
@@ -45,6 +49,16 @@ private:
         std::uint32_t signatureSectionSize;
     };
 
+    struct Footer2 {
+        std::array<std::byte, 16> treeChecksum{};
+        std::array<std::byte, 16> md5EntriesChecksum{};
+        std::array<std::byte, 16> wholeFileChecksum{};
+        /// If the public key size is VPK_ID it's a CS2 vpk (and probably has no key or signature?)
+        bool cs2VPK = false;
+        std::vector<std::byte> publicKey{};
+        std::vector<std::byte> signature{};
+    };
+
     struct MD5Entry {
         /// The CRC32 checksum of this entry.
         std::uint32_t archiveIndex;
@@ -53,7 +67,7 @@ private:
         /// The length in bytes.
         std::uint32_t length;
         /// The expected Checksum checksum.
-        std::byte checksum[16];
+        std::array<std::byte, 16> checksum;
     };
 #pragma pack(pop)
 
@@ -100,13 +114,9 @@ protected:
 
     std::string filename;
 
-    Header1 header1{};
-    Header2 header2{};
-    std::array<std::byte, 16> treeChecksum{};
-    std::array<std::byte, 16> md5EntriesChecksum{};
-    std::array<std::byte, 16> wholeFileChecksum{};
-    std::vector<std::byte> publicKey;
-    std::vector<std::byte> signature;
+    Header1 header1{}; // Present in all VPK versions
+    Header2 header2{}; // Present in VPK v2
+    Footer2 footer2{}; // Present in VPK v2
 
     std::unordered_map<std::string, std::vector<VPKEntry>> entries;
     std::vector<MD5Entry> md5Entries;
