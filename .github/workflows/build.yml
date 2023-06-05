@@ -78,7 +78,7 @@ jobs:
       matrix:
         build_type: [Debug, Release]
         compiler: [gcc, clang]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -92,7 +92,7 @@ jobs:
         if: ${{ matrix.compiler == 'gcc' }}
         uses: egor-tensin/setup-gcc@v1
         with:
-          version: 12
+          version: 11
           platform: x64
 
       - name: Install Clang
