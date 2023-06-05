@@ -1,7 +1,9 @@
 #include "EntryTree.h"
 
 #include <QMenu>
+#include <QProgressBar>
 #include <QStyle>
+#include <QThread>
 
 #include "Window.h"
 
@@ -14,6 +16,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     this->setHeaderHidden(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    this->workerThread = nullptr;
     this->root = nullptr;
 
     auto* contextMenuFile = new QMenu(this);
@@ -60,46 +63,47 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     this->clearContents();
 }
 
-void EntryTree::loadVPK(VPK& vpk) {
+void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
     this->root = new QTreeWidgetItem(this);
     this->root->setText(0, vpk.getPrettyFileName().data());
 
-    for (const auto& [directory, entries] : vpk.getEntries()) {
-        for (const auto& entry : entries) {
-            QStringList components = (QString(directory.c_str()) + '/' + entry.filename.c_str()).split('/', Qt::SkipEmptyParts);
-            QTreeWidgetItem* currentItem = nullptr;
+    // Set up progress bar
+    progressBar->setMinimum(0);
+    progressBar->setMaximum(static_cast<int>(vpk.getEntries().size()));
+    progressBar->setValue(0);
 
-            for (const auto& component : components) {
-                QTreeWidgetItem* newItem = nullptr;
+    // Don't let the user touch anything
+    this->setDisabled(true);
+    this->root->setDisabled(true);
 
-                // Find the child item with the current component text under the current parent item
-                int childCount = currentItem ? currentItem->childCount() : this->root->childCount();
-                for (int i = 0; i < childCount; ++i) {
-                    QTreeWidgetItem* childItem = currentItem ? currentItem->child(i) : this->root->child(i);
-                    if (childItem->text(0) == component) {
-                        newItem = childItem;
-                        break;
-                    }
-                }
+    // Set up thread
+    this->workerThread = new QThread(this);
+    auto* worker = new LoadVPKWorker();
+    worker->moveToThread(this->workerThread);
+    connect(this->workerThread, &QThread::started, worker, [this, worker, &vpk] {
+        worker->run(this, vpk);
+    });
+    connect(worker, &LoadVPKWorker::progressUpdated, this, [progressBar] {
+        progressBar->setValue(progressBar->value() + 1);
+    });
+    connect(worker, &LoadVPKWorker::taskFinished, this, [this, finishCallback] {
+        // Kill thread
+        this->workerThread->quit();
+        this->workerThread->wait();
+        delete this->workerThread;
+        this->workerThread = nullptr;
 
-                // If the child item doesn't exist, create a new one
-                if (!newItem) {
-                    if (currentItem) {
-                        newItem = new QTreeWidgetItem(currentItem);
-                    } else {
-                        newItem = new QTreeWidgetItem(this->root);
-                    }
-                    newItem->setText(0, component);
-                }
+        // Ok we've loaded let them touch it
+        this->setDisabled(false);
+        this->root->setDisabled(false);
 
-                currentItem = newItem;
-            }
-        }
-    }
-    this->sortItems(0, Qt::AscendingOrder);
-    this->root->setSelected(true);
-    // Fire the click manually to show root contents
-    this->onItemClicked(this->root, 0);
+        // Fire the click manually to show root contents
+        this->root->setSelected(true);
+        this->onItemClicked(this->root, 0);
+
+        finishCallback();
+    });
+    workerThread->start();
 }
 
 void EntryTree::clearContents() {
@@ -138,4 +142,43 @@ QString EntryTree::getItemPath(QTreeWidgetItem* item) {
         path.prepend(item->text(0));
     }
     return path;
+}
+
+void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {
+    int progress = 0;
+    for (const auto& [directory, entries] : vpk.getEntries()) {
+        emit progressUpdated(++progress);
+        for (const auto& entry : entries) {
+            QStringList components = (QString(directory.c_str()) + '/' + entry.filename.c_str()).split('/', Qt::SkipEmptyParts);
+            QTreeWidgetItem* currentItem = nullptr;
+
+            for (const auto& component : components) {
+                QTreeWidgetItem* newItem = nullptr;
+
+                // Find the child item with the current component text under the current parent item
+                int childCount = currentItem ? currentItem->childCount() : tree->root->childCount();
+                for (int i = 0; i < childCount; ++i) {
+                    QTreeWidgetItem* childItem = currentItem ? currentItem->child(i) : tree->root->child(i);
+                    if (childItem->text(0) == component) {
+                        newItem = childItem;
+                        break;
+                    }
+                }
+
+                // If the child item doesn't exist, create a new one
+                if (!newItem) {
+                    if (currentItem) {
+                        newItem = new QTreeWidgetItem(currentItem);
+                    } else {
+                        newItem = new QTreeWidgetItem(tree->root);
+                    }
+                    newItem->setText(0, component);
+                }
+
+                currentItem = newItem;
+            }
+        }
+    }
+    tree->sortItems(0, Qt::AscendingOrder);
+    emit taskFinished();
 }

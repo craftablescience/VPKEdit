@@ -8,6 +8,7 @@
 
 class QLabel;
 class QLineEdit;
+class QProgressBar;
 
 class EntryTree;
 class FileViewer;
@@ -44,6 +45,7 @@ public:
 
 private:
     QLabel* statusText;
+    QProgressBar* statusProgressBar;
     QLineEdit* searchBar;
     EntryTree* entryTree;
     FileViewer* fileViewer;

@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
@@ -89,7 +90,10 @@ Window::Window(QWidget* parent)
     splitter->setStretchFactor(1, 20); // qt "stretch factor" can go fuck itself this is a magic number that works
 
     this->statusText = new QLabel(this->statusBar());
+    this->statusProgressBar = new QProgressBar(this->statusBar());
+
     this->statusBar()->addPermanentWidget(this->statusText, 1);
+    this->statusBar()->addPermanentWidget(this->statusProgressBar, 1);
 
     this->clearContents();
 
@@ -118,18 +122,20 @@ void Window::open(const QString& path) {
                                                  "to browse the contents of the numbered archives next to it.");
         return;
     }
-    // In case I add a progress bar on the status bar one day
+
     this->statusText->hide();
+    this->statusProgressBar->show();
 
     this->searchBar->setDisabled(false);
 
-    this->entryTree->loadVPK(this->vpk.value());
+    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
+        this->closeFileAction->setDisabled(false);
+        this->extractAllAction->setDisabled(false);
 
-    this->closeFileAction->setDisabled(false);
-    this->extractAllAction->setDisabled(false);
-
-    this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
-    this->statusText->show();
+        this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
+        this->statusText->show();
+        this->statusProgressBar->hide();
+    });
 }
 
 void Window::closeFile() {
@@ -225,6 +231,7 @@ void Window::extractAll(QString saveDir) {
 
 void Window::clearContents() {
     this->statusText->setText(' ' + tr("Ready"));
+    this->statusProgressBar->hide();
 
     this->searchBar->setDisabled(true);
 
