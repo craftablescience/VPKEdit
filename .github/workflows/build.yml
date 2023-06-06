@@ -113,16 +113,6 @@ jobs:
           dir: ${{github.workspace}}/qt
           cache: true
 
-      - name: Print all the available platforms and styles (kill me)
-        working-directory: ${{github.workspace}}/qt/Qt/6.5.1/gcc_64/plugins
-        run: |
-          cd platforms
-          ls
-          echo "---"
-          cd ../styles
-          ls
-          cd ..
-
       - name: Configure CMake
         run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.1/gcc_64"
 
