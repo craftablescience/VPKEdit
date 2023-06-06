@@ -114,9 +114,12 @@ jobs:
           cache: true
 
       - name: Print all the available platforms and styles (kill me)
-        working-directory: ${{github.workspace}}/qt/Qt/6.5.1/gcc_64/bin
+        working-directory: ${{github.workspace}}/qt/Qt/6.5.1/gcc_64/
         run: |
           cd platforms
+          ls
+          echo "---"
+          cd ../plugins
           ls
           echo "---"
           cd ../styles
