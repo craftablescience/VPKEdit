@@ -128,5 +128,7 @@ jobs:
             ${{env.BUILD_DIR}}/vpktool
             ${{env.BUILD_DIR}}/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
+            ${{env.BUILD_DIR}}/platformthemes/*.so*
             ${{env.BUILD_DIR}}/styles/*.so*
+            ${{env.BUILD_DIR}}/wayland-shell-integration/*.so*
           retention-days: 7
