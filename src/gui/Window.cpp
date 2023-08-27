@@ -18,6 +18,7 @@
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
+#include "FilesystemSearchProvider.h"
 
 using namespace vpktool;
 
@@ -29,9 +30,32 @@ Window::Window(QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open"), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open..."), [=] {
         this->open();
     });
+
+    CFileSystemSearchProvider provider;
+    if(provider.Available()) {
+        auto appCount = provider.GetNumInstalledApps();
+        auto appids = provider.GetInstalledAppsEX();
+        for(int i = 0; i < appCount; i++)
+        {
+            if(!provider.BIsSourceGame(appids[i]))
+                continue;
+
+            auto game = provider.GetAppInstallDirEX(appids[i]);
+
+            auto filePath = QString(game->library) + "/common/" + game->installDir;
+
+            fileMenu->addAction(QIcon(game->icon), tr("Open Relative To... ") + QString(game->gameName), [=] {
+                this->openBasedOnPath(filePath);
+            });
+            delete game;
+        }
+        delete[] appids;
+
+    }
+
     this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
         this->closeFile();
     });
@@ -108,6 +132,14 @@ Window::Window(QWidget* parent)
     if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->open(args[1])) {
         exit(1);
     }
+}
+
+void Window::openBasedOnPath(const QString& relativePath) {
+    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), relativePath, "Valve PacK (*.vpk);;All files (*.*)");
+    if (path.isEmpty()) {
+        return;
+    }
+    this->open(path);
 }
 
 void Window::open() {

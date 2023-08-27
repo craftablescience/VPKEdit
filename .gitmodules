@@ -1,3 +1,10 @@
 [submodule "src/gui/thirdparty/vtflib"]
 	path = src/gui/thirdparty/vtflib
-	url = https://github.com/StrataSource/VTFLib
+	url = https://github.com/Trico-Everfire/VTFLib
+	branch = feat/floating_point_support
+[submodule "src/gui/thirdparty/sapp"]
+	path = src/gui/thirdparty/sapp
+	url = https://github.com/Trico-Everfire/SteamAppPathProvider.git
+[submodule "src/gui/thirdparty/speedykeyv"]
+	path = src/gui/thirdparty/speedykeyv
+	url = https://github.com/ozxybox/SpeedyKeyV.git

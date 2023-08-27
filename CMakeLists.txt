@@ -26,6 +26,8 @@ if(VPKTOOL_BUILD_GUI)
 
     set(VTFLIB_STATIC OFF CACHE BOOL "" FORCE)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/vtflib")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp")
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/speedykeyv")
     set_target_properties(
             vtflib PROPERTIES
             # I don't know which one of these puts it next to the executable so let's do all of them!
@@ -85,7 +87,7 @@ if(VPKTOOL_BUILD_GUI)
             ${${PROJECT_NAME}_SOURCES})
 
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib Qt6::Core Qt6::Gui Qt6::Widgets)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib SAPP keyvalues Qt6::Core Qt6::Gui Qt6::Widgets)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/include"

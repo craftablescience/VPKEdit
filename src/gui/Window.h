@@ -55,4 +55,6 @@ private:
     QAction* extractAllAction;
 
     void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);
+
+    void openBasedOnPath(const QString &relativePath);
 };
