@@ -36,24 +36,25 @@ Window::Window(QWidget* parent)
 
     CFileSystemSearchProvider provider;
     if(provider.Available()) {
-        auto appCount = provider.GetNumInstalledApps();
-        auto appids = provider.GetInstalledAppsEX();
-        for(int i = 0; i < appCount; i++)
+        auto installedSteamAppCount = provider.GetNumInstalledApps();
+        auto* steamAppIDs = provider.GetInstalledAppsEX();
+
+        for(int i = 0; i < installedSteamAppCount; i++)
         {
-            if(!provider.BIsSourceGame(appids[i]))
+            if(!provider.BIsSourceGame(steamAppIDs[i]))
                 continue;
 
-            auto game = provider.GetAppInstallDirEX(appids[i]);
+            auto* steamGameInfo = provider.GetAppInstallDirEX(steamAppIDs[i]);
+            auto relativeDirectoryPath = QString(steamGameInfo->library) + "/common/" + steamGameInfo->installDir;
 
-            auto filePath = QString(game->library) + "/common/" + game->installDir;
-
-            fileMenu->addAction(QIcon(game->icon), tr("Open Relative To... ") + QString(game->gameName), [=] {
-                this->openBasedOnPath(filePath);
+            fileMenu->addAction(QIcon(steamGameInfo->icon), tr("Open Relative To... ") + QString(steamGameInfo->gameName), [=] {
+                this->openBasedOnPath(relativeDirectoryPath);
             });
-            delete game;
-        }
-        delete[] appids;
 
+            delete steamGameInfo;
+        }
+
+        delete[] steamAppIDs;
     }
 
     this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
