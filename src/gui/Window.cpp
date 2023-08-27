@@ -34,6 +34,8 @@ Window::Window(QWidget* parent)
         this->open();
     });
 
+    auto* relativeToMenu = fileMenu->addMenu((tr("Open Relative To...")));
+
     CFileSystemSearchProvider provider;
     if(provider.Available()) {
         auto installedSteamAppCount = provider.GetNumInstalledApps();
@@ -47,7 +49,7 @@ Window::Window(QWidget* parent)
             auto* steamGameInfo = provider.GetAppInstallDirEX(steamAppIDs[i]);
             auto relativeDirectoryPath = QString(steamGameInfo->library) + "/common/" + steamGameInfo->installDir;
 
-            fileMenu->addAction(QIcon(steamGameInfo->icon), tr("Open Relative To... ") + QString(steamGameInfo->gameName), [=] {
+            relativeToMenu->addAction(QIcon(steamGameInfo->icon), QString(steamGameInfo->gameName), [=] {
                 this->openBasedOnPath(relativeDirectoryPath);
             });
 
