@@ -208,7 +208,15 @@ void Window::extractFile(const QString& path, QString savePath) {
     }
 
     if (savePath.isEmpty()) {
-        savePath = QFileDialog::getExistingDirectory(this, tr("Save to..."));
+        QString filter;
+        if (auto index = path.lastIndexOf('.'); index >= 0) {
+            auto fileExt = path.sliced(index); // ".ext"
+            auto fileExtPretty = fileExt.toUpper();
+            fileExtPretty.remove('.');
+
+            filter = fileExtPretty + " (*" + fileExt + ");;All files (*.*)";
+        }
+        savePath = QFileDialog::getSaveFileName(this, tr("Save As..."), path, filter);
     }
     if (savePath.isEmpty()) {
         return;
