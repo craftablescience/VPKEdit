@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
-project(vpktool VERSION 2.2.0 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
+project(vpktool VERSION 2.2.1 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
 set(CMAKE_CXX_STANDARD 17)
 
 option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
@@ -60,6 +60,7 @@ if(VPKTOOL_BUILD_GUI)
     set(CMAKE_AUTORCC ON)
 
     set(VPKTOOL_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
+    set(VPKTOOL_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"

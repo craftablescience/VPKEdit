@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -57,7 +58,11 @@ Window::Window(QWidget* parent)
         this->closeFile();
     });
     this->closeFileAction->setDisabled(true);
+
     fileMenu->addSeparator();
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check for updates..."), [=] {
+        QDesktopServices::openUrl(QUrl(VPKTOOL_PROJECT_HOMEPAGE "/releases/latest"));
+    });
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
         this->close();
     });
