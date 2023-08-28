@@ -35,7 +35,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: '6.5.1'
+          version: '6.5.2'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
@@ -106,7 +106,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: '6.5.1'
+          version: '6.5.2'
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
