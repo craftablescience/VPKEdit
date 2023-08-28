@@ -19,9 +19,9 @@ class Window : public QMainWindow {
 public:
     explicit Window(QWidget* parent = nullptr);
 
-    void open();
+    void open(const QString &relativePath);
 
-    bool open(const QString& path);
+    bool loadVPK(const QString& path);
 
     void closeFile();
 
@@ -55,6 +55,4 @@ private:
     QAction* extractAllAction;
 
     void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);
-
-    void openBasedOnPath(const QString &relativePath);
 };

@@ -14,11 +14,11 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
+#include <FilesystemSearchProvider.h>
 
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
-#include "FilesystemSearchProvider.h"
 
 using namespace vpktool;
 
@@ -31,32 +31,28 @@ Window::Window(QWidget* parent)
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("File"));
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open..."), [=] {
-        this->open();
+        this->open(QString());
     });
 
-    auto* relativeToMenu = fileMenu->addMenu((tr("Open Relative To...")));
+    auto* relativeToMenu = fileMenu->addMenu(tr("Open Relative To..."));
 
     CFileSystemSearchProvider provider;
     if(provider.Available()) {
         auto installedSteamAppCount = provider.GetNumInstalledApps();
-        auto* steamAppIDs = provider.GetInstalledAppsEX();
+        std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
 
         for(int i = 0; i < installedSteamAppCount; i++)
         {
-            if(!provider.BIsSourceGame(steamAppIDs[i]))
+            if(!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
                 continue;
 
-            auto* steamGameInfo = provider.GetAppInstallDirEX(steamAppIDs[i]);
-            auto relativeDirectoryPath = QString(steamGameInfo->library) + "/common/" + steamGameInfo->installDir;
+             std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
+            auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + "/common/" + steamGameInfo->installDir);
 
             relativeToMenu->addAction(QIcon(steamGameInfo->icon), QString(steamGameInfo->gameName), [=] {
-                this->openBasedOnPath(relativeDirectoryPath);
+                this->open(relativeDirectoryPath.path());
             });
-
-            delete steamGameInfo;
         }
-
-        delete[] steamAppIDs;
     }
 
     this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
@@ -132,28 +128,20 @@ Window::Window(QWidget* parent)
     // Load the VPK if given one through the command-line or double-clicking a file
     // An error here means shut the application down
     const auto& args = QApplication::arguments();
-    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->open(args[1])) {
+    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadVPK(args[1])) {
         exit(1);
     }
 }
 
-void Window::openBasedOnPath(const QString& relativePath) {
+void Window::open(const QString &relativePath) {
     auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), relativePath, "Valve PacK (*.vpk);;All files (*.*)");
     if (path.isEmpty()) {
         return;
     }
-    this->open(path);
+    this->loadVPK(path);
 }
 
-void Window::open() {
-    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), QString(), "Valve PacK (*.vpk);;All files (*.*)");
-    if (path.isEmpty()) {
-        return;
-    }
-    this->open(path);
-}
-
-bool Window::open(const QString& path) {
+bool Window::loadVPK(const QString& path) {
     QString fixedPath(path);
     fixedPath.replace('\\', '/');
 
