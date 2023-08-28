@@ -1,6 +1,7 @@
-# Contributors:
+## Contributors
+- [Trico Everfire](https://github.com/Trico-Everfire): opening VPKs based on Steam game install location
 
-## [Trico Everifre](https://github.com/Trico-Everfire)
-### Provided:
-[Steam App Path Provider](https://github.com/Trico-Everfire/SteamAppPathProvider)
-and/for "relative to..." path to VPK searching.
+## Acknowledgements
+- VTFLib - Neil 'Jed' Jedrzejewski, Joshua Ashton, Strata Source Contributors
+- SAPP - Trico Everfire
+- SpeedyKeyV - OzxyBox
