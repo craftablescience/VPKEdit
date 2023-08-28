@@ -35,7 +35,7 @@ Window::Window(QWidget* parent)
         this->open();
     });
 
-    auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open Relative To..."));
+    auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
     if (CFileSystemSearchProvider provider; provider.Available()) {
         auto installedSteamAppCount = provider.GetNumInstalledApps();
         std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
