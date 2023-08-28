@@ -37,13 +37,12 @@ Window::Window(QWidget* parent)
     auto* relativeToMenu = fileMenu->addMenu((tr("Open Relative To...")));
 
     CFileSystemSearchProvider provider;
-    if(provider.Available()) {
+    if (provider.Available()) {
         auto installedSteamAppCount = provider.GetNumInstalledApps();
         auto* steamAppIDs = provider.GetInstalledAppsEX();
 
-        for(int i = 0; i < installedSteamAppCount; i++)
-        {
-            if(!provider.BIsSourceGame(steamAppIDs[i]))
+        for (int i = 0; i < installedSteamAppCount; i++) {
+            if (!provider.BIsSourceGame(steamAppIDs[i]))
                 continue;
 
             auto* steamGameInfo = provider.GetAppInstallDirEX(steamAppIDs[i]);
