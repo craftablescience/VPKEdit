@@ -19,9 +19,9 @@ class Window : public QMainWindow {
 public:
     explicit Window(QWidget* parent = nullptr);
 
-    void open(const QString &relativePath);
+    void open(const QString& startPath = QString());
 
-    bool loadVPK(const QString& path);
+    bool loadFile(const QString& path);
 
     void closeFile();
 

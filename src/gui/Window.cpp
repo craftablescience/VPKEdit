@@ -32,25 +32,22 @@ Window::Window(QWidget* parent)
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("File"));
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open..."), [=] {
-        this->open(QString());
+        this->open();
     });
 
-    auto* relativeToMenu = fileMenu->addMenu(tr("Open Relative To..."));
-
-    CFileSystemSearchProvider provider;
-    if(provider.Available()) {
+    auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open Relative To..."));
+    if (CFileSystemSearchProvider provider; provider.Available()) {
         auto installedSteamAppCount = provider.GetNumInstalledApps();
         std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
 
-        for(int i = 0; i < installedSteamAppCount; i++)
-        {
-            if(!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
+        for (int i = 0; i < installedSteamAppCount; i++) {
+            if (!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
                 continue;
 
-             std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
-            auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + "/common/" + steamGameInfo->installDir);
+            std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
+            auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir);
 
-            relativeToMenu->addAction(QIcon(steamGameInfo->icon), QString(steamGameInfo->gameName), [=] {
+            openRelativeToMenu->addAction(QIcon(steamGameInfo->icon), steamGameInfo->gameName, [=] {
                 this->open(relativeDirectoryPath.path());
             });
         }
@@ -78,7 +75,8 @@ Window::Window(QWidget* parent)
         QMessageBox::about(this, tr("About"),
                            "VPKTool created by craftablescience\n\n"
                            "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
-                           "modified by Joshua Ashton and Strata Source Contributors");
+                           "modified by Joshua Ashton and Strata Source Contributors.\n\n"
+                           "Please see CREDITS.md for more information.");
     });
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
         QMessageBox::aboutQt(this);
@@ -129,20 +127,20 @@ Window::Window(QWidget* parent)
     // Load the VPK if given one through the command-line or double-clicking a file
     // An error here means shut the application down
     const auto& args = QApplication::arguments();
-    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadVPK(args[1])) {
+    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadFile(args[1])) {
         exit(1);
     }
 }
 
-void Window::open(const QString &relativePath) {
-    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), relativePath, "Valve PacK (*.vpk);;All files (*.*)");
+void Window::open(const QString& startPath) {
+    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, "Valve PacK (*.vpk);;All files (*.*)");
     if (path.isEmpty()) {
         return;
     }
-    this->loadVPK(path);
+    this->loadFile(path);
 }
 
-bool Window::loadVPK(const QString& path) {
+bool Window::loadFile(const QString& path) {
     QString fixedPath(path);
     fixedPath.replace('\\', '/');
 
