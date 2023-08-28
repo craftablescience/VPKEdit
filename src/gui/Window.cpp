@@ -216,14 +216,11 @@ void Window::extractFile(const QString& path, QString savePath) {
 
             filter = fileExtPretty + " (*" + fileExt + ");;All files (*.*)";
         }
-        savePath = QFileDialog::getSaveFileName(this, tr("Save As..."), path, filter);
+        savePath = QFileDialog::getSaveFileName(this, tr("Extract as..."), path, filter);
     }
     if (savePath.isEmpty()) {
         return;
     }
-    savePath += '/';
-    savePath += entry->filename;
-
     this->writeEntryToFile(savePath, *entry);
 }
 
