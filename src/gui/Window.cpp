@@ -14,7 +14,8 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
-#include <FilesystemSearchProvider.h>
+
+#include <sapp/FilesystemSearchProvider.h>
 
 #include "Config.h"
 #include "EntryTree.h"

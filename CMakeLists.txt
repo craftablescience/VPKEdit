@@ -24,10 +24,9 @@ if(VPKTOOL_BUILD_GUI)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
     set(CMAKE_INSTALL_RPATH $ORIGIN)
 
+    # VTFLib
     set(VTFLIB_STATIC OFF CACHE BOOL "" FORCE)
-
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/vtflib")
-
     set_target_properties(
             vtflib PROPERTIES
             # I don't know which one of these puts it next to the executable so let's do all of them!
@@ -35,10 +34,13 @@ if(VPKTOOL_BUILD_GUI)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
+    # SpeedyKeyV (for SAPP)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/speedykeyv")
 
+    # SAPP
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp")
 
+    # Qt
     if(WIN32)
         if(DEFINED QT_BASEDIR)
             string(REPLACE "\\" "/" QT_BASEDIR ${QT_BASEDIR})
@@ -98,7 +100,8 @@ if(VPKTOOL_BUILD_GUI)
             "${QT_INCLUDE}"
             "${QT_INCLUDE}/QtCore"
             "${QT_INCLUDE}/QtGui"
-            "${QT_INCLUDE}/QtWidgets")
+            "${QT_INCLUDE}/QtWidgets"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp/include") # For some reason this one isn't populating automatically
     if(WIN32 AND MSVC)
         target_link_options(
                 ${PROJECT_NAME} PRIVATE
