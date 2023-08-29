@@ -112,6 +112,7 @@ jobs:
           target: 'desktop'
           arch: 'gcc_64'
           dir: ${{github.workspace}}/qt
+          modules: 'qtimageformats'
           cache: true
 
       - name: Configure CMake
