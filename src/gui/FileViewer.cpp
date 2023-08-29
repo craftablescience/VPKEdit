@@ -34,11 +34,12 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 
 void FileViewer::displayEntry(const QString& path) {
     this->clearContents();
-    if (path.endsWith(".tga") ||
-        path.endsWith(".jpg") ||
+    if (path.endsWith(".tga")  ||
+        path.endsWith(".jpg")  ||
         path.endsWith(".jpeg") ||
         path.endsWith(".jfif") ||
-        path.endsWith(".png") ||
+        path.endsWith(".png")  ||
+        path.endsWith(".webp") ||
         path.endsWith(".bmp")) {
         // Image
         this->imagePreview->setImage(this->window->readBinaryEntry(path));
