@@ -172,9 +172,9 @@ if(VPKTOOL_BUILD_GUI)
 
         configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6XcbQpa.so.6"        "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"        COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicui18n.so.56"             "${CMAKE_BINARY_DIR}/libicui18n.so.56"         COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicuuc.so.56"               "${CMAKE_BINARY_DIR}/libicuuc.so.56"           COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicudata.so.56"             "${CMAKE_BINARY_DIR}/libicudata.so.56"         COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libicui18n.so.56"         "${CMAKE_BINARY_DIR}/libicui18n.so.56"         COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libicuuc.so.56"           "${CMAKE_BINARY_DIR}/libicuuc.so.56"           COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libicudata.so.56"         "${CMAKE_BINARY_DIR}/libicudata.so.56"         COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/imageformats/libqjpeg.so" "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so" COPYONLY)
 

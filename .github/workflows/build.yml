@@ -9,6 +9,7 @@ on:
 
 env:
   BUILD_DIR: ${{github.workspace}}/build
+  QT_VERSION: '6.5.2'
 
 jobs:
   build-msvc:
@@ -35,7 +36,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: '6.5.2'
+          version: ${{env.QT_VERSION}}
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
@@ -43,7 +44,7 @@ jobs:
           cache: true
 
       - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.2/msvc2019_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/msvc2019_64"
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
@@ -106,7 +107,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: '6.5.2'
+          version: ${{env.QT_VERSION}}
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
@@ -114,7 +115,7 @@ jobs:
           cache: true
 
       - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/6.5.2/gcc_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64"
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
