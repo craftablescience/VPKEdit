@@ -40,6 +40,7 @@ void FileViewer::displayEntry(const QString& path) {
         path.endsWith(".ini") ||
         path.endsWith(".kv")  ||
         path.endsWith(".kv3") ||
+        path.endsWith(".vdf") ||
         path.endsWith(".vmf") || // hey you never know
         path.endsWith(".vmt")) {
         // It's text
