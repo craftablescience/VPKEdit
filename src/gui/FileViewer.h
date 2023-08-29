@@ -11,6 +11,7 @@ class VPK;
 } // namespace vpktool
 
 class DirPreview;
+class ImagePreview;
 class TextPreview;
 class VTFPreview;
 class Window;
@@ -31,10 +32,12 @@ private:
     Window* window;
 
     DirPreview* dirPreview;
+    ImagePreview* imagePreview;
     TextPreview* textPreview;
-    VTFPreview* imagePreview;
+    VTFPreview* vtfPreview;
 
     void setDirPreviewVisible();
-    void setTextPreviewVisible();
     void setImagePreviewVisible();
+    void setTextPreviewVisible();
+    void setVTFPreviewVisible();
 };

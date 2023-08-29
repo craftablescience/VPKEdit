@@ -73,6 +73,8 @@ if(VPKTOOL_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.h"
@@ -123,12 +125,16 @@ if(VPKTOOL_BUILD_GUI)
         if(CMAKE_BUILD_TYPE MATCHES Debug)
             install(FILES "${QT_BASEDIR}/plugins/imageformats/qjpegd.dll"
                     DESTINATION imageformats)
+            install(FILES "${QT_BASEDIR}/plugins/imageformats/qtgad.dll"
+                    DESTINATION imageformats)
             install(FILES "${QT_BASEDIR}/plugins/platforms/qwindowsd.dll"
                     DESTINATION platforms)
             install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyled.dll"
                     DESTINATION styles)
         else()
             install(FILES "${QT_BASEDIR}/plugins/imageformats/qjpeg.dll"
+                    DESTINATION imageformats)
+            install(FILES "${QT_BASEDIR}/plugins/imageformats/qtga.dll"
                     DESTINATION imageformats)
             install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows.dll"
                     DESTINATION platforms)
@@ -154,6 +160,7 @@ if(VPKTOOL_BUILD_GUI)
             configure_file("${QT_BASEDIR}/bin/Qt6Guid.dll"     "${CMAKE_BINARY_DIR}/Qt6Guid.dll"     COPYONLY)
             configure_file("${QT_BASEDIR}/bin/Qt6Widgetsd.dll" "${CMAKE_BINARY_DIR}/Qt6Widgetsd.dll" COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/imageformats/qjpegd.dll"        "${CMAKE_BINARY_DIR}/imageformats/qjpegd.dll"        COPYONLY)
+            configure_file("${QT_BASEDIR}/plugins/imageformats/qtgad.dll"         "${CMAKE_BINARY_DIR}/imageformats/qtgad.dll"         COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/platforms/qwindowsd.dll"        "${CMAKE_BINARY_DIR}/platforms/qwindowsd.dll"        COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyled.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyled.dll" COPYONLY)
         else()
@@ -161,6 +168,7 @@ if(VPKTOOL_BUILD_GUI)
             configure_file("${QT_BASEDIR}/bin/Qt6Gui.dll"     "${CMAKE_BINARY_DIR}/Qt6Gui.dll"     COPYONLY)
             configure_file("${QT_BASEDIR}/bin/Qt6Widgets.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets.dll" COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg.dll"        "${CMAKE_BINARY_DIR}/imageformats/qjpeg.dll"        COPYONLY)
+            configure_file("${QT_BASEDIR}/plugins/imageformats/qtga.dll"         "${CMAKE_BINARY_DIR}/imageformats/qtga.dll"         COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/platforms/qwindows.dll"        "${CMAKE_BINARY_DIR}/platforms/qwindows.dll"        COPYONLY)
             configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle.dll" COPYONLY)
         endif()
@@ -177,6 +185,7 @@ if(VPKTOOL_BUILD_GUI)
         configure_file("${QT_BASEDIR}/lib/libicudata.so.56"         "${CMAKE_BINARY_DIR}/libicudata.so.56"         COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/imageformats/libqjpeg.so" "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so" COPYONLY)
+        configure_file("${QT_BASEDIR}/plugins/imageformats/libqtga.so"  "${CMAKE_BINARY_DIR}/imageformats/libqtga.so"  COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/platforms/libqwayland-generic.so" "${CMAKE_BINARY_DIR}/platforms/libqwayland-generic.so" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/platforms/libqminimal.so"         "${CMAKE_BINARY_DIR}/platforms/libqminimal.so"         COPYONLY)

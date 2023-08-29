@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 
 #include "previews/DirPreview.h"
+#include "previews/ImagePreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
 #include "Window.h"
@@ -18,11 +19,14 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     this->dirPreview = new DirPreview(this);
     layout->addWidget(this->dirPreview);
 
+    this->imagePreview = new ImagePreview(this);
+    layout->addWidget(this->imagePreview);
+
     this->textPreview = new TextPreview(this);
     layout->addWidget(this->textPreview);
 
-    this->imagePreview = new VTFPreview(this);
-    layout->addWidget(this->imagePreview);
+    this->vtfPreview = new VTFPreview(this);
+    layout->addWidget(this->vtfPreview);
 
     this->clearContents();
     this->setTextPreviewVisible();
@@ -30,12 +34,25 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 
 void FileViewer::displayEntry(const QString& path) {
     this->clearContents();
-    if (path.endsWith(".txt") ||
+    if (path.endsWith(".tga") ||
+        path.endsWith(".jpg") ||
+        path.endsWith(".jpeg") ||
+        path.endsWith(".jfif") ||
+        path.endsWith(".png") ||
+        path.endsWith(".bmp")) {
+        // Image
+        this->imagePreview->setImage(this->window->readBinaryEntry(path));
+        this->setImagePreviewVisible();
+    } else if (path.endsWith(".txt") ||
         path.endsWith(".md")  ||
         path.endsWith(".gi")  ||
         path.endsWith(".res") ||
         path.endsWith(".nut") ||
         path.endsWith(".lua") ||
+        path.endsWith(".gm")  ||
+        path.endsWith(".py")  ||
+        path.endsWith(".js")  ||
+        path.endsWith(".ts")  ||
         path.endsWith(".cfg") ||
         path.endsWith(".ini") ||
         path.endsWith(".kv")  ||
@@ -47,9 +64,9 @@ void FileViewer::displayEntry(const QString& path) {
         this->textPreview->setText(this->window->readTextEntry(path));
         this->setTextPreviewVisible();
     } else if (path.endsWith(".vtf")) {
-        // VTF (image)
-        this->imagePreview->setImage(this->window->readBinaryEntry(path));
-        this->setImagePreviewVisible();
+        // VTF (texture)
+        this->vtfPreview->setImage(this->window->readBinaryEntry(path));
+        this->setVTFPreviewVisible();
     }
 }
 
@@ -66,18 +83,28 @@ void FileViewer::clearContents() {
 
 void FileViewer::setDirPreviewVisible() {
     this->dirPreview->show();
+    this->imagePreview->hide();
     this->textPreview->hide();
-    this->imagePreview->hide();
-}
-
-void FileViewer::setTextPreviewVisible() {
-    this->dirPreview->hide();
-    this->textPreview->show();
-    this->imagePreview->hide();
+    this->vtfPreview->hide();
 }
 
 void FileViewer::setImagePreviewVisible() {
     this->dirPreview->hide();
-    this->textPreview->hide();
     this->imagePreview->show();
+    this->textPreview->hide();
+    this->vtfPreview->hide();
+}
+
+void FileViewer::setTextPreviewVisible() {
+    this->dirPreview->hide();
+    this->imagePreview->hide();
+    this->textPreview->show();
+    this->vtfPreview->hide();
+}
+
+void FileViewer::setVTFPreviewVisible() {
+    this->dirPreview->hide();
+    this->imagePreview->hide();
+    this->textPreview->hide();
+    this->vtfPreview->show();
 }
