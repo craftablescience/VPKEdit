@@ -10,8 +10,6 @@ on:
 env:
   BUILD_DIR: ${{github.workspace}}/build
   QT_VERSION: '6.5.2'
-  QT_ARCHIVES_WINDOWS: 'qtbase qtimageformats'
-  QT_ARCHIVES_LINUX: 'qtbase qtimageformats qtwayland'
 
 jobs:
   build-msvc:
@@ -43,7 +41,6 @@ jobs:
           target: 'desktop'
           arch: 'win64_msvc2019_64'
           dir: ${{github.workspace}}/qt
-          archives: ${{env.QT_ARCHIVES_WINDOWS}}
           cache: true
 
       - name: Configure CMake
@@ -60,6 +57,7 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpktool.exe
             ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/imageformats/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
           retention-days: 7
@@ -115,7 +113,6 @@ jobs:
           target: 'desktop'
           arch: 'gcc_64'
           dir: ${{github.workspace}}/qt
-          archives: ${{env.QT_ARCHIVES_LINUX}}
           cache: true
 
       - name: Configure CMake
@@ -132,6 +129,7 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpktool
             ${{env.BUILD_DIR}}/*.so*
+            ${{env.BUILD_DIR}}/imageformats/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
             ${{env.BUILD_DIR}}/platformthemes/*.so*
             ${{env.BUILD_DIR}}/styles/*.so*
