@@ -77,11 +77,15 @@ Window::Window(QWidget* parent)
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
-        QMessageBox::about(this, tr("About"),
-                           "VPKTool created by craftablescience\n\n"
-                           "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
-                           "modified by Joshua Ashton and Strata Source Contributors.\n\n"
-                           "Please see CREDITS.md for more information.");
+        QMessageBox about(this);
+        about.setWindowTitle(tr("About"));
+        about.setIconPixmap(QIcon(":/icon.png").pixmap(64, 64));
+        about.setTextFormat(Qt::TextFormat::MarkdownText);
+        about.setText("VPKTool v" VPKTOOL_PROJECT_VERSION ", created by [craftablescience](https://github.com/craftablescience)\n\n"
+                      "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
+                      "modified by Joshua Ashton and Strata Source Contributors.\n\n"
+                      "Please see [the credits](" VPKTOOL_PROJECT_HOMEPAGE "/blob/main/CREDITS.md) for more information.");
+        about.exec();
     });
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
         QMessageBox::aboutQt(this);
