@@ -61,7 +61,7 @@ void FileViewer::displayEntry(const QString& path) {
         path.endsWith(".vdf") ||
         path.endsWith(".vmf") || // hey you never know
         path.endsWith(".vmt")) {
-        // It's text
+        // Text
         this->textPreview->setText(this->window->readTextEntry(path));
         this->setTextPreviewVisible();
     } else if (path.endsWith(".vtf")) {
@@ -71,10 +71,14 @@ void FileViewer::displayEntry(const QString& path) {
     }
 }
 
-void FileViewer::displayDir(const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
+void FileViewer::displayDir(const QString& /*path*/, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
     this->clearContents();
     this->dirPreview->setPath(subfolders, entryPaths, vpk);
     this->setDirPreviewVisible();
+}
+
+void FileViewer::selectSubItemInDir(const QString& name) {
+    this->window->selectSubItemInDir(name);
 }
 
 void FileViewer::clearContents() {

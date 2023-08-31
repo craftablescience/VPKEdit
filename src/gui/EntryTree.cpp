@@ -106,6 +106,19 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
     workerThread->start();
 }
 
+void EntryTree::selectSubItem(const QString& name) {
+    for (auto* selected : this->selectedItems()) {
+        selected->setSelected(false);
+        for (int i = 0; i < selected->childCount(); ++i) {
+            auto* child = selected->child(i);
+            if (child->text(0) == name) {
+                child->setSelected(true);
+                this->onItemClicked(child, 0);
+            }
+        }
+    }
+}
+
 void EntryTree::setSearchQuery(const QString& query) {
     for (QTreeWidgetItemIterator it(this); *it; ++it) {
         QTreeWidgetItem* item = (*it);
@@ -160,7 +173,7 @@ void EntryTree::onItemClicked(QTreeWidgetItem* item, int /*column*/) {
                 subfolders << child->text(0);
             }
         }
-        this->window->selectDir(subfolders, entryPaths);
+        this->window->selectDir(path, subfolders, entryPaths);
     }
 }
 

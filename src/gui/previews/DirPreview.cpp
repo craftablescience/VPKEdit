@@ -1,13 +1,16 @@
 #include "DirPreview.h"
 
-#include "../Window.h"
-
 #include <QHeaderView>
+
+#include <vpktool/VPK.h>
+
+#include "../FileViewer.h"
 
 using namespace vpktool;
 
-DirPreview::DirPreview(QWidget* parent)
-        : QTableWidget(parent) {
+DirPreview::DirPreview(FileViewer* fileViewer_, QWidget* parent)
+        : QTableWidget(parent)
+        , fileViewer(fileViewer_) {
     this->setColumnCount(5);
     this->setColumnWidth(0, 250);
     this->setColumnWidth(1, 50);
@@ -16,8 +19,12 @@ DirPreview::DirPreview(QWidget* parent)
     this->setColumnWidth(4, 100);
     this->horizontalHeader()->setStretchLastSection(true);
     this->verticalHeader()->hide();
-    this->setSelectionMode(QAbstractItemView::NoSelection);
+    this->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    QObject::connect(this, &QTableWidget::doubleClicked, [=](const QModelIndex& index) {
+        this->fileViewer->selectSubItemInDir(this->item(index.row(), 0)->text());
+    });
 }
 
 void DirPreview::setPath(const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {

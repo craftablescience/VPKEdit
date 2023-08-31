@@ -24,7 +24,9 @@ public:
 
     void displayEntry(const QString& path);
 
-    void displayDir(const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+
+    void selectSubItemInDir(const QString& name);
 
     void clearContents();
 

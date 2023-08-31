@@ -8,13 +8,16 @@ class VPK;
 
 } // namespace vpktool
 
-class Window;
+class FileViewer;
 
 class DirPreview : public QTableWidget {
     Q_OBJECT;
 
 public:
-    explicit DirPreview(QWidget* parent = nullptr);
+    explicit DirPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
 
     void setPath(const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+
+private:
+    FileViewer* fileViewer;
 };

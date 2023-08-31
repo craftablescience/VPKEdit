@@ -205,8 +205,12 @@ void Window::selectEntry(const QString& path) {
     this->fileViewer->displayEntry(path);
 }
 
-void Window::selectDir(const QList<QString>& subfolders, const QList<QString>& entryPaths) {
-    this->fileViewer->displayDir(subfolders, entryPaths, this->vpk.value());
+void Window::selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) {
+    this->fileViewer->displayDir(path, subfolders, entryPaths, this->vpk.value());
+}
+
+void Window::selectSubItemInDir(const QString& name) {
+    this->entryTree->selectSubItem(name);
 }
 
 void Window::extractFile(const QString& path, QString savePath) {

@@ -31,7 +31,9 @@ public:
 
     void selectEntry(const QString& path);
 
-    void selectDir(const QList<QString>& subfolders, const QList<QString>& entryPaths);
+    void selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths);
+
+    void selectSubItemInDir(const QString& path);
 
     void extractFile(const QString& path, QString savePath = QString());
 

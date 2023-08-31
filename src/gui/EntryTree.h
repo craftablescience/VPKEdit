@@ -20,6 +20,8 @@ public:
 
     void loadVPK(vpktool::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
+    void selectSubItem(const QString& name);
+
     void setSearchQuery(const QString& query);
 
     void clearContents();
