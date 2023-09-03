@@ -51,7 +51,10 @@ Window::Window(QSettings& options, QWidget* parent)
             std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
             auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir);
 
-            openRelativeToMenu->addAction(QIcon(steamGameInfo->icon), steamGameInfo->gameName, [=] {
+            // Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
+            QString gameName(steamGameInfo->gameName);
+            gameName.replace("&", "&&");
+            openRelativeToMenu->addAction(QIcon(steamGameInfo->icon), gameName, [=] {
                 this->open(relativeDirectoryPath.path());
             });
         }
