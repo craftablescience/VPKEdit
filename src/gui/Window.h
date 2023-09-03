@@ -15,6 +15,7 @@ class EntryTree;
 class FileViewer;
 
 constexpr auto OPT_STYLE = "style";
+constexpr auto OPT_START_MAXIMIZED = "start_maximized";
 
 class Window : public QMainWindow {
     Q_OBJECT;

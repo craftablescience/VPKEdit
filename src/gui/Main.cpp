@@ -10,6 +10,10 @@ static inline void setUpOptions(QSettings& options) {
         options.setValue(OPT_STYLE, QApplication::style()->name());
     }
     QApplication::setStyle(options.value(OPT_STYLE).toString());
+
+    if (!options.contains(OPT_START_MAXIMIZED)) {
+        options.setValue(OPT_START_MAXIMIZED, false);
+    }
 }
 
 int main(int argc, char** argv) {
@@ -19,7 +23,11 @@ int main(int argc, char** argv) {
     setUpOptions(options);
 
     auto* window = new Window(options);
-    window->show();
+    if (!options.value(OPT_START_MAXIMIZED).toBool()) {
+        window->show();
+    } else {
+        window->showMaximized();
+    }
 
     return QApplication::exec();
 }

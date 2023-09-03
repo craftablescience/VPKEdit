@@ -95,6 +95,13 @@ Window::Window(QSettings& options, QWidget* parent)
         themeMenuGroup->addAction(action);
     }
 
+    optionsMenu->addSeparator();
+    auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [=, &options] {
+        options.setValue(OPT_START_MAXIMIZED, !options.value(OPT_START_MAXIMIZED).toBool());
+    });
+    optionStartMaximized->setCheckable(true);
+    optionStartMaximized->setChecked(options.value(OPT_START_MAXIMIZED).toBool());
+
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
