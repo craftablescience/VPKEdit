@@ -1,6 +1,8 @@
-<img width="64px" src="https://github.com/craftablescience/VPKTool/blob/main/branding/icon.png?raw=true" alt="VPKTool Logo" />
+<div>
+  <img align="left" width="44px" src="https://github.com/craftablescience/VPKTool/blob/main/branding/icon.png?raw=true" alt="VPKTool Logo" />
+  <h1>VPKTool</h1>
+</div>
 
-# VPKTool
 Code was based off of https://github.com/SteamDatabase/ValvePak and the Valve Developer Wiki.
 The libvpktool library allows the user to read entries in a VPK, as well as their contents.
 
