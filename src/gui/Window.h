@@ -9,15 +9,18 @@
 class QLabel;
 class QLineEdit;
 class QProgressBar;
+class QSettings;
 
 class EntryTree;
 class FileViewer;
+
+constexpr auto OPT_STYLE = "style";
 
 class Window : public QMainWindow {
     Q_OBJECT;
 
 public:
-    explicit Window(QWidget* parent = nullptr);
+    explicit Window(QSettings& options, QWidget* parent = nullptr);
 
     void open(const QString& startPath = QString());
 

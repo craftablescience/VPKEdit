@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <QActionGroup>
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFile>
@@ -12,9 +13,11 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QSettings>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
+#include <QStyleFactory>
 
 #include <sapp/FilesystemSearchProvider.h>
 
@@ -24,7 +27,7 @@
 
 using namespace vpktool;
 
-Window::Window(QWidget* parent)
+Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent) {
     this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
@@ -73,6 +76,24 @@ Window::Window(QWidget* parent)
         this->extractAll();
     });
     this->extractAllAction->setDisabled(true);
+
+    // Options menu
+    auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
+
+    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
+    auto* themeMenuGroup = new QActionGroup(this);
+    themeMenuGroup->setExclusive(true);
+    for (const auto& themeName : QStyleFactory::keys()) {
+        auto* action = themeMenu->addAction(themeName, [=, &options] {
+            QApplication::setStyle(themeName);
+            options.setValue(OPT_STYLE, themeName);
+        });
+        action->setCheckable(true);
+        if (themeName == options.value(OPT_STYLE).toString()) {
+            action->setChecked(true);
+        }
+        themeMenuGroup->addAction(action);
+    }
 
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
