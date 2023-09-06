@@ -3,20 +3,25 @@
 #include <array>
 #include <optional>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "InputStream.h"
+#include <vpktool/detail/FileStream.h>
 
 namespace vpktool {
 
 constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
+constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 
 struct VPKEntry {
     /// File name of this entry (e.g. "cable.vmt")
     std::string filename;
+    /// File name and extension of this entry (e.g. "cable, vmt")
+    /// Included for technical reasons
+    std::pair<std::string, std::string> filenamePair;
     /// CRC32 checksum
     std::uint32_t crc32 = 0;
     /// Length in bytes
@@ -82,6 +87,7 @@ public:
 
     /// Open a directory VPK from memory
     /// Note that any content not stored in the directory VPK will fail to load!
+    /// Also baking new entries will fail
     [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen);
 
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
@@ -90,8 +96,30 @@ public:
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const VPKEntry& entry) const;
     [[nodiscard]] std::string readTextEntry(const VPKEntry& entry) const;
 
+    void addEntry(const std::string& filename_, const std::string& pathToFile, bool preload = false);
+    void addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool preload = false);
+
+    void addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool preload = false);
+    void addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool preload = false);
+
+    void addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload = false);
+    void addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload = false);
+
+    void addTextEntry(const std::string& filename_, const std::string& text, bool preload = true);
+    void addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, bool preload = true);
+
+    bool removeEntry(const std::string& filename_);
+    bool removeEntry(const std::string& directory, const std::string& filename_);
+
+    /// If output folder is unspecified, it will overwrite the original
+    bool bake(const std::string& outputFolder_ = "");
+
     [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getEntries() const {
         return this->entries;
+    }
+
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<std::pair<VPKEntry, std::vector<std::byte>>>>& getUnbakedEntries() const {
+        return this->unbakedEntries;
     }
 
     [[nodiscard]] std::uint32_t getHeaderLength() const {
@@ -110,18 +138,21 @@ public:
     }
 
 protected:
-    VPK(InputStream&& reader_, std::string filename_);
+    VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_);
 
+    std::string fullPath;
     std::string filename;
+    int numArchives = -1;
 
     Header1 header1{}; // Present in all VPK versions
     Header2 header2{}; // Present in VPK v2
     Footer2 footer2{}; // Present in VPK v2
 
     std::unordered_map<std::string, std::vector<VPKEntry>> entries;
+    std::unordered_map<std::string, std::vector<std::pair<VPKEntry, std::vector<std::byte>>>> unbakedEntries;
     std::vector<MD5Entry> md5Entries;
 
-    InputStream reader;
+    detail::FileStream reader;
 
 private:
     [[nodiscard]] static bool open(VPK& vpk);
