@@ -5,6 +5,7 @@ using namespace vpktool;
 InputStream::InputStream(const std::string& filepath) {
     this->isFile = true;
     this->streamFile.open(filepath, std::ios::in | std::ios::binary);
+    this->streamFile.unsetf(std::ios::skipws);
     this->streamBuffer = nullptr;
     this->streamLen = 0;
     this->streamPos = 0;
