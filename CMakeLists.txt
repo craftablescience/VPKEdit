@@ -41,24 +41,27 @@ if(VPKTOOL_BUILD_GUI)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp")
 
     # Qt
-    if(WIN32)
-        if(DEFINED QT_BASEDIR)
-            string(REPLACE "\\" "/" QT_BASEDIR ${QT_BASEDIR})
+    if(WIN32 AND NOT DEFINED QT_BASEDIR)
+        message(FATAL_ERROR "Please define your QT install dir with -DQT_BASEDIR=\"C:/your/qt6/here\"")
+    endif()
 
-            # Add it to the prefix path so find_package can find it
-            list(APPEND CMAKE_PREFIX_PATH "${QT_BASEDIR}")
-            set(QT_INCLUDE "${QT_BASEDIR}/include")
-            # CMake has an odd policy that links a special link lib for Qt on newer versions of CMake
-            cmake_policy(SET CMP0020 NEW)
-        else()
-            message(FATAL_ERROR "Please define your QT install dir with -DQT_BASEDIR=\"C:/your/qt6/here\"")
-        endif()
+    if(DEFINED QT_BASEDIR)
+        string(REPLACE "\\" "/" QT_BASEDIR "${QT_BASEDIR}")
+
+        # Add it to the prefix path so find_package can find it
+        list(APPEND CMAKE_PREFIX_PATH "${QT_BASEDIR}")
+        set(QT_INCLUDE "${QT_BASEDIR}/include")
         message(STATUS "Using ${QT_INCLUDE} as the Qt include directory")
     endif()
+
+    # CMake has an odd policy that links a special link lib for Qt on newer versions of CMake
+    cmake_policy(SET CMP0020 NEW)
+
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
 
+    # Config file
     set(VPKTOOL_PROJECT_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "" FORCE)
     set(VPKTOOL_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
     set(VPKTOOL_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
@@ -67,6 +70,7 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
             @ONLY)
 
+    # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
 
@@ -96,8 +100,9 @@ if(VPKTOOL_BUILD_GUI)
             ${PROJECT_NAME} WIN32
             ${${PROJECT_NAME}_SOURCES})
 
+    # Final Qt setup
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt6::Core Qt6::Gui Qt6::Widgets)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/include"
