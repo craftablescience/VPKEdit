@@ -14,10 +14,12 @@ option(VPKTOOL_BUILD_TESTS "Run library tests" OFF)
 add_library(
         lib${PROJECT_NAME}
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/InputStream.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/detail/CRC.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/detail/FileStream.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/VPK.h"
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/InputStream.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/CRC.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/FileStream.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/VPK.cpp")
 
 target_include_directories(
