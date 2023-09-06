@@ -19,7 +19,15 @@ static inline void setUpOptions(QSettings& options) {
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
 
-    QSettings options("craftablescience", VPKTOOL_PROJECT_NAME);
+    QCoreApplication::setOrganizationName(VPKTOOL_ORGANIZATION_NAME);
+    QCoreApplication::setApplicationName(VPKTOOL_PROJECT_NAME);
+    QCoreApplication::setApplicationVersion(VPKTOOL_PROJECT_VERSION);
+
+#if !defined(__APPLE__) && !defined(_WIN32)
+    QGuiApplication::setDesktopFileName(VPKTOOL_PROJECT_NAME);
+#endif
+
+    QSettings options;
     setUpOptions(options);
 
     auto* window = new Window(options);
