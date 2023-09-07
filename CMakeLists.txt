@@ -16,7 +16,7 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/VPK.cpp")
 
 target_include_directories(
-        lib${PROJECT_NAME} PRIVATE
+        lib${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if(VPKTOOL_BUILD_GUI)
@@ -52,6 +52,14 @@ if(VPKTOOL_BUILD_GUI)
         list(APPEND CMAKE_PREFIX_PATH "${QT_BASEDIR}")
         set(QT_INCLUDE "${QT_BASEDIR}/include")
         message(STATUS "Using ${QT_INCLUDE} as the Qt include directory")
+    endif()
+
+    if(WIN32)
+        if(CMAKE_BUILD_TYPE MATCHES Debug)
+            set(QT_LIB_SUFFIX "d" CACHE STRING "" FORCE)
+        else()
+            set(QT_LIB_SUFFIX "" CACHE STRING "" FORCE)
+        endif()
     endif()
 
     # CMake has an odd policy that links a special link lib for Qt on newer versions of CMake
@@ -126,31 +134,21 @@ if(VPKTOOL_BUILD_GUI)
     install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
+    install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+            DESTINATION .)
     if(WIN32)
         # No convenient libraries for these... ugh
-        if(CMAKE_BUILD_TYPE MATCHES Debug)
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qjpegd.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qtgad.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qwebpd.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/platforms/qwindowsd.dll"
-                    DESTINATION platforms)
-            install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyled.dll"
-                    DESTINATION styles)
-        else()
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qjpeg.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qtga.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/imageformats/qwebp.dll"
-                    DESTINATION imageformats)
-            install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows.dll"
-                    DESTINATION platforms)
-            install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle.dll"
-                    DESTINATION styles)
-        endif()
+        install(FILES
+                "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
+                DESTINATION imageformats)
+        install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
+                DESTINATION platforms)
+        install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
+                DESTINATION styles)
     elseif(UNIX)
         install(FILES
                     "${QT_BASEDIR}/plugins/platforms/libqminimal.so"
@@ -165,25 +163,17 @@ if(VPKTOOL_BUILD_GUI)
 
     # Copy these so the user doesn't have to
     if(WIN32)
-        if(CMAKE_BUILD_TYPE MATCHES Debug)
-            configure_file("${QT_BASEDIR}/bin/Qt6Cored.dll"    "${CMAKE_BINARY_DIR}/Qt6Cored.dll"    COPYONLY)
-            configure_file("${QT_BASEDIR}/bin/Qt6Guid.dll"     "${CMAKE_BINARY_DIR}/Qt6Guid.dll"     COPYONLY)
-            configure_file("${QT_BASEDIR}/bin/Qt6Widgetsd.dll" "${CMAKE_BINARY_DIR}/Qt6Widgetsd.dll" COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qjpegd.dll"        "${CMAKE_BINARY_DIR}/imageformats/qjpegd.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qtgad.dll"         "${CMAKE_BINARY_DIR}/imageformats/qtgad.dll"         COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qwebpd.dll"        "${CMAKE_BINARY_DIR}/imageformats/qwebpd.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/platforms/qwindowsd.dll"        "${CMAKE_BINARY_DIR}/platforms/qwindowsd.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyled.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyled.dll" COPYONLY)
-        else()
-            configure_file("${QT_BASEDIR}/bin/Qt6Core.dll"    "${CMAKE_BINARY_DIR}/Qt6Core.dll"    COPYONLY)
-            configure_file("${QT_BASEDIR}/bin/Qt6Gui.dll"     "${CMAKE_BINARY_DIR}/Qt6Gui.dll"     COPYONLY)
-            configure_file("${QT_BASEDIR}/bin/Qt6Widgets.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets.dll" COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg.dll"        "${CMAKE_BINARY_DIR}/imageformats/qjpeg.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qtga.dll"         "${CMAKE_BINARY_DIR}/imageformats/qtga.dll"         COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/imageformats/qwebp.dll"        "${CMAKE_BINARY_DIR}/imageformats/qwebp.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/platforms/qwindows.dll"        "${CMAKE_BINARY_DIR}/platforms/qwindows.dll"        COPYONLY)
-            configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle.dll" COPYONLY)
-        endif()
+        configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"    "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"    COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"     "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"     COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll" COPYONLY)
+
+        configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
+        configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
+        configure_file("${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qwebp${QT_LIB_SUFFIX}.dll" COPYONLY)
+
+        configure_file("${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/platforms/qwindows${QT_LIB_SUFFIX}.dll" COPYONLY)
+
+        configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" COPYONLY)
     elseif(UNIX)
         configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"    COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
