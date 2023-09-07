@@ -57,6 +57,8 @@ jobs:
         with:
           name: VPKTool-Windows-Standalone-msvc-${{matrix.build_type}}
           path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpktool.exe
             ${{env.BUILD_DIR}}/*.dll
             ${{env.BUILD_DIR}}/imageformats/*.dll
@@ -130,6 +132,8 @@ jobs:
         with:
           name: VPKTool-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpktool
             ${{env.BUILD_DIR}}/*.so*
             ${{env.BUILD_DIR}}/imageformats/*.so*

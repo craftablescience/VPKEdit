@@ -108,14 +108,22 @@ Window::Window(QSettings& options, QWidget* parent)
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
+        QString creditsText = "# VPKTool v" VPKTOOL_PROJECT_VERSION "\n"
+                              "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
+        QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
+        if (creditsFile.open(QIODevice::ReadOnly)) {
+            QTextStream in(&creditsFile);
+            while(!in.atEnd()) {
+                creditsText += in.readLine() + '\n';
+            }
+            creditsFile.close();
+        }
+
         QMessageBox about(this);
         about.setWindowTitle(tr("About"));
         about.setIconPixmap(QIcon(":/icon.png").pixmap(64, 64));
         about.setTextFormat(Qt::TextFormat::MarkdownText);
-        about.setText("VPKTool v" VPKTOOL_PROJECT_VERSION ", created by [craftablescience](https://github.com/craftablescience)\n\n"
-                      "To display VTF files, it uses VTFLib by Neil \"Jed\" Jedrzejewski & Ryan Gregg, "
-                      "modified by Joshua Ashton and Strata Source Contributors.\n\n"
-                      "Please see [the credits](" VPKTOOL_PROJECT_HOMEPAGE "/blob/main/CREDITS.md) for more information.");
+        about.setText(creditsText);
         about.exec();
     });
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
