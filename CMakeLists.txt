@@ -173,6 +173,9 @@ if(VPKTOOL_BUILD_GUI)
                 DESTINATION "/usr/share/applications/")
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
                 DESTINATION "/usr/share/pixmaps/")
+
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
+                DESTINATION .)
     endif()
 
     # Copy these next to the executable
