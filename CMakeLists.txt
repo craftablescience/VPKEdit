@@ -87,11 +87,15 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
             @ONLY)
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.desktop.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.desktop")
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop")
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.sh.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.sh")
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh")
+    file(
+            COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
+            DESTINATION "${CMAKE_BINARY_DIR}"
+            FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -174,7 +178,7 @@ if(VPKTOOL_BUILD_GUI)
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
                 DESTINATION "/usr/share/pixmaps/")
 
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
+        install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.sh"
                 DESTINATION .)
     endif()
 
