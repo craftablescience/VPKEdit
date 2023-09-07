@@ -179,7 +179,8 @@ if(VPKTOOL_BUILD_GUI)
                 DESTINATION "/usr/share/pixmaps/")
 
         install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.sh"
-                DESTINATION .)
+                DESTINATION .
+                USE_SOURCE_PERMISSIONS)
     endif()
 
     # Copy these next to the executable
