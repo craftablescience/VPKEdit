@@ -6,12 +6,21 @@
 #include <string_view>
 #include <vector>
 
+// These tests will need Portal 2 installed on your main drive
+// Modify this on Linux (I'm the only one running these tests right now)
+#define USERNAME "craftablescience"
+
+constexpr auto PORTAL2_PAK_PATH =
+#ifdef _WIN32
+    R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)";
+#else // __linux__
+    "/home/" USERNAME "/.steam/steam/steamapps/common/Portal 2/portal2/pak01_dir.vpk";
+#endif
+
 using namespace vpktool;
 
 TEST(VPK, read) {
-    // Going to assume this is my (Windows) computer lol
-    // Needs Portal 2 installed on your C drive
-    auto vpk = VPK::open(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
+    auto vpk = VPK::open(PORTAL2_PAK_PATH);
     ASSERT_TRUE(vpk);
 
     for (const auto& [directory, files] : vpk->getEntries()) {
@@ -24,7 +33,7 @@ TEST(VPK, read) {
 
 TEST(VPK, readContents) {
     // Ditto
-    auto vpk = VPK::open(R"(C:\Program Files (x86)\Steam\steamapps\common\Portal 2\portal2\pak01_dir.vpk)");
+    auto vpk = VPK::open(PORTAL2_PAK_PATH);
     ASSERT_TRUE(vpk);
 
     auto cableVMT = vpk->findEntry("materials/cable/cable.vmt");
