@@ -45,21 +45,26 @@ void FileViewer::displayEntry(const QString& path) {
         this->imagePreview->setImage(this->window->readBinaryEntry(path));
         this->setImagePreviewVisible();
     } else if (path.endsWith(".txt") ||
-        path.endsWith(".md")  ||
-        path.endsWith(".gi")  ||
-        path.endsWith(".res") ||
-        path.endsWith(".nut") ||
-        path.endsWith(".lua") ||
-        path.endsWith(".gm")  ||
-        path.endsWith(".py")  ||
-        path.endsWith(".js")  ||
-        path.endsWith(".ts")  ||
-        path.endsWith(".cfg") ||
-        path.endsWith(".ini") ||
-        path.endsWith(".kv")  ||
-        path.endsWith(".kv3") ||
-        path.endsWith(".vdf") ||
-        path.endsWith(".vmf") || // hey you never know
+        path.endsWith(".md")   ||
+        path.endsWith(".gi")   ||
+        path.endsWith(".res")  ||
+        path.endsWith(".vbsp") ||
+        path.endsWith(".rad")  ||
+        path.endsWith(".nut")  ||
+        path.endsWith(".lua")  ||
+        path.endsWith(".gm")   ||
+        path.endsWith(".py")   ||
+        path.endsWith(".js")   ||
+        path.endsWith(".ts")   ||
+        path.endsWith(".cfg")  ||
+        path.endsWith(".kv")   ||
+        path.endsWith(".kv3")  ||
+        path.endsWith(".vdf")  ||
+        path.endsWith(".ini")  ||
+        path.endsWith(".yml")  ||
+        path.endsWith(".yaml") ||
+        path.endsWith(".toml") ||
+        path.endsWith(".vmf")  || // hey you never know
         path.endsWith(".vmt")) {
         // Text
         this->textPreview->setText(this->window->readTextEntry(path));
