@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
-project(vpktool VERSION 3.0.0 HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
+cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
+project(vpktool
+        DESCRIPTION "A tool to read and extract data from VPK files."
+        VERSION 3.0.0
+        HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
+set(PROJECT_NAME_PRETTY "VPKTool" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
+include(GNUInstallDirs)
 
 option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
 option(VPKTOOL_BUILD_INSTALLER "Build installer for VPKTool GUI application" ON)
@@ -71,12 +76,20 @@ if(VPKTOOL_BUILD_GUI)
 
     # Config file
     set(VPKTOOL_PROJECT_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "" FORCE)
+    set(VPKTOOL_PROJECT_NAME_PRETTY ${PROJECT_NAME_PRETTY} CACHE STRING "" FORCE)
+    set(VPKTOOL_PROJECT_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION} CACHE STRING "" FORCE)
     set(VPKTOOL_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
     set(VPKTOOL_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
             @ONLY)
+    configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.desktop.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.desktop")
+    configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.sh.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/vpktool.sh")
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -113,7 +126,6 @@ if(VPKTOOL_BUILD_GUI)
     target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${QT_INCLUDE}"
             "${QT_INCLUDE}/QtCore"
             "${QT_INCLUDE}/QtGui"
@@ -126,7 +138,6 @@ if(VPKTOOL_BUILD_GUI)
     endif()
 
     # Set up install rules
-    # Note: if a Linux installer is ever made, DBus will need to be bundled
     install(TARGETS ${PROJECT_NAME} vtflib
             CONFIGURATIONS ${CMAKE_BUILD_TYPE}
             RUNTIME DESTINATION .
@@ -150,15 +161,16 @@ if(VPKTOOL_BUILD_GUI)
         install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
                 DESTINATION styles)
     elseif(UNIX)
-        install(FILES
-                    "${QT_BASEDIR}/plugins/platforms/libqminimal.so"
-                    "${QT_BASEDIR}/plugins/platforms/libqxcb.so"
-                DESTINATION platforms)
-        install(FILES
-                    "${QT_BASEDIR}/lib/libicui18n.so.56"
-                    "${QT_BASEDIR}/lib/libicuuc.so.56"
-                    "${QT_BASEDIR}/lib/libicudata.so.56"
-                DESTINATION .)
+        install(DIRECTORY
+                "${QT_BASEDIR}/lib/"
+                "${QT_BASEDIR}/plugins/"
+                DESTINATION .
+                FILES_MATCHING PATTERN "*.so*")
+
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
+                DESTINATION "/usr/share/applications/")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
+                DESTINATION "/usr/share/pixmaps/")
     endif()
 
     # Copy these next to the executable
@@ -206,39 +218,43 @@ if(VPKTOOL_BUILD_GUI)
 
     if(VPKTOOL_BUILD_INSTALLER)
         set(CPACK_PACKAGE_VENDOR "craftablescience")
-        set(CPACK_PACKAGE_DESCRIPTION "A tool to read and extract data from VPK files")
-        set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PROJECT_NAME}")
+        set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
+        set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
+        set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CPACK_PACKAGE_DESCRIPTION})
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
         set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
         set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
         set(CPACK_MONOLITHIC_INSTALL ON)
-        set(CPACK_PACKAGE_EXECUTABLES "vpktool;VPKTool")
+        set(CPACK_PACKAGE_EXECUTABLES ${PROJECT_NAME} ${PROJECT_NAME_PRETTY})
         if(WIN32)
             set(CPACK_GENERATOR "NSIS")
             set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
             set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-            set(CPACK_NSIS_DISPLAY_NAME "VPKTool")
-            set(CPACK_NSIS_PACKAGE_NAME "VPKTool")
+            set(CPACK_NSIS_DISPLAY_NAME ${PROJECT_NAME_PRETTY})
+            set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
             set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon.ico")
             set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
             set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
             set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
             set(HELP_QUOTE "\"") # CMake is shit
             set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-                WriteRegStr HKCR '.vpk' '' 'VPKTool'
-                WriteRegStr HKCR 'VPKTool' '' 'Valve PacK'
-                WriteRegStr HKCR 'VPKTool\\\\shell' '' 'open'
-                WriteRegStr HKCR 'VPKTool\\\\DefaultIcon' '' '$INSTDIR\\\\vpktool.exe,0'
-                WriteRegStr HKCR 'VPKTool\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\vpktool.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
-                WriteRegStr HKCR 'VPKTool\\\\shell\\\\edit' '' 'Browse VPK'
-                WriteRegStr HKCR 'VPKTool\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\vpktool.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+                WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'Valve PacK'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit' '' 'Browse VPK'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
                 System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
             ")
             set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
                 DeleteRegKey HKCR '.vpk'
-                DeleteRegKey HKCR 'VPKTool'
+                DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
             ")
         else()
-            message(STATUS "Installers on non-Windows platforms are not implemented")
+            set(CPACK_GENERATOR "DEB")
+            set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
+            set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${PROJECT_NAME}")
         endif()
         include(CPack)
     endif()

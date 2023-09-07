@@ -29,7 +29,7 @@ using namespace vpktool;
 
 Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent) {
-    this->setWindowTitle("VPKTool v" VPKTOOL_PROJECT_VERSION);
+    this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
@@ -108,7 +108,7 @@ Window::Window(QSettings& options, QWidget* parent)
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
-        QString creditsText = "# VPKTool v" VPKTOOL_PROJECT_VERSION "\n"
+        QString creditsText = "# " VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION "\n"
                               "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
         QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
         if (creditsFile.open(QIODevice::ReadOnly)) {
