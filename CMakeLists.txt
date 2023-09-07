@@ -92,10 +92,6 @@ if(VPKTOOL_BUILD_GUI)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh")
-    file(
-            COPY "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
-            DESTINATION "${CMAKE_BINARY_DIR}"
-            FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -156,7 +152,6 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
     if(WIN32)
-        # No convenient libraries for these... ugh
         install(FILES
                 "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
                 "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
@@ -178,9 +173,9 @@ if(VPKTOOL_BUILD_GUI)
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
                 DESTINATION "/usr/share/pixmaps/")
 
-        install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.sh"
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
                 DESTINATION .
-                USE_SOURCE_PERMISSIONS)
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
     endif()
 
     # Copy these next to the executable
