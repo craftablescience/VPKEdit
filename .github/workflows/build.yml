@@ -142,3 +142,15 @@ jobs:
             ${{env.BUILD_DIR}}/styles/*.so*
             ${{env.BUILD_DIR}}/wayland-shell-integration/*.so*
           retention-days: 7
+
+      - name: Create Installer
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKTool-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpktool-*-Linux.deb
+          retention-days: 7

@@ -7,4 +7,6 @@
 cmake-build-*/
 
 # Generated
+src/gui/installer/deb/vpktool.desktop
+src/gui/installer/deb/vpktool.sh
 src/gui/Config.h
