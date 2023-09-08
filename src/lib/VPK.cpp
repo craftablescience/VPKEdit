@@ -314,12 +314,12 @@ std::string VPK::readTextEntry(const VPKEntry& entry) const {
     return out;
 }
 
-void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, int preloadBytes) {
+void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addEntry(dir, name, pathToFile, preloadBytes);
+    this->addEntry(dir, name, pathToFile, saveToDir, preloadBytes);
 }
 
-void VPK::addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, int preloadBytes) {
+void VPK::addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
     std::ifstream file(pathToFile, std::ios::binary);
     file.unsetf(std::ios::skipws);
 
@@ -332,15 +332,15 @@ void VPK::addEntry(const std::string& directory, const std::string& filename_, c
     data.reserve(fileSize);
     file.read(reinterpret_cast<char*>(data.data()), fileSize);
 
-    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
+    this->addBinaryEntry(directory, filename_, std::move(data), saveToDir, preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes) {
+void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addBinaryEntry(dir, name, std::forward<std::vector<std::byte>>(buffer), preloadBytes);
+    this->addBinaryEntry(dir, name, std::forward<std::vector<std::byte>>(buffer), saveToDir, preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes) {
+void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir, int preloadBytes) {
     auto dir = directory;
     if (dir.empty()) {
         dir = " ";
@@ -358,7 +358,7 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     entry.crc32 = computeCRC(buffer);
     entry.length = buffer.size();
     entry.offset = -1;
-    entry.archiveIndex = -1;
+    entry.archiveIndex = saveToDir ? VPK_DIR_INDEX : this->numArchives;
 
     if (preloadBytes > 0) {
         // Maximum preloaded data size is 1kb
@@ -374,30 +374,30 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     this->unbakedEntries.at(dir).emplace_back(entry, std::move(buffer));
 }
 
-void VPK::addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes) {
+void VPK::addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool saveToDir, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addBinaryEntry(dir, name, buffer, bufferLen, preloadBytes);
+    this->addBinaryEntry(dir, name, buffer, bufferLen, saveToDir, preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes) {
+void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool saveToDir, int preloadBytes) {
     std::vector<std::byte> data;
     data.resize(bufferLen);
     std::memcpy(data.data(), buffer, bufferLen);
-    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
+    this->addBinaryEntry(directory, filename_, std::move(data), saveToDir, preloadBytes);
 }
 
-void VPK::addTextEntry(const std::string& filename_, const std::string& text, int preloadBytes) {
+void VPK::addTextEntry(const std::string& filename_, const std::string& text, bool saveToDir, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addTextEntry(dir, name, text, preloadBytes);
+    this->addTextEntry(dir, name, text, saveToDir, preloadBytes);
 }
 
-void VPK::addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, int preloadBytes) {
+void VPK::addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, bool saveToDir, int preloadBytes) {
     std::vector<std::byte> data;
     data.reserve(text.size());
     std::transform(text.begin(), text.end(), std::back_inserter(data), [](char c) {
         return std::byte(c);
     });
-    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
+    this->addBinaryEntry(directory, filename_, std::move(data), saveToDir, preloadBytes);
 }
 
 bool VPK::removeEntry(const std::string& filename_) {
@@ -462,7 +462,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         }
     }
     for (auto& [tDir, tEntries]: this->unbakedEntries) {
-        for (auto &[tEntry, tData]: tEntries) {
+        for (auto& [tEntry, tData]: tEntries) {
             std::string extension = tEntry.filenamePair.second.empty() ? " " : tEntry.filenamePair.second;
             if (!temp.count(extension)) {
                 temp[extension] = {};
@@ -520,11 +520,7 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
-
     std::unique_ptr<FileStream> outArchive = nullptr;
-    if (!this->unbakedEntries.empty()) {
-        outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives++) + ".vpk");
-    }
 
     // Dummy header
     outDir.seekInput(0);
@@ -545,16 +541,31 @@ bool VPK::bake(const std::string& outputFolder_) {
             outDir.write('\0');
 
             for (auto* entry : tEntries) {
-                // Calculate entry offset if it's in the new archive and upload the data
-                if (outArchive && entry->archiveIndex == static_cast<std::uint16_t>(-1)) {
-                    entry->archiveIndex = this->numArchives;
-                    entry->offset = newEntryArchiveOffset;
-                    for (const auto& [unbakedEntry, entryData] : this->unbakedEntries.at(dir)) {
-                        if (entry->filename == unbakedEntry.filename) {
-                            outArchive->writeBytes(entryData);
-                            newEntryArchiveOffset += entryData.size();
-                            break;
+                // Calculate entry offset if it's unbaked and upload the data
+                if (entry->offset == static_cast<std::uint16_t>(-1)) {
+                    const std::vector<std::byte>* entryData = nullptr;
+                    for (const auto& [unbakedEntry, tEntryData] : this->unbakedEntries.at(dir)) {
+                        if (entry->filename != unbakedEntry.filename) {
+                            continue;
                         }
+                        entryData = &tEntryData;
+                        break;
+                    }
+                    if (!entryData || entry->length == entry->preloadedData.size()) {
+                        continue;
+                    }
+                    if (entry->archiveIndex != VPK_DIR_INDEX) {
+                        entry->offset = newEntryArchiveOffset;
+                        entry->archiveIndex = this->numArchives;
+                        if (!outArchive) {
+                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
+                            this->numArchives++;
+                        }
+                        outArchive->writeBytes(*entryData);
+                        newEntryArchiveOffset += entryData->size();
+                    } else {
+                        entry->offset = dirVPKEntryData.size();
+                        dirVPKEntryData.insert(dirVPKEntryData.end(), entryData->begin(), entryData->end());
                     }
                 }
 
