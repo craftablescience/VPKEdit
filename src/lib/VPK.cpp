@@ -405,8 +405,6 @@ bool VPK::bake(const std::string& outputFolder_) {
     if (this->fullPath.empty())
         return false;
 
-    const bool hasNewFiles = !this->unbakedEntries.empty();
-
     // Reconstruct data so we're not looping over it a ton of times
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<VPKEntry*>>> temp;
 
@@ -422,18 +420,16 @@ bool VPK::bake(const std::string& outputFolder_) {
             temp.at(extension).at(tDir).push_back(&tEntry);
         }
     }
-    if (hasNewFiles) {
-        for (auto &[tDir, tEntries]: this->unbakedEntries) {
-            for (auto &[tEntry, tData]: tEntries) {
-                std::string extension = tEntry.filenamePair.second.empty() ? " " : tEntry.filenamePair.second;
-                if (!temp.count(extension)) {
-                    temp[extension] = {};
-                }
-                if (!temp.at(extension).count(tDir)) {
-                    temp.at(extension)[tDir] = {};
-                }
-                temp.at(extension).at(tDir).push_back(&tEntry);
+    for (auto &[tDir, tEntries]: this->unbakedEntries) {
+        for (auto &[tEntry, tData]: tEntries) {
+            std::string extension = tEntry.filenamePair.second.empty() ? " " : tEntry.filenamePair.second;
+            if (!temp.count(extension)) {
+                temp[extension] = {};
             }
+            if (!temp.at(extension).count(tDir)) {
+                temp.at(extension)[tDir] = {};
+            }
+            temp.at(extension).at(tDir).push_back(&tEntry);
         }
     }
 
@@ -469,11 +465,14 @@ bool VPK::bake(const std::string& outputFolder_) {
             outputFolder = filename.substr(0, lastSlash);
         }
     }
+
+    // todo: copy archive files if not saving to the same directory
+
     auto dirVPKFilePath = outputFolder + '/' + this->getPrettyFileName().data() + ".vpk";
-    FileStream outDir{dirVPKFilePath};
+    FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
 
     std::unique_ptr<FileStream> outArchive = nullptr;
-    if (hasNewFiles) {
+    if (!this->unbakedEntries.empty()) {
         outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives++) + ".vpk");
     }
 
@@ -500,7 +499,7 @@ bool VPK::bake(const std::string& outputFolder_) {
 
             for (auto* entry : tEntries) {
                 // Calculate entry offset if it's in the new archive and upload the data
-                if (hasNewFiles && entry->archiveIndex == static_cast<std::uint16_t>(-1)) {
+                if (outArchive && entry->archiveIndex == static_cast<std::uint16_t>(-1)) {
                     entry->archiveIndex = this->numArchives;
                     entry->offset = newEntryArchiveOffset;
                     for (const auto& [unbakedEntry, entryData] : this->unbakedEntries.at(dir)) {
@@ -551,8 +550,11 @@ bool VPK::bake(const std::string& outputFolder_) {
     auto fileDataSize = afterFileData - treeSize - headerSize;
 
     this->header1.treeSize = treeSize;
+
     this->header2.fileDataSectionSize = fileDataSize;
     this->header2.archiveMD5SectionSize = 0;
+    this->header2.otherMD5SectionSize = 48;
+    this->header2.signatureSectionSize = this->footer2.cs2VPK ? 20 : 0;
 
     // todo: calculate md5 entries
     this->md5Entries.clear();
@@ -560,9 +562,9 @@ bool VPK::bake(const std::string& outputFolder_) {
     std::memset(this->footer2.md5EntriesChecksum.data(), 0, this->footer2.md5EntriesChecksum.size());
     std::memset(this->footer2.wholeFileChecksum.data(), 0, this->footer2.wholeFileChecksum.size());
 
-    // todo: recalculate signature
-    if (!this->footer2.signature.empty())
-        std::memset(this->footer2.signature.data(), 0, this->footer2.signature.size());
+    // We can't recalculate the signature without the private key
+    this->footer2.publicKey.clear();
+    this->footer2.signature.clear();
 
     // Write new headers
     outDir.seekOutput(0);
@@ -575,26 +577,22 @@ bool VPK::bake(const std::string& outputFolder_) {
     outDir.seekOutput(sizeof(Header1) + sizeof(Header2) + treeSize);
     outDir.writeBytes(dirVPKEntryData);
 
-    if (this->header1.version == 2) {
-        // todo: add md5 entries once calculated
+    // v2 adds the MD5 hashes and file signature
+    if (this->header1.version != 2) {
+        return true;
+    }
 
-        outDir.writeBytes(this->footer2.treeChecksum);
-        outDir.writeBytes(this->footer2.md5EntriesChecksum);
-        outDir.writeBytes(this->footer2.wholeFileChecksum);
+    // Add MD5 hashes
+    outDir.write(this->md5Entries.data(), this->md5Entries.size());
+    outDir.writeBytes(this->footer2.treeChecksum);
+    outDir.writeBytes(this->footer2.md5EntriesChecksum);
+    outDir.writeBytes(this->footer2.wholeFileChecksum);
 
-        if (!this->header2.signatureSectionSize) {
-            return true;
-        }
-
-        if (this->footer2.cs2VPK) {
-            outDir.write(static_cast<std::int32_t>(VPK_ID));
-            return true;
-        }
-
-        outDir.write(static_cast<std::int32_t>(this->footer2.publicKey.size()));
-        outDir.writeBytes(this->footer2.publicKey);
-        outDir.write(static_cast<std::int32_t>(this->footer2.signature.size()));
-        outDir.writeBytes(this->footer2.signature);
+    // The signature section is not present unless it's a CS2 vpk
+    if (this->footer2.cs2VPK) {
+        outDir.write(static_cast<std::int32_t>(VPK_ID));
+        // Pad it with 16 bytes of junk, who knows what Valve wants here
+        outDir.writeBytes(std::array<std::byte, 16>{});
     }
 
     return true;

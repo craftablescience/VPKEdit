@@ -4,13 +4,18 @@
 
 using namespace vpktool::detail;
 
-FileStream::FileStream(const std::string& filepath) {
+FileStream::FileStream(const std::string& filepath, int options) {
     this->isFile = true;
-    if (!std::filesystem::exists(filepath)) {
+    if ((options & FILESTREAM_OPT_CREATE_IF_NONEXISTENT) && !std::filesystem::exists(filepath)) {
         std::ofstream create(filepath, std::ios::trunc);
     }
-    this->streamFile.open(filepath, std::ios::in | std::ios::out | std::ios::binary);
+    auto openMode = std::ios::in | std::ios::out | std::ios::binary;
+    if (options & FILESTREAM_OPT_TRUNCATE) {
+        openMode |= std::ios::trunc;
+    }
+    this->streamFile.open(filepath, openMode);
     this->streamFile.unsetf(std::ios::skipws);
+
     this->streamBuffer = nullptr;
     this->streamLen = 0;
     this->streamPosRead = 0;

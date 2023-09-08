@@ -11,9 +11,15 @@
 
 namespace vpktool::detail {
 
+enum FileStreamOptions {
+    FILESTREAM_OPT_NONE                  =      0,
+    FILESTREAM_OPT_CREATE_IF_NONEXISTENT = 1 << 0,
+    FILESTREAM_OPT_TRUNCATE              = 1 << 1,
+};
+
 class FileStream {
 public:
-    explicit FileStream(const std::string& filepath);
+    explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
     FileStream(std::byte* buffer, std::uint64_t bufferLength);
     ~FileStream();
     FileStream(const FileStream& other) = delete;
@@ -95,7 +101,16 @@ public:
     template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
     void write(T* obj) {
         if (this->isFile) {
-            this->streamFile.write(reinterpret_cast<char*>(obj), sizeof(T));
+            this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T));
+        } else {
+            return; // unimplemented for buffers
+        }
+    }
+
+    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
+    void write(T* obj, std::size_t len) {
+        if (this->isFile) {
+            this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T) * len);
         } else {
             return; // unimplemented for buffers
         }
