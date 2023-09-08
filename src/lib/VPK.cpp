@@ -34,7 +34,6 @@ std::pair<std::string, std::string> splitFileNameAndParentDir(const std::string&
     std::replace(name.begin(), name.end(), '\\', '/');
 
     auto lastSeparator = name.rfind('/');
-
     auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
     name = filename.substr((lastSeparator + 1));
 
@@ -52,6 +51,41 @@ VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
         : reader(std::move(reader_))
         , fullPath(std::move(fullPath_))
         , filename(std::move(filename_)) {}
+
+VPK VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
+    {
+        FileStream stream{path, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
+
+        Header1 header1{};
+        header1.signature = VPK_ID;
+        header1.version = version;
+        header1.treeSize = 1;
+        stream.write(&header1);
+
+        if (version != 1) {
+            Header2 header2{};
+            header2.fileDataSectionSize = 0;
+            header2.archiveMD5SectionSize = 0;
+            header2.otherMD5SectionSize = 0;
+            header2.signatureSectionSize = cs2VPK ? 20 : 0;
+            stream.write(&header2);
+
+            stream.write('\0');
+
+            if (cs2VPK) {
+                // Copied from the bottom of this file
+                stream.write(VPK_ID);
+                // Pad it with 16 bytes of junk, who knows what Valve wants here
+                std::array<std::byte, 16> junk{};
+                junk[0] = static_cast<std::byte>(1); // ValvePak does this so we're doing it too
+                stream.writeBytes(junk);
+            }
+        } else {
+            stream.write('\0');
+        }
+    }
+    return *VPK::open(path);
+}
 
 std::optional<VPK> VPK::open(const std::string& path) {
     if (!std::filesystem::exists(path)) {
@@ -175,12 +209,15 @@ bool VPK::open(VPK& vpk) {
     for (unsigned int i = 0; i < entryNum; i++)
         vpk.md5Entries.push_back(vpk.reader.read<MD5Entry>());
 
-    if (vpk.header2.otherMD5SectionSize != 48)
+    if (vpk.header2.otherMD5SectionSize != 48 && vpk.header2.otherMD5SectionSize > 0)
         return false;
 
-    vpk.footer2.treeChecksum = vpk.reader.readBytes<16>();
-    vpk.footer2.md5EntriesChecksum = vpk.reader.readBytes<16>();
-    vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
+    if (vpk.header2.otherMD5SectionSize > 0) {
+        // Assume it's 48
+        vpk.footer2.treeChecksum = vpk.reader.readBytes<16>();
+        vpk.footer2.md5EntriesChecksum = vpk.reader.readBytes<16>();
+        vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
+    }
 
     vpk.footer2.cs2VPK = false;
     if (!vpk.header2.signatureSectionSize) {
