@@ -23,6 +23,8 @@ class Window : public QMainWindow {
 public:
     explicit Window(QSettings& options, QWidget* parent = nullptr);
 
+    void newFile(const QString& startPath = QString());
+
     void open(const QString& startPath = QString());
 
     bool loadFile(const QString& path);
