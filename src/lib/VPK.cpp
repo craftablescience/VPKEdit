@@ -52,7 +52,7 @@ VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
         , fullPath(std::move(fullPath_))
         , filename(std::move(filename_)) {}
 
-VPK VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
+VPK&& VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
     {
         FileStream stream{path, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
 
@@ -84,7 +84,7 @@ VPK VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
             stream.write('\0');
         }
     }
-    return *VPK::open(path);
+    return std::move(VPK::open(path).value());
 }
 
 std::optional<VPK> VPK::open(const std::string& path) {

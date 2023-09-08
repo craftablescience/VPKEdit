@@ -27,6 +27,8 @@
 
 using namespace vpktool;
 
+constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
+
 Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent) {
     this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION);
@@ -35,6 +37,9 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("File"));
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogNewFolder), tr("New..."), [=] {
+        this->newFile();
+    });
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open..."), [=] {
         this->open();
     });
@@ -180,13 +185,21 @@ Window::Window(QSettings& options, QWidget* parent)
     }
 }
 
+void Window::newFile(const QString& startPath) {
+    auto path = QFileDialog::getSaveFileName(this, tr("Save new VPK"), startPath, VPK_SAVE_FILTER);
+    if (path.isEmpty()) {
+        return;
+    }
+    std::ignore = VPK::create(path.toStdString());
+    this->loadFile(path);
+}
+
 void Window::open(const QString& startPath) {
-    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, "Valve PacK (*.vpk);;All files (*.*)");
+    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, VPK_SAVE_FILTER);
     if (path.isEmpty()) {
         return;
     }
     this->loadFile(path);
-    this->vpk->bake("/home/craftablescience/Downloads/test");
 }
 
 bool Window::loadFile(const QString& path) {
