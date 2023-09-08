@@ -11,6 +11,9 @@ option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
 option(VPKTOOL_BUILD_INSTALLER "Build installer for VPKTool GUI application" ON)
 option(VPKTOOL_BUILD_TESTS "Run library tests" OFF)
 
+# For hashing parts of the VPK and stored files
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/thirdparty/md5)
+
 add_library(
         lib${PROJECT_NAME}
 
@@ -21,6 +24,8 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/CRC.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/FileStream.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/VPK.cpp")
+
+target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5)
 
 target_include_directories(
         lib${PROJECT_NAME} PUBLIC

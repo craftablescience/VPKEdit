@@ -186,6 +186,7 @@ void Window::open(const QString& startPath) {
         return;
     }
     this->loadFile(path);
+    this->vpk->bake("/home/craftablescience/Downloads/test");
 }
 
 bool Window::loadFile(const QString& path) {
