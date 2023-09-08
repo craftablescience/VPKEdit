@@ -27,7 +27,9 @@ public:
 
     void open(const QString& startPath = QString());
 
-    bool loadFile(const QString& path);
+    void save();
+
+    void saveTo();
 
     void closeFile();
 
@@ -59,8 +61,12 @@ private:
     FileViewer* fileViewer;
     std::optional<vpktool::VPK> vpk;
 
+    QAction* saveFileAction;
+    QAction* saveAsFileAction;
     QAction* closeFileAction;
     QAction* extractAllAction;
+
+    bool loadFile(const QString& path);
 
     void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);
 };

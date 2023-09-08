@@ -65,6 +65,16 @@ Window::Window(QSettings& options, QWidget* parent)
         }
     }
 
+    this->saveFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"), [=] {
+        this->save();
+    });
+    this->saveFileAction->setDisabled(true);
+
+    this->saveAsFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save to..."), [=] {
+        this->saveTo();
+    });
+    this->saveAsFileAction->setDisabled(true);
+
     this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
         this->closeFile();
     });
@@ -202,35 +212,20 @@ void Window::open(const QString& startPath) {
     this->loadFile(path);
 }
 
-bool Window::loadFile(const QString& path) {
-    QString fixedPath(path);
-    fixedPath.replace('\\', '/');
-
-    this->clearContents();
-    this->vpk = VPK::open(fixedPath.toStdString());
-    if (!this->vpk) {
-        QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
-                                                 "\"directory\" VPK (typically ending in _dir), not a VPK that "
-                                                 "ends with 3 numbers. Loading a directory VPK will allow you "
-                                                 "to browse the contents of the numbered archives next to it.");
-        return false;
+void Window::save() {
+    if (!this->vpk->bake()) {
+        QMessageBox::warning(this, tr("Could not save!"), tr("An error occurred while saving the file."));
     }
+}
 
-    this->statusText->hide();
-    this->statusProgressBar->show();
-
-    this->searchBar->setDisabled(false);
-
-    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
-        this->closeFileAction->setDisabled(false);
-        this->extractAllAction->setDisabled(false);
-
-        this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
-        this->statusText->show();
-        this->statusProgressBar->hide();
-    });
-
-    return true;
+void Window::saveTo() {
+    auto savePath = QFileDialog::getExistingDirectory(this, tr("Save VPK to..."));
+    if (savePath.isEmpty()) {
+        return;
+    }
+    if (!this->vpk->bake(savePath.toStdString())) {
+        QMessageBox::warning(this, tr("Could not save!"), tr("An error occurred while saving the file."));
+    }
 }
 
 void Window::closeFile() {
@@ -344,8 +339,43 @@ void Window::clearContents() {
 
     this->fileViewer->clearContents();
 
+    this->saveFileAction->setDisabled(true);
+    this->saveAsFileAction->setDisabled(true);
     this->closeFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
+}
+
+bool Window::loadFile(const QString& path) {
+    QString fixedPath(path);
+    fixedPath.replace('\\', '/');
+
+    this->clearContents();
+    this->vpk = VPK::open(fixedPath.toStdString());
+    if (!this->vpk) {
+        QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
+                                                 "\"directory\" VPK (typically ending in _dir), not a VPK that "
+                                                 "ends with 3 numbers. Loading a directory VPK will allow you "
+                                                 "to browse the contents of the numbered archives next to it.");
+        return false;
+    }
+
+    this->statusText->hide();
+    this->statusProgressBar->show();
+
+    this->searchBar->setDisabled(false);
+
+    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
+        this->saveFileAction->setDisabled(false);
+        this->saveAsFileAction->setDisabled(false);
+        this->closeFileAction->setDisabled(false);
+        this->extractAllAction->setDisabled(false);
+
+        this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
+        this->statusText->show();
+        this->statusProgressBar->hide();
+    });
+
+    return true;
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
