@@ -44,8 +44,10 @@ Window::Window(QSettings& options, QWidget* parent)
         this->open();
     });
 
-    auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
     if (CFileSystemSearchProvider provider; provider.Available()) {
+        auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
+
+        QList<std::tuple<QString, QString, QDir>> sourceGames;
         auto installedSteamAppCount = provider.GetNumInstalledApps();
         std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
 
@@ -59,8 +61,16 @@ Window::Window(QSettings& options, QWidget* parent)
             // Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
             QString gameName(steamGameInfo->gameName);
             gameName.replace("&", "&&");
-            openRelativeToMenu->addAction(QIcon(steamGameInfo->icon), gameName, [=] {
-                this->open(relativeDirectoryPath.path());
+            sourceGames.emplace_back(gameName, steamGameInfo->icon, relativeDirectoryPath);
+        }
+        std::sort(sourceGames.begin(), sourceGames.end(), [=](const auto& lhs, const auto& rhs) {
+            return std::get<0>(lhs) < std::get<0>(rhs);
+        });
+
+        for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
+            const auto relativeDirectory = relativeDirectoryPath.path();
+            openRelativeToMenu->addAction(QIcon(iconPath), gameName, [=] {
+                this->open(relativeDirectory);
             });
         }
     }
