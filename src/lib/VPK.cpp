@@ -442,10 +442,6 @@ bool VPK::bake(const std::string& outputFolder_) {
     if (this->fullPath.empty())
         return false;
 
-    // Undefined behavior may ensue if there are no entries
-    if (this->entries.empty() && this->unbakedEntries.empty())
-        return false;
-
     // Reconstruct data so we're not looping over it a ton of times
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<VPKEntry*>>> temp;
 
@@ -589,7 +585,9 @@ bool VPK::bake(const std::string& outputFolder_) {
     outDir.write('\0');
 
     // Put files copied from the dir archive back
-    outDir.writeBytes(dirVPKEntryData);
+    if (!dirVPKEntryData.empty()) {
+        outDir.writeBytes(dirVPKEntryData);
+    }
 
     // Merge unbaked into baked entries
     for (const auto& [tDir, tUnbakedEntriesAndData] : this->unbakedEntries) {
