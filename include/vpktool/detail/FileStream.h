@@ -19,7 +19,7 @@ enum FileStreamOptions {
 
 class FileStream {
 public:
-    explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
+    explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_NONE);
     FileStream(std::byte* buffer, std::uint64_t bufferLength);
     ~FileStream();
     FileStream(const FileStream& other) = delete;
