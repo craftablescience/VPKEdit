@@ -15,6 +15,7 @@ namespace vpktool {
 constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
 constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
+constexpr int VPK_MAX_PRELOAD_BYTES = 1024;
 
 struct VPKEntry {
     /// File name of this entry (e.g. "cable.vmt")
@@ -96,17 +97,17 @@ public:
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const VPKEntry& entry) const;
     [[nodiscard]] std::string readTextEntry(const VPKEntry& entry) const;
 
-    void addEntry(const std::string& filename_, const std::string& pathToFile, bool preload = false);
-    void addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool preload = false);
+    void addEntry(const std::string& filename_, const std::string& pathToFile, int preloadBytes = 0);
+    void addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, int preloadBytes = 0);
 
-    void addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool preload = false);
-    void addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool preload = false);
+    void addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes = 0);
+    void addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes = 0);
 
-    void addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload = false);
-    void addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload = false);
+    void addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes = 0);
+    void addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes = 0);
 
-    void addTextEntry(const std::string& filename_, const std::string& text, bool preload = true);
-    void addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, bool preload = true);
+    void addTextEntry(const std::string& filename_, const std::string& text, int preloadBytes = VPK_MAX_PRELOAD_BYTES);
+    void addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, int preloadBytes = VPK_MAX_PRELOAD_BYTES);
 
     bool removeEntry(const std::string& filename_);
     bool removeEntry(const std::string& directory, const std::string& filename_);

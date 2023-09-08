@@ -277,12 +277,12 @@ std::string VPK::readTextEntry(const VPKEntry& entry) const {
     return out;
 }
 
-void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, bool preload) {
+void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addEntry(dir, name, pathToFile, preload);
+    this->addEntry(dir, name, pathToFile, preloadBytes);
 }
 
-void VPK::addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool preload) {
+void VPK::addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, int preloadBytes) {
     std::ifstream file(pathToFile, std::ios::binary);
     file.unsetf(std::ios::skipws);
 
@@ -295,15 +295,15 @@ void VPK::addEntry(const std::string& directory, const std::string& filename_, c
     data.reserve(fileSize);
     file.read(reinterpret_cast<char*>(data.data()), fileSize);
 
-    this->addBinaryEntry(directory, filename_, std::move(data), preload);
+    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool preload) {
+void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addBinaryEntry(dir, name, std::forward<std::vector<std::byte>>(buffer), preload);
+    this->addBinaryEntry(dir, name, std::forward<std::vector<std::byte>>(buffer), preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool preload) {
+void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, int preloadBytes) {
     auto dir = directory;
     if (dir.empty()) {
         dir = " ";
@@ -323,12 +323,12 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     entry.offset = -1;
     entry.archiveIndex = -1;
 
-    if (preload) {
+    if (preloadBytes > 0) {
         // Maximum preloaded data size is 1kb
-        std::vector<std::byte>::size_type bufSize = buffer.size() > 1024 ? 1024 : buffer.size();
-        entry.preloadedData.resize(bufSize);
-        std::memcpy(entry.preloadedData.data(), buffer.data(), bufSize);
-        buffer.erase(buffer.begin(), buffer.begin() + static_cast<std::streamsize>(bufSize));
+        auto clampedPreloadBytes = std::clamp(preloadBytes, 0, buffer.size() > VPK_MAX_PRELOAD_BYTES ? VPK_MAX_PRELOAD_BYTES : static_cast<int>(buffer.size()));
+        entry.preloadedData.resize(clampedPreloadBytes);
+        std::memcpy(entry.preloadedData.data(), buffer.data(), clampedPreloadBytes);
+        buffer.erase(buffer.begin(), buffer.begin() + static_cast<std::streamsize>(clampedPreloadBytes));
     }
 
     if (!this->unbakedEntries.count(dir)) {
@@ -337,30 +337,30 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     this->unbakedEntries.at(dir).emplace_back(entry, std::move(buffer));
 }
 
-void VPK::addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload) {
+void VPK::addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addBinaryEntry(dir, name, buffer, bufferLen, preload);
+    this->addBinaryEntry(dir, name, buffer, bufferLen, preloadBytes);
 }
 
-void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool preload) {
+void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, int preloadBytes) {
     std::vector<std::byte> data;
     data.resize(bufferLen);
     std::memcpy(data.data(), buffer, bufferLen);
-    this->addBinaryEntry(directory, filename_, std::move(data), preload);
+    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
 }
 
-void VPK::addTextEntry(const std::string& filename_, const std::string& text, bool preload) {
+void VPK::addTextEntry(const std::string& filename_, const std::string& text, int preloadBytes) {
     const auto [dir, name] = splitFileNameAndParentDir(filename_);
-    this->addTextEntry(dir, name, text, preload);
+    this->addTextEntry(dir, name, text, preloadBytes);
 }
 
-void VPK::addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, bool preload) {
+void VPK::addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, int preloadBytes) {
     std::vector<std::byte> data;
     data.reserve(text.size());
     std::transform(text.begin(), text.end(), std::back_inserter(data), [](char c) {
         return std::byte(c);
     });
-    this->addBinaryEntry(directory, filename_, std::move(data), preload);
+    this->addBinaryEntry(directory, filename_, std::move(data), preloadBytes);
 }
 
 bool VPK::removeEntry(const std::string& filename_) {
@@ -445,7 +445,7 @@ bool VPK::bake(const std::string& outputFolder_) {
             if (tEntry.archiveIndex == VPK_DIR_INDEX && tEntry.length != tEntry.preloadedData.size()) {
                 auto binData = VPK::readBinaryEntry(tEntry);
                 dirVPKEntryData.reserve(dirVPKEntryData.size() + tEntry.length - tEntry.preloadedData.size());
-                dirVPKEntryData.insert(dirVPKEntryData.end(), binData.begin() + tEntry.preloadedData.size(), binData.end());
+                dirVPKEntryData.insert(dirVPKEntryData.end(), binData.begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), binData.end());
 
                 tEntry.offset = newDirEntryOffset;
                 newDirEntryOffset += tEntry.length - tEntry.preloadedData.size();
@@ -563,7 +563,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         this->md5Entries.clear();
         for (const auto& [tDir, tEntries] : this->entries) {
             for (const auto& tEntry : tEntries) {
-                MD5Entry md5Entry;
+                MD5Entry md5Entry{};
                 md5Entry.archiveIndex = tEntry.archiveIndex;
                 md5Entry.length = tEntry.length - tEntry.preloadedData.size();
                 md5Entry.offset = tEntry.offset;
