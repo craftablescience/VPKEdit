@@ -11,6 +11,10 @@ static inline void setUpOptions(QSettings& options) {
     }
     QApplication::setStyle(options.value(OPT_STYLE).toString());
 
+    if (!options.contains(OPT_ENTRY_LIST_AUTO_EXPAND)) {
+        options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, false);
+    }
+
     if (!options.contains(OPT_START_MAXIMIZED)) {
         options.setValue(OPT_START_MAXIMIZED, false);
     }

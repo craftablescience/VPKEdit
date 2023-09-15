@@ -24,6 +24,8 @@ public:
 
     void setSearchQuery(const QString& query);
 
+    void setAutoExpandDirectoryOnClick(bool enable);
+
     void clearContents();
 
 public slots:
@@ -36,6 +38,8 @@ private:
 
     QThread* workerThread;
     QTreeWidgetItem* root;
+
+    bool autoExpandDirectories;
 };
 
 class LoadVPKWorker : public QObject {

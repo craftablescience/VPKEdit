@@ -108,6 +108,15 @@ Window::Window(QSettings& options, QWidget* parent)
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
 
+    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry List..."));
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Open Folder When Selected"), [=, &options] {
+        const bool newValue = !options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool();
+        this->entryTree->setAutoExpandDirectoryOnClick(newValue);
+        options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, newValue);
+    });
+    entryListMenuAutoExpandAction->setCheckable(true);
+    entryListMenuAutoExpandAction->setChecked(options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool());
+
     auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
@@ -172,6 +181,7 @@ Window::Window(QSettings& options, QWidget* parent)
     leftPaneLayout->addWidget(this->searchBar);
 
     this->entryTree = new EntryTree(this, leftPane);
+    this->entryTree->setAutoExpandDirectoryOnClick(options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool());
     leftPaneLayout->addWidget(this->entryTree);
 
     splitter->addWidget(leftPane);

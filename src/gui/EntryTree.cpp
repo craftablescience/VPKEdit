@@ -11,7 +11,8 @@ using namespace vpktool;
 
 EntryTree::EntryTree(Window* window_, QWidget* parent)
         : QTreeWidget(parent)
-        , window(window_) {
+        , window(window_)
+        , autoExpandDirectories(false) {
     this->setMinimumWidth(200);
     this->setHeaderHidden(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -97,9 +98,10 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
         this->setDisabled(false);
         this->root->setDisabled(false);
 
-        // Fire the click manually to show root contents
+        // Fire the click manually to show the contents and expand the root
         this->root->setSelected(true);
         this->onItemClicked(this->root, 0);
+        this->root->setExpanded(true);
 
         finishCallback();
     });
@@ -151,13 +153,19 @@ void EntryTree::setSearchQuery(const QString& query) {
     this->root->setHidden(false);
 }
 
+void EntryTree::setAutoExpandDirectoryOnClick(bool enable) {
+    this->autoExpandDirectories = enable;
+}
+
 void EntryTree::clearContents() {
     this->root = nullptr;
     this->clear();
 }
 
 void EntryTree::onItemClicked(QTreeWidgetItem* item, int /*column*/) {
-    item->setExpanded(!item->isExpanded());
+    if (this->autoExpandDirectories) {
+        item->setExpanded(!item->isExpanded());
+    }
 
     auto path = this->getItemPath(item);
     if (item->childCount() == 0) {
