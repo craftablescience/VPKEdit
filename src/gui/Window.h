@@ -14,10 +14,6 @@ class QSettings;
 class EntryTree;
 class FileViewer;
 
-constexpr auto OPT_STYLE = "style";
-constexpr auto OPT_ENTRY_LIST_AUTO_EXPAND = "entry_list_auto_expand";
-constexpr auto OPT_START_MAXIMIZED = "start_maximized";
-
 class Window : public QMainWindow {
     Q_OBJECT;
 
@@ -60,12 +56,13 @@ private:
     QLineEdit* searchBar;
     EntryTree* entryTree;
     FileViewer* fileViewer;
-    std::optional<vpktool::VPK> vpk;
 
     QAction* saveFileAction;
     QAction* saveAsFileAction;
     QAction* closeFileAction;
     QAction* extractAllAction;
+
+    std::optional<vpktool::VPK> vpk;
 
     bool loadFile(const QString& path);
 

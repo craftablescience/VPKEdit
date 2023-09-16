@@ -24,6 +24,7 @@
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
+#include "Options.h"
 
 using namespace vpktool;
 
@@ -400,16 +401,15 @@ bool Window::loadFile(const QString& path) {
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
     QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        auto data = (*this->vpk).readBinaryEntry(entry);
-        auto bytesWritten = file.write(reinterpret_cast<const char*>(data.data()), entry.length);
-        if (bytesWritten != entry.length) {
-            QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
-            return;
-        }
-        file.close();
-    } else {
+    if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
         return;
     }
+    auto data = (*this->vpk).readBinaryEntry(entry);
+    auto bytesWritten = file.write(reinterpret_cast<const char*>(data.data()), entry.length);
+    if (bytesWritten != entry.length) {
+        QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
+        return;
+    }
+    file.close();
 }
