@@ -32,7 +32,8 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     this->setTextPreviewVisible();
 }
 
-void FileViewer::displayEntry(const QString& path) {
+void FileViewer::displayEntry(const QString& path_) {
+    QString path = path_.toLower();
     this->clearContents();
     if (path.endsWith(".tga")  ||
         path.endsWith(".jpg")  ||
