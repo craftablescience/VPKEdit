@@ -5,6 +5,7 @@
 
 #include <QActionGroup>
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFile>
 #include <QFileDialog>
@@ -34,7 +35,6 @@ constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
 
 Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent) {
-    this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION);
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
@@ -172,6 +172,9 @@ Window::Window(QSettings& options, QWidget* parent)
     });
 #endif
 
+    // Call after the menu is created, it controls the visibility of the save button
+    this->markModified(false);
+
     // Split content into two resizeable panes
     auto* splitter = new QSplitter(Qt::Horizontal, this);
     this->setCentralWidget(splitter);
@@ -218,18 +221,22 @@ Window::Window(QSettings& options, QWidget* parent)
     // Load the VPK if given one through the command-line or double-clicking a file
     // An error here means shut the application down
     const auto& args = QApplication::arguments();
-    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadFile(args[1])) {
+    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadVPK(args[1])) {
         exit(1);
     }
 }
 
 void Window::newVPK(const QString& startPath) {
+    if (this->modified && this->promptUserToKeepModifications()) {
+        return;
+    }
+
     auto path = QFileDialog::getSaveFileName(this, tr("Save new VPK"), startPath, VPK_SAVE_FILTER);
     if (path.isEmpty()) {
         return;
     }
     std::ignore = VPK::create(path.toStdString());
-    this->loadFile(path);
+    this->loadVPK(path);
 }
 
 void Window::openVPK(const QString& startPath) {
@@ -237,7 +244,7 @@ void Window::openVPK(const QString& startPath) {
     if (path.isEmpty()) {
         return;
     }
-    this->loadFile(path);
+    this->loadVPK(path);
 }
 
 bool Window::saveVPK() {
@@ -246,6 +253,7 @@ bool Window::saveVPK() {
                              tr("An error occurred while saving changes to the VPK. Check that you have permissions to write to the file."));
         return false;
     }
+    this->markModified(false);
     return true;
 }
 
@@ -259,6 +267,7 @@ bool Window::saveAsVPK() {
                              tr("An error occurred while saving the VPK. Check that you have permissions to write to the given location."));
         return false;
     }
+    this->markModified(false);
     return true;
 }
 
@@ -283,7 +292,7 @@ void Window::addFile() {
     }
     const auto [entryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
     this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
-    this->saveVPK();
+    this->markModified(true);
 }
 
 void Window::about() {
@@ -405,7 +414,38 @@ void Window::extractAll(QString saveDir) {
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }
 
+void Window::markModified(bool modified_) {
+    this->modified = modified_;
+
+    if (this->modified) {
+        this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION " (*)");
+    } else {
+        this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION);
+    }
+
+    this->saveVPKAction->setDisabled(!this->modified);
+}
+
+bool Window::promptUserToKeepModifications() {
+    auto response = QMessageBox::warning(this, tr("Save changes?"), tr("Hold up! Would you like to save changes to the VPK first?"), QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+    if (response == QMessageBox::Cancel) {
+        return true;
+    }
+    if (response == QMessageBox::Discard) {
+        return false;
+    }
+    if (response == QMessageBox::Ok) {
+        this->saveVPK();
+        return false;
+    }
+    return true;
+}
+
 void Window::clearContents() {
+    if (this->modified && this->promptUserToKeepModifications()) {
+        return;
+    }
+
     this->statusText->setText(' ' + tr("Ready"));
     this->statusProgressBar->hide();
 
@@ -416,14 +456,23 @@ void Window::clearContents() {
 
     this->fileViewer->clearContents();
 
-    this->saveVPKAction->setDisabled(true);
     this->saveAsVPKAction->setDisabled(true);
     this->closeFileAction->setDisabled(true);
     this->addFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
+
+    this->markModified(false);
 }
 
-bool Window::loadFile(const QString& path) {
+void Window::closeEvent(QCloseEvent* event) {
+    if (this->modified && this->promptUserToKeepModifications()) {
+        event->ignore();
+        return;
+    }
+    event->accept();
+}
+
+bool Window::loadVPK(const QString& path) {
     QString fixedPath(path);
     fixedPath.replace('\\', '/');
 
@@ -443,7 +492,6 @@ bool Window::loadFile(const QString& path) {
     this->searchBar->setDisabled(false);
 
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
-        this->saveVPKAction->setDisabled(false);
         this->saveAsVPKAction->setDisabled(false);
         this->closeFileAction->setDisabled(false);
         this->addFileAction->setDisabled(false);

@@ -56,7 +56,14 @@ public:
 
     void extractAll(QString saveDir = QString());
 
+    void markModified(bool modified);
+
+    [[nodiscard]] bool promptUserToKeepModifications();
+
     void clearContents();
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     QLabel* statusText;
@@ -72,8 +79,9 @@ private:
     QAction* extractAllAction;
 
     std::optional<vpktool::VPK> vpk;
+    bool modified;
 
-    bool loadFile(const QString& path);
+    bool loadVPK(const QString& path);
 
     void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);
 };
