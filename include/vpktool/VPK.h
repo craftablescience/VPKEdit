@@ -33,6 +33,8 @@ struct VPKEntry {
     std::uint16_t archiveIndex = 0;
     /// Preloaded data
     std::vector<std::byte> preloadedData;
+    /// Use to check if entry is saved to file
+    bool unbaked = false;
 
 private:
     friend class VPK;

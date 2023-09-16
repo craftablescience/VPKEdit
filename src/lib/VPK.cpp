@@ -341,6 +341,7 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
 
     // Offset and archive index will be set when the VPK is baked
     VPKEntry entry{};
+    entry.unbaked = true;
     entry.filename = filename_;
 
     std::filesystem::path filePath{entry.filename};
@@ -465,12 +466,12 @@ bool VPK::bake(const std::string& outputFolder_) {
         }
     }
 
-    // Temporarily store file data that's stored in the directory VPK since it's getting overwritten
+    // Temporarily store baked file data that's stored in the directory VPK since it's getting overwritten
     std::vector<std::byte> dirVPKEntryData;
     std::size_t newDirEntryOffset = 0;
     for (auto& [tDir, tEntries] : this->entries) {
         for (auto& tEntry : tEntries) {
-            if (tEntry.archiveIndex == VPK_DIR_INDEX && tEntry.length != tEntry.preloadedData.size()) {
+            if (!tEntry.unbaked && tEntry.archiveIndex == VPK_DIR_INDEX && tEntry.length != tEntry.preloadedData.size()) {
                 auto binData = VPK::readBinaryEntry(tEntry);
                 dirVPKEntryData.reserve(dirVPKEntryData.size() + tEntry.length - tEntry.preloadedData.size());
                 dirVPKEntryData.insert(dirVPKEntryData.end(), binData.begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), binData.end());
@@ -533,7 +534,7 @@ bool VPK::bake(const std::string& outputFolder_) {
 
             for (auto* entry : tEntries) {
                 // Calculate entry offset if it's unbaked and upload the data
-                if (entry->offset == static_cast<std::uint16_t>(-1)) {
+                if (entry->unbaked) {
                     const std::vector<std::byte>* entryData = nullptr;
                     for (const auto& [unbakedEntry, tEntryData] : this->unbakedEntries.at(dir)) {
                         if (entry->filename != unbakedEntry.filename) {
@@ -542,10 +543,14 @@ bool VPK::bake(const std::string& outputFolder_) {
                         entryData = &tEntryData;
                         break;
                     }
-                    if (!entryData || entry->length == entry->preloadedData.size()) {
+                    if (!entryData) {
                         continue;
                     }
-                    if (entry->archiveIndex != VPK_DIR_INDEX) {
+                    if (entry->length == entry->preloadedData.size()) {
+                        // Override the archive index, no need for an archive VPK
+                        entry->archiveIndex = VPK_DIR_INDEX;
+                        entry->offset = dirVPKEntryData.size();
+                    } else if (entry->archiveIndex != VPK_DIR_INDEX) {
                         entry->offset = newEntryArchiveOffset;
                         entry->archiveIndex = this->numArchives;
                         if (!outArchive) {
@@ -585,11 +590,12 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     // Merge unbaked into baked entries
-    for (const auto& [tDir, tUnbakedEntriesAndData] : this->unbakedEntries) {
-        for (const auto& [tUnbakedEntry, tData] : tUnbakedEntriesAndData) {
+    for (auto& [tDir, tUnbakedEntriesAndData] : this->unbakedEntries) {
+        for (auto& [tUnbakedEntry, tData] : tUnbakedEntriesAndData) {
             if (!this->entries.count(tDir)) {
                 this->entries[tDir] = {};
             }
+            tUnbakedEntry.unbaked = false;
             this->entries.at(tDir).push_back(tUnbakedEntry);
         }
     }
