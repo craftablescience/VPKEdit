@@ -117,6 +117,8 @@ if(VPKTOOL_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/FileViewer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/FileViewer.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Main.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Options.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Options.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.cpp")
     if(WIN32)
