@@ -283,8 +283,8 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
             // Error!
             return {};
         }
-        stream.seekInput(static_cast<long>(entry.offset));
-        auto bytes = stream.readBytes(entry.length);
+        stream.seekInput(entry.offset);
+        auto bytes = stream.readBytes(entry.length - entry.preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
     } else if (!filename.empty()) {
         FileStream stream{this->filename + ".vpk"};
@@ -292,8 +292,8 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
             // Error!
             return {};
         }
-        stream.seekInput(static_cast<long>(this->getHeaderLength() + this->header1.treeSize + entry.offset));
-        auto bytes = stream.readBytes(entry.length);
+        stream.seekInput(this->getHeaderLength() + this->header1.treeSize + entry.offset);
+        auto bytes = stream.readBytes(entry.length - entry.preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
     } else {
         // Loaded from memory, but file is not in the directory VPK!
