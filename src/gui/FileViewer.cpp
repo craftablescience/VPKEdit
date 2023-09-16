@@ -60,6 +60,7 @@ void FileViewer::displayEntry(const QString& path) {
         path.endsWith(".kv")   ||
         path.endsWith(".kv3")  ||
         path.endsWith(".vdf")  ||
+        path.endsWith(".acf")  ||
         path.endsWith(".ini")  ||
         path.endsWith(".yml")  ||
         path.endsWith(".yaml") ||
