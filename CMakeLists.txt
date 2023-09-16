@@ -104,6 +104,8 @@ if(VPKTOOL_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
 
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
