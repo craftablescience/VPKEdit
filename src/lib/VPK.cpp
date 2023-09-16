@@ -344,7 +344,11 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     entry.filename = filename_;
 
     std::filesystem::path filePath{entry.filename};
-    entry.filenamePair = std::make_pair(filePath.stem().string(), filePath.extension().string());
+    auto ext = filePath.extension().string();
+    if (!ext.empty() && ext.at(0) == '.') {
+        ext = ext.substr(1);
+    }
+    entry.filenamePair = std::make_pair(filePath.stem().string(), ext);
 
     entry.crc32 = computeCRC(buffer);
     entry.length = buffer.size();
