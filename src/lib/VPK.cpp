@@ -320,18 +320,9 @@ void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, 
 }
 
 void VPK::addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
-    std::ifstream file(pathToFile, std::ios::binary);
-    file.unsetf(std::ios::skipws);
-
-    std::streampos fileSize;
-    file.seekg(0, std::ios::end);
-    fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::vector<std::byte> data;
-    data.reserve(fileSize);
-    file.read(reinterpret_cast<char*>(data.data()), fileSize);
-
+    FileStream stream{pathToFile};
+    stream.seekInput(0);
+    auto data = stream.readBytes(std::filesystem::file_size(pathToFile));
     this->addBinaryEntry(directory, filename_, std::move(data), saveToDir, preloadBytes);
 }
 
