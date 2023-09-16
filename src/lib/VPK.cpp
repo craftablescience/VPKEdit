@@ -489,6 +489,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         if (outputFolder.at(outputFolder.length() - 1) == '/' || outputFolder.at(outputFolder.length() - 1) == '\\') {
             outputFolder.pop_back();
         }
+        this->fullPath = outputFolder + '/' + std::filesystem::path(this->fullPath).filename().string();
     } else {
         outputFolder = this->fullPath;
         std::replace(outputFolder.begin(), outputFolder.end(), '\\', '/');
