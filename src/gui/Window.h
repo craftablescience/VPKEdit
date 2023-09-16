@@ -20,15 +20,23 @@ class Window : public QMainWindow {
 public:
     explicit Window(QSettings& options, QWidget* parent = nullptr);
 
-    void newFile(const QString& startPath = QString());
+    void newVPK(const QString& startPath = QString());
 
-    void open(const QString& startPath = QString());
+    void openVPK(const QString& startPath = QString());
 
-    void save();
+    bool saveVPK();
 
-    void saveTo();
+    bool saveAsVPK();
 
-    void closeFile();
+    void closeVPK();
+
+    static void checkForUpdates();
+
+    void addFile();
+
+    void about();
+
+    void aboutQt();
 
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const QString& path);
 
@@ -57,9 +65,10 @@ private:
     EntryTree* entryTree;
     FileViewer* fileViewer;
 
-    QAction* saveFileAction;
-    QAction* saveAsFileAction;
+    QAction* saveVPKAction;
+    QAction* saveAsVPKAction;
     QAction* closeFileAction;
+    QAction* addFileAction;
     QAction* extractAllAction;
 
     std::optional<vpktool::VPK> vpk;

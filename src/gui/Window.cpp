@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <cstdlib>
+#include <optional>
 
 #include <QActionGroup>
 #include <QApplication>
@@ -21,6 +22,7 @@
 
 #include <sapp/FilesystemSearchProvider.h>
 
+#include "popups/NewEntryDialog.h"
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
@@ -38,11 +40,11 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogNewFolder), tr("New..."), [=] {
-        this->newFile();
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("New..."), [=] {
+        this->newVPK();
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open..."), [=] {
-        this->open();
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open..."), [=] {
+        this->openVPK();
     });
 
     if (CFileSystemSearchProvider provider; provider.Available()) {
@@ -71,29 +73,29 @@ Window::Window(QSettings& options, QWidget* parent)
         for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
             const auto relativeDirectory = relativeDirectoryPath.path();
             openRelativeToMenu->addAction(QIcon(iconPath), gameName, [=] {
-                this->open(relativeDirectory);
+                this->openVPK(relativeDirectory);
             });
         }
     }
 
-    this->saveFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"), [=] {
-        this->save();
+    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"), [=] {
+        this->saveVPK();
     });
-    this->saveFileAction->setDisabled(true);
+    this->saveVPKAction->setDisabled(true);
 
-    this->saveAsFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save to..."), [=] {
-        this->saveTo();
+    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save As..."), [=] {
+        this->saveAsVPK();
     });
-    this->saveAsFileAction->setDisabled(true);
+    this->saveAsVPKAction->setDisabled(true);
 
     this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
-        this->closeFile();
+        this->closeVPK();
     });
     this->closeFileAction->setDisabled(true);
 
     fileMenu->addSeparator();
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check for updates..."), [=] {
-        QDesktopServices::openUrl(QUrl(VPKTOOL_PROJECT_HOMEPAGE "/releases/latest"));
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For Updates..."), [=] {
+        Window::checkForUpdates();
     });
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
         this->close();
@@ -101,6 +103,12 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // Edit menu
     auto* editMenu = this->menuBar()->addMenu(tr("Edit"));
+    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add File..."), [=] {
+        this->addFile();
+    });
+    this->addFileAction->setDisabled(true);
+
+    editMenu->addSeparator();
     this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"), [=] {
         this->extractAll();
     });
@@ -134,6 +142,13 @@ Window::Window(QSettings& options, QWidget* parent)
     }
 
     optionsMenu->addSeparator();
+    auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced Mode"), [=, &options] {
+        options.setValue(OPT_ADV_MODE, !options.value(OPT_ADV_MODE).toBool());
+    });
+    optionAdvancedMode->setCheckable(true);
+    optionAdvancedMode->setChecked(options.value(OPT_ADV_MODE).toBool());
+
+    optionsMenu->addSeparator();
     auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [=, &options] {
         options.setValue(OPT_START_MAXIMIZED, !options.value(OPT_START_MAXIMIZED).toBool());
     });
@@ -143,27 +158,19 @@ Window::Window(QSettings& options, QWidget* parent)
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
-        QString creditsText = "# " VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION "\n"
-                              "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
-        QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
-        if (creditsFile.open(QIODevice::ReadOnly)) {
-            QTextStream in(&creditsFile);
-            while(!in.atEnd()) {
-                creditsText += in.readLine() + '\n';
-            }
-            creditsFile.close();
-        }
-
-        QMessageBox about(this);
-        about.setWindowTitle(tr("About"));
-        about.setIconPixmap(QIcon(":/icon.png").pixmap(64, 64));
-        about.setTextFormat(Qt::TextFormat::MarkdownText);
-        about.setText(creditsText);
-        about.exec();
+        this->about();
     });
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
-        QMessageBox::aboutQt(this);
+        this->aboutQt();
     });
+
+#ifdef QT_DEBUG
+    // Debug menu
+    auto* debugMenu = this->menuBar()->addMenu("Debug");
+    debugMenu->addAction("getNewEntryOptions", [=] {
+        std::ignore = NewEntryDialog::getNewEntryOptions(this, "test");
+    });
+#endif
 
     // Split content into two resizeable panes
     auto* splitter = new QSplitter(Qt::Horizontal, this);
@@ -216,7 +223,7 @@ Window::Window(QSettings& options, QWidget* parent)
     }
 }
 
-void Window::newFile(const QString& startPath) {
+void Window::newVPK(const QString& startPath) {
     auto path = QFileDialog::getSaveFileName(this, tr("Save new VPK"), startPath, VPK_SAVE_FILTER);
     if (path.isEmpty()) {
         return;
@@ -225,7 +232,7 @@ void Window::newFile(const QString& startPath) {
     this->loadFile(path);
 }
 
-void Window::open(const QString& startPath) {
+void Window::openVPK(const QString& startPath) {
     auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, VPK_SAVE_FILTER);
     if (path.isEmpty()) {
         return;
@@ -233,25 +240,74 @@ void Window::open(const QString& startPath) {
     this->loadFile(path);
 }
 
-void Window::save() {
+bool Window::saveVPK() {
     if (!this->vpk->bake()) {
-        QMessageBox::warning(this, tr("Could not save!"), tr("An error occurred while saving the file."));
+        QMessageBox::warning(this, tr("Could not save!"),
+                             tr("An error occurred while saving changes to the VPK. Check that you have permissions to write to the file."));
+        return false;
     }
+    return true;
 }
 
-void Window::saveTo() {
+bool Window::saveAsVPK() {
     auto savePath = QFileDialog::getExistingDirectory(this, tr("Save VPK to..."));
     if (savePath.isEmpty()) {
-        return;
+        return false;
     }
     if (!this->vpk->bake(savePath.toStdString())) {
-        QMessageBox::warning(this, tr("Could not save!"), tr("An error occurred while saving the file."));
+        QMessageBox::warning(this, tr("Could not save!"),
+                             tr("An error occurred while saving the VPK. Check that you have permissions to write to the given location."));
+        return false;
     }
+    return true;
 }
 
-void Window::closeFile() {
+void Window::closeVPK() {
     this->clearContents();
     this->vpk = std::nullopt;
+}
+
+void Window::checkForUpdates() {
+    QDesktopServices::openUrl(QUrl(VPKTOOL_PROJECT_HOMEPAGE "/releases/latest"));
+}
+
+void Window::addFile() {
+    auto filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
+    if (filepath.isEmpty()) {
+        return;
+    }
+    auto filename = filepath.replace('\\', '/').split("/").last();
+    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(this, filename);
+    if (!newEntryOptions) {
+        return;
+    }
+    const auto [entryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
+    this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
+    this->saveVPK();
+}
+
+void Window::about() {
+    QString creditsText = "# " VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION "\n"
+                          "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
+    QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
+    if (creditsFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&creditsFile);
+        while(!in.atEnd()) {
+            creditsText += in.readLine() + '\n';
+        }
+        creditsFile.close();
+    }
+
+    QMessageBox about(this);
+    about.setWindowTitle(tr("About"));
+    about.setIconPixmap(QIcon(":/icon.png").pixmap(64, 64));
+    about.setTextFormat(Qt::TextFormat::MarkdownText);
+    about.setText(creditsText);
+    about.exec();
+}
+
+void Window::aboutQt() {
+    QMessageBox::aboutQt(this);
 }
 
 std::vector<std::byte> Window::readBinaryEntry(const QString& path) {
@@ -360,9 +416,10 @@ void Window::clearContents() {
 
     this->fileViewer->clearContents();
 
-    this->saveFileAction->setDisabled(true);
-    this->saveAsFileAction->setDisabled(true);
+    this->saveVPKAction->setDisabled(true);
+    this->saveAsVPKAction->setDisabled(true);
     this->closeFileAction->setDisabled(true);
+    this->addFileAction->setDisabled(true);
     this->extractAllAction->setDisabled(true);
 }
 
@@ -386,9 +443,10 @@ bool Window::loadFile(const QString& path) {
     this->searchBar->setDisabled(false);
 
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
-        this->saveFileAction->setDisabled(false);
-        this->saveAsFileAction->setDisabled(false);
+        this->saveVPKAction->setDisabled(false);
+        this->saveAsVPKAction->setDisabled(false);
         this->closeFileAction->setDisabled(false);
+        this->addFileAction->setDisabled(false);
         this->extractAllAction->setDisabled(false);
 
         this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
