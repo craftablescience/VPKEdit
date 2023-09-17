@@ -231,6 +231,7 @@ if(VPKTOOL_BUILD_GUI)
     endif()
 
     if(VPKTOOL_BUILD_INSTALLER)
+        set(CPACK_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
         set(CPACK_PACKAGE_VENDOR "craftablescience")
         set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
         set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
