@@ -57,7 +57,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 if (selectedDirAction == addFileToDirAction) {
                     this->window->addFile(path);
                 } else if (selectedDirAction == removeDirAction) {
-                    // todo: remove dir
+                    this->removeEntry(selectedItem);
                 } else if (selectedDirAction == extractDirAction) {
                     this->window->extractDir(path);
                 }
@@ -67,7 +67,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
                 // Handle the selected action
                 if (selectedFileAction == removeFileAction) {
-                    // todo: remove file
+                    this->removeEntry(selectedItem);
                 } else if (selectedFileAction == extractFileAction) {
                     this->window->extractFile(path);
                 }
@@ -211,6 +211,13 @@ QString EntryTree::getItemPath(QTreeWidgetItem* item) {
         path.prepend(item->text(0));
     }
     return path;
+}
+
+void EntryTree::removeEntry(QTreeWidgetItem* item) {
+    this->window->removeFile(this->getItemPath(item));
+    for (int i = 0; i < item->childCount(); i++) {
+        this->removeEntry(item->child(i));
+    }
 }
 
 void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {

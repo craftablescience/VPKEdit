@@ -302,6 +302,15 @@ void Window::addFile(const QString& startPath) {
     this->markModified(true);
 }
 
+bool Window::removeFile(const QString& filepath) {
+    if (!this->vpk->removeEntry(filepath.toStdString())) {
+        QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"").arg(filepath));
+        return false;
+    }
+    this->markModified(true);
+    return true;
+}
+
 void Window::about() {
     QString creditsText = "# " VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION "\n"
                           "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
