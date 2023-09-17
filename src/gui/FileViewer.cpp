@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include <QHBoxLayout>
+#include <QMessageBox>
 
 #include "previews/DirPreview.h"
 #include "previews/ImagePreview.h"
@@ -39,7 +40,12 @@ void FileViewer::displayEntry(const QString& path) {
     this->clearContents();
     if (ImagePreview::EXTENSIONS.contains(extension)) {
         // Image
-        this->imagePreview->setImage(this->window->readBinaryEntry(path));
+        auto binary = this->window->readBinaryEntry(path);
+        if (binary.empty()) {
+            QMessageBox::critical(this->window, tr("Error"), tr("Failed to open file! Please ensure that a game or another application is not using the VPK."));
+            return;
+        }
+        this->imagePreview->setImage(binary);
         this->setImagePreviewVisible();
     } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text
@@ -47,7 +53,12 @@ void FileViewer::displayEntry(const QString& path) {
         this->setTextPreviewVisible();
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
-        this->vtfPreview->setImage(this->window->readBinaryEntry(path));
+        auto binary = this->window->readBinaryEntry(path);
+        if (binary.empty()) {
+            QMessageBox::critical(this->window, tr("Error"), tr("Failed to open file! Please ensure that a game or another application is not using the VPK."));
+            return;
+        }
+        this->vtfPreview->setImage(binary);
         this->setVTFPreviewVisible();
     }
 }
