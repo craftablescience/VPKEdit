@@ -21,14 +21,22 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     this->root = nullptr;
 
     auto* contextMenuFile = new QMenu(this);
-    auto* extractFileAction = contextMenuFile->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract File"));
-    auto* contextMenuDir = new QMenu(this);
-    auto* extractDirAction = contextMenuDir->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract Folder"));
-    auto* contextMenuAll = new QMenu(this);
-    auto* extractAllAction = contextMenuAll->addAction(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"));
+    auto* removeFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove File"));
+    contextMenuFile->addSeparator();
+    auto* extractFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract File"));
 
-    connect(this, &QTreeWidget::customContextMenuRequested,
-            [&, contextMenuFile, extractFileAction, contextMenuDir, extractDirAction, contextMenuAll, extractAllAction](const QPoint& pos) {
+    auto* contextMenuDir = new QMenu(this);
+    auto* addFileToDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
+    auto* removeDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove Folder"));
+    contextMenuDir->addSeparator();
+    auto* extractDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract Folder"));
+
+    auto* contextMenuAll = new QMenu(this);
+    auto* addFileToRootAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
+    contextMenuAll->addSeparator();
+    auto* extractAllAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"));
+
+    QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
@@ -36,7 +44,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 auto* selectedAllAction = contextMenuAll->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedAllAction == extractAllAction) {
+                if (selectedAllAction == addFileToRootAction) {
+                    this->window->addFile();
+                } else if (selectedAllAction == extractAllAction) {
                     this->window->extractAll();
                 }
             } else if (selectedItem->childCount() > 0) {
@@ -44,7 +54,11 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 auto* selectedDirAction = contextMenuDir->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedDirAction == extractDirAction) {
+                if (selectedDirAction == addFileToDirAction) {
+                    this->window->addFile(path);
+                } else if (selectedDirAction == removeDirAction) {
+                    // todo: remove dir
+                } else if (selectedDirAction == extractDirAction) {
                     this->window->extractDir(path);
                 }
             } else {
@@ -52,7 +66,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 auto* selectedFileAction = contextMenuFile->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedFileAction == extractFileAction) {
+                if (selectedFileAction == removeFileAction) {
+                    // todo: remove file
+                } else if (selectedFileAction == extractFileAction) {
                     this->window->extractFile(path);
                 }
             }
