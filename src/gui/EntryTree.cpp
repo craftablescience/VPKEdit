@@ -21,20 +21,20 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     this->root = nullptr;
 
     auto* contextMenuFile = new QMenu(this);
-    auto* removeFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove File"));
-    contextMenuFile->addSeparator();
     auto* extractFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract File"));
+    contextMenuFile->addSeparator();
+    auto* removeFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove File"));
 
     auto* contextMenuDir = new QMenu(this);
+    auto* extractDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract Folder"));
+    contextMenuDir->addSeparator();
     auto* addFileToDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
     auto* removeDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove Folder"));
-    contextMenuDir->addSeparator();
-    auto* extractDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract Folder"));
 
     auto* contextMenuAll = new QMenu(this);
-    auto* addFileToRootAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
-    contextMenuAll->addSeparator();
     auto* extractAllAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"));
+    contextMenuAll->addSeparator();
+    auto* addFileToRootAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
 
     QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
