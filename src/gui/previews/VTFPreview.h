@@ -48,6 +48,10 @@ class VTFPreview : public QWidget {
     Q_OBJECT;
 
 public:
+    static inline const QStringList EXTENSIONS {
+        ".vtf",
+    };
+
     explicit VTFPreview(QWidget* parent = nullptr);
 
     void setImage(const std::vector<std::byte>& data);

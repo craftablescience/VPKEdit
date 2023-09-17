@@ -1,5 +1,7 @@
 #include "FileViewer.h"
 
+#include <filesystem>
+
 #include <QHBoxLayout>
 
 #include "previews/DirPreview.h"
@@ -32,47 +34,18 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     this->setTextPreviewVisible();
 }
 
-void FileViewer::displayEntry(const QString& path_) {
-    QString path = path_.toLower();
+void FileViewer::displayEntry(const QString& path) {
+    QString extension(std::filesystem::path(path.toLower().toStdString()).extension().string().c_str());
     this->clearContents();
-    if (path.endsWith(".tga")  ||
-        path.endsWith(".jpg")  ||
-        path.endsWith(".jpeg") ||
-        path.endsWith(".jfif") ||
-        path.endsWith(".png")  ||
-        path.endsWith(".webp") ||
-        path.endsWith(".bmp")) {
+    if (ImagePreview::EXTENSIONS.contains(extension)) {
         // Image
         this->imagePreview->setImage(this->window->readBinaryEntry(path));
         this->setImagePreviewVisible();
-    } else if (path.endsWith(".txt") ||
-        path.endsWith(".md")   ||
-        path.endsWith(".gi")   ||
-        path.endsWith(".rc")   ||
-        path.endsWith(".res")  ||
-        path.endsWith(".vbsp") ||
-        path.endsWith(".rad")  ||
-        path.endsWith(".nut")  ||
-        path.endsWith(".lua")  ||
-        path.endsWith(".gm")   ||
-        path.endsWith(".py")   ||
-        path.endsWith(".js")   ||
-        path.endsWith(".ts")   ||
-        path.endsWith(".cfg")  ||
-        path.endsWith(".kv")   ||
-        path.endsWith(".kv3")  ||
-        path.endsWith(".vdf")  ||
-        path.endsWith(".acf")  ||
-        path.endsWith(".ini")  ||
-        path.endsWith(".yml")  ||
-        path.endsWith(".yaml") ||
-        path.endsWith(".toml") ||
-        path.endsWith(".vmf")  || // hey you never know
-        path.endsWith(".vmt")) {
+    } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text
         this->textPreview->setText(this->window->readTextEntry(path));
         this->setTextPreviewVisible();
-    } else if (path.endsWith(".vtf")) {
+    } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         this->vtfPreview->setImage(this->window->readBinaryEntry(path));
         this->setVTFPreviewVisible();
