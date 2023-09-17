@@ -29,6 +29,16 @@ class ImagePreview : public QWidget {
     Q_OBJECT;
 
 public:
+    static inline const QStringList EXTENSIONS {
+        ".tga",
+        ".jpg",
+        ".jpeg",
+        ".jfif",
+        ".png",
+        ".webp",
+        ".bmp",
+    };
+
     explicit ImagePreview(QWidget* parent = nullptr);
 
     void setImage(const std::vector<std::byte>& data);
