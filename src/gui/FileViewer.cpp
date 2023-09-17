@@ -48,6 +48,7 @@ void FileViewer::displayEntry(const QString& path_) {
     } else if (path.endsWith(".txt") ||
         path.endsWith(".md")   ||
         path.endsWith(".gi")   ||
+        path.endsWith(".rc")   ||
         path.endsWith(".res")  ||
         path.endsWith(".vbsp") ||
         path.endsWith(".rad")  ||
