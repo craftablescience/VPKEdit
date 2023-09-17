@@ -5,7 +5,7 @@
 
 // The contents of this file are taken directly from ValvePak, thanks!
 
-namespace vpktool::detail {
+namespace vpkedit::detail {
 
 constexpr std::array<unsigned int, 256> CRC_TABLE = {
     0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -44,4 +44,4 @@ constexpr std::array<unsigned int, 256> CRC_TABLE = {
 
 unsigned int computeCRC(const std::vector<std::byte>& buffer);
 
-} // namespace vpktool::detail
+} // namespace vpkedit::detail

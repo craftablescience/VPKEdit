@@ -2,11 +2,11 @@
 
 #include <QTableWidget>
 
-namespace vpktool {
+namespace vpkedit {
 
 class VPK;
 
-} // namespace vpktool
+} // namespace vpkedit
 
 class FileViewer;
 
@@ -16,7 +16,7 @@ class DirPreview : public QTableWidget {
 public:
     explicit DirPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
 
-    void setPath(const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+    void setPath(const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 
 private:
     FileViewer* fileViewer;

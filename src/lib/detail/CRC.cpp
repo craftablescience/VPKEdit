@@ -1,6 +1,6 @@
-#include <vpktool/detail/CRC.h>
+#include <vpkedit/detail/CRC.h>
 
-using namespace vpktool;
+using namespace vpkedit;
 
 unsigned int detail::computeCRC(const std::vector<std::byte>& buffer) {
     unsigned int crc = 0xffffffff;

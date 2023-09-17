@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=${VPKTOOL_PROJECT_VERSION}
-Name=${VPKTOOL_PROJECT_NAME_PRETTY}
-Comment=${VPKTOOL_PROJECT_DESCRIPTION}
-Exec=/opt/${VPKTOOL_PROJECT_NAME}/${VPKTOOL_PROJECT_NAME}.sh %U
-Icon=${VPKTOOL_PROJECT_NAME}
-Terminal=false
-Type=Application
-Categories=Qt;Development;Utility;

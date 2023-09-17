@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <QMainWindow>
-#include <vpktool/VPK.h>
+#include <vpkedit/VPK.h>
 
 class QLabel;
 class QLineEdit;
@@ -80,10 +80,10 @@ private:
     QAction* addFileAction;
     QAction* extractAllAction;
 
-    std::optional<vpktool::VPK> vpk;
+    std::optional<vpkedit::VPK> vpk;
     bool modified;
 
     bool loadVPK(const QString& path);
 
-    void writeEntryToFile(const QString& path, const vpktool::VPKEntry& entry);
+    void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
 };

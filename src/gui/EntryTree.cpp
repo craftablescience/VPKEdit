@@ -7,7 +7,7 @@
 
 #include "Window.h"
 
-using namespace vpktool;
+using namespace vpkedit;
 
 EntryTree::EntryTree(Window* window_, QWidget* parent)
         : QTreeWidget(parent)

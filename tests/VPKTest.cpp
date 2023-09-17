@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <vpktool/VPK.h>
+#include <vpkedit/VPK.h>
 
 #include <fstream>
 #include <string_view>
@@ -17,7 +17,7 @@ constexpr auto PORTAL2_PAK_PATH =
     "/home/" USERNAME "/.steam/steam/steamapps/common/Portal 2/portal2/pak01_dir.vpk";
 #endif
 
-using namespace vpktool;
+using namespace vpkedit;
 
 TEST(VPK, read) {
     auto vpk = VPK::open(PORTAL2_PAK_PATH);

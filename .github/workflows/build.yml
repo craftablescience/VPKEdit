@@ -50,16 +50,16 @@ jobs:
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
-        run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j%NUMBER_OF_PROCESSORS%
+        run: cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
 
       - name: Upload Standalone
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Windows-Standalone-msvc-${{matrix.build_type}}
+          name: VPKEdit-Windows-Standalone-msvc-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpktool.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
             ${{env.BUILD_DIR}}/*.dll
             ${{env.BUILD_DIR}}/imageformats/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
@@ -73,9 +73,9 @@ jobs:
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Windows-Installer-msvc-${{matrix.build_type}}
+          name: VPKEdit-Windows-Installer-msvc-${{matrix.build_type}}
           path: |
-            ${{env.BUILD_DIR}}/VPKTool-*-win64.exe
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
 
 
@@ -125,16 +125,16 @@ jobs:
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
-        run: cmake --build . --config ${{matrix.build_type}} -t vpktool -- -j$(nproc)
+        run: cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
 
       - name: Upload Standalone
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
+          name: VPKEdit-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
-            ${{env.BUILD_DIR}}/vpktool
+            ${{env.BUILD_DIR}}/vpkedit
             ${{env.BUILD_DIR}}/*.so*
             ${{env.BUILD_DIR}}/imageformats/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
@@ -150,7 +150,7 @@ jobs:
       - name: Upload Installer
         uses: actions/upload-artifact@v3
         with:
-          name: VPKTool-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
+          name: VPKEdit-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
-            ${{env.BUILD_DIR}}/VPKTool-*-Linux.deb
+            ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7

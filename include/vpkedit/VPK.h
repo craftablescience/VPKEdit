@@ -8,9 +8,9 @@
 #include <utility>
 #include <vector>
 
-#include <vpktool/detail/FileStream.h>
+#include <vpkedit/detail/FileStream.h>
 
-namespace vpktool {
+namespace vpkedit {
 
 constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
@@ -166,4 +166,4 @@ private:
     [[nodiscard]] static bool open(VPK& vpk);
 };
 
-} // namespace vpktool
+} // namespace vpkedit

@@ -1,4 +1,4 @@
-#include <vpktool/VPK.h>
+#include <vpkedit/VPK.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -7,10 +7,10 @@
 #include <utility>
 
 #include <MD5.h>
-#include <vpktool/detail/CRC.h>
+#include <vpkedit/detail/CRC.h>
 
-using namespace vpktool;
-using namespace vpktool::detail;
+using namespace vpkedit;
+using namespace vpkedit::detail;
 
 namespace {
 

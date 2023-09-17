@@ -4,11 +4,11 @@
 
 class QTextEdit;
 
-namespace vpktool {
+namespace vpkedit {
 
 class VPK;
 
-} // namespace vpktool
+} // namespace vpkedit
 
 class DirPreview;
 class ImagePreview;
@@ -24,7 +24,7 @@ public:
 
     void displayEntry(const QString& path);
 
-    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpktool::VPK& vpk);
+    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 
     void selectSubItemInDir(const QString& name);
 

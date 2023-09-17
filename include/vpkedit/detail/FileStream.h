@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace vpktool::detail {
+namespace vpkedit::detail {
 
 enum FileStreamOptions {
     FILESTREAM_OPT_NONE                  =      0,
@@ -137,4 +137,4 @@ protected:
     bool isFile;
 };
 
-} // namespace vpktool::detail
+} // namespace vpkedit::detail

@@ -4,7 +4,7 @@
 ## Acknowledgements
 - ValvePak - xPaw
 
-  Most code in the libvpktool library is indirectly based off
+  Most code in the libvpkedit library is indirectly based off
   ValvePak and/or the Valve Developer Wiki, and the CRC
   calculation code is copied directly from ValvePak.
   Many thanks to the ValvePak developers for making their code

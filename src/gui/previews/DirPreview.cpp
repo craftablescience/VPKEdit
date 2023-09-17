@@ -2,11 +2,11 @@
 
 #include <QHeaderView>
 
-#include <vpktool/VPK.h>
+#include <vpkedit/VPK.h>
 
 #include "../FileViewer.h"
 
-using namespace vpktool;
+using namespace vpkedit;
 
 DirPreview::DirPreview(FileViewer* fileViewer_, QWidget* parent)
         : QTableWidget(parent)

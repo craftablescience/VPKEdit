@@ -5,9 +5,9 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 
-#include <vpktool/VPK.h>
+#include <vpkedit/VPK.h>
 
-using namespace vpktool;
+using namespace vpkedit;
 
 NewVPKDialog::NewVPKDialog(QWidget* parent)
         : QDialog(parent) {

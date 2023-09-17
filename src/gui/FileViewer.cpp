@@ -10,7 +10,7 @@
 #include "previews/VTFPreview.h"
 #include "Window.h"
 
-using namespace vpktool;
+using namespace vpkedit;
 
 FileViewer::FileViewer(Window* window_, QWidget* parent)
         : QWidget(parent)

@@ -1,8 +1,8 @@
-#include <vpktool/detail/FileStream.h>
+#include <vpkedit/detail/FileStream.h>
 
 #include <filesystem>
 
-using namespace vpktool::detail;
+using namespace vpkedit::detail;
 
 FileStream::FileStream(const std::string& filepath, int options) {
     this->isFile = true;

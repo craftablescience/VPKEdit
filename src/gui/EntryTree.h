@@ -3,7 +3,8 @@
 #include <functional>
 
 #include <QTreeWidget>
-#include <vpktool/VPK.h>
+
+#include <vpkedit/VPK.h>
 
 class QProgressBar;
 class QThread;
@@ -18,7 +19,7 @@ class EntryTree : public QTreeWidget {
 public:
     explicit EntryTree(Window* window_, QWidget* parent = nullptr);
 
-    void loadVPK(vpktool::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
+    void loadVPK(vpkedit::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
     void selectSubItem(const QString& name);
 
@@ -56,7 +57,7 @@ class LoadVPKWorker : public QObject {
 public:
     LoadVPKWorker() = default;
 
-    void run(EntryTree* tree, const vpktool::VPK& vpk);
+    void run(EntryTree* tree, const vpkedit::VPK& vpk);
 
 signals:
     void progressUpdated(int value);

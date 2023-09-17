@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
-project(vpktool
-        DESCRIPTION "A tool to read and extract data from VPK files."
+project(vpkedit
+        DESCRIPTION "A tool to read, preview, and write to VPK files."
         VERSION 3.1.0
-        HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
-set(PROJECT_NAME_PRETTY "VPKTool" CACHE STRING "" FORCE)
+        HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
+set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 include(GNUInstallDirs)
 
-option(VPKTOOL_BUILD_GUI "Build VPKTool GUI application" ON)
-option(VPKTOOL_BUILD_INSTALLER "Build installer for VPKTool GUI application" ON)
-option(VPKTOOL_BUILD_TESTS "Run library tests" OFF)
+option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
+option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
+option(VPKEDIT_BUILD_TESTS "Run library tests" OFF)
 
 # For hashing parts of the VPK and stored files
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/thirdparty/md5)
@@ -17,9 +17,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/thirdparty/md5)
 add_library(
         lib${PROJECT_NAME}
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/detail/CRC.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/detail/FileStream.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpktool/VPK.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/VPK.h"
 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/CRC.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/detail/FileStream.cpp"
@@ -31,7 +31,7 @@ target_include_directories(
         lib${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-if(VPKTOOL_BUILD_GUI)
+if(VPKEDIT_BUILD_GUI)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
     set(CMAKE_INSTALL_RPATH $ORIGIN)
@@ -82,11 +82,11 @@ if(VPKTOOL_BUILD_GUI)
     set(CMAKE_AUTORCC ON)
 
     # Config file
-    set(VPKTOOL_PROJECT_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "" FORCE)
-    set(VPKTOOL_PROJECT_NAME_PRETTY ${PROJECT_NAME_PRETTY} CACHE STRING "" FORCE)
-    set(VPKTOOL_PROJECT_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION} CACHE STRING "" FORCE)
-    set(VPKTOOL_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
-    set(VPKTOOL_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
+    set(VPKEDIT_PROJECT_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "" FORCE)
+    set(VPKEDIT_PROJECT_NAME_PRETTY ${PROJECT_NAME_PRETTY} CACHE STRING "" FORCE)
+    set(VPKEDIT_PROJECT_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION} CACHE STRING "" FORCE)
+    set(VPKEDIT_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
+    set(VPKEDIT_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
@@ -232,7 +232,7 @@ if(VPKTOOL_BUILD_GUI)
         configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libqt-shell.so"  "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"  COPYONLY)
     endif()
 
-    if(VPKTOOL_BUILD_INSTALLER)
+    if(VPKEDIT_BUILD_INSTALLER)
         set(CPACK_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
         set(CPACK_PACKAGE_VENDOR "craftablescience")
         set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
@@ -277,7 +277,7 @@ if(VPKTOOL_BUILD_GUI)
     endif()
 endif()
 
-if(VPKTOOL_BUILD_TESTS)
+if(VPKEDIT_BUILD_TESTS)
     include(FetchContent)
     FetchContent_Declare(
             googletest

@@ -30,7 +30,7 @@
 #include "FileViewer.h"
 #include "Options.h"
 
-using namespace vpktool;
+using namespace vpkedit;
 
 constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
 
@@ -291,7 +291,7 @@ void Window::closeVPK() {
 }
 
 void Window::checkForUpdates() {
-    QDesktopServices::openUrl(QUrl(VPKTOOL_PROJECT_HOMEPAGE "/releases/latest"));
+    QDesktopServices::openUrl(QUrl(VPKEDIT_PROJECT_HOMEPAGE "/releases/latest"));
 }
 
 void Window::addFile(const QString& startPath) {
@@ -326,7 +326,7 @@ bool Window::removeFile(const QString& filepath) {
 }
 
 void Window::about() {
-    QString creditsText = "# " VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION "\n"
+    QString creditsText = "# " VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION "\n"
                           "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
     QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
@@ -448,9 +448,9 @@ void Window::markModified(bool modified_) {
     this->modified = modified_;
 
     if (this->modified) {
-        this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION " (*)");
+        this->setWindowTitle(VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION " (*)");
     } else {
-        this->setWindowTitle(VPKTOOL_PROJECT_NAME_PRETTY " v" VPKTOOL_PROJECT_VERSION);
+        this->setWindowTitle(VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION);
     }
 
     this->saveVPKAction->setDisabled(!this->modified);

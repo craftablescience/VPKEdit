@@ -9,12 +9,12 @@
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName(VPKTOOL_ORGANIZATION_NAME);
-    QCoreApplication::setApplicationName(VPKTOOL_PROJECT_NAME);
-    QCoreApplication::setApplicationVersion(VPKTOOL_PROJECT_VERSION);
+    QCoreApplication::setOrganizationName(VPKEDIT_ORGANIZATION_NAME);
+    QCoreApplication::setApplicationName(VPKEDIT_PROJECT_NAME);
+    QCoreApplication::setApplicationVersion(VPKEDIT_PROJECT_VERSION);
 
 #if !defined(__APPLE__) && !defined(_WIN32)
-    QGuiApplication::setDesktopFileName(VPKTOOL_PROJECT_NAME);
+    QGuiApplication::setDesktopFileName(VPKEDIT_PROJECT_NAME);
 #endif
 
     QSettings options;
