@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 project(vpktool
         DESCRIPTION "A tool to read and extract data from VPK files."
-        VERSION 3.0.0
+        VERSION 3.1.0
         HOMEPAGE_URL "https://github.com/craftablescience/VPKTool")
 set(PROJECT_NAME_PRETTY "VPKTool" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
@@ -106,6 +106,8 @@ if(VPKTOOL_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewVPKDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewVPKDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
