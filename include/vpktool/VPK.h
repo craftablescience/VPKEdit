@@ -35,6 +35,8 @@ struct VPKEntry {
     std::vector<std::byte> preloadedData;
     /// Use to check if entry is saved to file
     bool unbaked = false;
+    /// The data attached to the unbaked entry - don't access this!
+    std::vector<std::byte> unbakedData;
 
 private:
     friend class VPK;
@@ -96,8 +98,8 @@ public:
     /// Also baking new entries will fail
     [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen);
 
-    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_) const;
-    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_) const;
+    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
+    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_, bool includeUnbaked = true) const;
 
     [[nodiscard]] std::vector<std::byte> readBinaryEntry(const VPKEntry& entry) const;
     [[nodiscard]] std::string readTextEntry(const VPKEntry& entry) const;
@@ -124,7 +126,7 @@ public:
         return this->entries;
     }
 
-    [[nodiscard]] const std::unordered_map<std::string, std::vector<std::pair<VPKEntry, std::vector<std::byte>>>>& getUnbakedEntries() const {
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getUnbakedEntries() const {
         return this->unbakedEntries;
     }
 
@@ -155,7 +157,7 @@ protected:
     Footer2 footer2{}; // Present in VPK v2
 
     std::unordered_map<std::string, std::vector<VPKEntry>> entries;
-    std::unordered_map<std::string, std::vector<std::pair<VPKEntry, std::vector<std::byte>>>> unbakedEntries;
+    std::unordered_map<std::string, std::vector<VPKEntry>> unbakedEntries;
     std::vector<MD5Entry> md5Entries;
 
     detail::FileStream reader;
