@@ -280,13 +280,20 @@ void Window::checkForUpdates() {
     QDesktopServices::openUrl(QUrl(VPKTOOL_PROJECT_HOMEPAGE "/releases/latest"));
 }
 
-void Window::addFile() {
+void Window::addFile(const QString& startPath) {
     auto filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (filepath.isEmpty()) {
         return;
     }
     auto filename = filepath.replace('\\', '/').split("/").last();
-    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(this, filename);
+
+    auto prefilledPath = startPath;
+    if (!prefilledPath.isEmpty()) {
+        prefilledPath += '/';
+    }
+    prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
+
+    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(this, prefilledPath);
     if (!newEntryOptions) {
         return;
     }

@@ -32,7 +32,7 @@ public:
 
     static void checkForUpdates();
 
-    void addFile();
+    void addFile(const QString& startDir = QString());
 
     void about();
 
