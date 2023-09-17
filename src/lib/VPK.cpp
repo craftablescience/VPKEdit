@@ -300,7 +300,7 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
         auto bytes = stream.readBytes(entry.length - entry.preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
     } else if (!filename.empty()) {
-        FileStream stream{this->filename + ".vpk"};
+        FileStream stream{this->fullPath};
         if (!stream) {
             // Error!
             return {};
@@ -348,7 +348,6 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     auto dir = directory;
     std::replace(dir.begin(), dir.end(), '\\', '/');
 
-    // Offset and archive index will be set when the VPK is baked
     VPKEntry entry{};
     entry.unbaked = true;
     entry.filename = filename_;
@@ -362,7 +361,9 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
 
     entry.crc32 = computeCRC(buffer);
     entry.length = buffer.size();
-    entry.offset = -1;
+
+    // Offset and archive index might be reset when the VPK is baked
+    entry.offset = 0;
     entry.archiveIndex = saveToDir ? VPK_DIR_INDEX : this->numArchives;
 
     if (preloadBytes > 0) {
