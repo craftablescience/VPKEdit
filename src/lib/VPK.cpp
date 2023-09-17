@@ -424,7 +424,7 @@ bool VPK::removeEntry(const std::string& directory, const std::string& filename_
     if (!this->entries.count(dir))
         return false;
 
-    for (auto it = this->entries.at(dir).begin(); it != this->entries.at(dir).end();) {
+    for (auto it = this->entries.at(dir).begin(); it != this->entries.at(dir).end(); ++it) {
         if (it->filename == filename_) {
             this->entries.at(dir).erase(it);
             return true;
