@@ -494,13 +494,15 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     // Get the file output paths
+    std::string outputFilename = std::filesystem::path(this->fullPath).filename().string();
+    std::string outputFilenameNoExtension = std::filesystem::path(this->fullPath).stem().string();
     std::string outputFolder;
     if (!outputFolder_.empty()) {
         outputFolder = outputFolder_;
         if (outputFolder.at(outputFolder.length() - 1) == '/' || outputFolder.at(outputFolder.length() - 1) == '\\') {
             outputFolder.pop_back();
         }
-        this->fullPath = outputFolder + '/' + std::filesystem::path(this->fullPath).filename().string();
+        this->fullPath = outputFolder + '/' + outputFilename;
     } else {
         outputFolder = this->fullPath;
         std::replace(outputFolder.begin(), outputFolder.end(), '\\', '/');
@@ -511,13 +513,17 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     // Copy external binary blobs to the new dir
-    auto dirVPKFilePath = outputFolder + '/' + this->getPrettyFileName().data() + ".vpk";
+    auto dirVPKFilePath = outputFolder + '/' + outputFilename;
     if (!outputFolder_.empty()) {
         for (int archiveIndex = 0; archiveIndex < this->numArchives; archiveIndex++) {
             try {
+                std::string dest = outputFolder + '/';
+                dest.append(outputFilenameNoExtension + '_');
+                dest.append(padArchiveIndex(archiveIndex));
+                dest.append(".vpk");
                 std::filesystem::copy(
                         this->filename + '_' + padArchiveIndex(archiveIndex) + ".vpk",
-                        outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(archiveIndex) + ".vpk",
+                        dest,
                         std::filesystem::copy_options::overwrite_existing);
             } catch (const std::filesystem::filesystem_error&) {}
         }
