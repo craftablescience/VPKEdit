@@ -20,17 +20,17 @@ NewEntryDialog::NewEntryDialog(QWidget* parent, const QString& prefilledPath)
 
     auto* layout = new QFormLayout(this);
 
-    auto* pathLineEditLabel = new QLabel(tr("The path of the file in the VPK\n(e.g. \"materials/cable.vmt\")"), this);
+    auto* pathLineEditLabel = new QLabel(tr("The path of the file in the VPK:\n(e.g. \"materials/cable.vmt\")"), this);
     this->path = new QLineEdit(this);
     this->path->setText(prefilledPath);
     layout->addRow(pathLineEditLabel, this->path);
 
     if (advancedMode) {
-        auto* useArchiveVPKLabel = new QLabel(tr("Save this entry to a new numbered\narchive instead of the dir VPK"), this);
+        auto* useArchiveVPKLabel = new QLabel(tr("Save this entry to a new numbered\narchive instead of the dir VPK:"), this);
         this->useArchiveVPK = new QCheckBox(this);
         layout->addRow(useArchiveVPKLabel, this->useArchiveVPK);
 
-        auto* preloadBytesLabel = new QLabel(tr("Set the bytes of the file to preload\n(From 0 to 1023 bytes)"), this);
+        auto* preloadBytesLabel = new QLabel(tr("Set the bytes of the file to preload:\n(From 0 to 1023 bytes)"), this);
         this->preloadBytes = new QSpinBox(this);
         this->preloadBytes->setMinimum(0);
         this->preloadBytes->setMaximum(1023);

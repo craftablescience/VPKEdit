@@ -24,6 +24,7 @@
 #include <sapp/FilesystemSearchProvider.h>
 
 #include "popups/NewEntryDialog.h"
+#include "popups/NewVPKDialog.h"
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
@@ -34,7 +35,8 @@ using namespace vpktool;
 constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
 
 Window::Window(QSettings& options, QWidget* parent)
-        : QMainWindow(parent) {
+        : QMainWindow(parent)
+        , modified(false) {
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
@@ -170,6 +172,9 @@ Window::Window(QSettings& options, QWidget* parent)
     debugMenu->addAction("getNewEntryOptions", [=] {
         std::ignore = NewEntryDialog::getNewEntryOptions(this, "test");
     });
+    debugMenu->addAction("getNewVPKOptions", [=] {
+        std::ignore = NewVPKDialog::getNewVPKOptions(this);
+    });
 #endif
 
     // Call after the menu is created, it controls the visibility of the save button
@@ -235,7 +240,16 @@ void Window::newVPK(const QString& startPath) {
     if (path.isEmpty()) {
         return;
     }
-    std::ignore = VPK::create(path.toStdString());
+    auto vpkOptions = NewVPKDialog::getNewVPKOptions(this);
+    if (!vpkOptions) {
+        return;
+    }
+    auto [version] = *vpkOptions;
+    const bool cs2 = version == VPK_ID;
+    if (cs2) {
+        version = 2;
+    }
+    std::ignore = VPK::create(path.toStdString(), version, cs2);
     this->loadVPK(path);
 }
 
@@ -285,7 +299,6 @@ void Window::addFile(const QString& startPath) {
     if (filepath.isEmpty()) {
         return;
     }
-    auto filename = filepath.replace('\\', '/').split("/").last();
 
     auto prefilledPath = startPath;
     if (!prefilledPath.isEmpty()) {
