@@ -34,6 +34,8 @@ public slots:
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);
 
+    void removeEntry(QTreeWidgetItem* item);
+
     Window* window;
 
     QThread* workerThread;
