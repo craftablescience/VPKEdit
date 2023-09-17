@@ -346,11 +346,7 @@ void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& 
 
 void VPK::addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir, int preloadBytes) {
     auto dir = directory;
-    if (dir.empty()) {
-        dir = " ";
-    } else {
-        std::replace(dir.begin(), dir.end(), '\\', '/');
-    }
+    std::replace(dir.begin(), dir.end(), '\\', '/');
 
     // Offset and archive index will be set when the VPK is baked
     VPKEntry entry{};
