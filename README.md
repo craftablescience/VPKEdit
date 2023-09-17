@@ -1,5 +1,5 @@
 <div>
-  <img align="left" width="44px" src="https://github.com/craftablescience/VPKTool/blob/main/branding/icon.png?raw=true" alt="VPKTool Logo" />
+  <img align="left" width="44px" src="https://github.com/craftablescience/VPKTool/blob/main/branding/vpktool.png?raw=true" alt="VPKTool Logo" />
   <h1>VPKTool</h1>
 </div>
 
