@@ -75,7 +75,7 @@ jobs:
         with:
           name: VPKTool-Windows-Installer-msvc-${{matrix.build_type}}
           path: |
-            ${{env.BUILD_DIR}}/vpktool-*-win64.exe
+            ${{env.BUILD_DIR}}/VPKTool-*-win64.exe
           retention-days: 7
 
 
@@ -152,5 +152,5 @@ jobs:
         with:
           name: VPKTool-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
-            ${{env.BUILD_DIR}}/vpktool-*-Linux.deb
+            ${{env.BUILD_DIR}}/VPKTool-*-Linux.deb
           retention-days: 7
