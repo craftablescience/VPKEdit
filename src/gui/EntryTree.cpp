@@ -178,6 +178,10 @@ void EntryTree::clearContents() {
     this->clear();
 }
 
+void EntryTree::addEntry(const QString& path) {
+    this->addNestedEntryComponents(path);
+}
+
 void EntryTree::onItemClicked(QTreeWidgetItem* item, int /*column*/) {
     if (this->autoExpandDirectories) {
         item->setExpanded(!item->isExpanded());
@@ -213,11 +217,57 @@ QString EntryTree::getItemPath(QTreeWidgetItem* item) {
     return path;
 }
 
-void EntryTree::removeEntry(QTreeWidgetItem* item) {
-    this->window->removeFile(this->getItemPath(item));
-    for (int i = 0; i < item->childCount(); i++) {
-        this->removeEntry(item->child(i));
+void EntryTree::addNestedEntryComponents(const QString& path) {
+    QStringList components = path.split('/', Qt::SkipEmptyParts);
+    QTreeWidgetItem* currentItem = nullptr;
+
+    for (const auto& component : components) {
+        QTreeWidgetItem* newItem = nullptr;
+
+        // Find the child item with the current component text under the current parent item
+        int childCount = currentItem ? currentItem->childCount() : this->root->childCount();
+        for (int i = 0; i < childCount; ++i) {
+            QTreeWidgetItem* childItem = currentItem ? currentItem->child(i) : this->root->child(i);
+            if (childItem->text(0) == component) {
+                newItem = childItem;
+                break;
+            }
+        }
+
+        // If the child item doesn't exist, create a new one
+        if (!newItem) {
+            if (currentItem) {
+                newItem = new QTreeWidgetItem(currentItem);
+            } else {
+                newItem = new QTreeWidgetItem(this->root);
+            }
+            newItem->setText(0, component);
+        }
+
+        currentItem = newItem;
     }
+}
+
+void EntryTree::removeEntry(QTreeWidgetItem* item) {
+    auto* parent = item->parent();
+    this->removeEntryRecurse(item);
+
+    // Remove dead directories
+    while (parent && parent != this->root && parent->childCount() == 0) {
+        auto* temp = parent->parent();
+        delete parent;
+        parent = temp;
+    }
+}
+
+void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
+    if (item->childCount() == 0) {
+        this->window->removeFile(this->getItemPath(item));
+    }
+    while (item->childCount() > 0) {
+        this->removeEntryRecurse(item->child(0));
+    }
+    delete item;
 }
 
 void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {
@@ -225,34 +275,7 @@ void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {
     for (const auto& [directory, entries] : vpk.getEntries()) {
         emit progressUpdated(++progress);
         for (const auto& entry : entries) {
-            QStringList components = (QString(directory.c_str()) + '/' + entry.filename.c_str()).split('/', Qt::SkipEmptyParts);
-            QTreeWidgetItem* currentItem = nullptr;
-
-            for (const auto& component : components) {
-                QTreeWidgetItem* newItem = nullptr;
-
-                // Find the child item with the current component text under the current parent item
-                int childCount = currentItem ? currentItem->childCount() : tree->root->childCount();
-                for (int i = 0; i < childCount; ++i) {
-                    QTreeWidgetItem* childItem = currentItem ? currentItem->child(i) : tree->root->child(i);
-                    if (childItem->text(0) == component) {
-                        newItem = childItem;
-                        break;
-                    }
-                }
-
-                // If the child item doesn't exist, create a new one
-                if (!newItem) {
-                    if (currentItem) {
-                        newItem = new QTreeWidgetItem(currentItem);
-                    } else {
-                        newItem = new QTreeWidgetItem(tree->root);
-                    }
-                    newItem->setText(0, component);
-                }
-
-                currentItem = newItem;
-            }
+            tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.filename.c_str());
         }
     }
     tree->sortItems(0, Qt::AscendingOrder);
