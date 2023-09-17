@@ -41,16 +41,16 @@ Window::Window(QSettings& options, QWidget* parent)
     this->setMinimumSize(900, 500);
 
     // File menu
-    auto* fileMenu = this->menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("New..."), [=] {
+    auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New..."), Qt::CTRL | Qt::Key_N, [=] {
         this->newVPK();
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open..."), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
         this->openVPK();
     });
 
     if (CFileSystemSearchProvider provider; provider.Available()) {
-        auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
+        auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
 
         QList<std::tuple<QString, QString, QDir>> sourceGames;
         auto installedSteamAppCount = provider.GetNumInstalledApps();
@@ -80,47 +80,47 @@ Window::Window(QSettings& options, QWidget* parent)
         }
     }
 
-    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"), [=] {
+    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [=] {
         this->saveVPK();
     });
     this->saveVPKAction->setDisabled(true);
 
-    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save As..."), [=] {
+    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [=] {
         this->saveAsVPK();
     });
     this->saveAsVPKAction->setDisabled(true);
 
-    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), [=] {
+    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [=] {
         this->closeVPK();
     });
     this->closeFileAction->setDisabled(true);
 
     fileMenu->addSeparator();
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For Updates..."), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), [=] {
         Window::checkForUpdates();
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [=] {
         this->close();
     });
 
     // Edit menu
-    auto* editMenu = this->menuBar()->addMenu(tr("Edit"));
-    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add File..."), [=] {
+    auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
+    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [=] {
         this->addFile();
     });
     this->addFileAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"), [=] {
+    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [=] {
         this->extractAll();
     });
     this->extractAllAction->setDisabled(true);
 
     // Options menu
-    auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
+    auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
 
-    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry List..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Open Folder When Selected"), [=, &options] {
+    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry List..."));
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [=, &options] {
         const bool newValue = !options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool();
         this->entryTree->setAutoExpandDirectoryOnClick(newValue);
         options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, newValue);
@@ -128,7 +128,7 @@ Window::Window(QSettings& options, QWidget* parent)
     entryListMenuAutoExpandAction->setCheckable(true);
     entryListMenuAutoExpandAction->setChecked(options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool());
 
-    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
+    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("&Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
     for (const auto& themeName : QStyleFactory::keys()) {
@@ -144,31 +144,31 @@ Window::Window(QSettings& options, QWidget* parent)
     }
 
     optionsMenu->addSeparator();
-    auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced Mode"), [=, &options] {
+    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced Mode"), [=, &options] {
         options.setValue(OPT_ADV_MODE, !options.value(OPT_ADV_MODE).toBool());
     });
     optionAdvancedMode->setCheckable(true);
     optionAdvancedMode->setChecked(options.value(OPT_ADV_MODE).toBool());
 
     optionsMenu->addSeparator();
-    auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [=, &options] {
+    auto* optionStartMaximized = optionsMenu->addAction(tr("&Start Maximized"), [=, &options] {
         options.setValue(OPT_START_MAXIMIZED, !options.value(OPT_START_MAXIMIZED).toBool());
     });
     optionStartMaximized->setCheckable(true);
     optionStartMaximized->setChecked(options.value(OPT_START_MAXIMIZED).toBool());
 
     // Help menu
-    auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), [=] {
+    auto* helpMenu = this->menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [=] {
         this->about();
     });
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About Qt", [=] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", [=] {
         this->aboutQt();
     });
 
 #ifdef QT_DEBUG
     // Debug menu
-    auto* debugMenu = this->menuBar()->addMenu("Debug");
+    auto* debugMenu = this->menuBar()->addMenu("&Debug");
     debugMenu->addAction("getNewEntryOptions", [=] {
         std::ignore = NewEntryDialog::getNewEntryOptions(this, "test");
     });
