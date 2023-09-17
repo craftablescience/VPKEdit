@@ -300,6 +300,7 @@ void Window::addFile(const QString& startPath) {
     const auto [entryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
     this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
     this->markModified(true);
+    this->entryTree->addEntry(entryPath);
 }
 
 bool Window::removeFile(const QString& filepath) {

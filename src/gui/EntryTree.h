@@ -28,13 +28,19 @@ public:
 
     void clearContents();
 
+    void addEntry(const QString& path);
+
 public slots:
     void onItemClicked(QTreeWidgetItem* item, int /*column*/);
 
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);
 
+    void addNestedEntryComponents(const QString& path);
+
     void removeEntry(QTreeWidgetItem* item);
+
+    void removeEntryRecurse(QTreeWidgetItem* item);
 
     Window* window;
 
