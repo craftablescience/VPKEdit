@@ -1,5 +1,8 @@
 #pragma once
 
+#include <typeinfo>
+#include <typeindex>
+
 #include <QWidget>
 
 class QTextEdit;
@@ -10,10 +13,6 @@ class VPK;
 
 } // namespace vpkedit
 
-class DirPreview;
-class ImagePreview;
-class TextPreview;
-class VTFPreview;
 class Window;
 
 class FileViewer : public QWidget {
@@ -33,13 +32,25 @@ public:
 private:
     Window* window;
 
-    DirPreview* dirPreview;
-    ImagePreview* imagePreview;
-    TextPreview* textPreview;
-    VTFPreview* vtfPreview;
+    std::unordered_map<std::type_index, QWidget*> previews;
 
-    void setDirPreviewVisible();
-    void setImagePreviewVisible();
-    void setTextPreviewVisible();
-    void setVTFPreviewVisible();
+    template<typename T, typename... Args>
+    T* newPreview(Args... args) {
+        auto* preview = new T(std::forward<Args>(args)...);
+        this->previews[std::type_index(typeid(T))] = preview;
+        return preview;
+    }
+
+    template<typename T>
+    inline T* getPreview() {
+        return dynamic_cast<T*>(this->previews.at(std::type_index(typeid(T))));
+    }
+
+    template<typename T>
+    void showPreview() {
+        for (const auto [index, widget] : this->previews) {
+            widget->hide();
+        }
+        this->previews.at(std::type_index(typeid(T)))->show();
+    }
 };

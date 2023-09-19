@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 project(vpkedit
         DESCRIPTION "A tool to read, preview, and write to VPK files."
-        VERSION 3.1.2
+        VERSION 3.2.0
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
@@ -110,6 +110,8 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewVPKDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ErrorPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ErrorPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.h"

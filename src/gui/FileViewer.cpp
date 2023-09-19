@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include "previews/DirPreview.h"
+#include "previews/ErrorPreview.h"
 #include "previews/ImagePreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
@@ -19,20 +20,22 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    this->dirPreview = new DirPreview(this);
-    layout->addWidget(this->dirPreview);
+    auto* dirPreview = newPreview<DirPreview>(this, this);
+    layout->addWidget(dirPreview);
 
-    this->imagePreview = new ImagePreview(this);
-    layout->addWidget(this->imagePreview);
+    auto* errorPreview = newPreview<ErrorPreview>(this);
+    layout->addWidget(errorPreview);
 
-    this->textPreview = new TextPreview(this);
-    layout->addWidget(this->textPreview);
+    auto* imagePreview = newPreview<ImagePreview>(this);
+    layout->addWidget(imagePreview);
 
-    this->vtfPreview = new VTFPreview(this);
-    layout->addWidget(this->vtfPreview);
+    auto* textPreview = newPreview<TextPreview>(this);
+    layout->addWidget(textPreview);
+
+    auto* vtfPreview = newPreview<VTFPreview>(this);
+    layout->addWidget(vtfPreview);
 
     this->clearContents();
-    this->setTextPreviewVisible();
 }
 
 void FileViewer::displayEntry(const QString& path) {
@@ -41,32 +44,38 @@ void FileViewer::displayEntry(const QString& path) {
     if (ImagePreview::EXTENSIONS.contains(extension)) {
         // Image
         auto binary = this->window->readBinaryEntry(path);
-        if (binary.empty()) {
-            QMessageBox::critical(this->window, tr("Error"), tr("Failed to open file! Please ensure that a game or another application is not using the VPK."));
+        if (!binary) {
+            this->showPreview<ErrorPreview>();
             return;
         }
-        this->imagePreview->setImage(binary);
-        this->setImagePreviewVisible();
+        this->getPreview<ImagePreview>()->setImage(*binary);
+        this->showPreview<ImagePreview>();
     } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text
-        this->textPreview->setText(this->window->readTextEntry(path));
-        this->setTextPreviewVisible();
+        auto text = this->window->readTextEntry(path);
+        if (!text) {
+            this->showPreview<ErrorPreview>();
+            return;
+        }
+        this->getPreview<TextPreview>()->setText(*text);
+        this->showPreview<TextPreview>();
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
-        if (binary.empty()) {
-            QMessageBox::critical(this->window, tr("Error"), tr("Failed to open file! Please ensure that a game or another application is not using the VPK."));
+        if (!binary) {
+            this->showPreview<ErrorPreview>();
             return;
         }
-        this->vtfPreview->setImage(binary);
-        this->setVTFPreviewVisible();
+        this->getPreview<VTFPreview>()->setImage(*binary);
+        this->showPreview<VTFPreview>();
     }
 }
 
 void FileViewer::displayDir(const QString& /*path*/, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
     this->clearContents();
-    this->dirPreview->setPath(subfolders, entryPaths, vpk);
-    this->setDirPreviewVisible();
+    this->getPreview<DirPreview>()->setPath(subfolders, entryPaths, vpk);
+    this->showPreview<DirPreview>();
+    this->showPreview<ErrorPreview>();
 }
 
 void FileViewer::selectSubItemInDir(const QString& name) {
@@ -74,34 +83,6 @@ void FileViewer::selectSubItemInDir(const QString& name) {
 }
 
 void FileViewer::clearContents() {
-    this->textPreview->setText("");
-    this->setTextPreviewVisible();
-}
-
-void FileViewer::setDirPreviewVisible() {
-    this->dirPreview->show();
-    this->imagePreview->hide();
-    this->textPreview->hide();
-    this->vtfPreview->hide();
-}
-
-void FileViewer::setImagePreviewVisible() {
-    this->dirPreview->hide();
-    this->imagePreview->show();
-    this->textPreview->hide();
-    this->vtfPreview->hide();
-}
-
-void FileViewer::setTextPreviewVisible() {
-    this->dirPreview->hide();
-    this->imagePreview->hide();
-    this->textPreview->show();
-    this->vtfPreview->hide();
-}
-
-void FileViewer::setVTFPreviewVisible() {
-    this->dirPreview->hide();
-    this->imagePreview->hide();
-    this->textPreview->hide();
-    this->vtfPreview->show();
+    this->getPreview<TextPreview>()->setText("");
+    this->showPreview<TextPreview>();
 }

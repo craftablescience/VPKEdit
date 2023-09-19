@@ -262,6 +262,7 @@ void EntryTree::removeEntry(QTreeWidgetItem* item) {
     }
 }
 
+// NOLINTNEXTLINE(*-no-recursion)
 void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
     if (item->childCount() == 0) {
         this->window->removeFile(this->getItemPath(item));

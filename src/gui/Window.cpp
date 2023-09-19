@@ -349,20 +349,24 @@ void Window::aboutQt() {
     QMessageBox::aboutQt(this);
 }
 
-std::vector<std::byte> Window::readBinaryEntry(const QString& path) {
+std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) {
     auto entry = (*this->vpk).findEntry(path.toStdString());
     if (!entry) {
-        return {};
+        return std::nullopt;
     }
     return (*this->vpk).readBinaryEntry(*entry);
 }
 
-QString Window::readTextEntry(const QString& path) {
+std::optional<QString> Window::readTextEntry(const QString& path) {
     auto entry = (*this->vpk).findEntry(path.toStdString());
     if (!entry) {
-        return {};
+        return std::nullopt;
     }
-    return {(*this->vpk).readTextEntry(*entry).c_str()};
+    auto textData = (*this->vpk).readTextEntry(*entry);
+    if (!textData) {
+        return std::nullopt;
+    }
+    return QString(textData->c_str());
 }
 
 void Window::selectEntry(const QString& path) {
@@ -512,7 +516,8 @@ bool Window::loadVPK(const QString& path) {
         QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
                                                  "\"directory\" VPK (typically ending in _dir), not a VPK that "
                                                  "ends with 3 numbers. Loading a directory VPK will allow you "
-                                                 "to browse the contents of the numbered archives next to it.");
+                                                 "to browse the contents of the numbered archives next to it.\n"
+                                                 "Also, please ensure that a game or another application is not using the VPK.");
         return false;
     }
 
@@ -536,16 +541,19 @@ bool Window::loadVPK(const QString& path) {
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
+    auto data = (*this->vpk).readBinaryEntry(entry);
+    if (!data) {
+        QMessageBox::critical(this, tr("Error"), QString("Failed to read data from the VPK for \"") + entry.filename.c_str() + "\". Please ensure that a game or another application is not using the VPK.");
+        return;
+    }
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
         return;
     }
-    auto data = (*this->vpk).readBinaryEntry(entry);
-    auto bytesWritten = file.write(reinterpret_cast<const char*>(data.data()), entry.length);
+    auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), entry.length);
     if (bytesWritten != entry.length) {
         QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
-        return;
     }
     file.close();
 }

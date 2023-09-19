@@ -40,9 +40,9 @@ public:
 
     void aboutQt();
 
-    [[nodiscard]] std::vector<std::byte> readBinaryEntry(const QString& path);
+    [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path);
 
-    [[nodiscard]] QString readTextEntry(const QString& path);
+    [[nodiscard]] std::optional<QString> readTextEntry(const QString& path);
 
     void selectEntry(const QString& path);
 
