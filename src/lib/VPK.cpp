@@ -269,7 +269,7 @@ std::optional<VPKEntry> VPK::findEntry(const std::string& directory, const std::
     return std::nullopt;
 }
 
-std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
+std::optional<std::vector<std::byte>> VPK::readBinaryEntry(const VPKEntry& entry) const {
     std::vector<std::byte> output(entry.length, static_cast<std::byte>(0));
 
     if (!entry.preloadedData.empty()) {
@@ -293,8 +293,7 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
     } else if (entry.archiveIndex != VPK_DIR_INDEX) {
         FileStream stream{this->filename + '_' + padArchiveIndex(entry.archiveIndex) + ".vpk"};
         if (!stream) {
-            // Error!
-            return {};
+            return std::nullopt;
         }
         stream.seekInput(entry.offset);
         auto bytes = stream.readBytes(entry.length - entry.preloadedData.size());
@@ -302,24 +301,26 @@ std::vector<std::byte> VPK::readBinaryEntry(const VPKEntry& entry) const {
     } else if (!filename.empty()) {
         FileStream stream{this->fullPath};
         if (!stream) {
-            // Error!
-            return {};
+            return std::nullopt;
         }
         stream.seekInput(this->getHeaderLength() + this->header1.treeSize + entry.offset);
         auto bytes = stream.readBytes(entry.length - entry.preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
     } else {
         // Loaded from memory, but file is not in the directory VPK!
-        return {};
+        return std::nullopt;
     }
 
     return output;
 }
 
-std::string VPK::readTextEntry(const VPKEntry& entry) const {
+std::optional<std::string> VPK::readTextEntry(const VPKEntry& entry) const {
     auto bytes = this->readBinaryEntry(entry);
+    if (!bytes) {
+        return std::nullopt;
+    }
     std::string out;
-    for (auto byte : bytes) {
+    for (auto byte : *bytes) {
         if (byte == std::byte(0))
             break;
         out += static_cast<char>(byte);
@@ -485,8 +486,11 @@ bool VPK::bake(const std::string& outputFolder_) {
         for (auto& tEntry : tEntries) {
             if (!tEntry.unbaked && tEntry.archiveIndex == VPK_DIR_INDEX && tEntry.length != tEntry.preloadedData.size()) {
                 auto binData = VPK::readBinaryEntry(tEntry);
+                if (!binData) {
+                    continue;
+                }
                 dirVPKEntryData.reserve(dirVPKEntryData.size() + tEntry.length - tEntry.preloadedData.size());
-                dirVPKEntryData.insert(dirVPKEntryData.end(), binData.begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), binData.end());
+                dirVPKEntryData.insert(dirVPKEntryData.end(), (*binData).begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), (*binData).end());
 
                 tEntry.offset = newDirEntryOffset;
                 newDirEntryOffset += tEntry.length - tEntry.preloadedData.size();
@@ -631,12 +635,16 @@ bool VPK::bake(const std::string& outputFolder_) {
         this->md5Entries.clear();
         for (const auto& [tDir, tEntries] : this->entries) {
             for (const auto& tEntry : tEntries) {
+                // Believe it or not this should be safe to call by now
+                auto binData = this->readBinaryEntry(tEntry);
+                if (!binData) {
+                    continue;
+                }
                 MD5Entry md5Entry{};
                 md5Entry.archiveIndex = tEntry.archiveIndex;
                 md5Entry.length = tEntry.length - tEntry.preloadedData.size();
                 md5Entry.offset = tEntry.offset;
-                // Believe it or not this should be safe to call by now
-                md5Entry.checksum = md5(this->readBinaryEntry(tEntry));
+                md5Entry.checksum = md5(*binData);
                 this->md5Entries.push_back(md5Entry);
             }
         }

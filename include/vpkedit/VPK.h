@@ -101,8 +101,8 @@ public:
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_, bool includeUnbaked = true) const;
 
-    [[nodiscard]] std::vector<std::byte> readBinaryEntry(const VPKEntry& entry) const;
-    [[nodiscard]] std::string readTextEntry(const VPKEntry& entry) const;
+    [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const VPKEntry& entry) const;
+    [[nodiscard]] std::optional<std::string> readTextEntry(const VPKEntry& entry) const;
 
     void addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir = true, int preloadBytes = 0);
     void addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool saveToDir = true, int preloadBytes = 0);

@@ -43,5 +43,6 @@ TEST(VPK, readContents) {
 
     std::string_view expectedContents = "SplineRope\r\n{\r\n$basetexture \"cable\\black\"\r\n}\r\n";
     auto actualContents = vpk->readTextEntry(*cableVMT);
-    ASSERT_STREQ(actualContents.c_str(), expectedContents.data());
+    ASSERT_TRUE(actualContents);
+    ASSERT_STREQ(actualContents->c_str(), expectedContents.data());
 }
