@@ -53,7 +53,7 @@ void DirPreview::setPath(const QList<QString>& subfolders, const QList<QString>&
         auto* nameItem = new QTableWidgetItem(entry->filename.c_str());
         this->setItem(this->rowCount() - 1, 0, nameItem);
 
-        auto* typeItem = new QTableWidgetItem(QString(entry->filename.c_str()).split(".")[1].toUpper());
+        auto* typeItem = new QTableWidgetItem(QString(entry->filenamePair.second.c_str()).toUpper());
         this->setItem(this->rowCount() - 1, 1, typeItem);
 
         QTableWidgetItem* sizeItem;
