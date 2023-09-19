@@ -48,8 +48,11 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New..."), Qt::CTRL | Qt::Key_N, [=] {
-        this->newVPK();
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New VPK..."), Qt::CTRL | Qt::Key_N, [=] {
+        this->newVPK(false);
+    });
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New VPK From Folder..."), Qt::CTRL | Qt::Key_N, [=] {
+        this->newVPK(true);
     });
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
         this->openVPK();
@@ -244,15 +247,21 @@ Window::Window(QSettings& options, QWidget* parent)
     }
 }
 
-void Window::newVPK(const QString& startPath) {
+void Window::newVPK(bool fromDirectory, const QString& startPath) {
     if (this->modified && this->promptUserToKeepModifications()) {
         return;
     }
 
-    auto path = QFileDialog::getSaveFileName(this, tr("Save new VPK"), startPath, VPK_SAVE_FILTER);
-    if (path.isEmpty()) {
+    auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, tr("Use This Folder"), startPath) : "";
+    if (fromDirectory && dirPath.isEmpty()) {
         return;
     }
+
+    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(std::filesystem::path(dirPath.toStdString()).stem().string().c_str()) + ".vpk" : startPath, VPK_SAVE_FILTER);
+    if (vpkPath.isEmpty()) {
+        return;
+    }
+
     auto vpkOptions = NewVPKDialog::getNewVPKOptions(this);
     if (!vpkOptions) {
         return;
@@ -262,8 +271,13 @@ void Window::newVPK(const QString& startPath) {
     if (cs2) {
         version = 2;
     }
-    std::ignore = VPK::create(path.toStdString(), version, cs2);
-    this->loadVPK(path);
+
+    if (fromDirectory) {
+        std::ignore = VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version, cs2);
+    } else {
+        std::ignore = VPK::createEmpty(vpkPath.toStdString(), version, cs2);
+    }
+    this->loadVPK(vpkPath);
 }
 
 void Window::openVPK(const QString& startPath) {

@@ -22,7 +22,7 @@ class Window : public QMainWindow {
 public:
     explicit Window(QSettings& options, QWidget* parent = nullptr);
 
-    void newVPK(const QString& startPath = QString());
+    void newVPK(bool fromDirectory, const QString& startPath = QString());
 
     void openVPK(const QString& startPath = QString());
 
