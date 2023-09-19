@@ -8,6 +8,8 @@
 
 class QLabel;
 class QLineEdit;
+class QNetworkAccessManager;
+class QNetworkReply;
 class QProgressBar;
 class QSettings;
 
@@ -30,7 +32,7 @@ public:
 
     void closeVPK();
 
-    static void checkForUpdates();
+    void checkForUpdates();
 
     void addFile(const QString& startDir = QString());
 
@@ -80,10 +82,14 @@ private:
     QAction* addFileAction;
     QAction* extractAllAction;
 
+    QNetworkAccessManager* checkForUpdatesNetworkManager;
+
     std::optional<vpkedit::VPK> vpk;
     bool modified;
 
     bool loadVPK(const QString& path);
+
+    void checkForUpdatesReply(QNetworkReply* reply);
 
     void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
 };
