@@ -52,7 +52,7 @@ VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
         , fullPath(std::move(fullPath_))
         , filename(std::move(filename_)) {}
 
-VPK VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
+VPK VPK::createEmpty(const std::string& path, std::uint32_t version, bool cs2VPK) {
     {
         FileStream stream{path, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
 
@@ -85,6 +85,26 @@ VPK VPK::create(const std::string& path, std::uint32_t version, bool cs2VPK) {
         }
     }
     return *VPK::open(path);
+}
+
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version, bool cs2VPK) {
+    auto vpk = VPK::createEmpty(vpkPath, version, cs2VPK);
+    auto absoluteDirPath = std::filesystem::absolute(std::filesystem::path(directoryPath)).string();
+    for (const auto& file : std::filesystem::recursive_directory_iterator(directoryPath)) {
+        if (file.is_directory()) {
+            continue;
+        }
+        std::string entryPath = std::filesystem::absolute(file.path()).string().substr(directoryPath.length());
+        if (entryPath.empty()) {
+            continue;
+        }
+        if (entryPath.at(0) == '/') {
+            entryPath = entryPath.substr(1);
+        }
+        vpk.addEntry(entryPath, file.path().string());
+    }
+    vpk.bake();
+    return vpk;
 }
 
 std::optional<VPK> VPK::open(const std::string& path) {

@@ -88,7 +88,10 @@ public:
     VPK& operator=(VPK&& other) noexcept = default;
 
     /// Create a new directory VPK file - must end in "_dir.vpk"! This is not enforced but STRONGLY recommended
-    [[nodiscard]] static VPK create(const std::string& path, std::uint32_t version = 2, bool cs2VPK = false);
+    [[nodiscard]] static VPK createEmpty(const std::string& path, std::uint32_t version = 2, bool cs2VPK = false);
+
+    /// Create a new directory VPK file from a directory (see above comment)
+    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version = 2, bool cs2VPK = false);
 
     /// Open a directory VPK file
     [[nodiscard]] static std::optional<VPK> open(const std::string& path);
