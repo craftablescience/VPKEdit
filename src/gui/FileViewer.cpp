@@ -75,7 +75,6 @@ void FileViewer::displayDir(const QString& /*path*/, const QList<QString>& subfo
     this->clearContents();
     this->getPreview<DirPreview>()->setPath(subfolders, entryPaths, vpk);
     this->showPreview<DirPreview>();
-    this->showPreview<ErrorPreview>();
 }
 
 void FileViewer::selectSubItemInDir(const QString& name) {
