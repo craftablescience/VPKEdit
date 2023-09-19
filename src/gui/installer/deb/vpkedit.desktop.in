@@ -1,9 +1,9 @@
 [Desktop Entry]
-Version=${VPKEDIT_PROJECT_VERSION}
-Name=${VPKEDIT_PROJECT_NAME_PRETTY}
-Comment=${VPKEDIT_PROJECT_DESCRIPTION}
-Exec=/opt/${VPKEDIT_PROJECT_NAME}/${VPKEDIT_PROJECT_NAME}.sh %U
-Icon=${VPKEDIT_PROJECT_NAME}
+Version=${PROJECT_VERSION}
+Name=${PROJECT_NAME_PRETTY}
+Comment=${PROJECT_DESCRIPTION}
+Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME}.sh %U
+Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
 Categories=Qt;Development;Utility;
