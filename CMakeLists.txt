@@ -156,7 +156,7 @@ if(VPKEDIT_BUILD_GUI)
             CONFIGURATIONS ${CMAKE_BUILD_TYPE}
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
-    install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets
+    install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
     install(FILES
