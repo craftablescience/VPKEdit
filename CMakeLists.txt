@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 project(vpkedit
         DESCRIPTION "A tool to read, preview, and write to VPK files."
-        VERSION 3.2.0
+        VERSION 3.3.0
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
+set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 include(GNUInstallDirs)
 
@@ -82,11 +83,6 @@ if(VPKEDIT_BUILD_GUI)
     set(CMAKE_AUTORCC ON)
 
     # Config file
-    set(VPKEDIT_PROJECT_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "" FORCE)
-    set(VPKEDIT_PROJECT_NAME_PRETTY ${PROJECT_NAME_PRETTY} CACHE STRING "" FORCE)
-    set(VPKEDIT_PROJECT_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION} CACHE STRING "" FORCE)
-    set(VPKEDIT_PROJECT_VERSION ${CMAKE_PROJECT_VERSION} CACHE STRING "" FORCE)
-    set(VPKEDIT_PROJECT_HOMEPAGE ${CMAKE_PROJECT_HOMEPAGE_URL} CACHE STRING "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
@@ -106,6 +102,8 @@ if(VPKEDIT_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewVPKDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewVPKDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
@@ -137,14 +135,15 @@ if(VPKEDIT_BUILD_GUI)
             ${${PROJECT_NAME}_SOURCES})
 
     # Final Qt setup
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
             "${QT_INCLUDE}"
             "${QT_INCLUDE}/QtCore"
             "${QT_INCLUDE}/QtGui"
             "${QT_INCLUDE}/QtWidgets"
+            "${QT_INCLUDE}/QtNetwork"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp/include") # For some reason this one isn't populating automatically
     if(WIN32 AND MSVC)
         target_link_options(
@@ -174,6 +173,10 @@ if(VPKEDIT_BUILD_GUI)
                 DESTINATION platforms)
         install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
                 DESTINATION styles)
+        install(FILES
+                "${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
+                DESTINATION tls)
     elseif(UNIX)
         install(DIRECTORY
                 "${QT_BASEDIR}/lib/"
@@ -200,6 +203,7 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"    "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"    COPYONLY)
         configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"     "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"     COPYONLY)
         configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll" COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll" COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
@@ -208,10 +212,14 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/platforms/qwindows${QT_LIB_SUFFIX}.dll" COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" COPYONLY)
+
+        configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
+        configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
     elseif(UNIX)
         configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"    COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6" COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6" "${CMAKE_BINARY_DIR}/libQt6Network.so.6" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"    COPYONLY)
 
         configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6" COPYONLY)
@@ -229,6 +237,9 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/plugins/platforms/libqxcb.so"             "${CMAKE_BINARY_DIR}/platforms/libqxcb.so"             COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/platformthemes/libqgtk3.so" "${CMAKE_BINARY_DIR}/platformthemes/libqgtk3.so" COPYONLY)
+
+        configure_file("${QT_BASEDIR}/plugins/tls/libqcertonlybackend.so" "${CMAKE_BINARY_DIR}/tls/libqcertonlybackend.so" COPYONLY)
+        configure_file("${QT_BASEDIR}/plugins/tls/libqopensslbackend.so"  "${CMAKE_BINARY_DIR}/tls/libqopensslbackend.so"  COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libxdg-shell.so" "${CMAKE_BINARY_DIR}/wayland-shell-integration/libxdg-shell.so" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libqt-shell.so"  "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"  COPYONLY)

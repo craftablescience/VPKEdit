@@ -10,10 +10,15 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QProgressBar>
 #include <QSettings>
 #include <QSplitter>
@@ -24,6 +29,7 @@
 #include <sapp/FilesystemSearchProvider.h>
 
 #include "popups/NewEntryDialog.h"
+#include "popups/NewUpdateDialog.h"
 #include "popups/NewVPKDialog.h"
 #include "Config.h"
 #include "EntryTree.h"
@@ -96,9 +102,13 @@ Window::Window(QSettings& options, QWidget* parent)
     this->closeFileAction->setDisabled(true);
 
     fileMenu->addSeparator();
+
+    this->checkForUpdatesNetworkManager = new QNetworkAccessManager(this);
+    QObject::connect(this->checkForUpdatesNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), [=] {
         Window::checkForUpdates();
     });
+
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [=] {
         this->close();
     });
@@ -169,10 +179,13 @@ Window::Window(QSettings& options, QWidget* parent)
 #ifdef QT_DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
-    debugMenu->addAction("getNewEntryOptions", [=] {
+    debugMenu->addAction("New Entry Dialog", [=] {
         std::ignore = NewEntryDialog::getNewEntryOptions(this, "test");
     });
-    debugMenu->addAction("getNewVPKOptions", [=] {
+    debugMenu->addAction("New Update Dialog", [=] {
+        NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
+    });
+    debugMenu->addAction("New VPK Dialog", [=] {
         std::ignore = NewVPKDialog::getNewVPKOptions(this);
     });
 #endif
@@ -291,7 +304,40 @@ void Window::closeVPK() {
 }
 
 void Window::checkForUpdates() {
-    QDesktopServices::openUrl(QUrl(VPKEDIT_PROJECT_HOMEPAGE "/releases/latest"));
+    this->checkForUpdatesNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
+}
+
+void Window::checkForUpdatesReply(QNetworkReply* reply) {
+    if (reply->error() != QNetworkReply::NoError) {
+        QMessageBox::critical(this, tr("Error"), tr("Error occurred checking for updates!"));
+        return;
+    }
+    auto parseFailure = [=] {
+        QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
+    };
+    QJsonDocument response = QJsonDocument::fromJson(QString(reply->readAll()).toUtf8());
+    if (!response.isArray()) {
+        return parseFailure();
+    }
+    QJsonArray releases = response.array();
+    if (releases.isEmpty() || !releases.at(0).isObject()) {
+        return parseFailure();
+    }
+    auto release = releases.at(0).toObject();
+    if (!release.contains("html_url") || !release["html_url"].isString()) {
+        return parseFailure();
+    }
+    auto url = release["html_url"].toString();
+    if (!release.contains("tag_name") || !release["tag_name"].isString()) {
+        return parseFailure();
+    }
+    auto version = release["tag_name"].toString();
+
+    if (version == QString("v" VPKEDIT_PROJECT_VERSION)) {
+        QMessageBox::information(this, tr("No New Updates"), tr("You are running the most recent version!"));
+        return;
+    }
+    NewUpdateDialog::getNewUpdatePrompt(url, version, this);
 }
 
 void Window::addFile(const QString& startPath) {
