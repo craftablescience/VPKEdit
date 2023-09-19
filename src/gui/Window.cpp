@@ -48,10 +48,10 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New VPK..."), Qt::CTRL | Qt::Key_N, [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [=] {
         this->newVPK(false);
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&New VPK From Folder..."), Qt::CTRL | Qt::Key_N, [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [=] {
         this->newVPK(true);
     });
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
