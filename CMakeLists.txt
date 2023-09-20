@@ -162,6 +162,7 @@ if(VPKEDIT_BUILD_GUI)
     install(FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/.nonportable"
             DESTINATION .)
     if(WIN32)
         install(FILES
@@ -197,6 +198,7 @@ if(VPKEDIT_BUILD_GUI)
     # Copy these next to the executable
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
+    # Don't copy the .nonportable file, we're debugging in standalone mode
 
     # Copy these so the user doesn't have to
     if(WIN32)

@@ -7,4 +7,6 @@ constexpr auto OPT_ENTRY_LIST_AUTO_EXPAND = "entry_list_auto_expand";
 constexpr auto OPT_ADV_MODE = "adv_mode";
 constexpr auto OPT_START_MAXIMIZED = "start_maximized";
 
+bool isStandalone();
+
 void setupOptions(QSettings& options);

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <QApplication>
 #include <QSettings>
 #include <QStyle>
@@ -17,11 +19,16 @@ int main(int argc, char** argv) {
     QGuiApplication::setDesktopFileName(VPKEDIT_PROJECT_NAME);
 #endif
 
-    QSettings options;
-    setupOptions(options);
+    std::unique_ptr<QSettings> options;
+    if (isStandalone()) {
+        options = std::make_unique<QSettings>("config.ini", QSettings::Format::IniFormat);
+    } else {
+        options = std::make_unique<QSettings>();
+    }
+    setupOptions(*options);
 
-    auto* window = new Window(options);
-    if (!options.value(OPT_START_MAXIMIZED).toBool()) {
+    auto* window = new Window(*options);
+    if (!options->value(OPT_START_MAXIMIZED).toBool()) {
         window->show();
     } else {
         window->showMaximized();

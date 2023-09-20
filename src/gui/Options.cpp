@@ -1,8 +1,14 @@
 #include "Options.h"
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QSettings>
 #include <QStyle>
+
+bool isStandalone() {
+    QFileInfo nonportable(".nonportable");
+    return !(nonportable.exists() && nonportable.isFile());
+}
 
 void setupOptions(QSettings& options) {
     if (!options.contains(OPT_STYLE)) {
