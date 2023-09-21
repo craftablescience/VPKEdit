@@ -140,6 +140,7 @@ public:
         return sizeof(Header1) + sizeof(Header2);
     }
 
+    /// pak01_dir.vpk -> pak01
     [[nodiscard]] std::string_view getPrettyFileName() const {
         // Find the last occurrence of the slash character
         if (std::size_t lastSlashIndex = this->filename.find_last_of('/'); lastSlashIndex != std::string::npos) {
@@ -147,6 +148,9 @@ public:
         }
         return this->filename; // not much else to do, should never happen
     }
+
+    /// pak01_dir.vpk -> pak01_dir
+    [[nodiscard]] std::string getRealFileName() const;
 
 protected:
     VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_);

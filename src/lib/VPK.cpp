@@ -520,7 +520,7 @@ bool VPK::bake(const std::string& outputFolder_) {
 
     // Get the file output paths
     std::string outputFilename = std::filesystem::path(this->fullPath).filename().string();
-    std::string outputFilenameNoExtension = std::filesystem::path(this->fullPath).stem().string();
+    std::string outputFilenameNoExtension = this->getRealFileName();
     std::string outputFolder;
     if (!outputFolder_.empty()) {
         outputFolder = outputFolder_;
@@ -732,4 +732,8 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     return true;
+}
+
+std::string VPK::getRealFileName() const {
+    return std::filesystem::path(this->fullPath).stem().string();
 }
