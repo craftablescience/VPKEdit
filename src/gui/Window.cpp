@@ -25,6 +25,7 @@
 #include <QStatusBar>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QThread>
 
 #include <sapp/FilesystemSearchProvider.h>
 
@@ -42,24 +43,25 @@ constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
 
 Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent)
+        , extractWorkerThread(nullptr)
         , modified(false) {
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [=] {
+    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [=] {
         this->newVPK(false);
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [=] {
+    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [=] {
         this->newVPK(true);
     });
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
+    this->openVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
         this->openVPK();
     });
 
     if (CFileSystemSearchProvider provider; provider.Available()) {
-        auto* openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
+        this->openVPKRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
 
         QList<std::tuple<QString, QString, QDir>> sourceGames;
         auto installedSteamAppCount = provider.GetNumInstalledApps();
@@ -83,10 +85,12 @@ Window::Window(QSettings& options, QWidget* parent)
 
         for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
             const auto relativeDirectory = relativeDirectoryPath.path();
-            openRelativeToMenu->addAction(QIcon(iconPath), gameName, [=] {
+            this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [=] {
                 this->openVPK(relativeDirectory);
             });
         }
+    } else {
+        this->openVPKRelativeToMenu = nullptr;
     }
 
     this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [=] {
@@ -410,19 +414,19 @@ void Window::aboutQt() {
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) {
-    auto entry = (*this->vpk).findEntry(path.toStdString());
+    auto entry = this->vpk->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
     }
-    return (*this->vpk).readBinaryEntry(*entry);
+    return this->vpk->readBinaryEntry(*entry);
 }
 
 std::optional<QString> Window::readTextEntry(const QString& path) {
-    auto entry = (*this->vpk).findEntry(path.toStdString());
+    auto entry = this->vpk->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
     }
-    auto textData = (*this->vpk).readTextEntry(*entry);
+    auto textData = this->vpk->readTextEntry(*entry);
     if (!textData) {
         return std::nullopt;
     }
@@ -442,7 +446,7 @@ void Window::selectSubItemInDir(const QString& name) {
 }
 
 void Window::extractFile(const QString& path, QString savePath) {
-    auto entry = (*this->vpk).findEntry(path.toStdString());
+    auto entry = this->vpk->findEntry(path.toStdString());
     if (!entry) {
         QMessageBox::critical(this, tr("Error"), "Failed to find file in VPK.");
         return;
@@ -466,23 +470,48 @@ void Window::extractFile(const QString& path, QString savePath) {
 }
 
 void Window::extractFilesIf(const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
-    for (const auto& [directory, entries] : (*this->vpk).getEntries()) {
-        QString dir(directory.c_str());
-        if (!predicate(dir)) {
+    // Set up progress bar
+    this->statusText->hide();
+    this->statusProgressBar->show();
+
+    // Get progress bar maximum
+    int progressBarMax = 0;
+    for (const auto& [directory, entries] : this->vpk->getEntries()) {
+        if (!predicate(QString(directory.c_str()))) {
             continue;
         }
-
-        QDir qDir;
-        if (!qDir.mkpath(saveDir + '/' + dir)) {
-            QMessageBox::critical(this, tr("Error"), "Failed to create directory.");
-            return;
-        }
-
-        for (const auto& entry : entries) {
-            auto filePath = saveDir + '/' + dir + '/' + entry.filename.c_str();
-            this->writeEntryToFile(filePath, entry);
-        }
+        progressBarMax += static_cast<int>(entries.size());
     }
+
+    this->statusProgressBar->setMinimum(0);
+    this->statusProgressBar->setMaximum(progressBarMax);
+    this->statusProgressBar->setValue(0);
+
+    this->freezeActions(true);
+
+    // Set up thread
+    this->extractWorkerThread = new QThread(this);
+    auto* worker = new ExtractVPKWorker();
+    worker->moveToThread(this->extractWorkerThread);
+    QObject::connect(this->extractWorkerThread, &QThread::started, worker, [=] {
+        worker->run(this, saveDir, predicate);
+    });
+    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [=] {
+        this->statusProgressBar->setValue(this->statusProgressBar->value() + 1);
+    });
+    QObject::connect(worker, &ExtractVPKWorker::taskFinished, this, [=] {
+        // Kill thread
+        this->extractWorkerThread->quit();
+        this->extractWorkerThread->wait();
+        delete this->extractWorkerThread;
+        this->extractWorkerThread = nullptr;
+
+        this->freezeActions(false);
+
+        this->statusText->show();
+        this->statusProgressBar->hide();
+    });
+    this->extractWorkerThread->start();
 }
 
 void Window::extractDir(const QString& path, QString saveDir) {
@@ -503,7 +532,7 @@ void Window::extractAll(QString saveDir) {
         return;
     }
     saveDir += '/';
-    saveDir += (*this->vpk).getPrettyFileName();
+    saveDir += this->vpk->getRealFileName();
 
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }
@@ -547,15 +576,12 @@ void Window::clearContents() {
     this->searchBar->setDisabled(true);
 
     this->entryTree->clearContents();
+    this->entryTree->setDisabled(true);
 
     this->fileViewer->clearContents();
 
-    this->saveAsVPKAction->setDisabled(true);
-    this->closeFileAction->setDisabled(true);
-    this->addFileAction->setDisabled(true);
-    this->extractAllAction->setDisabled(true);
-
     this->markModified(false);
+    this->freezeActions(true, false); // Leave create/open unfrozen
 }
 
 void Window::closeEvent(QCloseEvent* event) {
@@ -566,11 +592,29 @@ void Window::closeEvent(QCloseEvent* event) {
     event->accept();
 }
 
+void Window::freezeActions(bool freeze, bool freezeCreationActions) {
+    this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
+    this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
+    this->openVPKAction->setDisabled(freeze && freezeCreationActions);
+    if (this->openVPKRelativeToMenu) this->openVPKRelativeToMenu->setDisabled(freeze && freezeCreationActions);
+    this->saveVPKAction->setDisabled(freeze || !this->modified);
+    this->saveAsVPKAction->setDisabled(freeze);
+    this->closeFileAction->setDisabled(freeze);
+    this->addFileAction->setDisabled(freeze);
+    this->extractAllAction->setDisabled(freeze);
+
+    this->searchBar->setDisabled(freeze);
+    this->entryTree->setDisabled(freeze);
+    this->fileViewer->setDisabled(freeze);
+}
+
 bool Window::loadVPK(const QString& path) {
     QString fixedPath(path);
     fixedPath.replace('\\', '/');
 
     this->clearContents();
+    this->freezeActions(true);
+
     this->vpk = VPK::open(fixedPath.toStdString());
     if (!this->vpk) {
         QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
@@ -584,13 +628,8 @@ bool Window::loadVPK(const QString& path) {
     this->statusText->hide();
     this->statusProgressBar->show();
 
-    this->searchBar->setDisabled(false);
-
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
-        this->saveAsVPKAction->setDisabled(false);
-        this->closeFileAction->setDisabled(false);
-        this->addFileAction->setDisabled(false);
-        this->extractAllAction->setDisabled(false);
+        this->freezeActions(false);
 
         this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
         this->statusText->show();
@@ -601,7 +640,7 @@ bool Window::loadVPK(const QString& path) {
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
-    auto data = (*this->vpk).readBinaryEntry(entry);
+    auto data = this->vpk->readBinaryEntry(entry);
     if (!data) {
         QMessageBox::critical(this, tr("Error"), QString("Failed to read data from the VPK for \"") + entry.filename.c_str() + "\". Please ensure that a game or another application is not using the VPK.");
         return;
@@ -616,4 +655,27 @@ void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
         QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
     }
     file.close();
+}
+
+void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
+    int currentEntry = 0;
+    for (const auto& [directory, entries] : window->vpk->getEntries()) {
+        QString dir(directory.c_str());
+        if (!predicate(dir)) {
+            continue;
+        }
+
+        QDir qDir;
+        if (!qDir.mkpath(saveDir + '/' + dir)) {
+            QMessageBox::critical(window, tr("Error"), "Failed to create directory.");
+            return;
+        }
+
+        for (const auto& entry : entries) {
+            auto filePath = saveDir + '/' + dir + '/' + entry.filename.c_str();
+            window->writeEntryToFile(filePath, entry);
+            emit progressUpdated(++currentEntry);
+        }
+    }
+    emit taskFinished();
 }

@@ -6,18 +6,23 @@
 #include <QMainWindow>
 #include <vpkedit/VPK.h>
 
+class QAction;
 class QLabel;
 class QLineEdit;
+class QMenu;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QProgressBar;
 class QSettings;
+class QThread;
 
 class EntryTree;
 class FileViewer;
 
 class Window : public QMainWindow {
     Q_OBJECT;
+
+    friend class ExtractVPKWorker;
 
 public:
     explicit Window(QSettings& options, QWidget* parent = nullptr);
@@ -76,6 +81,10 @@ private:
     EntryTree* entryTree;
     FileViewer* fileViewer;
 
+    QAction* createEmptyVPKAction;
+    QAction* createVPKFromDirAction;
+    QAction* openVPKAction;
+    QMenu*   openVPKRelativeToMenu;
     QAction* saveVPKAction;
     QAction* saveAsVPKAction;
     QAction* closeFileAction;
@@ -84,12 +93,29 @@ private:
 
     QNetworkAccessManager* checkForUpdatesNetworkManager;
 
+    QThread* extractWorkerThread;
+
     std::optional<vpkedit::VPK> vpk;
     bool modified;
+
+    void freezeActions(bool freeze, bool freezeCreationActions = true);
 
     bool loadVPK(const QString& path);
 
     void checkForUpdatesReply(QNetworkReply* reply);
 
     void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
+};
+
+class ExtractVPKWorker : public QObject {
+    Q_OBJECT;
+
+public:
+    ExtractVPKWorker() = default;
+
+    void run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate);
+
+signals:
+    void progressUpdated(int value);
+    void taskFinished();
 };
