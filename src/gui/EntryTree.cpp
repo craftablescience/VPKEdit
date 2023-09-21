@@ -97,13 +97,13 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
     this->workerThread = new QThread(this);
     auto* worker = new LoadVPKWorker();
     worker->moveToThread(this->workerThread);
-    connect(this->workerThread, &QThread::started, worker, [this, worker, &vpk] {
+    QObject::connect(this->workerThread, &QThread::started, worker, [this, worker, &vpk] {
         worker->run(this, vpk);
     });
-    connect(worker, &LoadVPKWorker::progressUpdated, this, [progressBar] {
-        progressBar->setValue(progressBar->value() + 1);
+    QObject::connect(worker, &LoadVPKWorker::progressUpdated, this, [progressBar](int value) {
+        progressBar->setValue(value);
     });
-    connect(worker, &LoadVPKWorker::taskFinished, this, [this, finishCallback] {
+    QObject::connect(worker, &LoadVPKWorker::taskFinished, this, [this, finishCallback] {
         // Kill thread
         this->workerThread->quit();
         this->workerThread->wait();
@@ -121,7 +121,7 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
 
         finishCallback();
     });
-    workerThread->start();
+    this->workerThread->start();
 }
 
 void EntryTree::selectSubItem(const QString& name) {
