@@ -4,6 +4,7 @@ project(vpkedit
         VERSION 3.3.2
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
+set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 include(GNUInstallDirs)
@@ -249,7 +250,7 @@ if(VPKEDIT_BUILD_GUI)
 
     if(VPKEDIT_BUILD_INSTALLER)
         set(CPACK_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
-        set(CPACK_PACKAGE_VENDOR "craftablescience")
+        set(CPACK_PACKAGE_VENDOR ${PROJECT_ORGANIZATION_NAME})
         set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
         set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
         set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CPACK_PACKAGE_DESCRIPTION})
