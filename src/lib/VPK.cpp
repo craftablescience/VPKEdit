@@ -98,7 +98,7 @@ VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& dire
         if (entryPath.empty()) {
             continue;
         }
-        if (entryPath.at(0) == '/') {
+        while (entryPath.at(0) == '/' || entryPath.at(0) == '\\') {
             entryPath = entryPath.substr(1);
         }
         vpk.addEntry(entryPath, file.path().string());
