@@ -6,7 +6,7 @@
 #include <QStyle>
 
 bool isStandalone() {
-    QFileInfo nonportable(".nonportable");
+    QFileInfo nonportable(QApplication::applicationDirPath() + "/.nonportable");
     return !(nonportable.exists() && nonportable.isFile());
 }
 
