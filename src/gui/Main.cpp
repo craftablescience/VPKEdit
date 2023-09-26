@@ -21,7 +21,8 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<QSettings> options;
     if (isStandalone()) {
-        options = std::make_unique<QSettings>("config.ini", QSettings::Format::IniFormat);
+        auto configPath = QApplication::applicationDirPath() + "/config.ini";
+        options = std::make_unique<QSettings>(configPath, QSettings::Format::IniFormat);
     } else {
         options = std::make_unique<QSettings>();
     }
