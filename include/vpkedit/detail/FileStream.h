@@ -12,14 +12,15 @@
 namespace vpkedit::detail {
 
 enum FileStreamOptions {
-    FILESTREAM_OPT_NONE                  =      0,
-    FILESTREAM_OPT_CREATE_IF_NONEXISTENT = 1 << 0,
-    FILESTREAM_OPT_TRUNCATE              = 1 << 1,
+    FILESTREAM_OPT_READ                  = 1 << 0,
+    FILESTREAM_OPT_WRITE                 = 1 << 1,
+    FILESTREAM_OPT_TRUNCATE              = 1 << 2,
+    FILESTREAM_OPT_CREATE_IF_NONEXISTENT = 1 << 3,
 };
 
 class FileStream {
 public:
-    explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_NONE);
+    explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_READ);
     FileStream(std::byte* buffer, std::uint64_t bufferLength);
     ~FileStream();
     FileStream(const FileStream& other) = delete;

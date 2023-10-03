@@ -54,7 +54,7 @@ VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
 
 VPK VPK::createEmpty(const std::string& path, std::uint32_t version, bool cs2VPK) {
     {
-        FileStream stream{path, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
+        FileStream stream{path, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
         Header1 header1{};
         header1.signature = VPK_ID;
@@ -554,7 +554,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         }
     }
 
-    FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_CREATE_IF_NONEXISTENT | FILESTREAM_OPT_TRUNCATE};
+    FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
     std::unique_ptr<FileStream> outArchive = nullptr;
 
     // Dummy header
@@ -599,7 +599,7 @@ bool VPK::bake(const std::string& outputFolder_) {
                         entry->offset = newEntryArchiveOffset;
                         entry->archiveIndex = this->numArchives;
                         if (!outArchive) {
-                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
+                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
                             this->numArchives++;
                         }
                         outArchive->write(entryData, entryDataSize);
