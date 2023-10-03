@@ -11,13 +11,13 @@ FileStream::FileStream(const std::string& filepath, int options) {
     }
     auto openMode = std::ios::binary;
     if (options & FILESTREAM_OPT_READ) {
-        openMode |= std::ios::in;
+        openMode = openMode | std::ios::in;
     }
     if (options & FILESTREAM_OPT_WRITE) {
-        openMode |= std::ios::out;
+        openMode = openMode | std::ios::out;
     }
     if (options & FILESTREAM_OPT_TRUNCATE) {
-        openMode |= std::ios::trunc;
+        openMode = openMode | std::ios::trunc;
     }
     this->streamFile.open(filepath, openMode);
     this->streamFile.unsetf(std::ios::skipws);
