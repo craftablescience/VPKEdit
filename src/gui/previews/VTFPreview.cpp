@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QSlider>
 #include <QSpinBox>
+#include <QCheckBox>
 
 using namespace VTFLib;
 
@@ -13,25 +14,30 @@ VTFImage::VTFImage(QWidget* parent)
         , currentFace(1)
         , currentFrame(1)
         , currentMip(0)
+        , currentAlphaEnabled(true)
         , zoom(1.f) {}
 
 void VTFImage::setImage(const std::vector<std::byte>& data) {
     this->vtf = std::make_unique<VTFLib::CVTFFile>();
     this->vtf->Load(data.data(), data.size());
-    this->decodeImage(1, 1, 0);
+    this->decodeImage(1, 1, 0, this->currentAlphaEnabled);
     this->zoom = 1.f;
 }
 
 void VTFImage::setFrame(int frame) {
-    this->decodeImage(this->currentFace, frame, this->currentMip);
+    this->decodeImage(this->currentFace, frame, this->currentMip, this->currentAlphaEnabled);
 }
 
 void VTFImage::setFace(int face) {
-    this->decodeImage(face, this->currentFrame, this->currentMip);
+    this->decodeImage(face, this->currentFrame, this->currentMip, this->currentAlphaEnabled);
 }
 
 void VTFImage::setMip(int mip) {
-    this->decodeImage(this->currentFace, this->currentFrame, mip);
+    this->decodeImage(this->currentFace, this->currentFrame, mip, this->currentAlphaEnabled);
+}
+
+void VTFImage::setAlpha(bool alpha) {
+    this->decodeImage(this->currentFace, this->currentFrame, this->currentMip, alpha);
 }
 
 void VTFImage::setZoom(int zoom_) {
@@ -73,7 +79,7 @@ void VTFImage::paintEvent(QPaintEvent* event) {
     painter.drawImage(target, this->image, QRect(0, 0, this->image.width(), this->image.height()));
 }
 
-void VTFImage::decodeImage(int face, int frame, int mip) {
+void VTFImage::decodeImage(int face, int frame, int mip, bool alphaEnabled) {
     // Compute draw size for this mip, frame, etc
     vlUInt imageWidth, imageHeight, imageDepth;
     CVTFFile::ComputeMipmapDimensions(
@@ -81,7 +87,7 @@ void VTFImage::decodeImage(int face, int frame, int mip) {
             mip, imageWidth, imageHeight, imageDepth);
 
     const bool hasAlpha = CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
-    const VTFImageFormat format = hasAlpha ? IMAGE_FORMAT_RGBA8888 : IMAGE_FORMAT_RGB888;
+    const VTFImageFormat format = (hasAlpha && alphaEnabled) ? IMAGE_FORMAT_RGBA8888 : IMAGE_FORMAT_RGB888;
     auto size = CVTFFile::ComputeMipmapSize(this->vtf->GetWidth(), this->vtf->GetHeight(), 1, mip, format);
 
     // This buffer needs to persist- QImage does not own the mem you give it
@@ -94,10 +100,11 @@ void VTFImage::decodeImage(int face, int frame, int mip) {
     }
 
     this->image = QImage(
-            (uchar*) this->imageData.get(), (int) imageWidth, (int) imageHeight, hasAlpha ? QImage::Format_RGBA8888 : QImage::Format_RGB888);
+            (uchar*) this->imageData.get(), (int) imageWidth, (int) imageHeight, (hasAlpha && alphaEnabled) ? QImage::Format_RGBA8888 : QImage::Format_RGB888);
     this->currentFace = face;
     this->currentFrame = frame;
     this->currentMip = mip;
+    this->currentAlphaEnabled = alphaEnabled;
 }
 
 VTFPreview::VTFPreview(QWidget* parent)
@@ -151,6 +158,19 @@ VTFPreview::VTFPreview(QWidget* parent)
     });
     mipSpinLayout->addWidget(this->mipSpin);
     controlsLayout->addWidget(mipSpinParent);
+
+    auto* alphaCheckBoxParent = new QWidget(controls);
+    auto* alphaCheckBoxayout = new QHBoxLayout(alphaCheckBoxParent);
+    auto* alphaCheckBoxLabel = new QLabel(tr("Show Alpha"), alphaCheckBoxParent);
+    alphaCheckBoxayout->addWidget(alphaCheckBoxLabel);
+    this->alphaCheckBox = new QCheckBox(controls);
+    this->alphaCheckBox->setChecked(true);
+    connect(this->alphaCheckBox, QOverload<int>::of(&QCheckBox::stateChanged), [&] {
+        this->image->setAlpha(this->alphaCheckBox->isChecked());
+        this->image->repaint();
+    });
+    alphaCheckBoxayout->addWidget(this->alphaCheckBox);
+    controlsLayout->addWidget(alphaCheckBoxParent);
 
     this->zoomSlider = new QSlider(controls);
     this->zoomSlider->setMinimum(20);
