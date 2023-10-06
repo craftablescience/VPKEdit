@@ -7,9 +7,9 @@
 #include <QWidget>
 #include <VTFLib.h>
 
+class QCheckBox;
 class QSlider;
 class QSpinBox;
-class QCheckBox;
 
 class VTFImage : public QWidget {
     Q_OBJECT;
@@ -22,12 +22,17 @@ public:
     void setFrame(int frame);
     void setFace(int face);
     void setMip(int mip);
-    void setAlpha(bool alpha);
+    void setAlphaEnabled(bool alpha);
+    void setTileEnabled(bool tile);
     void setZoom(int zoom_);
 
-    int getMaxFrame();
-    int getMaxFace();
-    int getMaxMip();
+    [[nodiscard]] int getMaxFrame();
+    [[nodiscard]] int getMaxFace();
+    [[nodiscard]] int getMaxMip();
+    [[nodiscard]] bool hasAlpha() const;
+    [[nodiscard]] bool getAlphaEnabled() const;
+    [[nodiscard]] bool getTileEnabled() const;
+    [[nodiscard]] float getZoom() const;
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -41,10 +46,11 @@ private:
     int currentFace;
     int currentFrame;
     int currentMip;
-    bool currentAlphaEnabled;
+    bool alphaEnabled;
+    bool tileEnabled;
     float zoom;
 
-    void decodeImage(int face, int frame, int mip, bool alphaEnabled);
+    void decodeImage(int face, int frame, int mip, bool alpha);
 };
 
 class VTFPreview : public QWidget {
@@ -65,5 +71,6 @@ private:
     QSpinBox* faceSpin;
     QSpinBox* mipSpin;
     QCheckBox* alphaCheckBox;
+    QCheckBox* tileCheckBox;
     QSlider* zoomSlider;
 };
