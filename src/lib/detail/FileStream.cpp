@@ -9,7 +9,7 @@ FileStream::FileStream(const std::string& filepath, int options) {
     if ((options & FILESTREAM_OPT_CREATE_IF_NONEXISTENT) && !std::filesystem::exists(filepath)) {
         std::ofstream create(filepath, std::ios::trunc);
     }
-    int openMode = std::ios::binary;
+    std::ios::openmode openMode = std::ios::binary;
     if (options & FILESTREAM_OPT_READ) {
         openMode |= std::ios::in;
     }
