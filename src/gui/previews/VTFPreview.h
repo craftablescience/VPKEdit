@@ -9,6 +9,7 @@
 
 class QSlider;
 class QSpinBox;
+class QCheckBox;
 
 class VTFImage : public QWidget {
     Q_OBJECT;
@@ -21,6 +22,7 @@ public:
     void setFrame(int frame);
     void setFace(int face);
     void setMip(int mip);
+    void setAlpha(bool alpha);
     void setZoom(int zoom_);
 
     int getMaxFrame();
@@ -39,9 +41,10 @@ private:
     int currentFace;
     int currentFrame;
     int currentMip;
+    bool currentAlphaEnabled;
     float zoom;
 
-    void decodeImage(int face, int frame, int mip);
+    void decodeImage(int face, int frame, int mip, bool alphaEnabled);
 };
 
 class VTFPreview : public QWidget {
@@ -61,5 +64,6 @@ private:
     QSpinBox* frameSpin;
     QSpinBox* faceSpin;
     QSpinBox* mipSpin;
+    QCheckBox* alphaCheckBox;
     QSlider* zoomSlider;
 };
