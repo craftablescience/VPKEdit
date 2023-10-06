@@ -9,15 +9,15 @@ FileStream::FileStream(const std::string& filepath, int options) {
     if ((options & FILESTREAM_OPT_CREATE_IF_NONEXISTENT) && !std::filesystem::exists(filepath)) {
         std::ofstream create(filepath, std::ios::trunc);
     }
-    auto openMode = std::ios::binary;
+    int openMode = std::ios::binary;
     if (options & FILESTREAM_OPT_READ) {
-        openMode = openMode | std::ios::in;
+        openMode |= std::ios::in;
     }
     if (options & FILESTREAM_OPT_WRITE) {
-        openMode = openMode | std::ios::out;
+        openMode |= std::ios::out;
     }
     if (options & FILESTREAM_OPT_TRUNCATE) {
-        openMode = openMode | std::ios::trunc;
+        openMode |= std::ios::trunc;
     }
     this->streamFile.open(filepath, openMode);
     this->streamFile.unsetf(std::ios::skipws);
