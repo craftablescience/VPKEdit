@@ -289,7 +289,9 @@ void Window::openVPK(const QString& startPath) {
     if (path.isEmpty()) {
         return;
     }
-    this->loadVPK(path);
+    if (!this->loadVPK(path)) {
+        this->clearContents();
+    }
 }
 
 bool Window::saveVPK() {
