@@ -93,7 +93,7 @@ jobs:
           submodules: recursive
 
       - name: Install Necessary Packages
-        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build
+        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
 
       - name: Install GCC
         if: ${{ matrix.compiler == 'gcc' }}
@@ -127,6 +127,20 @@ jobs:
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
         run: cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+
+      - name: Fixup Binaries
+        run: |
+          chmod +x '${{env.BUILD_DIR}}/vpkedit'
+
+          # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
+          for f in ${{env.BUILD_DIR}}/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN' "$f"
+          done
+          for f in ${{env.BUILD_DIR}}/*/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN/..' "$f"
+          done
 
       - name: Upload Standalone
         uses: actions/upload-artifact@v3
