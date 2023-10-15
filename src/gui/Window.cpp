@@ -579,7 +579,7 @@ void Window::extractAll(QString saveDir) {
         return;
     }
     saveDir += '/';
-    saveDir += this->vpk->getRealFileName();
+    saveDir += this->vpk->getRealFileName().c_str();
 
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }
