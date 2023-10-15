@@ -180,11 +180,13 @@ if(VPKEDIT_BUILD_GUI)
                 "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
                 DESTINATION tls)
     elseif(UNIX)
-        install(DIRECTORY
-                "${QT_BASEDIR}/lib/"
-                "${QT_BASEDIR}/plugins/"
-                DESTINATION .
-                FILES_MATCHING PATTERN "*.so*")
+        if (DEFINED QT_BASEDIR)
+            install(DIRECTORY
+                    "${QT_BASEDIR}/lib/"
+                    "${QT_BASEDIR}/plugins/"
+                    DESTINATION .
+                    FILES_MATCHING PATTERN "*.so*")
+        endif()
 
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
                 DESTINATION "/usr/share/applications/")
@@ -218,7 +220,7 @@ if(VPKEDIT_BUILD_GUI)
 
         configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
-    elseif(UNIX)
+    elseif(UNIX AND DEFINED QT_BASEDIR)
         configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"    COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6" COPYONLY)
