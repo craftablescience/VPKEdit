@@ -5,6 +5,7 @@
 #include <QStyle>
 #include <QThread>
 
+#include "EntryContextMenuData.h"
 #include "Window.h"
 
 using namespace vpkedit;
@@ -15,67 +16,52 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
         , autoExpandDirectories(false) {
     this->setMinimumWidth(200);
     this->setHeaderHidden(true);
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     this->workerThread = nullptr;
     this->root = nullptr;
 
-    auto* contextMenuFile = new QMenu(this);
-    auto* extractFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract File"));
-    contextMenuFile->addSeparator();
-    auto* removeFileAction = contextMenuFile->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove File"));
-
-    auto* contextMenuDir = new QMenu(this);
-    auto* extractDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract Folder"));
-    contextMenuDir->addSeparator();
-    auto* addFileToDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
-    auto* removeDirAction = contextMenuDir->addAction(this->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove Folder"));
-
-    auto* contextMenuAll = new QMenu(this);
-    auto* extractAllAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"));
-    contextMenuAll->addSeparator();
-    auto* addFileToRootAction = contextMenuAll->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Add File..."));
-
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    EntryContextMenuData contextMenuData(true, this);
     QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
                 // Show the root context menu at the requested position
-                auto* selectedAllAction = contextMenuAll->exec(this->mapToGlobal(pos));
+                auto* selectedAllAction = contextMenuData.contextMenuAll->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedAllAction == addFileToRootAction) {
+                if (selectedAllAction == contextMenuData.addFileToRootAction) {
                     this->window->addFile();
-                } else if (selectedAllAction == extractAllAction) {
+                } else if (selectedAllAction == contextMenuData.extractAllAction) {
                     this->window->extractAll();
                 }
             } else if (selectedItem->childCount() > 0) {
                 // Show the directory context menu at the requested position
-                auto* selectedDirAction = contextMenuDir->exec(this->mapToGlobal(pos));
+                auto* selectedDirAction = contextMenuData.contextMenuDir->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedDirAction == addFileToDirAction) {
+                if (selectedDirAction == contextMenuData.addFileToDirAction) {
                     this->window->addFile(path);
-                } else if (selectedDirAction == removeDirAction) {
+                } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->removeEntry(selectedItem);
-                } else if (selectedDirAction == extractDirAction) {
+                } else if (selectedDirAction == contextMenuData.extractDirAction) {
                     this->window->extractDir(path);
                 }
             } else {
                 // Show the directory context menu at the requested position
-                auto* selectedFileAction = contextMenuFile->exec(this->mapToGlobal(pos));
+                auto* selectedFileAction = contextMenuData.contextMenuFile->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedFileAction == removeFileAction) {
+                if (selectedFileAction == contextMenuData.removeFileAction) {
                     this->removeEntry(selectedItem);
-                } else if (selectedFileAction == extractFileAction) {
+                } else if (selectedFileAction == contextMenuData.extractFileAction) {
                     this->window->extractFile(path);
                 }
             }
         }
     });
 
-    connect(this, &QTreeWidget::itemClicked, this, &EntryTree::onItemClicked);
+    QObject::connect(this, &QTreeWidget::itemClicked, this, &EntryTree::onItemClicked);
 
     this->clearContents();
 }

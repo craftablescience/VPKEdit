@@ -20,7 +20,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    auto* dirPreview = newPreview<DirPreview>(this, this);
+    auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
 
     auto* errorPreview = newPreview<ErrorPreview>(this);
@@ -71,9 +71,9 @@ void FileViewer::displayEntry(const QString& path) {
     }
 }
 
-void FileViewer::displayDir(const QString& /*path*/, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
+void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
     this->clearContents();
-    this->getPreview<DirPreview>()->setPath(subfolders, entryPaths, vpk);
+    this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, vpk);
     this->showPreview<DirPreview>();
 }
 
