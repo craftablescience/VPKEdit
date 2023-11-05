@@ -126,13 +126,19 @@ void EntryTree::selectSubItem(const QString& name) {
 }
 
 void EntryTree::setSearchQuery(const QString& query) {
+    // Set items that contain a word in the query visible
+    const auto words = query.split(' ');
     for (QTreeWidgetItemIterator it(this); *it; ++it) {
         QTreeWidgetItem* item = (*it);
         item->setHidden(false);
-        if (item->childCount() == 0 && !item->text(0).contains(query, Qt::CaseInsensitive)) {
-            item->setHidden(true);
+        for (const auto& word : words) {
+            if (item->childCount() == 0 && !item->text(0).contains(word, Qt::CaseInsensitive)) {
+                item->setHidden(true);
+            }
         }
     }
+
+    // Hide directories that have no children
     int dirsTouched;
     do {
         dirsTouched = 0;
