@@ -1,6 +1,7 @@
 #include "NewEntryDialog.h"
 
 #include <QCheckBox>
+#include <QDir>
 #include <QLabel>
 #include <QLineEdit>
 #include <QDialogButtonBox>
@@ -10,27 +11,35 @@
 
 #include "../Options.h"
 
-NewEntryDialog::NewEntryDialog(QWidget* parent, const QString& prefilledPath)
+NewEntryDialog::NewEntryDialog(bool isDir, const QString& prefilledPath, QWidget* parent)
         : QDialog(parent) {
     QSettings options;
     const bool advancedMode = options.value(OPT_ADV_MODE).toBool();
 
     this->setModal(true);
-    this->setWindowTitle(advancedMode ? tr("Advanced New File Options") : tr("New File Options"));
+    this->setWindowTitle(isDir
+            ? (advancedMode ? tr("Advanced New Folder Options") : tr("New Folder Options"))
+            : (advancedMode ? tr("Advanced New File Options") : tr("New File Options")));
 
     auto* layout = new QFormLayout(this);
 
-    auto* pathLineEditLabel = new QLabel(tr("The path of the file in the VPK:\n(e.g. \"materials/cable.vmt\")"), this);
+    auto* pathLineEditLabel = new QLabel(
+            isDir ? tr("The path of the folder in the VPK:\n(e.g. \"materials/dev\")") : tr("The path of the file in the VPK:\n(e.g. \"materials/cable.vmt\")"),
+            this);
     this->path = new QLineEdit(this);
     this->path->setText(prefilledPath);
     layout->addRow(pathLineEditLabel, this->path);
 
     if (advancedMode) {
-        auto* useArchiveVPKLabel = new QLabel(tr("Save this entry to a new numbered\narchive instead of the dir VPK:"), this);
+        auto* useArchiveVPKLabel = new QLabel(
+                isDir ? tr("Save this file to a new numbered archive\ninstead of the directory VPK:") : tr("Save each file to a new numbered archive\ninstead of the directory VPK:"),
+                this);
         this->useArchiveVPK = new QCheckBox(this);
         layout->addRow(useArchiveVPKLabel, this->useArchiveVPK);
 
-        auto* preloadBytesLabel = new QLabel(tr("Set the bytes of the file to preload:\n(From 0 to 1023 bytes)"), this);
+        auto* preloadBytesLabel = new QLabel(
+                isDir ? tr("Set the bytes of the file to preload:\n(From 0 to 1023 bytes)") : tr("Set the bytes of each file to preload:\n(From 0 to 1023 bytes)"),
+                this);
         this->preloadBytes = new QSpinBox(this);
         this->preloadBytes->setMinimum(0);
         this->preloadBytes->setMaximum(1023);
@@ -48,15 +57,15 @@ NewEntryDialog::NewEntryDialog(QWidget* parent, const QString& prefilledPath)
     QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &NewEntryDialog::reject);
 }
 
-std::optional<std::tuple<QString, bool, int>> NewEntryDialog::getNewEntryOptions(QWidget* parent, const QString& prefilledPath) {
-    auto* dialog = new NewEntryDialog(parent, prefilledPath);
+std::optional<std::tuple<QString, bool, int>> NewEntryDialog::getNewEntryOptions(bool isDir, const QString& prefilledPath, QWidget* parent) {
+    auto* dialog = new NewEntryDialog(isDir, prefilledPath, parent);
     int ret = dialog->exec();
     if (ret != QDialog::Accepted) {
         dialog->deleteLater();
         return std::nullopt;
     }
     return std::make_tuple(
-            dialog->path->text(),
+            QDir::cleanPath(dialog->path->text()),
             dialog->useArchiveVPK && dialog->useArchiveVPK->checkState() == Qt::Checked,
             dialog->preloadBytes ? dialog->preloadBytes->value() : 0
     );

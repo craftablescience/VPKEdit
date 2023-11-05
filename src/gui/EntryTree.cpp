@@ -30,32 +30,36 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 auto* selectedAllAction = contextMenuData.contextMenuAll->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedAllAction == contextMenuData.addFileToRootAction) {
-                    this->window->addFile();
-                } else if (selectedAllAction == contextMenuData.extractAllAction) {
+                if (selectedAllAction == contextMenuData.extractAllAction) {
                     this->window->extractAll();
+                } else if (selectedAllAction == contextMenuData.addFileToRootAction) {
+                    this->window->addFile();
+                } else if (selectedAllAction == contextMenuData.addDirToRootAction) {
+                    this->window->addDir();
                 }
             } else if (selectedItem->childCount() > 0) {
                 // Show the directory context menu at the requested position
                 auto* selectedDirAction = contextMenuData.contextMenuDir->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedDirAction == contextMenuData.addFileToDirAction) {
+                if (selectedDirAction == contextMenuData.extractDirAction) {
+                    this->window->extractDir(path);
+                } else if (selectedDirAction == contextMenuData.addFileToDirAction) {
                     this->window->addFile(path);
+                } else if (selectedDirAction == contextMenuData.addDirToDirAction) {
+                    this->window->addDir(path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->removeEntry(selectedItem);
-                } else if (selectedDirAction == contextMenuData.extractDirAction) {
-                    this->window->extractDir(path);
                 }
             } else {
-                // Show the directory context menu at the requested position
+                // Show the file context menu at the requested position
                 auto* selectedFileAction = contextMenuData.contextMenuFile->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedFileAction == contextMenuData.removeFileAction) {
-                    this->removeEntry(selectedItem);
-                } else if (selectedFileAction == contextMenuData.extractFileAction) {
+                if (selectedFileAction == contextMenuData.extractFileAction) {
                     this->window->extractFile(path);
+                } else if (selectedFileAction == contextMenuData.removeFileAction) {
+                    this->removeEntry(selectedItem);
                 }
             }
         }

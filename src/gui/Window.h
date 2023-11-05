@@ -41,6 +41,8 @@ public:
 
     void addFile(const QString& startDir = QString());
 
+    void addDir(const QString& startDir = QString());
+
     bool removeFile(const QString& filepath);
 
     void about();
