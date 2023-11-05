@@ -91,9 +91,6 @@ if(VPKEDIT_BUILD_GUI)
     configure_file(
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop")
-    configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh")
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -192,10 +189,6 @@ if(VPKEDIT_BUILD_GUI)
                 DESTINATION "/usr/share/applications/")
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
                 DESTINATION "/usr/share/pixmaps/")
-
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.sh"
-                DESTINATION .
-                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
     endif()
 
     # Copy these next to the executable

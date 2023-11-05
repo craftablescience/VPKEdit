@@ -8,5 +8,4 @@ cmake-build-*/
 
 # Generated
 src/gui/installer/deb/vpkedit.desktop
-src/gui/installer/deb/vpkedit.sh
 src/gui/Config.h

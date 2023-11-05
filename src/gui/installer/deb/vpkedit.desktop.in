@@ -2,7 +2,7 @@
 Version=${PROJECT_VERSION}
 Name=${PROJECT_NAME_PRETTY}
 Comment=${PROJECT_DESCRIPTION}
-Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME}.sh %U
+Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME}
 Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
