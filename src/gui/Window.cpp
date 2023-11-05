@@ -385,6 +385,7 @@ void Window::addFile(const QString& startPath) {
     this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
     this->markModified(true);
     this->entryTree->addEntry(entryPath);
+    this->fileViewer->addEntry(this->vpk.value(), entryPath);
 }
 
 void Window::addDir(const QString& startPath) {
@@ -412,17 +413,27 @@ void Window::addDir(const QString& startPath) {
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirPath.length());
         this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
         this->entryTree->addEntry(subEntryPath);
+        this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
     }
     this->markModified(true);
 }
 
-bool Window::removeFile(const QString& filepath) {
-    if (!this->vpk->removeEntry(filepath.toStdString())) {
-        QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"").arg(filepath));
+bool Window::removeFile(const QString& path) {
+    if (!this->vpk->removeEntry(path.toStdString())) {
+        QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"").arg(path));
         return false;
     }
+    this->fileViewer->removeFile(path);
     this->markModified(true);
     return true;
+}
+
+void Window::removeDir(const QString& path) {
+    this->fileViewer->removeDir(path);
+}
+
+void Window::requestEntryRemoval(const QString& path) {
+    this->entryTree->removeEntryByPath(path);
 }
 
 void Window::about() {

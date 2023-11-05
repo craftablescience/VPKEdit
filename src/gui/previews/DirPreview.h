@@ -15,13 +15,25 @@ class DirPreview : public QTableWidget {
     Q_OBJECT;
 
 public:
-    explicit DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
+    DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
 
     void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 
+    void addEntry(const vpkedit::VPK& vpk, const QString& path);
+
+    void removeFile(const QString& path);
+
+    void removeDir(const QString& path);
+
     void setSearchQuery(const QString& query);
 
+    [[nodiscard]] const QString& getCurrentPath() const;
+
 private:
+    void addRowForFile(const vpkedit::VPK& vpk, const QString& path);
+
+    void addRowForDir(const QString& name);
+
     QString getItemPath(QTableWidgetItem* item);
 
     FileViewer* fileViewer;

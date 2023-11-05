@@ -43,7 +43,11 @@ public:
 
     void addDir(const QString& startDir = QString());
 
-    bool removeFile(const QString& filepath);
+    bool removeFile(const QString& path);
+
+    void removeDir(const QString& path);
+
+    void requestEntryRemoval(const QString& path);
 
     void about();
 

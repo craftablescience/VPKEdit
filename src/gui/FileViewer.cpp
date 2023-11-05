@@ -80,6 +80,22 @@ void FileViewer::displayDir(const QString& path, const QList<QString>& subfolder
     this->showPreview<DirPreview>();
 }
 
+void FileViewer::addEntry(const vpkedit::VPK& vpk, const QString& path) {
+    this->getPreview<DirPreview>()->addEntry(vpk, path);
+}
+
+void FileViewer::removeFile(const QString& path) {
+    this->getPreview<DirPreview>()->removeFile(path);
+}
+
+void FileViewer::removeDir(const QString& path) {
+    if (path == this->getPreview<DirPreview>()->getCurrentPath()) {
+        this->hidePreview<DirPreview>();
+        return;
+    }
+    this->getPreview<DirPreview>()->removeDir(path);
+}
+
 void FileViewer::setSearchQuery(const QString& query) {
     this->getPreview<DirPreview>()->setSearchQuery(query);
 }

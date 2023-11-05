@@ -59,8 +59,8 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                 } else if (selectedDirAction == contextMenuData.addDirToDirAction) {
                     this->window->addDir(path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
-                    // todo(sync): remove entry from dir preview
-                    //this->removeEntry(selectedItem);
+                    this->window->requestEntryRemoval(path);
+                    this->removeDir(path);
                 }
             } else {
                 // Show the file context menu at the requested position
@@ -70,8 +70,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                 if (selectedFileAction == contextMenuData.extractFileAction) {
                     this->window->extractFile(path);
                 } else if (selectedFileAction == contextMenuData.removeFileAction) {
-                    // todo(sync): remove entry from dir preview
-                    //this->removeEntry(selectedItem);
+                    this->window->requestEntryRemoval(path);
                 }
             }
         }
@@ -90,64 +89,83 @@ void DirPreview::setPath(const QString& currentDir, const QList<QString>& subfol
     this->currentPath = currentDir;
 
     for (const auto& subfolder : subfolders) {
-        this->setRowCount(this->rowCount() + 1);
-
-        auto* nameItem = new QTableWidgetItem(subfolder);
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::NAME, nameItem);
-
-        auto* typeItem = new QTableWidgetItem(DIR_TYPE_NAME);
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::TYPE, typeItem);
-
-        // Need to fill the rest of the columns with an item to fix the context menu not showing up on these cells
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, new QTableWidgetItem(""));
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, new QTableWidgetItem(""));
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, new QTableWidgetItem(""));
+        this->addRowForDir(subfolder);
     }
-
     for (const auto& path : entryPaths) {
-        auto entry = vpk.findEntry(path.toStdString());
-        if (!entry) {
-            continue;
-        }
-
-        this->setRowCount(this->rowCount() + 1);
-
-        auto* nameItem = new QTableWidgetItem(entry->filename.c_str());
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::NAME, nameItem);
-
-        auto* typeItem = new QTableWidgetItem(QString(entry->filenamePair.second.c_str()).toUpper());
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::TYPE, typeItem);
-
-        QTableWidgetItem* sizeItem;
-        if (entry->length < KB_SIZE) {
-            sizeItem = new QTableWidgetItem(QString::number(entry->length) + " bytes");
-        } else {
-            auto size = static_cast<double>(entry->length) / KB_SIZE;
-            QString extension(" kb");
-
-            if (size >= KB_SIZE) {
-                size /= KB_SIZE;
-                extension = " mb";
-            }
-            if (size >= KB_SIZE) {
-                size /= KB_SIZE;
-                extension = " gb";
-            }
-            sizeItem = new QTableWidgetItem(QString::number(size, 'f', 2) + extension);
-        }
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, sizeItem);
-
-        auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->preloadedData.size()) + " bytes");
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, preloadedSizeItem);
-
-        auto archiveIndex = entry->archiveIndex;
-        // If the archive index is the dir index, it's included in the directory VPK
-        auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
-        this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, archiveIndexItem);
+        this->addRowForFile(vpk, path);
     }
 
     // Make sure the active search query is applied
     this->setSearchQuery(this->currentSearchQuery);
+}
+
+void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
+    // If the parent is identical to us, it's a file
+    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    if (parent == this->currentPath) {
+        this->addRowForFile(vpk, path);
+        return;
+    }
+
+    // We may need to add a subfolder if the displayed directory is a grandparent or higher
+    if (path.length() < this->currentPath.length() || !path.startsWith(this->currentPath)) {
+        return;
+    }
+
+    // Check this subfolder doesn't already exist
+    QString subfolderName = path.sliced(this->currentPath.length());
+    subfolderName.removeLast();
+    subfolderName = subfolderName.sliced(0, subfolderName.indexOf('/'));
+    bool exists = false;
+    for (int r = 0; r < this->rowCount(); r++) {
+        if (this->item(r, DirPreviewColumn::TYPE)->text() != DIR_TYPE_NAME) {
+            break;
+        }
+        if (this->item(r, DirPreviewColumn::NAME)->text() == subfolderName) {
+            exists = true;
+            break;
+        }
+    }
+    if (!exists) {
+        this->addRowForDir(subfolderName);
+    }
+}
+
+void DirPreview::removeFile(const QString& path) {
+    // If the parent is identical to us, it's a file
+    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    if (parent != this->currentPath) {
+        return;
+    }
+    QString name = path.sliced(path.lastIndexOf('/'));
+    name.removeFirst();
+    for (int r = 0; r < this->rowCount(); r++) {
+        if (this->item(r, DirPreviewColumn::TYPE)->text() == DIR_TYPE_NAME) {
+            continue;
+        }
+        if (this->item(r, DirPreviewColumn::NAME)->text() == name) {
+            this->removeRow(r);
+            break;
+        }
+    }
+}
+
+void DirPreview::removeDir(const QString& path) {
+    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    if (parent != this->currentPath) {
+        return;
+    }
+    QString name = path.sliced(path.lastIndexOf('/'));
+    name.removeFirst();
+    for (int r = 0; r < this->rowCount(); r++) {
+        if (this->item(r, DirPreviewColumn::TYPE)->text() != DIR_TYPE_NAME) {
+            continue;
+        }
+        if (this->item(r, DirPreviewColumn::NAME)->text() == name) {
+            this->removeRow(r);
+            break;
+        }
+    }
 }
 
 void DirPreview::setSearchQuery(const QString& query) {
@@ -178,6 +196,68 @@ void DirPreview::setSearchQuery(const QString& query) {
             }
         }
     }
+}
+
+const QString& DirPreview::getCurrentPath() const {
+    return this->currentPath;
+}
+
+void DirPreview::addRowForFile(const VPK& vpk, const QString& path) {
+    // Note: does not check if the path is inside the directory being previewed
+    auto entry = vpk.findEntry(path.toStdString());
+    if (!entry) {
+        return;
+    }
+
+    this->setRowCount(this->rowCount() + 1);
+
+    auto* nameItem = new QTableWidgetItem(entry->filename.c_str());
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::NAME, nameItem);
+
+    auto* typeItem = new QTableWidgetItem(QString(entry->filenamePair.second.c_str()).toUpper());
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::TYPE, typeItem);
+
+    QTableWidgetItem* sizeItem;
+    if (entry->length < KB_SIZE) {
+        sizeItem = new QTableWidgetItem(QString::number(entry->length) + " bytes");
+    } else {
+        auto size = static_cast<double>(entry->length) / KB_SIZE;
+        QString extension(" kb");
+
+        if (size >= KB_SIZE) {
+            size /= KB_SIZE;
+            extension = " mb";
+        }
+        if (size >= KB_SIZE) {
+            size /= KB_SIZE;
+            extension = " gb";
+        }
+        sizeItem = new QTableWidgetItem(QString::number(size, 'f', 2) + extension);
+    }
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, sizeItem);
+
+    auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->preloadedData.size()) + " bytes");
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, preloadedSizeItem);
+
+    auto archiveIndex = entry->archiveIndex;
+    // If the archive index is the dir index, it's included in the directory VPK
+    auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, archiveIndexItem);
+}
+
+void DirPreview::addRowForDir(const QString& name) {
+    this->setRowCount(this->rowCount() + 1);
+
+    auto* nameItem = new QTableWidgetItem(name);
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::NAME, nameItem);
+
+    auto* typeItem = new QTableWidgetItem(DIR_TYPE_NAME);
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::TYPE, typeItem);
+
+    // Need to fill the rest of the columns with an item to fix the context menu not showing up on these cells
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, new QTableWidgetItem(""));
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, new QTableWidgetItem(""));
+    this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, new QTableWidgetItem(""));
 }
 
 QString DirPreview::getItemPath(QTableWidgetItem* item) {
