@@ -149,48 +149,6 @@ if(VPKEDIT_BUILD_GUI)
                 "/ENTRY:mainCRTStartup")
     endif()
 
-    # Set up install rules
-    install(TARGETS ${PROJECT_NAME} vtflib
-            CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-            RUNTIME DESTINATION .
-            LIBRARY DESTINATION .)
-    install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
-            RUNTIME DESTINATION .
-            LIBRARY DESTINATION .)
-    install(FILES
-            "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
-            "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/.nonportable"
-            DESTINATION .)
-    if(WIN32)
-        install(FILES
-                "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
-                "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
-                "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
-                DESTINATION imageformats)
-        install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
-                DESTINATION platforms)
-        install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
-                DESTINATION styles)
-        install(FILES
-                "${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll"
-                "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
-                DESTINATION tls)
-    elseif(UNIX)
-        if (DEFINED QT_BASEDIR)
-            install(DIRECTORY
-                    "${QT_BASEDIR}/lib/"
-                    "${QT_BASEDIR}/plugins/"
-                    DESTINATION .
-                    FILES_MATCHING PATTERN "*.so*")
-        endif()
-
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
-                DESTINATION "/usr/share/applications/")
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
-                DESTINATION "/usr/share/pixmaps/")
-    endif()
-
     # Copy these next to the executable
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
@@ -241,6 +199,87 @@ if(VPKEDIT_BUILD_GUI)
 
         configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libxdg-shell.so" "${CMAKE_BINARY_DIR}/wayland-shell-integration/libxdg-shell.so" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libqt-shell.so"  "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"  COPYONLY)
+    endif()
+
+    # Set up install rules
+    install(TARGETS ${PROJECT_NAME} vtflib
+            CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+            RUNTIME DESTINATION .
+            LIBRARY DESTINATION .)
+    install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/.nonportable"
+            DESTINATION .)
+    if(WIN32)
+        install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
+                RUNTIME DESTINATION .
+                LIBRARY DESTINATION .)
+        install(FILES
+                "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
+                DESTINATION imageformats)
+        install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
+                DESTINATION platforms)
+        install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
+                DESTINATION styles)
+        install(FILES
+                "${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll"
+                "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
+                DESTINATION tls)
+    elseif(UNIX)
+        if (DEFINED QT_BASEDIR)
+            # If this is a custom install, we've copied the Qt libraries to the build directory and done special fixups
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6Network.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"
+
+                    "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"
+                    "${CMAKE_BINARY_DIR}/libicui18n.so.56"
+                    "${CMAKE_BINARY_DIR}/libicuuc.so.56"
+                    "${CMAKE_BINARY_DIR}/libicudata.so.56"
+                    DESTINATION .)
+
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so"
+                    "${CMAKE_BINARY_DIR}/imageformats/libqtga.so"
+                    "${CMAKE_BINARY_DIR}/imageformats/libqwebp.so"
+                    DESTINATION imageformats)
+
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/platforms/libqwayland-generic.so"
+                    "${CMAKE_BINARY_DIR}/platforms/libqminimal.so"
+                    "${CMAKE_BINARY_DIR}/platforms/libqxcb.so"
+                    DESTINATION platforms)
+
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/platformthemes/libqgtk3.so"
+                    DESTINATION platformthemes)
+
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/tls/libqcertonlybackend.so"
+                    "${CMAKE_BINARY_DIR}/tls/libqopensslbackend.so"
+                    DESTINATION tls)
+
+            install(FILES
+                    "${CMAKE_BINARY_DIR}/wayland-shell-integration/libxdg-shell.so"
+                    "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"
+                    DESTINATION wayland-shell-integration)
+        else()
+            install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
+                    RUNTIME DESTINATION .
+                    LIBRARY DESTINATION .)
+        endif()
+
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
+                DESTINATION "/usr/share/applications/")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
+                DESTINATION "/usr/share/pixmaps/")
     endif()
 
     if(VPKEDIT_BUILD_INSTALLER)
