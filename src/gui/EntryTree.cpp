@@ -171,6 +171,27 @@ void EntryTree::setAutoExpandDirectoryOnClick(bool enable) {
     this->autoExpandDirectories = enable;
 }
 
+void EntryTree::removeEntryByPath(const QString& path) {
+    auto elements = path.split('/');
+    auto* currentEntry = this->root;
+
+    while (!elements.isEmpty()) {
+        auto* oldEntry = currentEntry;
+        for (int i = 0; i < currentEntry->childCount(); i++) {
+            if (currentEntry->child(i)->text(0) == elements[0]) {
+                elements.pop_front();
+                currentEntry = currentEntry->child(i);
+                break;
+            }
+        }
+        if (oldEntry == currentEntry) {
+            return;
+        }
+    }
+
+    this->removeEntry(currentEntry);
+}
+
 void EntryTree::clearContents() {
     this->root = nullptr;
     this->clear();
@@ -252,6 +273,7 @@ void EntryTree::removeEntry(QTreeWidgetItem* item) {
 
     // Remove dead directories
     while (parent && parent != this->root && parent->childCount() == 0) {
+        this->window->removeDir(this->getItemPath(parent));
         auto* temp = parent->parent();
         delete parent;
         parent = temp;

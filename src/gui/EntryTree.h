@@ -27,6 +27,8 @@ public:
 
     void setAutoExpandDirectoryOnClick(bool enable);
 
+    void removeEntryByPath(const QString& path);
+
     void clearContents();
 
     void addEntry(const QString& path);
