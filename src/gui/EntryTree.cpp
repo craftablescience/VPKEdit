@@ -124,6 +124,8 @@ void EntryTree::selectSubItem(const QString& name) {
                 child->setSelected(true);
                 this->onCurrentItemChanged(child);
                 child->setExpanded(true);
+                this->scrollToItem(child, QAbstractItemView::ScrollHint::PositionAtCenter);
+                return;
             }
         }
     }
