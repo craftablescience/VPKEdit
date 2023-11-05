@@ -12,6 +12,8 @@ public:
         ".gi",
         ".rc",
         ".res",
+        ".vmt",
+        ".vmf",
         ".vbsp",
         ".rad",
         ".nut",
@@ -29,8 +31,17 @@ public:
         ".yml",
         ".yaml",
         ".toml",
-        ".vmf", // hey you never know
-        ".vmt",
+        ".html",
+        ".htm",
+        ".xml",
+        ".css",
+        ".scss",
+        ".sass",
+        ".gitignore",
+        "authors",
+        "credits",
+        "license",
+        "readme",
     };
 
     explicit TextPreview(QWidget* parent = nullptr);
