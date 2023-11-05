@@ -39,7 +39,10 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 }
 
 void FileViewer::displayEntry(const QString& path) {
-    QString extension(std::filesystem::path(path.toLower().toStdString()).extension().string().c_str());
+    // Get extension
+    std::filesystem::path helperPath(path.toLower().toStdString());
+    QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
+
     this->clearContents();
     if (ImagePreview::EXTENSIONS.contains(extension)) {
         // Image
