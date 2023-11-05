@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <VTFLib.h>
 
+class QCheckBox;
 class QSlider;
 
 class Image : public QWidget {
@@ -15,13 +16,22 @@ public:
 
     void setImage(const std::vector<std::byte>& data);
 
+    void setAlphaEnabled(bool alpha);
+    void setTileEnabled(bool tile);
     void setZoom(int zoom_);
+
+    [[nodiscard]] bool hasAlpha() const;
+    [[nodiscard]] bool getAlphaEnabled() const;
+    [[nodiscard]] bool getTileEnabled() const;
+    [[nodiscard]] float getZoom() const;
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
     QImage image;
+    bool alphaEnabled;
+    bool tileEnabled;
     float zoom;
 };
 
@@ -48,5 +58,7 @@ protected:
 
 private:
     Image* image;
+    QCheckBox* alphaCheckBox;
+    QCheckBox* tileCheckBox;
     QSlider* zoomSlider;
 };
