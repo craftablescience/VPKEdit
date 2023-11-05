@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QSlider>
+#include <QWheelEvent>
 
 Image::Image(QWidget* parent)
         : QWidget(parent)
@@ -17,7 +18,7 @@ void Image::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
-void Image::paintEvent(QPaintEvent* event) {
+void Image::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
 
     int imageWidth = this->image.width(), imageHeight = this->image.height();
@@ -46,7 +47,7 @@ ImagePreview::ImagePreview(QWidget* parent)
     this->zoomSlider->setMinimum(20);
     this->zoomSlider->setMaximum(800);
     this->zoomSlider->setValue(100);
-    connect(this->zoomSlider, &QSlider::valueChanged, [&] {
+    QObject::connect(this->zoomSlider, &QSlider::valueChanged, [&] {
         this->image->setZoom(this->zoomSlider->value());
         this->image->repaint();
     });
@@ -56,4 +57,11 @@ ImagePreview::ImagePreview(QWidget* parent)
 void ImagePreview::setImage(const std::vector<std::byte>& data) {
     this->image->setImage(data);
     this->zoomSlider->setValue(100);
+}
+
+void ImagePreview::wheelEvent(QWheelEvent* event) {
+    if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+        this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y());
+    }
+    event->accept();
 }

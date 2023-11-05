@@ -65,6 +65,9 @@ public:
 
     void setImage(const std::vector<std::byte>& data);
 
+protected:
+    void wheelEvent(QWheelEvent* event) override;
+
 private:
     VTFImage* image;
     QSpinBox* frameSpin;

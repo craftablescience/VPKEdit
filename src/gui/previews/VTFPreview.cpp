@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QSlider>
 #include <QSpinBox>
+#include <QWheelEvent>
 
 using namespace VTFLib;
 
@@ -78,7 +79,7 @@ float VTFImage::getZoom() const {
 }
 
 // Taken directly from vtex2, thanks!
-void VTFImage::paintEvent(QPaintEvent* event) {
+void VTFImage::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
 
     if (!this->vtf) {
@@ -251,4 +252,11 @@ void VTFPreview::setImage(const std::vector<std::byte>& data) {
     this->tileCheckBox->setChecked(false);
 
     this->zoomSlider->setValue(100);
+}
+
+void VTFPreview::wheelEvent(QWheelEvent* event) {
+    if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+        this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y());
+    }
+    event->accept();
 }

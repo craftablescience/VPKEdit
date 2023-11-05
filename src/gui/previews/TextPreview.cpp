@@ -2,6 +2,7 @@
 
 TextPreview::TextPreview(QWidget* parent)
         : QTextEdit(parent) {
+    // todo(preview): allow editing text files
     this->setReadOnly(true);
 
     QFont monospace;
