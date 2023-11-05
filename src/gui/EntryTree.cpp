@@ -204,6 +204,10 @@ void EntryTree::addEntry(const QString& path) {
 }
 
 void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) {
+    if (!item) {
+        return;
+    }
+
     if (this->autoExpandDirectories) {
         item->setExpanded(!item->isExpanded());
     }
