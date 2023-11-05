@@ -25,6 +25,8 @@ public:
 
     void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 
+    void setSearchQuery(const QString& query);
+
     void selectSubItemInDir(const QString& name);
 
     void clearContents();

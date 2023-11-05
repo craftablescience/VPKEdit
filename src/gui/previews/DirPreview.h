@@ -19,6 +19,8 @@ public:
 
     void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 
+    void setSearchQuery(const QString& query);
+
 private:
     QString getItemPath(QTableWidgetItem* item);
 
@@ -26,4 +28,5 @@ private:
     Window* window;
 
     QString currentPath;
+    QString currentSearchQuery;
 };
