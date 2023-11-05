@@ -100,15 +100,16 @@ void DirPreview::setPath(const QString& currentDir, const QList<QString>& subfol
 }
 
 void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
-    // If the parent is identical to us, it's a file
-    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    // If the parent is identical to us then we're the direct parent, add the file
+    const auto lastIndex = path.lastIndexOf('/');
+    const QString parent = lastIndex < 0 ? "" : path.sliced(0, lastIndex);
     if (parent == this->currentPath) {
         this->addRowForFile(vpk, path);
         return;
     }
 
     // We may need to add a subfolder if the displayed directory is a grandparent or higher
-    if (path.length() < this->currentPath.length() || !path.startsWith(this->currentPath)) {
+    if (path.length() <= this->currentPath.length() || !path.startsWith(this->currentPath)) {
         return;
     }
 
@@ -132,13 +133,13 @@ void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
 }
 
 void DirPreview::removeFile(const QString& path) {
-    // If the parent is identical to us, it's a file
-    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    // If the parent isn't identical to us, bail
+    const auto lastIndex = path.lastIndexOf('/');
+    const QString parent = lastIndex < 0 ? "" : path.sliced(0, lastIndex);
     if (parent != this->currentPath) {
         return;
     }
-    QString name = path.sliced(path.lastIndexOf('/'));
-    name.removeFirst();
+    QString name = lastIndex < 0 ? path : path.sliced(path.lastIndexOf('/') + 1);
     for (int r = 0; r < this->rowCount(); r++) {
         if (this->item(r, DirPreviewColumn::TYPE)->text() == DIR_TYPE_NAME) {
             continue;
@@ -151,12 +152,13 @@ void DirPreview::removeFile(const QString& path) {
 }
 
 void DirPreview::removeDir(const QString& path) {
-    const QString parent = path.sliced(0, path.lastIndexOf('/'));
+    // If the parent isn't identical to us, bail
+    const auto lastIndex = path.lastIndexOf('/');
+    const QString parent = lastIndex < 0 ? "" : path.sliced(0, lastIndex);
     if (parent != this->currentPath) {
         return;
     }
-    QString name = path.sliced(path.lastIndexOf('/'));
-    name.removeFirst();
+    QString name = lastIndex < 0 ? path : path.sliced(path.lastIndexOf('/') + 1);
     for (int r = 0; r < this->rowCount(); r++) {
         if (this->item(r, DirPreviewColumn::TYPE)->text() != DIR_TYPE_NAME) {
             continue;
