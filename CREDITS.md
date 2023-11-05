@@ -1,5 +1,7 @@
 ## Contributors
 - [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
+- [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
+- [Rythyrix](https://github.com/Rythyrix): minor library bugfix
 
 ## Acknowledgements
 - ValvePak - xPaw
