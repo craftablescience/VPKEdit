@@ -52,24 +52,26 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                 auto* selectedDirAction = contextMenuData.contextMenuDir->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedDirAction == contextMenuData.addFileToDirAction) {
-                    this->window->addFile(path);
-                } else if (selectedDirAction == contextMenuData.removeDirAction) {
-                    // todo: remove entry from dir preview
-                    //this->removeEntry(selectedItem);
-                } else if (selectedDirAction == contextMenuData.extractDirAction) {
+                if (selectedDirAction == contextMenuData.extractDirAction) {
                     this->window->extractDir(path);
+                } else if (selectedDirAction == contextMenuData.addFileToDirAction) {
+                    this->window->addFile(path);
+                } else if (selectedDirAction == contextMenuData.addDirToDirAction) {
+                    this->window->addDir(path);
+                } else if (selectedDirAction == contextMenuData.removeDirAction) {
+                    // todo(sync): remove entry from dir preview
+                    //this->removeEntry(selectedItem);
                 }
             } else {
-                // Show the directory context menu at the requested position
+                // Show the file context menu at the requested position
                 auto* selectedFileAction = contextMenuData.contextMenuFile->exec(this->mapToGlobal(pos));
 
                 // Handle the selected action
-                if (selectedFileAction == contextMenuData.removeFileAction) {
-                    // todo: remove entry from dir preview
-                    //this->removeEntry(selectedItem);
-                } else if (selectedFileAction == contextMenuData.extractFileAction) {
+                if (selectedFileAction == contextMenuData.extractFileAction) {
                     this->window->extractFile(path);
+                } else if (selectedFileAction == contextMenuData.removeFileAction) {
+                    // todo(sync): remove entry from dir preview
+                    //this->removeEntry(selectedItem);
                 }
             }
         }

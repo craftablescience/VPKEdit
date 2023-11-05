@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -186,14 +187,17 @@ Window::Window(QSettings& options, QWidget* parent)
 #ifdef QT_DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
-    debugMenu->addAction("New Entry Dialog", [=] {
-        std::ignore = NewEntryDialog::getNewEntryOptions(this, "test");
+    debugMenu->addAction("New Entry Dialog (File)", [=] {
+        (void) NewEntryDialog::getNewEntryOptions(false, "test", this);
+    });
+    debugMenu->addAction("New Entry Dialog (Dir)", [=] {
+        (void) NewEntryDialog::getNewEntryOptions(true, "test", this);
     });
     debugMenu->addAction("New Update Dialog", [=] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
     debugMenu->addAction("New VPK Dialog", [=] {
-        std::ignore = NewVPKDialog::getNewVPKOptions(this);
+        (void) NewVPKDialog::getNewVPKOptions(this);
     });
 #endif
 
@@ -373,7 +377,7 @@ void Window::addFile(const QString& startPath) {
     }
     prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
 
-    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(this, prefilledPath);
+    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(false, prefilledPath, this);
     if (!newEntryOptions) {
         return;
     }
@@ -381,6 +385,35 @@ void Window::addFile(const QString& startPath) {
     this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
     this->markModified(true);
     this->entryTree->addEntry(entryPath);
+}
+
+void Window::addDir(const QString& startPath) {
+    auto dirPath = QFileDialog::getExistingDirectory(this, tr("Open Folder"));
+    if (dirPath.isEmpty()) {
+        return;
+    }
+
+    auto prefilledPath = startPath;
+    if (!prefilledPath.isEmpty()) {
+        prefilledPath += '/';
+    }
+    prefilledPath += std::filesystem::path(dirPath.toStdString()).filename().string().c_str();
+
+    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(true, prefilledPath, this);
+    if (!newEntryOptions) {
+        return;
+    }
+
+    const auto [parentEntryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
+
+    QDirIterator it(dirPath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        QString subEntryPathFS = it.next();
+        QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirPath.length());
+        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
+        this->entryTree->addEntry(subEntryPath);
+    }
+    this->markModified(true);
 }
 
 bool Window::removeFile(const QString& filepath) {
@@ -553,16 +586,20 @@ void Window::markModified(bool modified_) {
 }
 
 bool Window::promptUserToKeepModifications() {
-    auto response = QMessageBox::warning(this, tr("Save changes?"), tr("Hold up! Would you like to save changes to the VPK first?"), QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
-    if (response == QMessageBox::Cancel) {
-        return true;
-    }
-    if (response == QMessageBox::Discard) {
-        return false;
-    }
-    if (response == QMessageBox::Ok) {
-        this->saveVPK();
-        return false;
+    auto response = QMessageBox::warning(this,
+            tr("Save changes?"),
+            tr("Hold up! Would you like to save changes to the VPK first?"),
+            QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
+    switch (response) {
+        case QMessageBox::Cancel:
+            return true;
+        case QMessageBox::Discard:
+            return false;
+        case QMessageBox::Ok:
+            this->saveVPK();
+            return false;
+        default:
+            break;
     }
     return true;
 }
@@ -620,11 +657,12 @@ bool Window::loadVPK(const QString& path) {
 
     this->vpk = VPK::open(fixedPath.toStdString());
     if (!this->vpk) {
-        QMessageBox::critical(this, tr("Error"), "Unable to load given VPK. Please ensure you are loading a "
-                                                 "\"directory\" VPK (typically ending in _dir), not a VPK that "
-                                                 "ends with 3 numbers. Loading a directory VPK will allow you "
-                                                 "to browse the contents of the numbered archives next to it.\n"
-                                                 "Also, please ensure that a game or another application is not using the VPK.");
+        QMessageBox::critical(this, tr("Error"), tr(
+                "Unable to load given VPK. Please ensure you are loading a "
+                "\"directory\" VPK (typically ending in _dir), not a VPK that "
+                "ends with 3 numbers. Loading a directory VPK will allow you "
+                "to browse the contents of the numbered archives next to it.\n"
+                "Also, please ensure that a game or another application is not using the VPK."));
         return false;
     }
 

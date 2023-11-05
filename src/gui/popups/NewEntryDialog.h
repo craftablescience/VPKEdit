@@ -13,9 +13,9 @@ class NewEntryDialog : public QDialog {
     Q_OBJECT;
 
 public:
-    explicit NewEntryDialog(QWidget* parent = nullptr, const QString& prefilledPath = QString());
+    NewEntryDialog(bool isDir, const QString& prefilledPath = QString(), QWidget* parent = nullptr);
 
-    static std::optional<std::tuple<QString, bool, int>> getNewEntryOptions(QWidget* parent = nullptr, const QString& prefilledPath = QString());
+    static std::optional<std::tuple<QString, bool, int>> getNewEntryOptions(bool isDir, const QString& prefilledPath = QString(), QWidget* parent = nullptr);
 
 private:
     QLineEdit* path;
