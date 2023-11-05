@@ -213,6 +213,7 @@ Window::Window(QSettings& options, QWidget* parent)
     this->searchBar->setPlaceholderText(QString("Find..."));
     QObject::connect(this->searchBar, &QLineEdit::editingFinished, this, [=] {
         this->entryTree->setSearchQuery(this->searchBar->text());
+        this->fileViewer->setSearchQuery(this->searchBar->text());
     });
     leftPaneLayout->addWidget(this->searchBar);
 

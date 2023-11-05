@@ -77,6 +77,10 @@ void FileViewer::displayDir(const QString& path, const QList<QString>& subfolder
     this->showPreview<DirPreview>();
 }
 
+void FileViewer::setSearchQuery(const QString& query) {
+    this->getPreview<DirPreview>()->setSearchQuery(query);
+}
+
 void FileViewer::selectSubItemInDir(const QString& name) {
     this->window->selectSubItemInDir(name);
 }
