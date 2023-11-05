@@ -43,6 +43,9 @@ public:
 
     void setImage(const std::vector<std::byte>& data);
 
+protected:
+    void wheelEvent(QWheelEvent* event) override;
+
 private:
     Image* image;
     QSlider* zoomSlider;
