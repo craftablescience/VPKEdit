@@ -65,7 +65,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
         }
     });
 
-    QObject::connect(this, &QTreeWidget::itemClicked, this, &EntryTree::onItemClicked);
+    QObject::connect(this, &QTreeWidget::currentItemChanged, this, &EntryTree::onCurrentItemChanged);
 
     this->clearContents();
 }
@@ -106,7 +106,7 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
 
         // Fire the click manually to show the contents and expand the root
         this->root->setSelected(true);
-        this->onItemClicked(this->root, 0);
+        this->onCurrentItemChanged(this->root);
         this->root->setExpanded(true);
 
         finishCallback();
@@ -122,7 +122,7 @@ void EntryTree::selectSubItem(const QString& name) {
             auto* child = selected->child(i);
             if (child->text(0) == name) {
                 child->setSelected(true);
-                this->onItemClicked(child, 0);
+                this->onCurrentItemChanged(child);
                 child->setExpanded(true);
             }
         }
@@ -180,7 +180,7 @@ void EntryTree::addEntry(const QString& path) {
     this->addNestedEntryComponents(path);
 }
 
-void EntryTree::onItemClicked(QTreeWidgetItem* item, int /*column*/) {
+void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) {
     if (this->autoExpandDirectories) {
         item->setExpanded(!item->isExpanded());
     }

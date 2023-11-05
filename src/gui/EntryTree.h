@@ -32,7 +32,7 @@ public:
     void addEntry(const QString& path);
 
 public slots:
-    void onItemClicked(QTreeWidgetItem* item, int /*column*/);
+    void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/);
 
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);
