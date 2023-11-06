@@ -57,15 +57,6 @@ void FileViewer::displayEntry(const QString& path) {
         }
         this->getPreview<ImagePreview>()->setImage(*binary);
         this->showPreview<ImagePreview>();
-    } else if (TextPreview::EXTENSIONS.contains(extension)) {
-        // Text
-        auto text = this->window->readTextEntry(path);
-        if (!text) {
-            this->showPreview<ErrorPreview>();
-            return;
-        }
-        this->getPreview<TextPreview>()->setText(*text);
-        this->showPreview<TextPreview>();
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
@@ -75,6 +66,15 @@ void FileViewer::displayEntry(const QString& path) {
         }
         this->getPreview<VTFPreview>()->setImage(*binary);
         this->showPreview<VTFPreview>();
+    } else if (TextPreview::EXTENSIONS.contains(extension)) {
+        // Text
+        auto text = this->window->readTextEntry(path);
+        if (!text) {
+            this->showPreview<ErrorPreview>();
+            return;
+        }
+        this->getPreview<TextPreview>()->setText(*text);
+        this->showPreview<TextPreview>();
     }
 }
 
