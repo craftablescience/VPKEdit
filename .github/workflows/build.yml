@@ -93,7 +93,7 @@ jobs:
           submodules: recursive
 
       - name: Install Necessary Packages
-        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
+        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build libasound2-dev libpulse-dev libjack-dev chrpath
 
       - name: Install GCC
         if: ${{ matrix.compiler == 'gcc' }}

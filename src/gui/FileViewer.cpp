@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 
+#include "previews/AudioPreview.h"
 #include "previews/DirPreview.h"
 #include "previews/info/EmptyPreview.h"
 #include "previews/info/ErrorPreview.h"
@@ -20,6 +21,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
         , window(window_) {
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+
+    auto* audioPreview = newPreview<AudioPreview>(this);
+    layout->addWidget(audioPreview);
 
     auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
@@ -66,6 +70,15 @@ void FileViewer::displayEntry(const QString& path) {
         }
         this->getPreview<VTFPreview>()->setImage(*binary);
         this->showPreview<VTFPreview>();
+    } else if (AudioPreview::EXTENSIONS.contains(extension)) {
+        // Audio
+        auto binary = this->window->readBinaryEntry(path);
+        if (!binary) {
+            this->showPreview<ErrorPreview>();
+            return;
+        }
+        this->getPreview<AudioPreview>()->setAudio(*binary, extension);
+        this->showPreview<AudioPreview>();
     } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text
         auto text = this->window->readTextEntry(path);

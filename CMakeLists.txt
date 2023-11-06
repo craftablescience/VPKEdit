@@ -13,6 +13,11 @@ option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_TESTS "Run library tests" OFF)
 
+set(VPKEDIT_WINDOWS_DEBUG_POSTFIX "d")
+if(WIN32)
+    set(CMAKE_DEBUG_POSTFIX "${VPKEDIT_WINDOWS_DEBUG_POSTFIX}" CACHE STRING "Postfix for the debug version of libraries on Windows" FORCE)
+endif()
+
 # For hashing parts of the VPK and stored files
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/lib/thirdparty/md5)
 
@@ -53,6 +58,16 @@ if(VPKEDIT_BUILD_GUI)
 
     # SAPP
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp")
+
+    # RtAudio
+    set(RTAUDIO_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/rtaudio")
+    set_target_properties(
+            rtaudio PROPERTIES
+            # Ditto
+            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
     # Qt
     if(WIN32 AND NOT DEFINED QT_BASEDIR)
@@ -110,6 +125,8 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/EmptyPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/AudioPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/AudioPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
@@ -138,7 +155,7 @@ if(VPKEDIT_BUILD_GUI)
 
     # Final Qt setup
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP rtaudio Qt::Core Qt::Gui Qt::Widgets Qt::Network)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
             "${QT_INCLUDE}"
@@ -206,7 +223,7 @@ if(VPKEDIT_BUILD_GUI)
     endif()
 
     # Set up install rules
-    install(TARGETS ${PROJECT_NAME} vtflib
+    install(TARGETS ${PROJECT_NAME} vtflib rtaudio
             CONFIGURATIONS ${CMAKE_BUILD_TYPE}
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
