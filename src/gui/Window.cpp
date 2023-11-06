@@ -1,6 +1,5 @@
 #include "Window.h"
 
-#include <cstdlib>
 #include <optional>
 
 #include <QActionGroup>
@@ -282,9 +281,9 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
     }
 
     if (fromDirectory) {
-        std::ignore = VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version, cs2);
+        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version, cs2);
     } else {
-        std::ignore = VPK::createEmpty(vpkPath.toStdString(), version, cs2);
+        (void) VPK::createEmpty(vpkPath.toStdString(), version, cs2);
     }
     this->loadVPK(vpkPath);
 }
@@ -620,8 +619,9 @@ void Window::clearContents() {
         return;
     }
 
-    this->statusText->setText(' ' + tr("Ready"));
+    this->statusText->setText("");
     this->statusProgressBar->hide();
+    this->statusBar()->hide();
 
     this->searchBar->setText(QString(""));
     this->searchBar->setDisabled(true);
@@ -679,6 +679,7 @@ bool Window::loadVPK(const QString& path) {
 
     this->statusText->hide();
     this->statusProgressBar->show();
+    this->statusBar()->show();
 
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
         this->freezeActions(false);
