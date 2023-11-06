@@ -73,7 +73,7 @@ void FileViewer::displayEntry(const QString& path) {
             this->showPreview<ErrorPreview>();
             return;
         }
-        this->getPreview<TextPreview>()->setText(*text);
+        this->getPreview<TextPreview>()->setText(*text, extension);
         this->showPreview<TextPreview>();
     }
 }

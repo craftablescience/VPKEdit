@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QSyntaxHighlighter>
 
 class TextPreview;
 
@@ -19,24 +21,49 @@ private:
     TextPreview* preview;
 };
 
+class KeyValuesHighlighter : public QSyntaxHighlighter {
+    Q_OBJECT;
+
+public:
+    explicit KeyValuesHighlighter(QTextDocument* document = nullptr);
+
+protected:
+    void highlightBlock(const QString& text) override;
+
+private:
+    struct HighlightingRule {
+        QRegularExpression pattern;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRule> highlightingRules;
+
+    QTextCharFormat multiLineCommentFormat;
+
+    QRegularExpression commentStartExpression;
+    QRegularExpression commentEndExpression;
+};
+
 class TextPreview : public QPlainTextEdit {
     Q_OBJECT;
 
 public:
+    // Reminder if you add a format that should be highlighted to change that list too!
     static inline const QStringList EXTENSIONS {
-        ".txt", ".md",
-        ".vmt", ".vmf", ".vbsp", ".rad",
-        ".nut", ".lua", ".gm", ".py", ".js", ".ts",
-        ".gi", ".rc", ".lst", ".cfg",
-        ".kv", ".kv3", ".res", ".vdf", ".acf",
-        ".ini", ".yml", ".yaml", ".toml",
-        ".html", ".htm", ".xml", ".css", ".scss", ".sass",
-        ".gitignore", "authors", "credits", "license", "readme",
+        ".txt", ".md",                                     // Text
+        ".nut", ".lua", ".gm", ".py", ".js", ".ts",        // Scripts
+        ".vmf", ".vmm", ".vmx", ".vmt",                    // Assets (1)
+        ".vcd", ".fgd", ".qc", ".smd",                     // Assets (2)
+        ".kv", ".kv3", ".res", ".vdf", ".acf",             // KeyValues
+        ".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",     // Valve formats
+        ".ini", ".yml", ".yaml", ".toml", ".json",         // Config
+        ".html", ".htm", ".xml", ".css", ".scss", ".sass", // Web
+        "authors", "credits", "license", "readme",         // Info
+        ".gitignore", ".gitattributes", ".gitmodules",     // Git
     };
 
     explicit TextPreview(QWidget* parent = nullptr);
 
-    void setText(const QString& text);
+    void setText(const QString& text, const QString& extension);
 
     [[nodiscard]] int getLineNumberAreaWidth();
 
@@ -52,4 +79,6 @@ private slots:
 
 private:
     LineNumberArea* lineNumberArea;
+
+    KeyValuesHighlighter keyValuesHighlighter;
 };

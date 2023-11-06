@@ -18,8 +18,73 @@ void LineNumberArea::paintEvent(QPaintEvent* event) {
     this->preview->onLineNumberAreaPaintEvent(event);
 }
 
+KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
+        : QSyntaxHighlighter(document) {
+    HighlightingRule rule;
+
+    QTextCharFormat pragmaFormat;
+    pragmaFormat.setForeground(Qt::darkMagenta);
+    rule.pattern = QRegularExpression("\\b#[A-Za-z_]+");
+    rule.format = pragmaFormat;
+    this->highlightingRules.append(rule);
+
+    QTextCharFormat variableFormat;
+    pragmaFormat.setForeground(Qt::magenta);
+    rule.pattern = QRegularExpression(R"(\[\s*\$[A-Za-z0-9_&|!]+\s*\])");
+    rule.format = pragmaFormat;
+    this->highlightingRules.append(rule);
+
+    QTextCharFormat quotationFormat;
+    quotationFormat.setForeground(Qt::darkGreen);
+    rule.pattern = QRegularExpression("\".*\"");
+    rule.format = quotationFormat;
+    this->highlightingRules.append(rule);
+
+    QTextCharFormat singleLineCommentFormat;
+    singleLineCommentFormat.setForeground(Qt::gray);
+    rule.pattern = QRegularExpression("//[^\n]*");
+    rule.format = singleLineCommentFormat;
+    this->highlightingRules.append(rule);
+
+    this->multiLineCommentFormat.setForeground(Qt::red);
+
+    this->commentStartExpression = QRegularExpression("/\\*");
+    this->commentEndExpression = QRegularExpression("\\*/");
+}
+
+void KeyValuesHighlighter::highlightBlock(const QString& text) {
+    for (const auto& rule : this->highlightingRules) {
+        auto matchIterator = rule.pattern.globalMatch(text);
+        while (matchIterator.hasNext()) {
+            QRegularExpressionMatch match = matchIterator.next();
+            this->setFormat(static_cast<int>(match.capturedStart()), static_cast<int>(match.capturedLength()), rule.format);
+        }
+    }
+
+    this->setCurrentBlockState(0);
+
+    qsizetype startIndex = 0;
+    if (this->previousBlockState() != 1) {
+        startIndex = text.indexOf(this->commentStartExpression);
+    }
+    while (startIndex >= 0) {
+        QRegularExpressionMatch match = this->commentEndExpression.match(text, startIndex);
+        qsizetype endIndex = match.capturedStart();
+        qsizetype commentLength;
+        if (endIndex == -1) {
+            this->setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        } else {
+            commentLength = endIndex - startIndex + match.capturedLength();
+        }
+        this->setFormat(static_cast<int>(startIndex), static_cast<int>(commentLength), this->multiLineCommentFormat);
+        startIndex = text.indexOf(this->commentStartExpression, startIndex + commentLength);
+    }
+}
+
 TextPreview::TextPreview(QWidget* parent)
-        : QPlainTextEdit(parent) {
+        : QPlainTextEdit(parent)
+        , keyValuesHighlighter(nullptr) {
     this->setReadOnly(true);
 
     this->lineNumberArea = new LineNumberArea(this, this);
@@ -39,8 +104,21 @@ TextPreview::TextPreview(QWidget* parent)
     this->lineNumberArea->setFont(monospace);
 }
 
-void TextPreview::setText(const QString& text) {
+void TextPreview::setText(const QString& text, const QString& extension) {
     this->document()->setPlainText(text);
+
+    // Copied from the header
+    const QStringList keyValuesLikeFormats = {
+            ".vmf", ".vmm", ".vmx", ".vmt",                // Assets (1)
+            ".vcd", ".fgd", ".qc", ".smd",                 // Assets (2)
+            ".kv", ".kv3", ".res", ".vdf", ".acf",         // KeyValues
+            ".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg", // Valve formats
+    };
+    if (keyValuesLikeFormats.contains(extension)) {
+        this->keyValuesHighlighter.setDocument(this->document());
+    } else {
+        this->keyValuesHighlighter.setDocument(nullptr);
+    }
 }
 
 int TextPreview::getLineNumberAreaWidth() {
