@@ -45,6 +45,7 @@ Window::Window(QSettings& options, QWidget* parent)
         : QMainWindow(parent)
         , extractWorkerThread(nullptr)
         , modified(false) {
+    this->setWindowTitle(VPKEDIT_FULL_TITLE);
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
@@ -587,9 +588,9 @@ void Window::markModified(bool modified_) {
     this->modified = modified_;
 
     if (this->modified) {
-        this->setWindowTitle(VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION " (*)");
+        this->setWindowTitle(VPKEDIT_FULL_TITLE " (*)");
     } else {
-        this->setWindowTitle(VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION);
+        this->setWindowTitle(VPKEDIT_FULL_TITLE);
     }
 
     this->saveVPKAction->setDisabled(!this->modified);

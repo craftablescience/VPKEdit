@@ -6,7 +6,8 @@
 #include <QMessageBox>
 
 #include "previews/DirPreview.h"
-#include "previews/ErrorPreview.h"
+#include "previews/info/EmptyPreview.h"
+#include "previews/info/ErrorPreview.h"
 #include "previews/ImagePreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
@@ -22,6 +23,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 
     auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
+
+    auto* emptyPreview = newPreview<EmptyPreview>(this);
+    layout->addWidget(emptyPreview);
 
     auto* errorPreview = newPreview<ErrorPreview>(this);
     layout->addWidget(errorPreview);
@@ -105,6 +109,5 @@ void FileViewer::selectSubItemInDir(const QString& name) {
 }
 
 void FileViewer::clearContents() {
-    this->getPreview<TextPreview>()->setText("");
-    this->showPreview<TextPreview>();
+    this->showPreview<EmptyPreview>();
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWidget>
+#include "AbstractInfoPreview.h"
 
-class ErrorPreview : public QWidget {
+class ErrorPreview : public AbstractInfoPreview {
     Q_OBJECT;
 
 public:
