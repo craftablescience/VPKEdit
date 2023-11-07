@@ -45,11 +45,6 @@ KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
     rule.pattern = QRegularExpression("//[^\n]*");
     rule.format = singleLineCommentFormat;
     this->highlightingRules.append(rule);
-
-    this->multiLineCommentFormat.setForeground(Qt::gray);
-
-    this->commentStartExpression = QRegularExpression("/\\*");
-    this->commentEndExpression = QRegularExpression("\\*/");
 }
 
 void KeyValuesHighlighter::highlightBlock(const QString& text) {
@@ -59,26 +54,6 @@ void KeyValuesHighlighter::highlightBlock(const QString& text) {
             QRegularExpressionMatch match = matchIterator.next();
             this->setFormat(static_cast<int>(match.capturedStart()), static_cast<int>(match.capturedLength()), rule.format);
         }
-    }
-
-    this->setCurrentBlockState(0);
-
-    qsizetype startIndex = 0;
-    if (this->previousBlockState() != 1) {
-        startIndex = text.indexOf(this->commentStartExpression);
-    }
-    while (startIndex >= 0) {
-        QRegularExpressionMatch match = this->commentEndExpression.match(text, startIndex);
-        qsizetype endIndex = match.capturedStart();
-        qsizetype commentLength;
-        if (endIndex == -1) {
-            this->setCurrentBlockState(1);
-            commentLength = text.length() - startIndex;
-        } else {
-            commentLength = endIndex - startIndex + match.capturedLength();
-        }
-        this->setFormat(static_cast<int>(startIndex), static_cast<int>(commentLength), this->multiLineCommentFormat);
-        startIndex = text.indexOf(this->commentStartExpression, startIndex + commentLength);
     }
 }
 

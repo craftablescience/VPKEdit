@@ -36,11 +36,6 @@ private:
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;
-
-    QTextCharFormat multiLineCommentFormat;
-
-    QRegularExpression commentStartExpression;
-    QRegularExpression commentEndExpression;
 };
 
 class TextPreview : public QPlainTextEdit {
