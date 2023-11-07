@@ -123,16 +123,21 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // Edit menu
     auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
+    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [=] {
+        this->extractAll();
+    });
+    this->extractAllAction->setDisabled(true);
+
+    editMenu->addSeparator();
     this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [=] {
         this->addFile();
     });
     this->addFileAction->setDisabled(true);
 
-    editMenu->addSeparator();
-    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [=] {
-        this->extractAll();
+    this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [=] {
+        this->addDir();
     });
-    this->extractAllAction->setDisabled(true);
+    this->addDirAction->setDisabled(true);
 
     editMenu->addSeparator();
     this->changeVersionAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Change Version..."), Qt::CTRL | Qt::ALT | Qt::Key_V, [=] {
@@ -675,8 +680,9 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) {
     this->saveVPKAction->setDisabled(freeze || !this->modified);
     this->saveAsVPKAction->setDisabled(freeze);
     this->closeFileAction->setDisabled(freeze);
-    this->addFileAction->setDisabled(freeze);
     this->extractAllAction->setDisabled(freeze);
+    this->addFileAction->setDisabled(freeze);
+    this->addDirAction->setDisabled(freeze);
     this->changeVersionAction->setDisabled(freeze);
 
     this->searchBar->setDisabled(freeze);

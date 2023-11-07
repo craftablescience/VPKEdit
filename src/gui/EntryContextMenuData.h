@@ -16,8 +16,8 @@ struct EntryContextMenuData {
         this->contextMenuDir = new QMenu(parent);
         this->extractDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract Folder..."));
         this->contextMenuDir->addSeparator();
-        this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileIcon), QObject::tr("Add File..."));
-        this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirIcon), QObject::tr("Add Folder..."));
+        this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+        this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
         this->contextMenuDir->addSeparator();
         this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
 
@@ -25,8 +25,8 @@ struct EntryContextMenuData {
             this->contextMenuAll = new QMenu(parent);
             this->extractAllAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract All..."));
             this->contextMenuAll->addSeparator();
-            this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileIcon), QObject::tr("Add File..."));
-            this->addDirToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DirIcon), QObject::tr("Add Folder..."));
+            this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+            this->addDirToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
         }
     }
 

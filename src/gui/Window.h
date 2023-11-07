@@ -96,8 +96,9 @@ private:
     QAction* saveVPKAction;
     QAction* saveAsVPKAction;
     QAction* closeFileAction;
-    QAction* addFileAction;
     QAction* extractAllAction;
+    QAction* addFileAction;
+    QAction* addDirAction;
     QAction* changeVersionAction;
 
     QNetworkAccessManager* checkForUpdatesNetworkManager;
