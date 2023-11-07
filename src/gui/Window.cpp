@@ -31,7 +31,7 @@
 
 #include "popups/NewEntryDialog.h"
 #include "popups/NewUpdateDialog.h"
-#include "popups/NewVPKDialog.h"
+#include "popups/VPKVersionDialog.h"
 #include "Config.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
@@ -134,6 +134,12 @@ Window::Window(QSettings& options, QWidget* parent)
     });
     this->extractAllAction->setDisabled(true);
 
+    editMenu->addSeparator();
+    this->changeVersionAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Change Version..."), Qt::CTRL | Qt::ALT | Qt::Key_V, [=] {
+        this->changeVPKVersion();
+    });
+    this->changeVersionAction->setDisabled(true);
+
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
 
@@ -197,7 +203,10 @@ Window::Window(QSettings& options, QWidget* parent)
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
     debugMenu->addAction("New VPK Dialog", [=] {
-        (void) NewVPKDialog::getNewVPKOptions(this);
+        (void) VPKVersionDialog::getVPKVersionOptions(false, 2, this);
+    });
+    debugMenu->addAction("Set VPK Version Dialog", [=] {
+        (void) VPKVersionDialog::getVPKVersionOptions(true, 2, this);
     });
 #endif
 
@@ -271,7 +280,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-    auto vpkOptions = NewVPKDialog::getNewVPKOptions(this);
+    auto vpkOptions = VPKVersionDialog::getVPKVersionOptions(false, 2, this);
     if (!vpkOptions) {
         return;
     }
@@ -330,6 +339,20 @@ void Window::closeVPK() {
 
 void Window::checkForUpdates() {
     this->checkForUpdatesNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
+}
+
+void Window::changeVPKVersion() {
+    auto vpkOptions = VPKVersionDialog::getVPKVersionOptions(true, this->vpk->getVersion(), this);
+    if (!vpkOptions) {
+        return;
+    }
+    auto [version] = *vpkOptions;
+    this->vpk->setVersion(version);
+
+    // Hack - assume vpk versions are never longer than 1 digit
+    this->statusText->setText(this->statusText->text().removeLast() + QString::number(version));
+
+    this->markModified(true);
 }
 
 void Window::checkForUpdatesReply(QNetworkReply* reply) {
@@ -654,6 +677,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) {
     this->closeFileAction->setDisabled(freeze);
     this->addFileAction->setDisabled(freeze);
     this->extractAllAction->setDisabled(freeze);
+    this->changeVersionAction->setDisabled(freeze);
 
     this->searchBar->setDisabled(freeze);
     this->entryTree->setDisabled(freeze);
@@ -685,7 +709,8 @@ bool Window::loadVPK(const QString& path) {
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
         this->freezeActions(false);
 
-        this->statusText->setText(' ' + QString("Loaded \"") + path + '\"');
+        const auto version = this->vpk->getVersion();
+        this->statusText->setText(tr(" Loaded \"%1\" - Version v%2").arg(path).arg(version));
         this->statusText->show();
         this->statusProgressBar->hide();
     });
