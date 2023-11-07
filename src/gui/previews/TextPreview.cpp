@@ -46,7 +46,7 @@ KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
     rule.format = singleLineCommentFormat;
     this->highlightingRules.append(rule);
 
-    this->multiLineCommentFormat.setForeground(Qt::red);
+    this->multiLineCommentFormat.setForeground(Qt::gray);
 
     this->commentStartExpression = QRegularExpression("/\\*");
     this->commentEndExpression = QRegularExpression("\\*/");
