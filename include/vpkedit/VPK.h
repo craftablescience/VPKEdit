@@ -123,6 +123,11 @@ public:
     /// If output folder is unspecified, it will overwrite the original
     bool bake(const std::string& outputFolder_ = "");
 
+    /// Returns 1 for v1, 2 for v2
+    [[nodiscard]] std::uint32_t getVersion() const;
+
+    void setVersion(std::uint32_t version);
+
     [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getEntries() const {
         return this->entries;
     }

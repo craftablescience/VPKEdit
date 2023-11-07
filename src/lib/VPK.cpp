@@ -725,6 +725,22 @@ bool VPK::bake(const std::string& outputFolder_) {
     return true;
 }
 
+std::uint32_t VPK::getVersion() const {
+    return this->header1.version;
+}
+
+void VPK::setVersion(std::uint32_t version) {
+    if (version == this->header1.version) {
+        return;
+    }
+    this->header1.version = version;
+
+    // Clearing these isn't necessary, but might as well
+    this->header2 = Header2{};
+    this->footer2 = Footer2{};
+    this->md5Entries.clear();
+}
+
 std::string VPK::getRealFileName() const {
     return std::filesystem::path(this->fullPath).stem().string();
 }
