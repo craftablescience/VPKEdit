@@ -239,14 +239,13 @@ bool VPK::open(VPK& vpk) {
         vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
     }
 
-    vpk.footer2.cs2VPK = false;
     if (!vpk.header2.signatureSectionSize) {
         return true;
     }
 
     auto publicKeySize = vpk.reader.read<std::int32_t>();
     if (vpk.header2.signatureSectionSize == 20 && publicKeySize == VPK_ID) {
-        vpk.footer2.cs2VPK = true;
+        // CS2 beta VPK, ignore it
         return true;
     }
 
@@ -647,7 +646,7 @@ bool VPK::bake(const std::string& outputFolder_) {
     this->unbakedEntries.clear();
 
     // Calculate Header1
-    this->header1.treeSize = outDir.tellOutput() - dirVPKEntryData.size() - (sizeof(Header1) + (this->header1.version == 2 ? sizeof(Header2) : 0));
+    this->header1.treeSize = outDir.tellOutput() - dirVPKEntryData.size() - this->getHeaderLength();
 
     // VPK v2 stuff
     if (this->header1.version != 1) {
@@ -673,7 +672,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         this->header2.fileDataSectionSize = dirVPKEntryData.size();
         this->header2.archiveMD5SectionSize = this->md5Entries.size() * sizeof(MD5Entry);
         this->header2.otherMD5SectionSize = 48;
-        this->header2.signatureSectionSize = this->footer2.cs2VPK ? 20 : 0;
+        this->header2.signatureSectionSize = 0;
 
         // Calculate Footer2
         MD5 wholeFileChecksumMD5;
@@ -709,7 +708,7 @@ bool VPK::bake(const std::string& outputFolder_) {
     outDir.write(&this->header1);
 
     // v2 adds the MD5 hashes and file signature
-    if (this->header1.version != 2) {
+    if (this->header1.version < 2) {
         return true;
     }
 
@@ -722,15 +721,7 @@ bool VPK::bake(const std::string& outputFolder_) {
     outDir.writeBytes(this->footer2.md5EntriesChecksum);
     outDir.writeBytes(this->footer2.wholeFileChecksum);
 
-    // The signature section is not present unless it's a CS2 vpk
-    if (this->footer2.cs2VPK) {
-        outDir.write(static_cast<std::int32_t>(VPK_ID));
-        // Pad it with 16 bytes of junk, who knows what Valve wants here
-        std::array<std::byte, 16> junk{};
-        junk[0] = static_cast<std::byte>(1); // ValvePak does this so we're doing it too
-        outDir.writeBytes(junk);
-    }
-
+    // The signature section is not present
     return true;
 }
 

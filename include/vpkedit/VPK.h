@@ -63,8 +63,6 @@ private:
         std::array<std::byte, 16> treeChecksum{};
         std::array<std::byte, 16> md5EntriesChecksum{};
         std::array<std::byte, 16> wholeFileChecksum{};
-        /// If the public key size is VPK_ID it's a CS2 vpk (and probably has no key or signature?)
-        bool cs2VPK = false;
         std::vector<std::byte> publicKey{};
         std::vector<std::byte> signature{};
     };
@@ -134,7 +132,7 @@ public:
     }
 
     [[nodiscard]] std::uint32_t getHeaderLength() const {
-        if (!this->header2.fileDataSectionSize) {
+        if (this->header1.version < 2) {
             return sizeof(Header1);
         }
         return sizeof(Header1) + sizeof(Header2);
