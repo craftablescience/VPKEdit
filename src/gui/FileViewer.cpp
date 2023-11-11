@@ -3,7 +3,6 @@
 #include <filesystem>
 
 #include <QHBoxLayout>
-#include <QMessageBox>
 
 #include "previews/DirPreview.h"
 #include "previews/info/EmptyPreview.h"
@@ -104,7 +103,7 @@ void FileViewer::setSearchQuery(const QString& query) {
     this->getPreview<DirPreview>()->setSearchQuery(query);
 }
 
-void FileViewer::selectSubItemInDir(const QString& name) {
+void FileViewer::selectSubItemInDir(const QString& name) const {
     this->window->selectSubItemInDir(name);
 }
 

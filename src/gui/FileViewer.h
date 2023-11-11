@@ -33,7 +33,7 @@ public:
 
     void setSearchQuery(const QString& query);
 
-    void selectSubItemInDir(const QString& name);
+    void selectSubItemInDir(const QString& name) const;
 
     void clearContents();
 
@@ -43,19 +43,19 @@ private:
     std::unordered_map<std::type_index, QWidget*> previews;
 
     template<typename T, typename... Args>
-    inline T* newPreview(Args... args) {
+    T* newPreview(Args... args) {
         auto* preview = new T(std::forward<Args>(args)...);
         this->previews[std::type_index(typeid(T))] = preview;
         return preview;
     }
 
     template<typename T>
-    inline T* getPreview() {
+    T* getPreview() {
         return dynamic_cast<T*>(this->previews.at(std::type_index(typeid(T))));
     }
 
     template<typename T>
-    inline void showPreview() {
+    void showPreview() {
         for (const auto [index, widget] : this->previews) {
             widget->hide();
         }
@@ -63,7 +63,7 @@ private:
     }
 
     template<typename T>
-    inline void hidePreview() {
+    void hidePreview() const {
         this->previews.at(std::type_index(typeid(T)))->hide();
     }
 };

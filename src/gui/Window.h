@@ -37,7 +37,7 @@ public:
 
     void closeVPK();
 
-    void checkForUpdates();
+    void checkForUpdates() const;
 
     void changeVPKVersion();
 
@@ -47,23 +47,23 @@ public:
 
     bool removeFile(const QString& path);
 
-    void removeDir(const QString& path);
+    void removeDir(const QString& path) const;
 
-    void requestEntryRemoval(const QString& path);
+    void requestEntryRemoval(const QString& path) const;
 
     void about();
 
     void aboutQt();
 
-    [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path);
+    [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
-    [[nodiscard]] std::optional<QString> readTextEntry(const QString& path);
+    [[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
 
-    void selectEntry(const QString& path);
+    void selectEntry(const QString& path) const;
 
-    void selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths);
+    void selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const;
 
-    void selectSubItemInDir(const QString& path);
+    void selectSubItemInDir(const QString& path) const;
 
     void extractFile(const QString& path, QString savePath = QString());
 
@@ -73,7 +73,7 @@ public:
 
     void extractAll(QString saveDir = QString());
 
-    void markModified(bool modified);
+    void markModified(bool modified_);
 
     [[nodiscard]] bool promptUserToKeepModifications();
 
@@ -108,7 +108,7 @@ private:
     std::optional<vpkedit::VPK> vpk;
     bool modified;
 
-    void freezeActions(bool freeze, bool freezeCreationActions = true);
+    void freezeActions(bool freeze, bool freezeCreationActions = true) const;
 
     bool loadVPK(const QString& path);
 

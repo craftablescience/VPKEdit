@@ -34,7 +34,7 @@ private:
 
     void addRowForDir(const QString& name);
 
-    QString getItemPath(QTableWidgetItem* item);
+    QString getItemPath(QTableWidgetItem* item) const;
 
     FileViewer* fileViewer;
     Window* window;

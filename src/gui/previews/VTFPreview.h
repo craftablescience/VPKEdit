@@ -26,9 +26,9 @@ public:
     void setTileEnabled(bool tile);
     void setZoom(int zoom_);
 
-    [[nodiscard]] int getMaxFrame();
-    [[nodiscard]] int getMaxFace();
-    [[nodiscard]] int getMaxMip();
+    [[nodiscard]] int getMaxFrame() const;
+    [[nodiscard]] int getMaxFace() const;
+    [[nodiscard]] int getMaxMip() const;
     [[nodiscard]] bool hasAlpha() const;
     [[nodiscard]] bool getAlphaEnabled() const;
     [[nodiscard]] bool getTileEnabled() const;
@@ -63,7 +63,7 @@ public:
 
     explicit VTFPreview(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data);
+    void setImage(const std::vector<std::byte>& data) const;
 
 protected:
     void wheelEvent(QWheelEvent* event) override;

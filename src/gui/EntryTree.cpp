@@ -1,6 +1,5 @@
 #include "EntryTree.h"
 
-#include <QMenu>
 #include <QProgressBar>
 #include <QStyle>
 #include <QThread>
@@ -135,7 +134,7 @@ void EntryTree::setSearchQuery(const QString& query) {
     // Set items that contain a word in the query visible
     const auto words = query.split(' ');
     for (QTreeWidgetItemIterator it(this); *it; ++it) {
-        QTreeWidgetItem* item = (*it);
+        QTreeWidgetItem* item = *it;
         item->setHidden(false);
         for (const auto& word : words) {
             if (item->childCount() == 0 && !item->text(0).contains(word, Qt::CaseInsensitive)) {
@@ -149,7 +148,7 @@ void EntryTree::setSearchQuery(const QString& query) {
     do {
         dirsTouched = 0;
         for (QTreeWidgetItemIterator it(this); *it; ++it) {
-            QTreeWidgetItem* item = (*it);
+            QTreeWidgetItem* item = *it;
             if (item->isHidden() || item->childCount() == 0) {
                 continue;
             }
@@ -199,11 +198,11 @@ void EntryTree::clearContents() {
     this->clear();
 }
 
-void EntryTree::addEntry(const QString& path) {
+void EntryTree::addEntry(const QString& path) const {
     this->addNestedEntryComponents(path);
 }
 
-void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) {
+void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
     if (!item) {
         return;
     }
@@ -230,7 +229,7 @@ void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) {
     }
 }
 
-QString EntryTree::getItemPath(QTreeWidgetItem* item) {
+QString EntryTree::getItemPath(QTreeWidgetItem* item) const {
     // Traverse up the item hierarchy until reaching the root item
     QString path;
     for ( ; item && item != this->root; item = item->parent()) {
@@ -242,7 +241,7 @@ QString EntryTree::getItemPath(QTreeWidgetItem* item) {
     return path;
 }
 
-void EntryTree::addNestedEntryComponents(const QString& path) {
+void EntryTree::addNestedEntryComponents(const QString& path) const {
     QStringList components = path.split('/', Qt::SkipEmptyParts);
     QTreeWidgetItem* currentItem = nullptr;
 

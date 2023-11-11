@@ -50,15 +50,15 @@ void VTFImage::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
-int VTFImage::getMaxFrame() {
+int VTFImage::getMaxFrame() const {
     return static_cast<int>(this->vtf->GetFrameCount());
 }
 
-int VTFImage::getMaxFace() {
+int VTFImage::getMaxFace() const {
     return static_cast<int>(this->vtf->GetFaceCount());
 }
 
-int VTFImage::getMaxMip() {
+int VTFImage::getMaxMip() const {
     return static_cast<int>(this->vtf->GetMipmapCount());
 }
 
@@ -120,7 +120,7 @@ void VTFImage::decodeImage(int face, int frame, int mip, bool alpha) {
             mip, imageWidth, imageHeight, imageDepth);
 
     const bool hasAlpha = CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
-    const VTFImageFormat format = (hasAlpha && alpha) ? IMAGE_FORMAT_RGBA8888 : IMAGE_FORMAT_RGB888;
+    const VTFImageFormat format = hasAlpha && alpha ? IMAGE_FORMAT_RGBA8888 : IMAGE_FORMAT_RGB888;
     auto size = CVTFFile::ComputeMipmapSize(this->vtf->GetWidth(), this->vtf->GetHeight(), 1, mip, format);
 
     // This buffer needs to persist- QImage does not own the mem you give it
@@ -132,7 +132,7 @@ void VTFImage::decodeImage(int face, int frame, int mip, bool alpha) {
         return;
     }
 
-    this->image = QImage(reinterpret_cast<uchar*>(this->imageData.get()), static_cast<int>(imageWidth), static_cast<int>(imageHeight), (hasAlpha && alpha) ? QImage::Format_RGBA8888 : QImage::Format_RGB888);
+    this->image = QImage(reinterpret_cast<uchar*>(this->imageData.get()), static_cast<int>(imageWidth), static_cast<int>(imageHeight), hasAlpha && alpha ? QImage::Format_RGBA8888 : QImage::Format_RGB888);
     this->currentFace = face;
     this->currentFrame = frame;
     this->currentMip = mip;
@@ -231,7 +231,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     controlsLayout->addWidget(zoomSliderParent);
 }
 
-void VTFPreview::setImage(const std::vector<std::byte>& data) {
+void VTFPreview::setImage(const std::vector<std::byte>& data) const {
     this->image->setImage(data);
 
     this->frameSpin->setMaximum(this->image->getMaxFrame());

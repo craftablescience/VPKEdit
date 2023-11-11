@@ -35,12 +35,12 @@ std::pair<std::string, std::string> splitFileNameAndParentDir(const std::string&
 
     auto lastSeparator = name.rfind('/');
     auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
-    name = filename.substr((lastSeparator + 1));
+    name = filename.substr(lastSeparator + 1);
 
     return std::make_pair(dir, name);
 }
 
-inline std::string padArchiveIndex(int num, int width = 3) {
+std::string padArchiveIndex(int num, int width = 3) {
     auto numStr = std::to_string(num);
     return std::string(width - std::min<std::string::size_type>(width, numStr.length()), '0') + numStr;
 }
@@ -89,7 +89,6 @@ VPK VPK::createEmpty(const std::string& path, std::uint32_t version, bool cs2VPK
 
 VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version, bool cs2VPK) {
     auto vpk = VPK::createEmpty(vpkPath, version, cs2VPK);
-    auto absoluteDirPath = std::filesystem::absolute(std::filesystem::path(directoryPath)).string();
     for (const auto& file : std::filesystem::recursive_directory_iterator(directoryPath)) {
         if (file.is_directory()) {
             continue;
@@ -219,7 +218,7 @@ bool VPK::open(VPK& vpk) {
         return true;
 
     // Skip over file data, if any
-    vpk.reader.seekInput(static_cast<long>(vpk.header2.fileDataSectionSize), std::ios_base::cur);
+    vpk.reader.seekInput(vpk.header2.fileDataSectionSize, std::ios_base::cur);
 
     if (vpk.header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
         return false;
@@ -289,7 +288,7 @@ std::optional<VPKEntry> VPK::findEntry(const std::string& directory, const std::
 }
 
 std::optional<std::vector<std::byte>> VPK::readBinaryEntry(const VPKEntry& entry) const {
-    std::vector<std::byte> output(entry.length, static_cast<std::byte>(0));
+    std::vector output(entry.length, static_cast<std::byte>(0));
 
     if (!entry.preloadedData.empty()) {
         std::copy(entry.preloadedData.begin(), entry.preloadedData.end(), output.begin());
@@ -340,7 +339,7 @@ std::optional<std::string> VPK::readTextEntry(const VPKEntry& entry) const {
     }
     std::string out;
     for (auto byte : *bytes) {
-        if (byte == std::byte(0))
+        if (byte == static_cast<std::byte>(0))
             break;
         out += static_cast<char>(byte);
     }
@@ -391,7 +390,7 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
         auto clampedPreloadBytes = std::clamp(preloadBytes, 0, buffer.size() > VPK_MAX_PRELOAD_BYTES ? VPK_MAX_PRELOAD_BYTES : static_cast<int>(buffer.size()));
         entry.preloadedData.resize(clampedPreloadBytes);
         std::memcpy(entry.preloadedData.data(), buffer.data(), clampedPreloadBytes);
-        buffer.erase(buffer.begin(), buffer.begin() + static_cast<std::streamsize>(clampedPreloadBytes));
+        buffer.erase(buffer.begin(), buffer.begin() + clampedPreloadBytes);
     }
 
     if (!this->unbakedEntries.count(dir)) {
@@ -423,7 +422,7 @@ void VPK::addTextEntry(const std::string& directory, const std::string& filename
     std::vector<std::byte> data;
     data.reserve(text.size());
     std::transform(text.begin(), text.end(), std::back_inserter(data), [](char c) {
-        return std::byte(c);
+        return static_cast<std::byte>(c);
     });
     this->addBinaryEntry(directory, filename_, std::move(data), saveToDir, preloadBytes);
 }
@@ -509,7 +508,7 @@ bool VPK::bake(const std::string& outputFolder_) {
                     continue;
                 }
                 dirVPKEntryData.reserve(dirVPKEntryData.size() + tEntry.length - tEntry.preloadedData.size());
-                dirVPKEntryData.insert(dirVPKEntryData.end(), (*binData).begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), (*binData).end());
+                dirVPKEntryData.insert(dirVPKEntryData.end(), binData->begin() + static_cast<std::vector<std::byte>::difference_type>(tEntry.preloadedData.size()), binData->end());
 
                 tEntry.offset = newDirEntryOffset;
                 newDirEntryOffset += tEntry.length - tEntry.preloadedData.size();
@@ -571,7 +570,7 @@ bool VPK::bake(const std::string& outputFolder_) {
         outDir.write('\0');
 
         for (auto& [dir, tEntries] : tDirs) {
-            outDir.write(dir.length() > 0 ? dir : " ");
+            outDir.write(!dir.empty() ? dir : " ");
             outDir.write('\0');
 
             for (auto* entry : tEntries) {

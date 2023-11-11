@@ -5,7 +5,6 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
-#include <QDesktopServices>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
@@ -17,13 +16,11 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QProgressBar>
 #include <QSettings>
 #include <QSplitter>
 #include <QStatusBar>
-#include <QStyle>
 #include <QStyleFactory>
 #include <QThread>
 
@@ -342,7 +339,7 @@ void Window::closeVPK() {
     this->vpk = std::nullopt;
 }
 
-void Window::checkForUpdates() {
+void Window::checkForUpdates() const {
     this->checkForUpdatesNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
 }
 
@@ -393,13 +390,13 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     NewUpdateDialog::getNewUpdatePrompt(url, version, this);
 }
 
-void Window::addFile(const QString& startPath) {
+void Window::addFile(const QString& startDir) {
     auto filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (filepath.isEmpty()) {
         return;
     }
 
-    auto prefilledPath = startPath;
+    auto prefilledPath = startDir;
     if (!prefilledPath.isEmpty()) {
         prefilledPath += '/';
     }
@@ -416,13 +413,13 @@ void Window::addFile(const QString& startPath) {
     this->fileViewer->addEntry(this->vpk.value(), entryPath);
 }
 
-void Window::addDir(const QString& startPath) {
+void Window::addDir(const QString& startDir) {
     auto dirPath = QFileDialog::getExistingDirectory(this, tr("Open Folder"));
     if (dirPath.isEmpty()) {
         return;
     }
 
-    auto prefilledPath = startPath;
+    auto prefilledPath = startDir;
     if (!prefilledPath.isEmpty()) {
         prefilledPath += '/';
     }
@@ -456,11 +453,11 @@ bool Window::removeFile(const QString& path) {
     return true;
 }
 
-void Window::removeDir(const QString& path) {
+void Window::removeDir(const QString& path) const {
     this->fileViewer->removeDir(path);
 }
 
-void Window::requestEntryRemoval(const QString& path) {
+void Window::requestEntryRemoval(const QString& path) const {
     this->entryTree->removeEntryByPath(path);
 }
 
@@ -488,7 +485,7 @@ void Window::aboutQt() {
     QMessageBox::aboutQt(this);
 }
 
-std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) {
+std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
     auto entry = this->vpk->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
@@ -496,7 +493,7 @@ std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& pat
     return this->vpk->readBinaryEntry(*entry);
 }
 
-std::optional<QString> Window::readTextEntry(const QString& path) {
+std::optional<QString> Window::readTextEntry(const QString& path) const {
     auto entry = this->vpk->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
@@ -508,16 +505,16 @@ std::optional<QString> Window::readTextEntry(const QString& path) {
     return QString(textData->c_str());
 }
 
-void Window::selectEntry(const QString& path) {
+void Window::selectEntry(const QString& path) const {
     this->fileViewer->displayEntry(path);
 }
 
-void Window::selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) {
+void Window::selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {
     this->fileViewer->displayDir(path, subfolders, entryPaths, this->vpk.value());
 }
 
-void Window::selectSubItemInDir(const QString& name) {
-    this->entryTree->selectSubItem(name);
+void Window::selectSubItemInDir(const QString& path) const {
+    this->entryTree->selectSubItem(path);
 }
 
 void Window::extractFile(const QString& path, QString savePath) {
@@ -672,7 +669,7 @@ void Window::closeEvent(QCloseEvent* event) {
     event->accept();
 }
 
-void Window::freezeActions(bool freeze, bool freezeCreationActions) {
+void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
     this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
     this->openVPKAction->setDisabled(freeze && freezeCreationActions);

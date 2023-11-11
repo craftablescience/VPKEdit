@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cstddef>
-#include <cstring>
 #include <cstdint>
 #include <fstream>
 #include <string>
@@ -43,7 +42,7 @@ public:
     [[nodiscard]] std::array<std::byte, L> readBytes() {
         std::array<std::byte, L> out;
         if (this->isFile) {
-            this->streamFile.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(L));
+            this->streamFile.read(reinterpret_cast<char*>(out.data()), L);
         } else {
             for (int i = 0; i < L; i++, this->streamPosRead++) {
                 out[i] = this->streamBuffer[this->streamPosRead];
@@ -64,7 +63,7 @@ public:
     template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
     void read(T& obj) {
         if (this->isFile) {
-            this->streamFile.read(reinterpret_cast<char*>(&obj), static_cast<std::streamsize>(sizeof(T)));
+            this->streamFile.read(reinterpret_cast<char*>(&obj), sizeof(T));
         } else {
             for (int i = 0; i < sizeof(T); i++, this->streamPosRead++) {
                 reinterpret_cast<std::byte*>(&obj)[i] = this->streamBuffer[this->streamPosRead];
@@ -73,8 +72,7 @@ public:
     }
 
     void read(std::string& obj) {
-        char temp;
-        temp = this->read<char>();
+        char temp = this->read<char>();
         while (temp != '\0') {
             obj += temp;
             temp = this->read<char>();

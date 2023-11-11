@@ -31,15 +31,15 @@ public:
 
     void clearContents();
 
-    void addEntry(const QString& path);
+    void addEntry(const QString& path) const;
 
 public slots:
-    void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/);
+    void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/) const;
 
 private:
-    [[nodiscard]] QString getItemPath(QTreeWidgetItem* item);
+    [[nodiscard]] QString getItemPath(QTreeWidgetItem* item) const;
 
-    void addNestedEntryComponents(const QString& path);
+    void addNestedEntryComponents(const QString& path) const;
 
     void removeEntry(QTreeWidgetItem* item);
 

@@ -1,9 +1,5 @@
 #include "ErrorPreview.h"
 
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPixmap>
-
 ErrorPreview::ErrorPreview(QWidget* parent)
         : AbstractInfoPreview(
                 {":/error.png"},

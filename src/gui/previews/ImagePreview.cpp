@@ -126,7 +126,7 @@ ImagePreview::ImagePreview(QWidget* parent)
     controlsLayout->addWidget(zoomSliderParent);
 }
 
-void ImagePreview::setImage(const std::vector<std::byte>& data) {
+void ImagePreview::setImage(const std::vector<std::byte>& data) const {
     this->image->setImage(data);
 
     this->alphaCheckBox->setChecked(false);

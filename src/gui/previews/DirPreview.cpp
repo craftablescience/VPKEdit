@@ -1,7 +1,6 @@
 #include "DirPreview.h"
 
 #include <QHeaderView>
-#include <QMenu>
 
 #include <vpkedit/VPK.h>
 
@@ -262,7 +261,7 @@ void DirPreview::addRowForDir(const QString& name) {
     this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, new QTableWidgetItem(""));
 }
 
-QString DirPreview::getItemPath(QTableWidgetItem* item) {
+QString DirPreview::getItemPath(QTableWidgetItem* item) const {
     QString entryName = this->item(item->row(), DirPreviewColumn::NAME)->text();
     if (currentPath.isEmpty()) {
         return entryName;

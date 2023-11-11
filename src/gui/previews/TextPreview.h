@@ -60,9 +60,9 @@ public:
 
     void setText(const QString& text, const QString& extension);
 
-    [[nodiscard]] int getLineNumberAreaWidth();
+    [[nodiscard]] int getLineNumberAreaWidth() const;
 
-    void onLineNumberAreaPaintEvent(QPaintEvent* event);
+    void onLineNumberAreaPaintEvent(QPaintEvent* event) const;
 
 protected:
     void resizeEvent(QResizeEvent* event) override;

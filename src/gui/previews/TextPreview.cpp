@@ -96,7 +96,7 @@ void TextPreview::setText(const QString& text, const QString& extension) {
     }
 }
 
-int TextPreview::getLineNumberAreaWidth() {
+int TextPreview::getLineNumberAreaWidth() const {
     int digits = 1;
     int max = qMax(1, this->blockCount());
     while (max >= 10) {
@@ -107,7 +107,7 @@ int TextPreview::getLineNumberAreaWidth() {
     return space;
 }
 
-void TextPreview::onLineNumberAreaPaintEvent(QPaintEvent* event) {
+void TextPreview::onLineNumberAreaPaintEvent(QPaintEvent* event) const {
     QStyleOption opt;
     opt.initFrom(this);
 

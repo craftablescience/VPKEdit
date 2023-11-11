@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 #include <vector>
 
@@ -51,7 +53,7 @@ public:
 
     explicit ImagePreview(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data);
+    void setImage(const std::vector<std::byte>& data) const;
 
 protected:
     void wheelEvent(QWheelEvent* event) override;

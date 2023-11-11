@@ -2,7 +2,6 @@
 
 #include <QApplication>
 #include <QSettings>
-#include <QStyle>
 
 #include "Config.h"
 #include "Window.h"

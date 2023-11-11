@@ -1,7 +1,5 @@
 #pragma once
 
-#include <type_traits>
-
 #include <QAction>
 #include <QMenu>
 #include <QStyle>

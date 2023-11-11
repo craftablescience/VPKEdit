@@ -20,7 +20,7 @@ VPKVersionDialog::VPKVersionDialog(bool exists, std::uint32_t startVersion, QWid
     this->version = new QComboBox(this);
     this->version->addItem(tr("v1"));
     this->version->addItem(tr("v2"));
-    this->version->setCurrentIndex(startVersion - 1);
+    this->version->setCurrentIndex(static_cast<int>(startVersion) - 1);
     layout->addRow(versionLabel, this->version);
 
     auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);

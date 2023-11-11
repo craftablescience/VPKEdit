@@ -2,8 +2,6 @@
 
 #include <array>
 #include <optional>
-#include <string_view>
-#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -44,7 +42,6 @@ private:
 };
 
 class VPK {
-private:
 #pragma pack(push, 1)
     struct Header1 {
         std::uint32_t signature;
