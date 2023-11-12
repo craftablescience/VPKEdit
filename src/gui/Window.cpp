@@ -362,7 +362,7 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
         QMessageBox::critical(this, tr("Error"), tr("Error occurred checking for updates!"));
         return;
     }
-    auto parseFailure = [=] {
+    const auto parseFailure = [=] {
         QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
     };
     QJsonDocument response = QJsonDocument::fromJson(QString(reply->readAll()).toUtf8());
@@ -445,7 +445,7 @@ void Window::addDir(const QString& startDir) {
 
 bool Window::removeFile(const QString& path) {
     if (!this->vpk->removeEntry(path.toStdString())) {
-        QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"").arg(path));
+        QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"!").arg(path));
         return false;
     }
     this->fileViewer->removeFile(path);
