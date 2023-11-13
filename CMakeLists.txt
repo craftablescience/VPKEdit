@@ -180,7 +180,9 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6" "${CMAKE_BINARY_DIR}/libQt6Network.so.6" COPYONLY)
+        # Required by plugins
         configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"    COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6OpenGL.so.6"  "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"  COPYONLY)
 
         configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6XcbQpa.so.6"        "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"        COPYONLY)
@@ -240,7 +242,9 @@ if(VPKEDIT_BUILD_GUI)
                     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6Network.so.6"
+                    # Required by plugins
                     "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"
 
                     "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"
