@@ -54,9 +54,9 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                 if (selectedDirAction == contextMenuData.extractDirAction) {
                     this->window->extractDir(path);
                 } else if (selectedDirAction == contextMenuData.addFileToDirAction) {
-                    this->window->addFile(path);
+                    this->window->addFile(false, path);
                 } else if (selectedDirAction == contextMenuData.addDirToDirAction) {
-                    this->window->addDir(path);
+                    this->window->addDir(false, path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->window->requestEntryRemoval(path);
                     this->removeDir(path);

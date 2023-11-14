@@ -41,9 +41,9 @@ public:
 
     void changeVPKVersion();
 
-    void addFile(const QString& startDir = QString());
+    void addFile(bool showOptions, const QString& startDir = QString());
 
-    void addDir(const QString& startDir = QString());
+    void addDir(bool showOptions, const QString& startDir = QString());
 
     bool removeFile(const QString& path);
 
