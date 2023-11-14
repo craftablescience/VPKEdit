@@ -120,7 +120,7 @@ void MDLWidget::initializeGL() {
 	QStyleOption opt;
 	opt.initFrom(this);
 	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
-	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 0.0);
+	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
 
 	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_untextured.vert");
 	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_untextured.frag");
@@ -159,8 +159,6 @@ void MDLWidget::paintGL() {
 	this->glEnable(GL_MULTISAMPLE);
 	this->glEnable(GL_DEPTH_TEST);
 	this->glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
 
 	QOpenGLShaderProgram* currentShaderProgram = nullptr;
 	switch (this->shadingType) {

@@ -69,6 +69,8 @@ public:
 
 	void setAABB(AABB aabb);
 
+	[[nodiscard]] MDLShadingType getShadingType() const { return this->shadingType; }
+
 	void setShadingType(MDLShadingType type);
 
 	void clearMeshes();
