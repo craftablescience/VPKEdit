@@ -127,12 +127,12 @@ Window::Window(QWidget* parent)
 
     editMenu->addSeparator();
     this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [=] {
-        this->addFile();
+        this->addFile(true);
     });
     this->addFileAction->setDisabled(true);
 
     this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [=] {
-        this->addDir();
+        this->addDir(true);
     });
     this->addDirAction->setDisabled(true);
 
@@ -389,7 +389,7 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     NewUpdateDialog::getNewUpdatePrompt(url, version, this);
 }
 
-void Window::addFile(const QString& startDir) {
+void Window::addFile(bool showOptions, const QString& startDir) {
     auto filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (filepath.isEmpty()) {
         return;
@@ -401,18 +401,27 @@ void Window::addFile(const QString& startDir) {
     }
     prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
 
-    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(false, prefilledPath, this);
-    if (!newEntryOptions) {
-        return;
-    }
-    const auto [entryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
-    this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
-    this->markModified(true);
-    this->entryTree->addEntry(entryPath);
-    this->fileViewer->addEntry(this->vpk.value(), entryPath);
+	QString entryPath = prefilledPath;
+	bool useArchiveVPK = false;
+	int preloadBytes = 0;
+
+	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
+		auto newEntryOptions = NewEntryDialog::getNewEntryOptions(false, prefilledPath, this);
+		if (!newEntryOptions) {
+			return;
+		}
+		entryPath = std::get<0>(*newEntryOptions);
+		useArchiveVPK = std::get<1>(*newEntryOptions);
+		preloadBytes = std::get<2>(*newEntryOptions);
+	}
+
+	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
+	this->entryTree->addEntry(entryPath);
+	this->fileViewer->addEntry(this->vpk.value(), entryPath);
+	this->markModified(true);
 }
 
-void Window::addDir(const QString& startDir) {
+void Window::addDir(bool showOptions, const QString& startDir) {
     auto dirPath = QFileDialog::getExistingDirectory(this, tr("Open Folder"));
     if (dirPath.isEmpty()) {
         return;
@@ -424,12 +433,19 @@ void Window::addDir(const QString& startDir) {
     }
     prefilledPath += std::filesystem::path(dirPath.toStdString()).filename().string().c_str();
 
-    auto newEntryOptions = NewEntryDialog::getNewEntryOptions(true, prefilledPath, this);
-    if (!newEntryOptions) {
-        return;
-    }
+	QString parentEntryPath = prefilledPath;
+	bool useArchiveVPK = false;
+	int preloadBytes = 0;
 
-    const auto [parentEntryPath, useArchiveVPK, preloadBytes] = *newEntryOptions;
+	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
+		auto newEntryOptions = NewEntryDialog::getNewEntryOptions(true, prefilledPath, this);
+		if (!newEntryOptions) {
+			return;
+		}
+		parentEntryPath = std::get<0>(*newEntryOptions);
+		useArchiveVPK = std::get<1>(*newEntryOptions);
+		preloadBytes = std::get<2>(*newEntryOptions);
+	}
 
     QDirIterator it(dirPath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
