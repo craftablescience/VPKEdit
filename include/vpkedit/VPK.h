@@ -4,6 +4,8 @@
 #include <optional>
 #include <unordered_map>
 #include <utility>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include <vpkedit/detail/FileStream.h>
