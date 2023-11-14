@@ -7,46 +7,46 @@
 #include <QSlider>
 #include <QWheelEvent>
 
-Image::Image(QWidget* parent)
+ImageWidget::ImageWidget(QWidget* parent)
         : QWidget(parent)
         , alphaEnabled(false)
         , tileEnabled(false)
         , zoom(1.f) {}
 
-void Image::setImage(const std::vector<std::byte>& data) {
+void ImageWidget::setData(const std::vector<std::byte>& data) {
     this->image.loadFromData(data);
     this->zoom = 1.f;
 }
 
-void Image::setAlphaEnabled(bool alpha) {
+void ImageWidget::setAlphaEnabled(bool alpha) {
     this->alphaEnabled = alpha;
 }
 
-void Image::setTileEnabled(bool tile) {
+void ImageWidget::setTileEnabled(bool tile) {
     this->tileEnabled = tile;
 }
 
-void Image::setZoom(int zoom_) {
+void ImageWidget::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
-bool Image::hasAlpha() const {
+bool ImageWidget::hasAlpha() const {
     return this->image.hasAlphaChannel();
 }
 
-bool Image::getAlphaEnabled() const {
+bool ImageWidget::getAlphaEnabled() const {
     return this->alphaEnabled;
 }
 
-bool Image::getTileEnabled() const {
+bool ImageWidget::getTileEnabled() const {
     return this->tileEnabled;
 }
 
-float Image::getZoom() const {
+float ImageWidget::getZoom() const {
     return this->zoom;
 }
 
-void Image::paintEvent(QPaintEvent* /*event*/) {
+void ImageWidget::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
 
     int imageWidth = this->image.width(), imageHeight = this->image.height();
@@ -77,7 +77,7 @@ ImagePreview::ImagePreview(QWidget* parent)
         : QWidget(parent) {
     auto* layout = new QHBoxLayout(this);
 
-    this->image = new Image(this);
+    this->image = new ImageWidget(this);
     layout->addWidget(this->image);
 
     auto* controls = new QWidget(this);
@@ -126,8 +126,8 @@ ImagePreview::ImagePreview(QWidget* parent)
     controlsLayout->addWidget(zoomSliderParent);
 }
 
-void ImagePreview::setImage(const std::vector<std::byte>& data) const {
-    this->image->setImage(data);
+void ImagePreview::setData(const std::vector<std::byte>& data) const {
+	this->image->setData(data);
 
     this->alphaCheckBox->setChecked(false);
     this->alphaCheckBox->setDisabled(!this->image->hasAlpha());

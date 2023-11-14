@@ -43,7 +43,7 @@ FileStream::~FileStream() {
 }
 
 FileStream::operator bool() const {
-    return static_cast<bool>(this->streamFile);
+    return static_cast<bool>(this->streamFile) || static_cast<bool>(this->streamBuffer);
 }
 
 bool FileStream::operator!() const {
@@ -87,7 +87,7 @@ std::uint64_t FileStream::tellOutput() {
     if (this->isFile) {
         return this->streamFile.tellp();
     }
-    return this->streamPosRead;
+    return this->streamPosWrite;
 }
 
 std::vector<std::byte> FileStream::readBytes(std::uint64_t length) {

@@ -21,7 +21,7 @@ class FileViewer : public QWidget {
 public:
     explicit FileViewer(Window* window_, QWidget* parent = nullptr);
 
-    void displayEntry(const QString& path);
+    void displayEntry(const QString& path, const vpkedit::VPK& vpk);
 
     void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
 

@@ -7,3 +7,6 @@
 [submodule "src/gui/thirdparty/speedykeyv"]
 	path = src/gui/thirdparty/speedykeyv
 	url = https://github.com/ozxybox/SpeedyKeyV
+[submodule "src/gui/thirdparty/mdlparser"]
+	path = src/gui/thirdparty/mdlparser
+	url = https://github.com/Derpius/MDLParser

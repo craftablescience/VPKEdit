@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QSettings>
+#include <QSurfaceFormat>
 
 #include "Config.h"
 #include "Window.h"
@@ -9,6 +10,11 @@
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
+
+	QSurfaceFormat format;
+	format.setDepthBufferSize(24);
+	format.setSamples(4);
+	QSurfaceFormat::setDefaultFormat(format);
 
     QCoreApplication::setOrganizationName(VPKEDIT_ORGANIZATION_NAME);
     QCoreApplication::setApplicationName(VPKEDIT_PROJECT_NAME);

@@ -527,7 +527,7 @@ std::optional<QString> Window::readTextEntry(const QString& path) const {
 }
 
 void Window::selectEntry(const QString& path) const {
-    this->fileViewer->displayEntry(path);
+    this->fileViewer->displayEntry(path, this->vpk.value());
 }
 
 void Window::selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {
