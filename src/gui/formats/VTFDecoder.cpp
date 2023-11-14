@@ -18,6 +18,7 @@ std::optional<VTFData> VTFDecoder::decodeImage(const CVTFFile& vtf, int face, in
 	}
 	return VTFData{
 		std::unique_ptr<std::byte[]>{imageData},
+		size,
 		imageWidth,
 		imageHeight,
 		imageDepth,
