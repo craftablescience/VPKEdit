@@ -6,14 +6,13 @@
 #include <QLineEdit>
 #include <QDialogButtonBox>
 #include <QFormLayout>
-#include <QSettings>
 #include <QSpinBox>
 
 #include "../Options.h"
 
 NewEntryDialog::NewEntryDialog(bool isDir, const QString& prefilledPath, QWidget* parent)
         : QDialog(parent) {
-    const bool advancedMode = getOptions()->value(OPT_ADV_MODE).toBool();
+    const bool advancedMode = Options::get<bool>(OPT_ADV_MODE);
 
     this->setModal(true);
     this->setWindowTitle(isDir
