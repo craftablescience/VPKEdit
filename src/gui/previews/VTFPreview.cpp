@@ -1,5 +1,7 @@
 #include "VTFPreview.h"
 
+#include <utility>
+
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -113,26 +115,13 @@ void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
 }
 
 void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
-    // Compute draw size for this mip, frame, etc
-    vlUInt imageWidth, imageHeight, imageDepth;
-    CVTFFile::ComputeMipmapDimensions(
-            this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
-            mip, imageWidth, imageHeight, imageDepth);
-
-    const bool hasAlpha = CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
-    const VTFImageFormat format = hasAlpha && alpha ? IMAGE_FORMAT_RGBA8888 : IMAGE_FORMAT_RGB888;
-    auto size = CVTFFile::ComputeMipmapSize(this->vtf->GetWidth(), this->vtf->GetHeight(), 1, mip, format);
-
-    // This buffer needs to persist- QImage does not own the mem you give it
-    this->imageData.reset(new std::byte[size]);
-
-    bool ok = CVTFFile::Convert(
-            this->vtf->GetData(frame, face, 0, mip), reinterpret_cast<vlByte*>(this->imageData.get()), imageWidth, imageHeight, this->vtf->GetFormat(), format);
-    if (!ok) {
-        return;
-    }
-
-    this->image = QImage(reinterpret_cast<uchar*>(this->imageData.get()), static_cast<int>(imageWidth), static_cast<int>(imageHeight), hasAlpha && alpha ? QImage::Format_RGBA8888 : QImage::Format_RGB888);
+	auto result = VTFDecoder::decodeImage(*this->vtf, face, frame, mip, alpha);
+	if (!result) {
+		this->image = QImage();
+		return;
+	}
+	this->vtfData = std::move(result.value());
+    this->image = QImage(reinterpret_cast<uchar*>(this->vtfData.data.get()), static_cast<int>(this->vtfData.width), static_cast<int>(this->vtfData.height), this->vtfData.format);
     this->currentFace = face;
     this->currentFrame = frame;
     this->currentMip = mip;
