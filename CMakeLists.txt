@@ -101,18 +101,23 @@ if(VPKEDIT_BUILD_GUI)
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
 
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/formats/VTFDecoder.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/formats/VTFDecoder.cpp"
+
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/VPKVersionDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/VPKVersionDialog.cpp"
+
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/AbstractInfoPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/AbstractInfoPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/EmptyPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/EmptyPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.cpp"
+
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
@@ -123,6 +128,7 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.cpp"
+
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/EntryTree.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/EntryTree.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/FileViewer.h"

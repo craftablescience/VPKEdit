@@ -7,6 +7,8 @@
 #include <QWidget>
 #include <VTFLib.h>
 
+#include "../formats/VTFDecoder.h"
+
 class QCheckBox;
 class QSlider;
 class QSpinBox;
@@ -41,7 +43,7 @@ private:
     std::unique_ptr<VTFLib::CVTFFile> vtf;
 
     QImage image;
-    std::unique_ptr<std::byte[]> imageData;
+    VTFData vtfData;
 
     int currentFace;
     int currentFrame;
