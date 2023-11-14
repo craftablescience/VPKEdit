@@ -23,7 +23,7 @@ VTFWidget::VTFWidget(QWidget* parent)
 
 void VTFWidget::setData(const std::vector<std::byte>& data) {
     this->vtf = std::make_unique<VTFLib::CVTFFile>();
-    this->vtf->Load(data.data(), data.size());
+    this->vtf->Load(data.data(), static_cast<vlUInt>(data.size()));
     this->decodeImage(1, 1, 0, this->alphaEnabled);
     this->zoom = 1.f;
 }

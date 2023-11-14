@@ -10,6 +10,7 @@
 
 struct VTFData {
 	std::unique_ptr<std::byte[]> data;
+	unsigned int dataSize;
 	unsigned int width;
 	unsigned int height;
 	unsigned int depth;
