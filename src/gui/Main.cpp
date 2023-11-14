@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     }
     setupOptions(*options);
 
-    auto* window = new Window(*options);
+    auto* window = new Window();
     if (!options->value(OPT_START_MAXIMIZED).toBool()) {
         window->show();
     } else {

@@ -5,6 +5,8 @@
 #include <QSettings>
 #include <QStyle>
 
+QSettings* opts = nullptr;
+
 bool isStandalone() {
     QFileInfo nonportable(QApplication::applicationDirPath() + "/.nonportable");
     return !(nonportable.exists() && nonportable.isFile());
@@ -27,4 +29,10 @@ void setupOptions(QSettings& options) {
     if (!options.contains(OPT_START_MAXIMIZED)) {
         options.setValue(OPT_START_MAXIMIZED, false);
     }
+
+	opts = &options;
+}
+
+QSettings* getOptions() {
+	return opts;
 }

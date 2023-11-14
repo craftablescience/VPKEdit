@@ -13,8 +13,7 @@
 
 NewEntryDialog::NewEntryDialog(bool isDir, const QString& prefilledPath, QWidget* parent)
         : QDialog(parent) {
-    QSettings options;
-    const bool advancedMode = options.value(OPT_ADV_MODE).toBool();
+    const bool advancedMode = getOptions()->value(OPT_ADV_MODE).toBool();
 
     this->setModal(true);
     this->setWindowTitle(isDir
