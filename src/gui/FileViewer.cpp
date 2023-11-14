@@ -8,6 +8,7 @@
 #include "previews/info/EmptyPreview.h"
 #include "previews/info/ErrorPreview.h"
 #include "previews/ImagePreview.h"
+#include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
 #include "Window.h"
@@ -32,6 +33,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* imagePreview = newPreview<ImagePreview>(this);
     layout->addWidget(imagePreview);
 
+	auto* mdlPreview = newPreview<MDLPreview>(this);
+	layout->addWidget(mdlPreview);
+
     auto* textPreview = newPreview<TextPreview>(this);
     layout->addWidget(textPreview);
 
@@ -41,21 +45,25 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     this->clearContents();
 }
 
-void FileViewer::displayEntry(const QString& path) {
+void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
     // Get extension
     std::filesystem::path helperPath(path.toLower().toStdString());
     QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
 
     this->clearContents();
     if (ImagePreview::EXTENSIONS.contains(extension)) {
-        // Image
-        auto binary = this->window->readBinaryEntry(path);
-        if (!binary) {
-            this->showPreview<ErrorPreview>();
-            return;
-        }
-        this->getPreview<ImagePreview>()->setImage(*binary);
-        this->showPreview<ImagePreview>();
+	    // Image
+	    auto binary = this->window->readBinaryEntry(path);
+	    if (!binary) {
+		    this->showPreview<ErrorPreview>();
+		    return;
+	    }
+	    this->getPreview<ImagePreview>()->setData(*binary);
+	    this->showPreview<ImagePreview>();
+    } else if (MDLPreview::EXTENSIONS.contains(extension)) {
+		// MDL (model)
+	    this->getPreview<MDLPreview>()->setMesh(path, vpk);
+	    this->showPreview<MDLPreview>();
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
@@ -63,7 +71,7 @@ void FileViewer::displayEntry(const QString& path) {
             this->showPreview<ErrorPreview>();
             return;
         }
-        this->getPreview<VTFPreview>()->setImage(*binary);
+        this->getPreview<VTFPreview>()->setData(*binary);
         this->showPreview<VTFPreview>();
     } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text

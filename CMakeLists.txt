@@ -48,6 +48,9 @@ if(VPKEDIT_BUILD_GUI)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
+    # MDLParser
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/mdlparser")
+
     # SpeedyKeyV (for SAPP)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/speedykeyv")
 
@@ -114,6 +117,8 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/ImagePreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/MDLPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/MDLPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/TextPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.h"
@@ -137,16 +142,19 @@ if(VPKEDIT_BUILD_GUI)
             ${${PROJECT_NAME}_SOURCES})
 
     # Final Qt setup
-    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib MDLParser keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/mdlparser"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp/include"
             "${QT_INCLUDE}"
             "${QT_INCLUDE}/QtCore"
             "${QT_INCLUDE}/QtGui"
             "${QT_INCLUDE}/QtWidgets"
             "${QT_INCLUDE}/QtNetwork"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp/include") # For some reason this one isn't populating automatically
+            "${QT_INCLUDE}/QtOpenGL"
+            "${QT_INCLUDE}/QtOpenGLWidgets")
     if(WIN32 AND MSVC)
         target_link_options(
                 ${PROJECT_NAME} PRIVATE
@@ -160,10 +168,12 @@ if(VPKEDIT_BUILD_GUI)
 
     # Copy these so the user doesn't have to
     if(WIN32)
-        configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"    "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"    COPYONLY)
-        configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"     "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"     COPYONLY)
-        configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll" COPYONLY)
-        configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll" COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"          "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"          COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"           COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll"       COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll"       COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        "${CMAKE_BINARY_DIR}/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        COPYONLY)
+        configure_file("${QT_BASEDIR}/bin/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
@@ -176,13 +186,14 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
     elseif(UNIX AND DEFINED QT_BASEDIR)
-        configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"    "${CMAKE_BINARY_DIR}/libQt6Core.so.6"    COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"     COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6" COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6" "${CMAKE_BINARY_DIR}/libQt6Network.so.6" COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"          "${CMAKE_BINARY_DIR}/libQt6Core.so.6"          COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"           "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"           COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6"       "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6"       COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6"       "${CMAKE_BINARY_DIR}/libQt6Network.so.6"       COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6OpenGL.so.6"        "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"        COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6OpenGLWidgets.so.6" "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6" COPYONLY)
         # Required by plugins
-        configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"    COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libQt6OpenGL.so.6"  "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"  COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"   "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"   COPYONLY)
 
         configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6" COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6XcbQpa.so.6"        "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"        COPYONLY)
@@ -218,18 +229,23 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/.nonportable"
             DESTINATION .)
     if(WIN32)
-        install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
+        install(IMPORTED_RUNTIME_ARTIFACTS
+                Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets
                 RUNTIME DESTINATION .
                 LIBRARY DESTINATION .)
+
         install(FILES
                 "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
                 "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
                 "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
                 DESTINATION imageformats)
+
         install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
                 DESTINATION platforms)
+
         install(FILES "${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll"
                 DESTINATION styles)
+
         install(FILES
                 "${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll"
                 "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
@@ -242,9 +258,10 @@ if(VPKEDIT_BUILD_GUI)
                     "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6Network.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6"
                     # Required by plugins
                     "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"
-                    "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"
 
                     "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"
@@ -279,7 +296,8 @@ if(VPKEDIT_BUILD_GUI)
                     "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"
                     DESTINATION wayland-shell-integration)
         else()
-            install(IMPORTED_RUNTIME_ARTIFACTS Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network
+            install(IMPORTED_RUNTIME_ARTIFACTS
+                    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets
                     RUNTIME DESTINATION .
                     LIBRARY DESTINATION .)
         endif()

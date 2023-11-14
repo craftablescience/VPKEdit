@@ -10,13 +10,13 @@
 class QCheckBox;
 class QSlider;
 
-class Image : public QWidget {
+class ImageWidget : public QWidget {
     Q_OBJECT;
 
 public:
-    explicit Image(QWidget* parent = nullptr);
+    explicit ImageWidget(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data);
+    void setData(const std::vector<std::byte>& data);
 
     void setAlphaEnabled(bool alpha);
     void setTileEnabled(bool tile);
@@ -53,13 +53,13 @@ public:
 
     explicit ImagePreview(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data) const;
+    void setData(const std::vector<std::byte>& data) const;
 
 protected:
     void wheelEvent(QWheelEvent* event) override;
 
 private:
-    Image* image;
+    ImageWidget* image;
     QCheckBox* alphaCheckBox;
     QCheckBox* tileCheckBox;
     QSlider* zoomSlider;

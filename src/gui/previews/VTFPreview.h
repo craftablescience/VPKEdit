@@ -11,13 +11,13 @@ class QCheckBox;
 class QSlider;
 class QSpinBox;
 
-class VTFImage : public QWidget {
+class VTFWidget : public QWidget {
     Q_OBJECT;
 
 public:
-    explicit VTFImage(QWidget* parent = nullptr);
+    explicit VTFWidget(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data);
+    void setData(const std::vector<std::byte>& data);
 
     void setFrame(int frame);
     void setFace(int face);
@@ -63,13 +63,13 @@ public:
 
     explicit VTFPreview(QWidget* parent = nullptr);
 
-    void setImage(const std::vector<std::byte>& data) const;
+    void setData(const std::vector<std::byte>& data) const;
 
 protected:
     void wheelEvent(QWheelEvent* event) override;
 
 private:
-    VTFImage* image;
+    VTFWidget* vtf;
     QSpinBox* frameSpin;
     QSpinBox* faceSpin;
     QSpinBox* mipSpin;

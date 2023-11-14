@@ -10,7 +10,7 @@
 
 using namespace VTFLib;
 
-VTFImage::VTFImage(QWidget* parent)
+VTFWidget::VTFWidget(QWidget* parent)
         : QWidget(parent)
         , currentFace(1)
         , currentFrame(1)
@@ -19,67 +19,67 @@ VTFImage::VTFImage(QWidget* parent)
         , tileEnabled(false)
         , zoom(1.f) {}
 
-void VTFImage::setImage(const std::vector<std::byte>& data) {
+void VTFWidget::setData(const std::vector<std::byte>& data) {
     this->vtf = std::make_unique<VTFLib::CVTFFile>();
     this->vtf->Load(data.data(), data.size());
     this->decodeImage(1, 1, 0, this->alphaEnabled);
     this->zoom = 1.f;
 }
 
-void VTFImage::setFrame(int frame) {
+void VTFWidget::setFrame(int frame) {
     this->decodeImage(this->currentFace, frame, this->currentMip, this->alphaEnabled);
 }
 
-void VTFImage::setFace(int face) {
+void VTFWidget::setFace(int face) {
     this->decodeImage(face, this->currentFrame, this->currentMip, this->alphaEnabled);
 }
 
-void VTFImage::setMip(int mip) {
+void VTFWidget::setMip(int mip) {
     this->decodeImage(this->currentFace, this->currentFrame, mip, this->alphaEnabled);
 }
 
-void VTFImage::setAlphaEnabled(bool alpha) {
+void VTFWidget::setAlphaEnabled(bool alpha) {
     this->decodeImage(this->currentFace, this->currentFrame, this->currentMip, alpha);
 }
 
-void VTFImage::setTileEnabled(bool tile) {
+void VTFWidget::setTileEnabled(bool tile) {
     this->tileEnabled = tile;
 }
 
-void VTFImage::setZoom(int zoom_) {
+void VTFWidget::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
-int VTFImage::getMaxFrame() const {
+int VTFWidget::getMaxFrame() const {
     return static_cast<int>(this->vtf->GetFrameCount());
 }
 
-int VTFImage::getMaxFace() const {
+int VTFWidget::getMaxFace() const {
     return static_cast<int>(this->vtf->GetFaceCount());
 }
 
-int VTFImage::getMaxMip() const {
+int VTFWidget::getMaxMip() const {
     return static_cast<int>(this->vtf->GetMipmapCount());
 }
 
-bool VTFImage::hasAlpha() const {
+bool VTFWidget::hasAlpha() const {
     return CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
 }
 
-bool VTFImage::getAlphaEnabled() const {
+bool VTFWidget::getAlphaEnabled() const {
     return this->alphaEnabled;
 }
 
-bool VTFImage::getTileEnabled() const {
+bool VTFWidget::getTileEnabled() const {
     return this->tileEnabled;
 }
 
-float VTFImage::getZoom() const {
+float VTFWidget::getZoom() const {
     return this->zoom;
 }
 
 // Taken directly from vtex2, thanks!
-void VTFImage::paintEvent(QPaintEvent* /*event*/) {
+void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
 
     if (!this->vtf) {
@@ -112,7 +112,7 @@ void VTFImage::paintEvent(QPaintEvent* /*event*/) {
     }
 }
 
-void VTFImage::decodeImage(int face, int frame, int mip, bool alpha) {
+void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
     // Compute draw size for this mip, frame, etc
     vlUInt imageWidth, imageHeight, imageDepth;
     CVTFFile::ComputeMipmapDimensions(
@@ -143,8 +143,8 @@ VTFPreview::VTFPreview(QWidget* parent)
         : QWidget(parent) {
     auto* layout = new QHBoxLayout(this);
 
-    this->image = new VTFImage(this);
-    layout->addWidget(this->image);
+    this->vtf = new VTFWidget(this);
+    layout->addWidget(this->vtf);
 
     auto* controls = new QWidget(this);
     controls->setFixedWidth(115);
@@ -159,8 +159,8 @@ VTFPreview::VTFPreview(QWidget* parent)
     this->frameSpin = new QSpinBox(frameSpinParent);
     this->frameSpin->setMinimum(1);
     QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
-        this->image->setFrame(this->frameSpin->value());
-        this->image->repaint();
+        this->vtf->setFrame(this->frameSpin->value());
+        this->vtf->repaint();
     });
     frameSpinLayout->addWidget(this->frameSpin);
     controlsLayout->addWidget(frameSpinParent);
@@ -172,8 +172,8 @@ VTFPreview::VTFPreview(QWidget* parent)
     this->faceSpin = new QSpinBox(controls);
     this->faceSpin->setMinimum(1);
     QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
-        this->image->setFace(this->faceSpin->value());
-        this->image->repaint();
+        this->vtf->setFace(this->faceSpin->value());
+        this->vtf->repaint();
     });
     faceSpinLayout->addWidget(this->faceSpin);
     controlsLayout->addWidget(faceSpinParent);
@@ -185,8 +185,8 @@ VTFPreview::VTFPreview(QWidget* parent)
     this->mipSpin = new QSpinBox(controls);
     this->mipSpin->setMinimum(0);
     QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
-        this->image->setMip(this->mipSpin->value());
-        this->image->repaint();
+        this->vtf->setMip(this->mipSpin->value());
+        this->vtf->repaint();
     });
     mipSpinLayout->addWidget(this->mipSpin);
     controlsLayout->addWidget(mipSpinParent);
@@ -197,8 +197,8 @@ VTFPreview::VTFPreview(QWidget* parent)
     alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
     this->alphaCheckBox = new QCheckBox(controls);
     QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, [&] {
-        this->image->setAlphaEnabled(this->alphaCheckBox->isChecked());
-        this->image->repaint();
+        this->vtf->setAlphaEnabled(this->alphaCheckBox->isChecked());
+        this->vtf->repaint();
     });
     alphaCheckBoxLayout->addWidget(this->alphaCheckBox, 0, Qt::AlignHCenter);
     controlsLayout->addWidget(alphaCheckBoxParent);
@@ -209,8 +209,8 @@ VTFPreview::VTFPreview(QWidget* parent)
     tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
     this->tileCheckBox = new QCheckBox(controls);
     QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, [&] {
-        this->image->setTileEnabled(this->tileCheckBox->isChecked());
-        this->image->repaint();
+        this->vtf->setTileEnabled(this->tileCheckBox->isChecked());
+        this->vtf->repaint();
     });
     tileCheckBoxLayout->addWidget(this->tileCheckBox, 0, Qt::AlignHCenter);
     controlsLayout->addWidget(tileCheckBoxParent);
@@ -224,30 +224,30 @@ VTFPreview::VTFPreview(QWidget* parent)
     this->zoomSlider->setMaximum(800);
     this->zoomSlider->setValue(100);
     QObject::connect(this->zoomSlider, &QSlider::valueChanged, [&] {
-        this->image->setZoom(this->zoomSlider->value());
-        this->image->repaint();
+        this->vtf->setZoom(this->zoomSlider->value());
+        this->vtf->repaint();
     });
     zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
     controlsLayout->addWidget(zoomSliderParent);
 }
 
-void VTFPreview::setImage(const std::vector<std::byte>& data) const {
-    this->image->setImage(data);
+void VTFPreview::setData(const std::vector<std::byte>& data) const {
+    this->vtf->setData(data);
 
-    this->frameSpin->setMaximum(this->image->getMaxFrame());
+    this->frameSpin->setMaximum(this->vtf->getMaxFrame());
     this->frameSpin->setValue(1);
-    this->frameSpin->setDisabled(this->image->getMaxFrame() == 1);
+    this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
 
-    this->faceSpin->setMaximum(this->image->getMaxFace());
+    this->faceSpin->setMaximum(this->vtf->getMaxFace());
     this->faceSpin->setValue(1);
-    this->faceSpin->setDisabled(this->image->getMaxFace() == 1);
+    this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1);
 
-    this->mipSpin->setMaximum(this->image->getMaxMip() - 1);
+    this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
     this->mipSpin->setValue(0);
-    this->mipSpin->setDisabled(this->image->getMaxMip() == 1);
+    this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
 
     this->alphaCheckBox->setChecked(false);
-    this->alphaCheckBox->setDisabled(!this->image->hasAlpha());
+    this->alphaCheckBox->setDisabled(!this->vtf->hasAlpha());
 
     this->tileCheckBox->setChecked(false);
 
