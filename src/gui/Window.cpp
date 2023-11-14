@@ -38,7 +38,7 @@ using namespace vpkedit;
 
 constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
 
-Window::Window(QSettings& options, QWidget* parent)
+Window::Window(QWidget* parent)
         : QMainWindow(parent)
         , extractWorkerThread(nullptr)
         , modified(false) {
@@ -144,6 +144,8 @@ Window::Window(QSettings& options, QWidget* parent)
 
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
+
+	auto& options = *getOptions();
 
     auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry List..."));
     auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [=, &options] {

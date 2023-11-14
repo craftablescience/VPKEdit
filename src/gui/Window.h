@@ -25,7 +25,7 @@ class Window : public QMainWindow {
     friend class ExtractVPKWorker;
 
 public:
-    explicit Window(QSettings& options, QWidget* parent = nullptr);
+    explicit Window(QWidget* parent = nullptr);
 
     void newVPK(bool fromDirectory, const QString& startPath = QString());
 

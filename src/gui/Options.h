@@ -10,3 +10,5 @@ constexpr auto OPT_START_MAXIMIZED = "start_maximized";
 bool isStandalone();
 
 void setupOptions(QSettings& options);
+
+QSettings* getOptions();
