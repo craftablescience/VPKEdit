@@ -1,5 +1,9 @@
 #include "MDLPreview.h"
 
+// temp fix for mdlparser
+#include <stddef.h>
+#include <stdint.h>
+
 #include <filesystem>
 
 #include <MDLParser.h>
