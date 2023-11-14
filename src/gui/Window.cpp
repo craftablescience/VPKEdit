@@ -626,7 +626,7 @@ void Window::markModified(bool modified_) {
 bool Window::promptUserToKeepModifications() {
     auto response = QMessageBox::warning(this,
             tr("Save changes?"),
-            tr("Hold up! Would you like to save changes to the VPK first?"),
+            tr("This VPK has unsaved changes! Would you like to save these changes first?"),
             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
     switch (response) {
         case QMessageBox::Cancel:
