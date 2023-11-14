@@ -1,9 +1,5 @@
 #include "MDLPreview.h"
 
-// temp fix for mdlparser
-#include <stddef.h>
-#include <stdint.h>
-
 #include <filesystem>
 
 #include <MDLParser.h>
@@ -18,6 +14,7 @@ using namespace vpkedit;
 MDLWidget::MDLWidget(QWidget* parent)
 		: QOpenGLWidget(parent)
 		, modelTexture(QOpenGLTexture::Target2D)
+		, shadingType(MDLShadingType::SHADED_UNTEXTURED)
 		, distance(0.0)
 		, fov(70.0)
 		, angularSpeed(0.0) {}
@@ -66,6 +63,11 @@ void MDLWidget::setAABB(AABB aabb) {
 	this->update();
 }
 
+void MDLWidget::setShadingType(MDLShadingType type) {
+	this->shadingType = type;
+	this->update();
+}
+
 void MDLWidget::clearMeshes() {
 	if (this->modelTexture.isCreated()) {
 		this->modelTexture.destroy();
@@ -92,41 +94,17 @@ void MDLWidget::initializeGL() {
 	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
 	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
 
-	this->shaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, R"(
-#ifdef GL_ES
-// Set default precision to medium
-precision mediump int;
-precision mediump float;
-#endif
+	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_untextured.vert");
+	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_untextured.frag");
+	this->shadedUntexturedShaderProgram.link();
 
-uniform mat4 mvp;
+	this->unlitTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/unlit_textured.vert");
+	this->unlitTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/unlit_textured.frag");
+	this->unlitTexturedShaderProgram.link();
 
-attribute vec4 iPos;
-attribute vec2 iUV;
-
-varying vec2 oUV;
-
-void main() {
-    gl_Position = mvp * iPos;
-    oUV = iUV;
-}
-	)");
-	this->shaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, R"(
-#ifdef GL_ES
-// Set default precision to medium
-precision mediump int;
-precision mediump float;
-#endif
-
-uniform sampler2D texture;
-
-varying vec2 oUV;
-
-void main() {
-    gl_FragColor = texture2D(texture, oUV);
-}
-	)");
-	this->shaderProgram.link();
+	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_textured.vert");
+	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_textured.frag");
+	this->shadedTexturedShaderProgram.link();
 
 	this->timer.start(16, this);
 }
@@ -149,15 +127,30 @@ void MDLWidget::paintGL() {
 
 	this->glEnable(GL_MULTISAMPLE);
 	this->glEnable(GL_DEPTH_TEST);
-	//this->glEnable(GL_CULL_FACE);
+	this->glEnable(GL_CULL_FACE);
 
-	this->shaderProgram.bind();
+	QOpenGLShaderProgram* currentShaderProgram = nullptr;
+	switch (this->shadingType) {
+		case MDLShadingType::SHADED_UNTEXTURED:
+			currentShaderProgram = &this->shadedUntexturedShaderProgram;
+			break;
+		case MDLShadingType::UNLIT_TEXTURED:
+			currentShaderProgram = &this->unlitTexturedShaderProgram;
+			break;
+		case MDLShadingType::SHADED_TEXTURED:
+			currentShaderProgram = &this->shadedTexturedShaderProgram;
+			break;
+	}
+	if (!currentShaderProgram) {
+		return;
+	}
+	currentShaderProgram->bind();
 
 	QMatrix4x4 view;
 	view.translate(this->target.x(), this->target.y(), -this->target.z() - this->distance);
 	view.rotate(this->rotation);
-	this->shaderProgram.setUniformValue("mvp", this->projection * view);
-	this->shaderProgram.setUniformValue("texture", 0);
+	currentShaderProgram->setUniformValue("mvp", this->projection * view);
+	currentShaderProgram->setUniformValue("texture", 0);
 
 	this->modelTexture.bind();
 
@@ -166,14 +159,19 @@ void MDLWidget::paintGL() {
 		mesh.ebo.bind();
 		int offset = 0;
 
-		int vertexPosLocation = this->shaderProgram.attributeLocation("iPos");
-		this->shaderProgram.enableAttributeArray(vertexPosLocation);
-		this->shaderProgram.setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
+		int vertexPosLocation = currentShaderProgram->attributeLocation("iPos");
+		currentShaderProgram->enableAttributeArray(vertexPosLocation);
+		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
 
 		offset += sizeof(QVector3D);
-		int vertexUVLocation = this->shaderProgram.attributeLocation("iUV");
-		this->shaderProgram.enableAttributeArray(vertexUVLocation);
-		this->shaderProgram.setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(MDLVertex));
+		int vertexNormalLocation = currentShaderProgram->attributeLocation("iNormal");
+		currentShaderProgram->enableAttributeArray(vertexNormalLocation);
+		currentShaderProgram->setAttributeBuffer(vertexNormalLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
+
+		offset += sizeof(QVector3D);
+		int vertexUVLocation = currentShaderProgram->attributeLocation("iUV");
+		currentShaderProgram->enableAttributeArray(vertexUVLocation);
+		currentShaderProgram->setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(MDLVertex));
 
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
@@ -182,7 +180,7 @@ void MDLWidget::paintGL() {
 
 	this->modelTexture.release();
 
-	this->shaderProgram.release();
+	currentShaderProgram->release();
 }
 
 void MDLWidget::mousePressEvent(QMouseEvent* event) {
@@ -227,7 +225,11 @@ MDLPreview::MDLPreview(QWidget* parent)
 void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	this->mdl->clearMeshes();
 
-	const QString basePath = std::filesystem::path(path.toStdString()).replace_extension().string().c_str();
+	QString basePath = std::filesystem::path(path.toStdString()).replace_extension().string().c_str();
+	if (path.endsWith(".vtx")) {
+		// Remove .dx80, .dx90, .sw
+		basePath = std::filesystem::path(basePath.toStdString()).replace_extension().string().c_str();
+	}
 
 	auto mdlEntry = vpk.findEntry(basePath.toStdString() + ".mdl");
 	auto vvdEntry = vpk.findEntry(basePath.toStdString() + ".vvd");
@@ -268,8 +270,9 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		auto* vertex = mdlParser.GetVertex(vertexIndex);
 
 		QVector3D pos(vertex->pos.x, vertex->pos.y, vertex->pos.z);
+		QVector3D normal(vertex->normal.x, vertex->normal.y, vertex->normal.z);
 		QVector2D uv(vertex->texCoord.x, vertex->texCoord.y);
-		vertices.emplace_back(pos, uv);
+		vertices.emplace_back(pos, normal, uv);
 
 		if (vertex->pos.x < minAABB.x()) minAABB.setX(vertex->pos.x);
 		else if (vertex->pos.x > maxAABB.x()) maxAABB.setX(vertex->pos.x);
