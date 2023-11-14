@@ -112,9 +112,9 @@ std::optional<VPK> VPK::open(const std::string& path) {
         return std::nullopt;
     }
 
-    std::string filename = removeVPKAndOrDirSuffix(path);
+    std::string fileNameNoSuffix = removeVPKAndOrDirSuffix(path);
 
-    VPK vpk{FileStream{path}, path, filename};
+    VPK vpk{FileStream{path}, path, fileNameNoSuffix};
     if (open(vpk)) {
         return vpk;
     }
