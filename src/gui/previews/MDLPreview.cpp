@@ -1,6 +1,7 @@
 #include "MDLPreview.h"
 
 #include <filesystem>
+#include <optional>
 
 #include <MDLParser.h>
 #include <QMouseEvent>
@@ -8,12 +9,19 @@
 #include <QVBoxLayout>
 #include <QtMath>
 #include <vpkedit/VPK.h>
+#include <VTFLib.h>
 
+// Fuck windows
+#undef NO_ERROR
+#include "KeyValue.h"
+
+using namespace std::literals;
 using namespace vpkedit;
 
 MDLWidget::MDLWidget(QWidget* parent)
 		: QOpenGLWidget(parent)
-		, modelTexture(QOpenGLTexture::Target2D)
+		, missingTexture(QOpenGLTexture::Target2D)
+		, vertexCount(0)
 		, shadingType(MDLShadingType::SHADED_UNTEXTURED)
 		, distance(0.0)
 		, fov(70.0)
@@ -21,22 +29,40 @@ MDLWidget::MDLWidget(QWidget* parent)
 
 MDLWidget::~MDLWidget() {
 	this->clearMeshes();
+	this->missingTexture.destroy();
 }
 
-void MDLWidget::addMesh(const QVector<MDLVertex>& vertices, const QVector<unsigned short>& indices) {
-	// todo: load the texture from the vtf if it exists
-	if (!this->modelTexture.isCreated()) {
-		this->modelTexture.setData(QImage(":/checkerboard.png"));
+void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
+	if (this->vertices.isCreated()) {
+		this->vertices.destroy();
 	}
+	this->vertexCount = static_cast<int>(vertices_.size());
+	this->vertices.create();
+	this->vertices.bind();
+	this->vertices.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	this->vertices.allocate(vertices_.constData(), static_cast<int>(this->vertexCount * sizeof(MDLVertex)));
+	this->vertices.release();
+}
 
+void MDLWidget::addSubMesh(const QVector<unsigned short>& indices) {
 	auto& mesh = this->meshes.emplace_back();
 
-	mesh.vertexCount = static_cast<int>(vertices.size());
-	mesh.vbo.create();
-	mesh.vbo.bind();
-	mesh.vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	mesh.vbo.allocate(vertices.constData(), static_cast<int>(mesh.vertexCount * sizeof(MDLVertex)));
-	mesh.vbo.release();
+	mesh.texture = nullptr;
+
+	mesh.indexCount = static_cast<int>(indices.size());
+	mesh.ebo.create();
+	mesh.ebo.bind();
+	mesh.ebo.allocate(indices.constData(), static_cast<int>(mesh.indexCount * sizeof(unsigned short)));
+	mesh.ebo.release();
+}
+
+void MDLWidget::addSubMesh(const QVector<unsigned short>& indices, VTFData&& vtfData) {
+	auto& mesh = this->meshes.emplace_back();
+
+	mesh.vtfData = std::move(vtfData);
+	mesh.texture = new QOpenGLTexture{QOpenGLTexture::Target::Target2D};
+	mesh.texture->create();
+	mesh.texture->setData(QImage(reinterpret_cast<uchar*>(mesh.vtfData.data.get()), static_cast<int>(mesh.vtfData.width), static_cast<int>(mesh.vtfData.height), mesh.vtfData.format));
 
 	mesh.indexCount = static_cast<int>(indices.size());
 	mesh.ebo.create();
@@ -69,14 +95,16 @@ void MDLWidget::setShadingType(MDLShadingType type) {
 }
 
 void MDLWidget::clearMeshes() {
-	if (this->modelTexture.isCreated()) {
-		this->modelTexture.destroy();
+	if (this->vertices.isCreated()) {
+		this->vertices.destroy();
 	}
 
 	for (auto& mesh : this->meshes) {
-		if (mesh.vbo.isCreated()) {
-			mesh.vbo.destroy();
+		if (mesh.texture && mesh.texture->isCreated()) {
+			mesh.texture->destroy();
 		}
+		delete mesh.texture;
+
 		if (mesh.ebo.isCreated()) {
 			mesh.ebo.destroy();
 		}
@@ -92,7 +120,7 @@ void MDLWidget::initializeGL() {
 	QStyleOption opt;
 	opt.initFrom(this);
 	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
-	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
+	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 0.0);
 
 	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_untextured.vert");
 	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_untextured.frag");
@@ -105,6 +133,9 @@ void MDLWidget::initializeGL() {
 	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_textured.vert");
 	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_textured.frag");
 	this->shadedTexturedShaderProgram.link();
+
+	this->missingTexture.create();
+	this->missingTexture.setData(QImage(":/checkerboard.png"));
 
 	this->timer.start(16, this);
 }
@@ -128,6 +159,8 @@ void MDLWidget::paintGL() {
 	this->glEnable(GL_MULTISAMPLE);
 	this->glEnable(GL_DEPTH_TEST);
 	this->glEnable(GL_CULL_FACE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
 
 	QOpenGLShaderProgram* currentShaderProgram = nullptr;
 	switch (this->shadingType) {
@@ -152,10 +185,15 @@ void MDLWidget::paintGL() {
 	currentShaderProgram->setUniformValue("mvp", this->projection * view);
 	currentShaderProgram->setUniformValue("texture", 0);
 
-	this->modelTexture.bind();
+	this->vertices.bind();
 
 	for (auto& mesh : this->meshes) {
-		mesh.vbo.bind();
+		auto* texture = mesh.texture;
+		if (!texture) {
+			texture = &this->missingTexture;
+		}
+		texture->bind();
+
 		mesh.ebo.bind();
 		int offset = 0;
 
@@ -175,10 +213,11 @@ void MDLWidget::paintGL() {
 
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
-		mesh.vbo.release();
+
+		texture->release();
 	}
 
-	this->modelTexture.release();
+	this->vertices.release();
 
 	currentShaderProgram->release();
 }
@@ -222,6 +261,30 @@ MDLPreview::MDLPreview(QWidget* parent)
 	layout->addWidget(this->mdl);
 }
 
+static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const std::string& materialPath) {
+	auto materialEntry = vpk.findEntry(materialPath);
+	if (!materialEntry) return std::nullopt;
+
+	auto materialFile = vpk.readTextEntry(*materialEntry);
+	if (!materialFile) return std::nullopt;
+
+	KeyValueRoot materialKV;
+	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NO_ERROR || !materialKV.HasChildren()) return std::nullopt;
+
+	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
+	if (!baseTexturePathKV.IsValid()) return std::nullopt;
+
+	auto textureEntry = vpk.findEntry("materials/"s + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
+	if (!textureEntry) return std::nullopt;
+
+	auto textureFile = vpk.readBinaryEntry(*textureEntry);
+	if (!textureFile) return std::nullopt;
+
+	VTFLib::CVTFFile vtf;
+	vtf.Load(textureFile->data(), static_cast<vlUInt>(textureFile->size()), false);
+	return VTFDecoder::decodeImage(vtf, 1, 1, 0, true);
+}
+
 void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	this->mdl->clearMeshes();
 
@@ -247,6 +310,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		// todo: show an error preview?
 		return;
 	}
+
 	auto mdlData = vpk.readBinaryEntry(*mdlEntry);
 	auto vvdData = vpk.readBinaryEntry(*vvdEntry);
 	auto vtxData = vpk.readBinaryEntry(*vtxEntry);
@@ -260,10 +324,9 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	              reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size());
 	QVector3D minAABB, maxAABB;
 
+	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
+	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
 	QVector<MDLVertex> vertices;
-	// According to my limited research, vertices stay constant but indices vary with LOD level
-	// We're just loading the highest detail model for now, so it doesn't matter
-	QVector<unsigned short> indices;
 
 	// todo: apply lod fixups?
 	for (int vertexIndex = 0; vertexIndex < mdlParser.GetNumVertices(); vertexIndex++) {
@@ -274,6 +337,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		QVector2D uv(vertex->texCoord.x, vertex->texCoord.y);
 		vertices.emplace_back(pos, normal, uv);
 
+		// Resize bounding box
 		if (vertex->pos.x < minAABB.x()) minAABB.setX(vertex->pos.x);
 		else if (vertex->pos.x > maxAABB.x()) maxAABB.setX(vertex->pos.x);
 		if (vertex->pos.y < minAABB.y()) minAABB.setY(vertex->pos.y);
@@ -281,6 +345,9 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		if (vertex->pos.z < minAABB.z()) minAABB.setZ(vertex->pos.z);
 		else if (vertex->pos.z > maxAABB.z()) maxAABB.setZ(vertex->pos.z);
 	}
+
+	this->mdl->setVertices(vertices);
+	this->mdl->setAABB({minAABB, maxAABB});
 
 	for (int body = 0; body < mdlParser.GetNumBodyParts(); body++) {
 		const MDLStructs::BodyPart* mdlBodyPart;
@@ -292,17 +359,21 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 			auto* modelVTX = vtxBodyPart->GetModel(modelIndex);
 
 			for (int meshIndex = 0; meshIndex < modelMDL->meshesCount; meshIndex++) {
-				auto* modelLOD = modelVTX->GetModelLoD(0);
-				auto* mesh = modelLOD->GetMesh(meshIndex);
+				auto* meshMDL = modelMDL->GetMesh(meshIndex);
+				auto materialIndex = meshMDL->material;
+				auto* meshVTX = modelVTX->GetModelLoD(0)->GetMesh(meshIndex);
 
-				for (int stripGroupIndex = 0; stripGroupIndex < mesh->numStripGroups; stripGroupIndex++) {
-					auto* stripGroup = mesh->GetStripGroup(stripGroupIndex);
+				QVector<unsigned short> indices;
+
+				for (int stripGroupIndex = 0; stripGroupIndex < meshVTX->numStripGroups; stripGroupIndex++) {
+					auto* stripGroup = meshVTX->GetStripGroup(stripGroupIndex);
 
 					for (int stripIndex = 0; stripIndex < stripGroup->numStrips; stripIndex++) {
 						auto* strip = stripGroup->GetStrip(stripIndex);
 
 						bool isTriList = static_cast<unsigned char>(strip->flags) & static_cast<unsigned char>(VTXEnums::StripFlags::IS_TRILIST);
 
+						// Add vertices in reverse order to flip the winding order
 						if (isTriList) {
 							for (int i = strip->numIndices - 1; i >= 0; i--) {
 								auto vertexID = *stripGroup->GetIndex(strip->indexOffset + i);
@@ -318,14 +389,17 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 						}
 					}
 				}
+
+				// Try to find the material in the VPK
+				// todo: bounds check
+				if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.GetMaterialDirectory(materialIndex) + mdlParser.GetMaterialName(materialIndex) + ".vmt")) {
+					this->mdl->addSubMesh(indices, std::move(data.value()));
+				} else {
+					this->mdl->addSubMesh(indices);
+				}
 			}
 		}
 	}
 
-	for (unsigned short i : indices) {
-		qInfo() << i;
-	}
-
-	this->mdl->addMesh(vertices, indices);
-	this->mdl->setAABB({minAABB, maxAABB});
+	this->mdl->update();
 }

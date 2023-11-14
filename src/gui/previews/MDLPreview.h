@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include <QBasicTimer>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
@@ -7,6 +10,8 @@
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
+
+#include "../formats/VTFDecoder.h"
 
 namespace vpkedit {
 
@@ -36,9 +41,9 @@ struct AABB {
 };
 
 struct MDLSubMesh {
-	QOpenGLBuffer vbo{QOpenGLBuffer::Type::VertexBuffer};
+	VTFData vtfData;
+	QOpenGLTexture* texture;
 	QOpenGLBuffer ebo{QOpenGLBuffer::Type::IndexBuffer};
-	int vertexCount;
 	int indexCount;
 };
 
@@ -56,7 +61,11 @@ public:
 
 	~MDLWidget() override;
 
-	void addMesh(const QVector<MDLVertex>& vertices, const QVector<unsigned short>& indices);
+	void setVertices(const QVector<MDLVertex>& vertices_);
+
+	void addSubMesh(const QVector<unsigned short>& indices);
+
+	void addSubMesh(const QVector<unsigned short>& indices, VTFData&& vtfData);
 
 	void setAABB(AABB aabb);
 
@@ -81,8 +90,10 @@ private:
 	QOpenGLShaderProgram shadedUntexturedShaderProgram;
 	QOpenGLShaderProgram unlitTexturedShaderProgram;
 	QOpenGLShaderProgram shadedTexturedShaderProgram;
-	QOpenGLTexture modelTexture;
-	QVector<MDLSubMesh> meshes;
+	QOpenGLTexture missingTexture;
+	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
+	int vertexCount;
+	std::vector<MDLSubMesh> meshes;
 
 	MDLShadingType shadingType;
 	QMatrix4x4 projection;
