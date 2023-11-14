@@ -2,17 +2,16 @@
 
 #include <QApplication>
 #include <QFileInfo>
-#include <QSettings>
 #include <QStyle>
 
 QSettings* opts = nullptr;
 
-bool isStandalone() {
+bool Options::isStandalone() {
     QFileInfo nonportable(QApplication::applicationDirPath() + "/.nonportable");
     return !(nonportable.exists() && nonportable.isFile());
 }
 
-void setupOptions(QSettings& options) {
+void Options::setupOptions(QSettings& options) {
     if (!options.contains(OPT_STYLE)) {
         options.setValue(OPT_STYLE, QApplication::style()->name());
     }
@@ -33,6 +32,10 @@ void setupOptions(QSettings& options) {
 	opts = &options;
 }
 
-QSettings* getOptions() {
+QSettings* Options::getOptions() {
 	return opts;
+}
+
+void Options::invert(std::string_view option) {
+	set(option, !get<bool>(option));
 }

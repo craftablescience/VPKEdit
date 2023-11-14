@@ -19,13 +19,13 @@ int main(int argc, char** argv) {
 #endif
 
     std::unique_ptr<QSettings> options;
-    if (isStandalone()) {
+    if (Options::isStandalone()) {
         auto configPath = QApplication::applicationDirPath() + "/config.ini";
         options = std::make_unique<QSettings>(configPath, QSettings::Format::IniFormat);
     } else {
         options = std::make_unique<QSettings>();
     }
-    setupOptions(*options);
+    Options::setupOptions(*options);
 
     auto* window = new Window();
     if (!options->value(OPT_START_MAXIMIZED).toBool()) {

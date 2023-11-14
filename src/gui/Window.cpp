@@ -145,45 +145,42 @@ Window::Window(QWidget* parent)
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
 
-	auto& options = *getOptions();
-
     auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry List..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [=, &options] {
-        const bool newValue = !options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool();
-        this->entryTree->setAutoExpandDirectoryOnClick(newValue);
-        options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, newValue);
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [=] {
+		Options::invert(OPT_ENTRY_LIST_AUTO_EXPAND);
+        this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
     });
     entryListMenuAutoExpandAction->setCheckable(true);
-    entryListMenuAutoExpandAction->setChecked(options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool());
+    entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
 
     auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("&Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
     for (const auto& themeName : QStyleFactory::keys()) {
-        auto* action = themeMenu->addAction(themeName, [=, &options] {
+        auto* action = themeMenu->addAction(themeName, [=] {
             QApplication::setStyle(themeName);
-            options.setValue(OPT_STYLE, themeName);
+            Options::set(OPT_STYLE, themeName);
         });
         action->setCheckable(true);
-        if (themeName == options.value(OPT_STYLE).toString()) {
+        if (themeName == Options::get<QString>(OPT_STYLE)) {
             action->setChecked(true);
         }
         themeMenuGroup->addAction(action);
     }
 
     optionsMenu->addSeparator();
-    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced Mode"), [=, &options] {
-        options.setValue(OPT_ADV_MODE, !options.value(OPT_ADV_MODE).toBool());
+    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced Mode"), [=] {
+        Options::invert(OPT_ADV_MODE);
     });
     optionAdvancedMode->setCheckable(true);
-    optionAdvancedMode->setChecked(options.value(OPT_ADV_MODE).toBool());
+    optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADV_MODE));
 
     optionsMenu->addSeparator();
-    auto* optionStartMaximized = optionsMenu->addAction(tr("&Start Maximized"), [=, &options] {
-        options.setValue(OPT_START_MAXIMIZED, !options.value(OPT_START_MAXIMIZED).toBool());
+    auto* optionStartMaximized = optionsMenu->addAction(tr("&Start Maximized"), [=] {
+        Options::invert(OPT_START_MAXIMIZED);
     });
     optionStartMaximized->setCheckable(true);
-    optionStartMaximized->setChecked(options.value(OPT_START_MAXIMIZED).toBool());
+    optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("&Help"));
@@ -235,7 +232,7 @@ Window::Window(QWidget* parent)
     leftPaneLayout->addWidget(this->searchBar);
 
     this->entryTree = new EntryTree(this, leftPane);
-    this->entryTree->setAutoExpandDirectoryOnClick(options.value(OPT_ENTRY_LIST_AUTO_EXPAND).toBool());
+    this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
     leftPaneLayout->addWidget(this->entryTree);
 
     splitter->addWidget(leftPane);
