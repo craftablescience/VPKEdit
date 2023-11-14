@@ -19,11 +19,13 @@ class QTimerEvent;
 
 #pragma pack(push, 1)
 struct MDLVertex {
-	MDLVertex(QVector3D pos_, QVector2D uv_)
+	MDLVertex(QVector3D pos_, QVector3D normal_, QVector2D uv_)
 			: pos(pos_)
+			, normal(normal_)
 			, uv(uv_) {}
 
 	QVector3D pos;
+	QVector3D normal;
 	QVector2D uv;
 };
 #pragma pack(pop)
@@ -40,6 +42,12 @@ struct MDLSubMesh {
 	int indexCount;
 };
 
+enum class MDLShadingType {
+	SHADED_UNTEXTURED,
+	UNLIT_TEXTURED,
+	SHADED_TEXTURED,
+};
+
 class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 	Q_OBJECT;
 
@@ -51,6 +59,8 @@ public:
 	void addMesh(const QVector<MDLVertex>& vertices, const QVector<unsigned short>& indices);
 
 	void setAABB(AABB aabb);
+
+	void setShadingType(MDLShadingType type);
 
 	void clearMeshes();
 
@@ -68,10 +78,13 @@ protected:
 	void timerEvent(QTimerEvent* event) override;
 
 private:
-	QOpenGLShaderProgram shaderProgram;
+	QOpenGLShaderProgram shadedUntexturedShaderProgram;
+	QOpenGLShaderProgram unlitTexturedShaderProgram;
+	QOpenGLShaderProgram shadedTexturedShaderProgram;
 	QOpenGLTexture modelTexture;
 	QVector<MDLSubMesh> meshes;
 
+	MDLShadingType shadingType;
 	QMatrix4x4 projection;
 	float distance;
 	QVector3D target;

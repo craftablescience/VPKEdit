@@ -3,5 +3,12 @@
         <file>checkerboard.png</file>
         <file>icon.png</file>
 		<file>error.png</file>
+
+        <file>shaders/shaded_textured.frag</file>
+        <file>shaders/shaded_textured.vert</file>
+        <file>shaders/shaded_untextured.frag</file>
+        <file>shaders/shaded_untextured.vert</file>
+        <file>shaders/unlit_textured.frag</file>
+        <file>shaders/unlit_textured.vert</file>
     </qresource>
 </RCC>
