@@ -2,14 +2,14 @@
 
 #include <filesystem>
 #include <optional>
+#include <tuple>
 
 #include <MDLParser.h>
 #include <QApplication>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QStyleOption>
-#include <QVBoxLayout>
 #include <QtMath>
 #include <vpkedit/VPK.h>
 #include <VTFLib.h>
@@ -48,18 +48,22 @@ float AABB::getDepth() const {
 
 MDLWidget::MDLWidget(QWidget* parent)
 		: QOpenGLWidget(parent)
+		, QOpenGLFunctions_3_2_Core()
 		, missingTexture(QOpenGLTexture::Target2D)
+		, matCapTexture(QOpenGLTexture::Target2D)
 		, vertexCount(0)
-		, shadingType(MDLShadingType::SHADED_UNTEXTURED)
+		, shadingMode(MDLShadingMode::UNSHADED_TEXTURED)
 		, distance(0.0)
         , distanceScale(0.0)
 		, fov(70.0)
+		, cullBackFaces(true)
 		, angularSpeed(0.0)
         , rmbBeingHeld(false) {}
 
 MDLWidget::~MDLWidget() {
 	this->clearMeshes();
 	this->missingTexture.destroy();
+	this->matCapTexture.destroy();
 }
 
 void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
@@ -118,8 +122,18 @@ void MDLWidget::setAABB(AABB aabb) {
 	this->update();
 }
 
-void MDLWidget::setShadingType(MDLShadingType type) {
-	this->shadingType = type;
+void MDLWidget::setShadingMode(MDLShadingMode type) {
+	this->shadingMode = type;
+	this->update();
+}
+
+void MDLWidget::setFieldOfView(float newFOV) {
+	this->fov = newFOV;
+	this->update();
+}
+
+void MDLWidget::setCullBackFaces(bool enable) {
+	this->cullBackFaces = enable;
 	this->update();
 }
 
@@ -146,25 +160,27 @@ void MDLWidget::clearMeshes() {
 void MDLWidget::initializeGL() {
 	this->initializeOpenGLFunctions();
 
-	QStyleOption opt;
-	opt.initFrom(this);
-	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
-	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
+	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
+	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_wireframe.frag");
+	this->wireframeShaderProgram.link();
 
-	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_untextured.vert");
-	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_untextured.frag");
+	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
+	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_shaded_untextured.frag");
 	this->shadedUntexturedShaderProgram.link();
 
-	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/unlit_textured.vert");
-	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/unlit_textured.frag");
+	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
+	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_unshaded_textured.frag");
 	this->unshadedTexturedShaderProgram.link();
 
-	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_textured.vert");
-	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_textured.frag");
+	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
+	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_shaded_textured.frag");
 	this->shadedTexturedShaderProgram.link();
 
 	this->missingTexture.create();
-	this->missingTexture.setData(QImage(":/checkerboard.png"));
+	this->missingTexture.setData(QImage(":/textures/checkerboard.png"));
+
+	this->matCapTexture.create();
+	this->matCapTexture.setData(QImage(":/textures/default_matcap.png"));
 
 	this->timer.start(12, this);
 }
@@ -179,6 +195,11 @@ void MDLWidget::resizeGL(int w, int h) {
 }
 
 void MDLWidget::paintGL() {
+	QStyleOption opt;
+	opt.initFrom(this);
+
+	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
+	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
 	this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (this->meshes.empty()) {
@@ -187,17 +208,31 @@ void MDLWidget::paintGL() {
 
 	this->glEnable(GL_MULTISAMPLE);
 	this->glEnable(GL_DEPTH_TEST);
-	this->glEnable(GL_CULL_FACE);
+
+	if (!this->cullBackFaces || this->shadingMode == MDLShadingMode::WIREFRAME) {
+		this->glDisable(GL_CULL_FACE);
+	} else {
+		this->glEnable(GL_CULL_FACE);
+	}
+
+	if (this->shadingMode == MDLShadingMode::WIREFRAME) {
+		this->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+		this->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
 	QOpenGLShaderProgram* currentShaderProgram = nullptr;
-	switch (this->shadingType) {
-		case MDLShadingType::SHADED_UNTEXTURED:
+	switch (this->shadingMode) {
+		case MDLShadingMode::WIREFRAME:
+			currentShaderProgram = &this->wireframeShaderProgram;
+			break;
+		case MDLShadingMode::SHADED_UNTEXTURED:
 			currentShaderProgram = &this->shadedUntexturedShaderProgram;
 			break;
-		case MDLShadingType::UNSHADED_TEXTURED:
+		case MDLShadingMode::UNSHADED_TEXTURED:
 			currentShaderProgram = &this->unshadedTexturedShaderProgram;
 			break;
-		case MDLShadingType::SHADED_TEXTURED:
+		case MDLShadingMode::SHADED_TEXTURED:
 			currentShaderProgram = &this->shadedTexturedShaderProgram;
 			break;
 	}
@@ -207,10 +242,15 @@ void MDLWidget::paintGL() {
 	currentShaderProgram->bind();
 
 	QMatrix4x4 view;
-	view.translate(this->target.x(), this->target.y(), -this->target.z() - this->distance);
+	QVector3D translation(this->target.x(), this->target.y(), -this->target.z() - this->distance);
+	view.translate(translation);
 	view.rotate(this->rotation);
-	currentShaderProgram->setUniformValue("mvp", this->projection * view);
-	currentShaderProgram->setUniformValue("texture", 0);
+	currentShaderProgram->setUniformValue("uMVP", this->projection * view);
+	currentShaderProgram->setUniformValue("uMV", view);
+	currentShaderProgram->setUniformValue("uNormalMatrix", view.normalMatrix());
+	currentShaderProgram->setUniformValue("uEyePosition", translation);
+	currentShaderProgram->setUniformValue("uMeshTexture", 0);
+	currentShaderProgram->setUniformValue("uMatCapTexture", 1);
 
 	this->vertices.bind();
 
@@ -219,27 +259,31 @@ void MDLWidget::paintGL() {
 		if (!texture) {
 			texture = &this->missingTexture;
 		}
-		texture->bind();
+		texture->bind(0);
+
+		this->matCapTexture.bind(1);
 
 		mesh.ebo.bind();
 		int offset = 0;
 
-		int vertexPosLocation = currentShaderProgram->attributeLocation("iPos");
+		int vertexPosLocation = currentShaderProgram->attributeLocation("vPos");
 		currentShaderProgram->enableAttributeArray(vertexPosLocation);
 		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
 
 		offset += sizeof(QVector3D);
-		int vertexNormalLocation = currentShaderProgram->attributeLocation("iNormal");
+		int vertexNormalLocation = currentShaderProgram->attributeLocation("vNormal");
 		currentShaderProgram->enableAttributeArray(vertexNormalLocation);
 		currentShaderProgram->setAttributeBuffer(vertexNormalLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
 
 		offset += sizeof(QVector3D);
-		int vertexUVLocation = currentShaderProgram->attributeLocation("iUV");
+		int vertexUVLocation = currentShaderProgram->attributeLocation("vUV");
 		currentShaderProgram->enableAttributeArray(vertexUVLocation);
 		currentShaderProgram->setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(MDLVertex));
 
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
+
+		this->matCapTexture.release();
 
 		texture->release();
 	}
@@ -327,9 +371,39 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 	}
 }
 
+constexpr int SHADING_MODE_BUTTON_SIZE = 24;
+
 MDLPreview::MDLPreview(QWidget* parent)
-		: QWidget(parent) {
+		: QWidget(parent)
+		, shadingModeWireframe(nullptr)
+		, shadingModeShadedUntextured(nullptr)
+		, shadingModeUnshadedTextured(nullptr)
+		, shadingModeShadedTextured(nullptr) {
 	auto* layout = new QVBoxLayout(this);
+
+    auto* controls = new QWidget(this);
+	controls->setFixedHeight(32);
+	layout->addWidget(controls, Qt::AlignRight);
+
+    auto* controlsLayout = new QHBoxLayout(controls);
+	controlsLayout->setAlignment(Qt::AlignRight);
+
+	const QList<QPushButton**> buttons{
+		&this->shadingModeWireframe,
+		&this->shadingModeShadedUntextured,
+		&this->shadingModeUnshadedTextured,
+		&this->shadingModeShadedTextured,
+	};
+	for (int i = 0; i < buttons.size(); i++) {
+		auto* button = *buttons[i] = new QPushButton(this);
+		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
+		button->setFlat(true);
+		button->setStyleSheet("QPushButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
+		QObject::connect(button, &QPushButton::pressed, [=] {
+			this->setShadingMode(static_cast<MDLShadingMode>(i));
+		});
+		controlsLayout->addWidget(button, Qt::AlignRight);
+	}
 
 	this->mdl = new MDLWidget(this);
 	layout->addWidget(this->mdl);
@@ -427,6 +501,9 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	this->mdl->setVertices(vertices);
 	this->mdl->setAABB(aabb);
 
+	bool hasAMaterial = false;
+
+	// todo: figure out why any set of indices past the first one is corrupted
 	for (int body = 0; body < mdlParser.GetNumBodyParts(); body++) {
 		const MDLStructs::BodyPart* mdlBodyPart;
 		const VTXStructs::BodyPart* vtxBodyPart;
@@ -474,10 +551,12 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				}
 				// Try to find the material in the VPK
 				bool foundMaterial = false;
+				// todo: investigate crashes here with invalid string
 				for (int materialDirIndex = 0; materialDirIndex < mdlParser.GetNumMaterialDirectories(); materialDirIndex++) {
 					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.GetMaterialDirectory(materialIndex) + mdlParser.GetMaterialName(materialIndex) + ".vmt")) {
 						this->mdl->addSubMesh(indices, std::move(data.value()));
 						foundMaterial = true;
+						hasAMaterial = true;
 						break;
 					}
 				}
@@ -488,5 +567,33 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		}
 	}
 
+	if (hasAMaterial) {
+		this->setShadingMode(MDLShadingMode::UNSHADED_TEXTURED);
+	} else {
+		this->setShadingMode(MDLShadingMode::SHADED_UNTEXTURED);
+	}
 	this->mdl->update();
+}
+
+void MDLPreview::setShadingMode(MDLShadingMode mode) const {
+	QStyleOption opt;
+	opt.initFrom(this);
+
+	const QList<std::tuple<QPushButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
+			{&this->shadingModeWireframe, ":/icons/wireframe.png", MDLShadingMode::WIREFRAME},
+			{&this->shadingModeShadedUntextured, ":/icons/shaded_untextured.png", MDLShadingMode::SHADED_UNTEXTURED},
+			{&this->shadingModeUnshadedTextured, ":/icons/unshaded_textured.png", MDLShadingMode::UNSHADED_TEXTURED},
+			{&this->shadingModeShadedTextured, ":/icons/shaded_textured.png", MDLShadingMode::SHADED_TEXTURED},
+	};
+	for (auto& [button, iconPath, buttonMode] : buttonsAndIcons) {
+		QPixmap imagePixmap(iconPath);
+		auto mask = imagePixmap.createMaskFromColor(Qt::white, Qt::MaskOutColor);
+		imagePixmap.fill(opt.palette.color(buttonMode == mode ? QPalette::ColorRole::Link : QPalette::ColorRole::ButtonText));
+		imagePixmap.setMask(mask);
+
+		(*button)->setIcon({imagePixmap});
+		(*button)->setIconSize({SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE});
+	}
+
+	this->mdl->setShadingMode(mode);
 }

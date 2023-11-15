@@ -17,3 +17,4 @@
 - MDLParser - Derpius
 - SAPP - Trico Everfire
 - SpeedyKeyV - OzxyBox
+- Default MatCap texture taken from [https://github.com/nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
