@@ -280,7 +280,7 @@ static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const st
 
 	VTFLib::CVTFFile vtf;
 	vtf.Load(textureFile->data(), static_cast<vlUInt>(textureFile->size()), false);
-	return VTFDecoder::decodeImage(vtf, 1, 1, 0, true);
+	return VTFDecoder::decodeImage(vtf, 1, 1, 0, false);
 }
 
 void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
