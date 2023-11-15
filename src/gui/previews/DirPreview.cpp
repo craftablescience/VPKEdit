@@ -114,12 +114,17 @@ void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
 
     // Check this subfolder doesn't already exist
     QString subfolderName = path.sliced(this->currentPath.length());
-    subfolderName.removeLast();
+	if (subfolderName.isEmpty()) {
+		return;
+	}
+	if (subfolderName.startsWith('/')) {
+		subfolderName.removeFirst();
+	}
     subfolderName = subfolderName.sliced(0, subfolderName.indexOf('/'));
     bool exists = false;
     for (int r = 0; r < this->rowCount(); r++) {
         if (this->item(r, DirPreviewColumn::TYPE)->text() != DIR_TYPE_NAME) {
-            break;
+            continue;
         }
         if (this->item(r, DirPreviewColumn::NAME)->text() == subfolderName) {
             exists = true;
