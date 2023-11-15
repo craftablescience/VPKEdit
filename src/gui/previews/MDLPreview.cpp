@@ -305,28 +305,32 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		vtxEntry = vpk.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
-		// todo: show an error preview?
+		// todo: show an error
 		return;
 	}
-
 	auto mdlData = vpk.readBinaryEntry(*mdlEntry);
 	auto vvdData = vpk.readBinaryEntry(*vvdEntry);
 	auto vtxData = vpk.readBinaryEntry(*vtxEntry);
 	if (!mdlData || !vvdData || !vtxData) {
-		// todo: show an error preview?
+		// todo: show an error
 		return;
 	}
 
 	MDL mdlParser(reinterpret_cast<const uint8_t*>(mdlData->data()), mdlData->size(),
 	              reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size(),
 	              reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size());
-	QVector3D minAABB, maxAABB;
+    if (!mdlParser.IsValid()) {
+        // todo: show an error
+        return;
+    }
+
+    AABB aabb;
 
 	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
 	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
 	QVector<MDLVertex> vertices;
 
-	// todo: apply lod fixups?
+	// todo: apply lod fixup if it exists
 	for (int vertexIndex = 0; vertexIndex < mdlParser.GetNumVertices(); vertexIndex++) {
 		auto* vertex = mdlParser.GetVertex(vertexIndex);
 
@@ -336,16 +340,16 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		vertices.emplace_back(pos, normal, uv);
 
 		// Resize bounding box
-		if (vertex->pos.x < minAABB.x()) minAABB.setX(vertex->pos.x);
-		else if (vertex->pos.x > maxAABB.x()) maxAABB.setX(vertex->pos.x);
-		if (vertex->pos.y < minAABB.y()) minAABB.setY(vertex->pos.y);
-		else if (vertex->pos.y > maxAABB.y()) maxAABB.setY(vertex->pos.y);
-		if (vertex->pos.z < minAABB.z()) minAABB.setZ(vertex->pos.z);
-		else if (vertex->pos.z > maxAABB.z()) maxAABB.setZ(vertex->pos.z);
+		if (vertex->pos.x < aabb.min.x()) aabb.min.setX(vertex->pos.x);
+		else if (vertex->pos.x > aabb.max.x()) aabb.max.setX(vertex->pos.x);
+		if (vertex->pos.y < aabb.min.y()) aabb.min.setY(vertex->pos.y);
+		else if (vertex->pos.y > aabb.max.y()) aabb.max.setY(vertex->pos.y);
+		if (vertex->pos.z < aabb.min.z()) aabb.min.setZ(vertex->pos.z);
+		else if (vertex->pos.z > aabb.max.z()) aabb.max.setZ(vertex->pos.z);
 	}
 
 	this->mdl->setVertices(vertices);
-	this->mdl->setAABB({minAABB, maxAABB});
+	this->mdl->setAABB(aabb);
 
 	for (int body = 0; body < mdlParser.GetNumBodyParts(); body++) {
 		const MDLStructs::BodyPart* mdlBodyPart;
