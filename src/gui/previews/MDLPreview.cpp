@@ -224,25 +224,25 @@ void MDLWidget::mousePressEvent(QMouseEvent* event) {
 	this->mousePressPosition = QVector2D(event->position());
 }
 
-void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
-	// Mouse release position - mouse press position
+void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 	QVector2D diff = QVector2D(event->position()) - this->mousePressPosition;
 
 	// Rotation axis is perpendicular to the mouse position difference vector
-	QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+	QVector3D inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
-	// Accelerate angular speed relative to the length of the mouse sweep
-	float acc = diff.length() / 100.0f;
+	// Accelerate relative to the length of the mouse sweep
+	float acceleration = diff.length();
 
-	// Calculate new rotation axis as weighted sum
-	this->rotationAxis = (this->rotationAxis * static_cast<float>(this->angularSpeed) + n * acc).normalized();
+    // Update rotation axis, velocity
+	this->rotationAxis = (acceleration * inputAxis).normalized();
+	this->angularSpeed = acceleration;
 
-	// Increase angular speed
-	this->angularSpeed += acc;
+    // Update old position
+	this->mousePressPosition = QVector2D(event->position());
 }
 
 void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
-	this->angularSpeed *= 0.99;
+	this->angularSpeed *= 0.75;
 	if (this->angularSpeed < 0.01) {
 		this->angularSpeed = 0.0;
 	} else {
@@ -272,7 +272,7 @@ static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const st
 	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
 	if (!baseTexturePathKV.IsValid()) return std::nullopt;
 
-	auto textureEntry = vpk.findEntry("materials/"s + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
+	auto textureEntry = vpk.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
 	if (!textureEntry) return std::nullopt;
 
 	auto textureFile = vpk.readBinaryEntry(*textureEntry);
