@@ -5,7 +5,7 @@
 
 #include <QBasicTimer>
 #include <QOpenGLBuffer>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_2_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
@@ -20,6 +20,7 @@ class VPK;
 } // namespace vpkedit
 
 class QMouseEvent;
+class QPushButton;
 class QTimerEvent;
 
 #pragma pack(push, 1)
@@ -55,13 +56,14 @@ struct MDLSubMesh {
 	int indexCount;
 };
 
-enum class MDLShadingType {
-	SHADED_UNTEXTURED,
-	UNSHADED_TEXTURED,
-	SHADED_TEXTURED,
+enum class MDLShadingMode {
+	WIREFRAME = 0,
+	SHADED_UNTEXTURED = 1,
+	UNSHADED_TEXTURED = 2,
+	SHADED_TEXTURED = 3,
 };
 
-class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core {
 	Q_OBJECT;
 
 public:
@@ -77,9 +79,17 @@ public:
 
 	void setAABB(AABB aabb);
 
-	[[nodiscard]] MDLShadingType getShadingType() const { return this->shadingType; }
+	[[nodiscard]] MDLShadingMode getShadingMode() const { return this->shadingMode; }
 
-	void setShadingType(MDLShadingType type);
+	void setShadingMode(MDLShadingMode type);
+
+	[[nodiscard]] float getFieldOfView() const { return this->fov; };
+
+	void setFieldOfView(float newFOV);
+
+	[[nodiscard]] bool isCullBackFaces() const { return this->cullBackFaces; };
+
+	void setCullBackFaces(bool enable);
 
 	void clearMeshes();
 
@@ -101,20 +111,23 @@ protected:
 	void timerEvent(QTimerEvent* event) override;
 
 private:
+	QOpenGLShaderProgram wireframeShaderProgram;
 	QOpenGLShaderProgram shadedUntexturedShaderProgram;
 	QOpenGLShaderProgram unshadedTexturedShaderProgram;
 	QOpenGLShaderProgram shadedTexturedShaderProgram;
 	QOpenGLTexture missingTexture;
+	QOpenGLTexture matCapTexture;
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
 	int vertexCount;
 	std::vector<MDLSubMesh> meshes;
 
-	MDLShadingType shadingType;
+	MDLShadingMode shadingMode;
 	QMatrix4x4 projection;
 	float distance;
     float distanceScale;
 	QVector3D target;
 	float fov;
+	bool cullBackFaces;
 
 	QBasicTimer timer;
 	QVector2D mousePressPosition;
@@ -142,5 +155,11 @@ public:
 	void setMesh(const QString& path, const vpkedit::VPK& vpk) const;
 
 private:
+	void setShadingMode(MDLShadingMode mode) const;
+
 	MDLWidget* mdl;
+    QPushButton* shadingModeWireframe;
+    QPushButton* shadingModeShadedUntextured;
+    QPushButton* shadingModeUnshadedTextured;
+    QPushButton* shadingModeShadedTextured;
 };
