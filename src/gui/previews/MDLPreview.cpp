@@ -4,6 +4,9 @@
 #include <optional>
 
 #include <MDLParser.h>
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMouseEvent>
 #include <QStyleOption>
 #include <QVBoxLayout>
@@ -17,6 +20,31 @@
 
 using namespace std::literals;
 using namespace vpkedit;
+
+QList<QVector3D> AABB::getCorners() const {
+    return {
+            {this->min.x(), this->min.y(), this->min.z()},
+            {this->max.x(), this->min.y(), this->min.z()},
+            {this->min.x(), this->max.y(), this->min.z()},
+            {this->min.x(), this->min.y(), this->max.z()},
+            {this->max.x(), this->max.y(), this->max.z()},
+            {this->min.x(), this->max.y(), this->max.z()},
+            {this->max.x(), this->min.y(), this->max.z()},
+            {this->max.x(), this->max.y(), this->min.z()},
+    };
+}
+
+float AABB::getWidth() const {
+    return this->max.x() - this->min.x();
+}
+
+float AABB::getHeight() const {
+    return this->max.y() - this->min.y();
+}
+
+float AABB::getDepth() const {
+    return this->max.z() - this->min.z();
+}
 
 MDLWidget::MDLWidget(QWidget* parent)
 		: QOpenGLWidget(parent)
@@ -75,14 +103,12 @@ void MDLWidget::addSubMesh(const QVector<unsigned short>& indices, VTFData&& vtf
 void MDLWidget::setAABB(AABB aabb) {
 	// https://stackoverflow.com/a/32836605 - calculate optimal camera distance from bounding box
 	auto midpoint = (aabb.max + aabb.min) / 2.0f;
-	float distanceToMin = midpoint.distanceToPoint(aabb.min);
-	float distanceToMax = midpoint.distanceToPoint(aabb.max);
-	float sphereRadius;
-	if (distanceToMax > distanceToMin) {
-		sphereRadius = distanceToMax;
-	} else {
-		sphereRadius = distanceToMin;
-	}
+	float sphereRadius = 0.0f;
+    for (const auto corner : aabb.getCorners()) {
+        if (auto dist = midpoint.distanceToPoint(corner); dist > sphereRadius) {
+            sphereRadius = dist;
+        }
+    }
 	float fovRad = qDegreesToRadians(this->fov);
 	this->target = midpoint;
 	this->distance = static_cast<float>(sphereRadius / qTan(fovRad / 2));
@@ -127,9 +153,9 @@ void MDLWidget::initializeGL() {
 	this->shadedUntexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_untextured.frag");
 	this->shadedUntexturedShaderProgram.link();
 
-	this->unlitTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/unlit_textured.vert");
-	this->unlitTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/unlit_textured.frag");
-	this->unlitTexturedShaderProgram.link();
+	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/unlit_textured.vert");
+	this->unshadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/unlit_textured.frag");
+	this->unshadedTexturedShaderProgram.link();
 
 	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shaded_textured.vert");
 	this->shadedTexturedShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaded_textured.frag");
@@ -138,7 +164,7 @@ void MDLWidget::initializeGL() {
 	this->missingTexture.create();
 	this->missingTexture.setData(QImage(":/checkerboard.png"));
 
-	this->timer.start(16, this);
+	this->timer.start(12, this);
 }
 
 void MDLWidget::resizeGL(int w, int h) {
@@ -166,8 +192,8 @@ void MDLWidget::paintGL() {
 		case MDLShadingType::SHADED_UNTEXTURED:
 			currentShaderProgram = &this->shadedUntexturedShaderProgram;
 			break;
-		case MDLShadingType::UNLIT_TEXTURED:
-			currentShaderProgram = &this->unlitTexturedShaderProgram;
+		case MDLShadingType::UNSHADED_TEXTURED:
+			currentShaderProgram = &this->unshadedTexturedShaderProgram;
 			break;
 		case MDLShadingType::SHADED_TEXTURED:
 			currentShaderProgram = &this->shadedTexturedShaderProgram;
@@ -238,6 +264,15 @@ void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
 void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 	QVector2D diff = QVector2D(event->position()) - this->mousePressPosition;
 
+    // If holding shift, just move the mesh
+    if (QApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) {
+        this->translationalVelocity = QVector3D(diff.x() / 2.0f, -diff.y() / 2.0f, 0.0);
+        this->target += this->translationalVelocity;
+	    this->mousePressPosition = QVector2D(event->position());
+        this->update();
+        return;
+    }
+
     QVector3D inputAxis;
     if (!rmbBeingHeld) {
         // Rotation axis is perpendicular to the mouse position difference vector
@@ -256,10 +291,21 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 
     // Update old position
 	this->mousePressPosition = QVector2D(event->position());
+    this->update();
 }
 
+constexpr float MOTION_REDUCTION_AMOUNT = 0.75f;
+
 void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
-	this->angularSpeed *= 0.75;
+    this->translationalVelocity *= MOTION_REDUCTION_AMOUNT;
+    if (this->translationalVelocity.length() < 0.01) {
+        this->translationalVelocity = QVector3D();
+    } else {
+        this->target += this->translationalVelocity;
+        this->update();
+    }
+
+	this->angularSpeed *= MOTION_REDUCTION_AMOUNT;
 	if (this->angularSpeed < 0.01) {
 		this->angularSpeed = 0.0;
 	} else {

@@ -36,6 +36,14 @@ struct MDLVertex {
 #pragma pack(pop)
 
 struct AABB {
+	[[nodiscard]] QList<QVector3D> getCorners() const;
+
+	[[nodiscard]] float getWidth() const;
+
+	[[nodiscard]] float getHeight() const;
+
+	[[nodiscard]] float getDepth() const;
+
 	QVector3D min;
 	QVector3D max;
 };
@@ -49,7 +57,7 @@ struct MDLSubMesh {
 
 enum class MDLShadingType {
 	SHADED_UNTEXTURED,
-	UNLIT_TEXTURED,
+	UNSHADED_TEXTURED,
 	SHADED_TEXTURED,
 };
 
@@ -86,13 +94,13 @@ protected:
 
 	void mouseReleaseEvent(QMouseEvent* event) override;
 
-    void mouseMoveEvent(QMouseEvent* event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
 
 	void timerEvent(QTimerEvent* event) override;
 
 private:
 	QOpenGLShaderProgram shadedUntexturedShaderProgram;
-	QOpenGLShaderProgram unlitTexturedShaderProgram;
+	QOpenGLShaderProgram unshadedTexturedShaderProgram;
 	QOpenGLShaderProgram shadedTexturedShaderProgram;
 	QOpenGLTexture missingTexture;
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
@@ -108,9 +116,10 @@ private:
 	QBasicTimer timer;
 	QVector2D mousePressPosition;
 	QVector3D rotationAxis;
+	QVector3D translationalVelocity;
 	qreal angularSpeed;
 	QQuaternion rotation;
-    bool rmbBeingHeld;
+	bool rmbBeingHeld;
 };
 
 class MDLPreview : public QWidget {
