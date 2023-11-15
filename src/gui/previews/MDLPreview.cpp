@@ -25,7 +25,8 @@ MDLWidget::MDLWidget(QWidget* parent)
 		, shadingType(MDLShadingType::SHADED_UNTEXTURED)
 		, distance(0.0)
 		, fov(70.0)
-		, angularSpeed(0.0) {}
+		, angularSpeed(0.0)
+        , rmbBeingHeld(false) {}
 
 MDLWidget::~MDLWidget() {
 	this->clearMeshes();
@@ -222,13 +223,29 @@ void MDLWidget::paintGL() {
 
 void MDLWidget::mousePressEvent(QMouseEvent* event) {
 	this->mousePressPosition = QVector2D(event->position());
+
+    if (event->button() == Qt::MouseButton::RightButton) {
+        this->rmbBeingHeld = true;
+    }
+}
+
+void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::MouseButton::RightButton) {
+        this->rmbBeingHeld = false;
+    }
 }
 
 void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 	QVector2D diff = QVector2D(event->position()) - this->mousePressPosition;
 
-	// Rotation axis is perpendicular to the mouse position difference vector
-	QVector3D inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+    QVector3D inputAxis;
+    if (!rmbBeingHeld) {
+        // Rotation axis is perpendicular to the mouse position difference vector
+        inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+    } else {
+        // Rotation axis is the z-axis
+        inputAxis = QVector3D(0.0, 0.0, diff.x() + diff.y()).normalized();
+    }
 
 	// Accelerate relative to the length of the mouse sweep
 	float acceleration = diff.length();

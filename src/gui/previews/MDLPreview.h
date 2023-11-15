@@ -84,6 +84,8 @@ protected:
 
 	void mousePressEvent(QMouseEvent* event) override;
 
+	void mouseReleaseEvent(QMouseEvent* event) override;
+
     void mouseMoveEvent(QMouseEvent* event) override;
 
 	void timerEvent(QTimerEvent* event) override;
@@ -108,6 +110,7 @@ private:
 	QVector3D rotationAxis;
 	qreal angularSpeed;
 	QQuaternion rotation;
+    bool rmbBeingHeld;
 };
 
 class MDLPreview : public QWidget {
