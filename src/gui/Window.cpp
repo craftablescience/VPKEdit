@@ -286,15 +286,11 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
     auto [version] = *vpkOptions;
-    const bool cs2 = version == VPK_ID;
-    if (cs2) {
-        version = 2;
-    }
 
     if (fromDirectory) {
-        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version, cs2);
+        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version);
     } else {
-        (void) VPK::createEmpty(vpkPath.toStdString(), version, cs2);
+        (void) VPK::createEmpty(vpkPath.toStdString(), version);
     }
     this->loadVPK(vpkPath);
 }
