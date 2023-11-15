@@ -23,6 +23,8 @@ class QMouseEvent;
 class QPushButton;
 class QTimerEvent;
 
+class FileViewer;
+
 #pragma pack(push, 1)
 struct MDLVertex {
 	MDLVertex(QVector3D pos_, QVector3D normal_, QVector2D uv_)
@@ -150,12 +152,14 @@ public:
 			".ani",
 	};
 
-	explicit MDLPreview(QWidget* parent = nullptr);
+	explicit MDLPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
 
 	void setMesh(const QString& path, const vpkedit::VPK& vpk) const;
 
 private:
 	void setShadingMode(MDLShadingMode mode) const;
+
+	FileViewer* fileViewer;
 
 	MDLWidget* mdl;
     QPushButton* shadingModeWireframe;

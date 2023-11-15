@@ -115,8 +115,10 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/AbstractInfoPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/EmptyPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/EmptyPreview.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/ErrorPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/FileLoadErrorPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/FileLoadErrorPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/InvalidMDLErrorPreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/InvalidMDLErrorPreview.cpp"
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
