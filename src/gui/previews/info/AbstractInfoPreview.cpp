@@ -10,11 +10,11 @@ AbstractInfoPreview::AbstractInfoPreview(const QPixmap& icon, const QString& tex
     auto* layout = new QHBoxLayout(this);
     layout->setSpacing(16);
 
-    auto* image = new QLabel(this);
-    image->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio));
-    layout->addWidget(image, Qt::AlignCenter);
+    this->image = new QLabel(this);
+    this->image->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio));
+    layout->addWidget(this->image, Qt::AlignCenter);
 
-    auto* label = new QLabel(this);
-    label->setText(text);
-    layout->addWidget(label, Qt::AlignLeft);
+    this->error = new QLabel(this);
+    this->error->setText(text);
+    layout->addWidget(this->error, Qt::AlignLeft);
 }

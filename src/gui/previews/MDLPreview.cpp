@@ -18,6 +18,10 @@
 #undef NO_ERROR
 #include "KeyValue.h"
 
+#include "../FileViewer.h"
+#include "info/FileLoadErrorPreview.h"
+#include "info/InvalidMDLErrorPreview.h"
+
 using namespace std::literals;
 using namespace vpkedit;
 
@@ -370,8 +374,9 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 
 constexpr int SHADING_MODE_BUTTON_SIZE = 24;
 
-MDLPreview::MDLPreview(QWidget* parent)
+MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 		: QWidget(parent)
+		, fileViewer(fileViewer_)
 		, shadingModeWireframe(nullptr)
 		, shadingModeShadedUntextured(nullptr)
 		, shadingModeUnshadedTextured(nullptr)
@@ -452,14 +457,15 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		vtxEntry = vpk.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
-		// todo: show an error
+		this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("Unable to find all the required files the model is composed of!"));
+		this->fileViewer->showPreview<InvalidMDLErrorPreview>();
 		return;
 	}
 	auto mdlData = vpk.readBinaryEntry(*mdlEntry);
 	auto vvdData = vpk.readBinaryEntry(*vvdEntry);
 	auto vtxData = vpk.readBinaryEntry(*vtxEntry);
 	if (!mdlData || !vvdData || !vtxData) {
-		// todo: show an error
+		this->fileViewer->showPreview<FileLoadErrorPreview>();
 		return;
 	}
 
@@ -467,7 +473,8 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	              reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size(),
 	              reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size());
     if (!mdlParser.IsValid()) {
-        // todo: show an error
+	    this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("This model is invalid, it cannot be previewed!"));
+	    this->fileViewer->showPreview<InvalidMDLErrorPreview>();
         return;
     }
 

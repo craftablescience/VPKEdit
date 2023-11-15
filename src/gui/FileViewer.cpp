@@ -6,7 +6,8 @@
 
 #include "previews/DirPreview.h"
 #include "previews/info/EmptyPreview.h"
-#include "previews/info/ErrorPreview.h"
+#include "previews/info/FileLoadErrorPreview.h"
+#include "previews/info/InvalidMDLErrorPreview.h"
 #include "previews/ImagePreview.h"
 #include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
@@ -27,13 +28,16 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* emptyPreview = newPreview<EmptyPreview>(this);
     layout->addWidget(emptyPreview);
 
-    auto* errorPreview = newPreview<ErrorPreview>(this);
-    layout->addWidget(errorPreview);
+    auto* fileLoadErrorPreview = newPreview<FileLoadErrorPreview>(this);
+    layout->addWidget(fileLoadErrorPreview);
 
     auto* imagePreview = newPreview<ImagePreview>(this);
     layout->addWidget(imagePreview);
 
-	auto* mdlPreview = newPreview<MDLPreview>(this);
+	auto* invalidMDLErrorPreview = newPreview<InvalidMDLErrorPreview>(this);
+	layout->addWidget(invalidMDLErrorPreview);
+
+	auto* mdlPreview = newPreview<MDLPreview>(this, this);
 	layout->addWidget(mdlPreview);
 
     auto* textPreview = newPreview<TextPreview>(this);
@@ -55,33 +59,38 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
 	    // Image
 	    auto binary = this->window->readBinaryEntry(path);
 	    if (!binary) {
-		    this->showPreview<ErrorPreview>();
+		    this->showPreview<FileLoadErrorPreview>();
 		    return;
 	    }
-	    this->getPreview<ImagePreview>()->setData(*binary);
 	    this->showPreview<ImagePreview>();
+	    this->getPreview<ImagePreview>()->setData(*binary);
     } else if (MDLPreview::EXTENSIONS.contains(extension)) {
 		// MDL (model)
-	    this->getPreview<MDLPreview>()->setMesh(path, vpk);
+	    auto binary = this->window->readBinaryEntry(path);
+	    if (!binary) {
+		    this->showPreview<FileLoadErrorPreview>();
+		    return;
+	    }
 	    this->showPreview<MDLPreview>();
+	    this->getPreview<MDLPreview>()->setMesh(path, vpk);
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
         if (!binary) {
-            this->showPreview<ErrorPreview>();
+            this->showPreview<FileLoadErrorPreview>();
             return;
         }
+	    this->showPreview<VTFPreview>();
         this->getPreview<VTFPreview>()->setData(*binary);
-        this->showPreview<VTFPreview>();
     } else if (TextPreview::EXTENSIONS.contains(extension)) {
         // Text
         auto text = this->window->readTextEntry(path);
         if (!text) {
-            this->showPreview<ErrorPreview>();
+            this->showPreview<FileLoadErrorPreview>();
             return;
         }
+	    this->showPreview<TextPreview>();
         this->getPreview<TextPreview>()->setText(*text, extension);
-        this->showPreview<TextPreview>();
     }
 }
 

@@ -2,11 +2,11 @@
 
 #include "AbstractInfoPreview.h"
 
-class EmptyPreview : public AbstractInfoPreview {
+class FileLoadErrorPreview : public AbstractInfoPreview {
     Q_OBJECT;
 
 public:
     static inline const QStringList EXTENSIONS{};
 
-    explicit EmptyPreview(QWidget* parent = nullptr);
+    explicit FileLoadErrorPreview(QWidget* parent = nullptr);
 };
