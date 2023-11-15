@@ -52,8 +52,8 @@ VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
         , fullPath(std::move(fullPath_))
         , filename(std::move(filename_)) {}
 
-VPK VPK::createEmpty(const std::string& path, std::uint32_t version, bool cs2VPK) {
-    {
+VPK VPK::createEmpty(const std::string& path, std::uint32_t version) {
+	{
         FileStream stream{path, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
         Header1 header1{};
@@ -67,28 +67,17 @@ VPK VPK::createEmpty(const std::string& path, std::uint32_t version, bool cs2VPK
             header2.fileDataSectionSize = 0;
             header2.archiveMD5SectionSize = 0;
             header2.otherMD5SectionSize = 0;
-            header2.signatureSectionSize = cs2VPK ? 20 : 0;
+            header2.signatureSectionSize = 0;
             stream.write(&header2);
-
-            stream.write('\0');
-
-            if (cs2VPK) {
-                // Copied from the bottom of this file
-                stream.write(VPK_ID);
-                // Pad it with 16 bytes of junk, who knows what Valve wants here
-                std::array<std::byte, 16> junk{};
-                junk[0] = static_cast<std::byte>(1); // ValvePak does this so we're doing it too
-                stream.writeBytes(junk);
-            }
-        } else {
-            stream.write('\0');
         }
+
+		stream.write('\0');
     }
     return *VPK::open(path);
 }
 
-VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version, bool cs2VPK) {
-    auto vpk = VPK::createEmpty(vpkPath, version, cs2VPK);
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version) {
+    auto vpk = VPK::createEmpty(vpkPath, version);
     for (const auto& file : std::filesystem::recursive_directory_iterator(directoryPath)) {
         if (file.is_directory()) {
             continue;
