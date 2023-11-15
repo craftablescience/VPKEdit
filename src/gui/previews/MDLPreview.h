@@ -96,6 +96,8 @@ protected:
 
 	void mouseMoveEvent(QMouseEvent* event) override;
 
+	void wheelEvent(QWheelEvent* event) override;
+
 	void timerEvent(QTimerEvent* event) override;
 
 private:
@@ -110,6 +112,7 @@ private:
 	MDLShadingType shadingType;
 	QMatrix4x4 projection;
 	float distance;
+    float distanceScale;
 	QVector3D target;
 	float fov;
 

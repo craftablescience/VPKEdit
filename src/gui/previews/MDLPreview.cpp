@@ -52,6 +52,7 @@ MDLWidget::MDLWidget(QWidget* parent)
 		, vertexCount(0)
 		, shadingType(MDLShadingType::SHADED_UNTEXTURED)
 		, distance(0.0)
+        , distanceScale(0.0)
 		, fov(70.0)
 		, angularSpeed(0.0)
         , rmbBeingHeld(false) {}
@@ -112,6 +113,7 @@ void MDLWidget::setAABB(AABB aabb) {
 	float fovRad = qDegreesToRadians(this->fov);
 	this->target = midpoint;
 	this->distance = static_cast<float>(sphereRadius / qTan(fovRad / 2));
+    this->distanceScale = this->distance / 128.0f;
 
 	this->update();
 }
@@ -171,7 +173,7 @@ void MDLWidget::resizeGL(int w, int h) {
 	this->glViewport(0, 0, w, h);
 
 	const float aspectRatio = static_cast<float>(w) / static_cast<float>(h > 0 ? h : 1);
-	const float nearPlane = 0.025f, farPlane = 1024.0f;
+	const float nearPlane = 0.015f, farPlane = 32768.0f;
 	this->projection.setToIdentity();
 	this->projection.perspective(this->fov, aspectRatio, nearPlane, farPlane);
 }
@@ -292,6 +294,17 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
     // Update old position
 	this->mousePressPosition = QVector2D(event->position());
     this->update();
+}
+
+void MDLWidget::wheelEvent(QWheelEvent* event) {
+    if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+        this->distance -= static_cast<float>(numDegrees.y()) * this->distanceScale;
+        if (this->distance < 0) {
+            this->distance = 0.0f;
+        }
+        this->update();
+    }
+    event->accept();
 }
 
 constexpr float MOTION_REDUCTION_AMOUNT = 0.75f;
