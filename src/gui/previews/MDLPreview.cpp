@@ -6,6 +6,7 @@
 
 #include <MDLParser.h>
 #include <QApplication>
+#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QPushButton>
@@ -384,11 +385,18 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	auto* layout = new QVBoxLayout(this);
 
     auto* controls = new QWidget(this);
-	controls->setFixedHeight(32);
+	controls->setFixedHeight(34);
 	layout->addWidget(controls, Qt::AlignRight);
 
     auto* controlsLayout = new QHBoxLayout(controls);
 	controlsLayout->setAlignment(Qt::AlignRight);
+
+	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), this);
+	this->backfaceCulling->setCheckState(Qt::CheckState::Checked);
+	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, [&](int state) {
+		this->mdl->setCullBackFaces(state == Qt::CheckState::Checked);
+	});
+	controlsLayout->addWidget(this->backfaceCulling, Qt::AlignVCenter | Qt::AlignLeft);
 
 	const QList<QPushButton**> buttons{
 		&this->shadingModeWireframe,
@@ -582,6 +590,8 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 void MDLPreview::setShadingMode(MDLShadingMode mode) const {
 	QStyleOption opt;
 	opt.initFrom(this);
+
+	this->backfaceCulling->setDisabled(mode == MDLShadingMode::WIREFRAME);
 
 	const QList<std::tuple<QPushButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
 			{&this->shadingModeWireframe, ":/icons/wireframe.png", MDLShadingMode::WIREFRAME},

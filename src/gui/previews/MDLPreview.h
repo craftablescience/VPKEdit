@@ -19,6 +19,7 @@ class VPK;
 
 } // namespace vpkedit
 
+class QCheckBox;
 class QMouseEvent;
 class QPushButton;
 class QTimerEvent;
@@ -162,6 +163,7 @@ private:
 	FileViewer* fileViewer;
 
 	MDLWidget* mdl;
+	QCheckBox* backfaceCulling;
     QPushButton* shadingModeWireframe;
     QPushButton* shadingModeShadedUntextured;
     QPushButton* shadingModeUnshadedTextured;
