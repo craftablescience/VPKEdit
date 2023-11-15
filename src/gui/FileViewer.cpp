@@ -107,6 +107,14 @@ void FileViewer::selectSubItemInDir(const QString& name) const {
     this->window->selectSubItemInDir(name);
 }
 
+bool FileViewer::isDirPreviewVisible() {
+	return this->getPreview<DirPreview>()->isVisible();
+}
+
+const QString& FileViewer::getDirPreviewCurrentPath() {
+	return this->getPreview<DirPreview>()->getCurrentPath();
+}
+
 void FileViewer::clearContents() {
     this->showPreview<EmptyPreview>();
 }

@@ -35,6 +35,10 @@ public:
 
     void selectSubItemInDir(const QString& name) const;
 
+	[[nodiscard]] bool isDirPreviewVisible();
+
+	[[nodiscard]] const QString& getDirPreviewCurrentPath();
+
     void clearContents();
 
 private:
