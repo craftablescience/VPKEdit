@@ -16,6 +16,7 @@
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QNetworkReply>
 #include <QProgressBar>
 #include <QSettings>
@@ -295,8 +296,11 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
     this->loadVPK(vpkPath);
 }
 
-void Window::openVPK(const QString& startPath) {
-    auto path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, VPK_SAVE_FILTER);
+void Window::openVPK(const QString& startPath, const QString& filePath) {
+	auto path = filePath;
+	if (path.isEmpty()) {
+		path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, VPK_SAVE_FILTER);
+	}
     if (path.isEmpty()) {
         return;
     }
@@ -385,8 +389,11 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     NewUpdateDialog::getNewUpdatePrompt(url, version, this);
 }
 
-void Window::addFile(bool showOptions, const QString& startDir) {
-    auto filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
+void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
+	auto filepath = filePath;
+	if (filepath.isEmpty()) {
+		filepath = QFileDialog::getOpenFileName(this, tr("Open File"));
+	}
     if (filepath.isEmpty()) {
         return;
     }
@@ -417,9 +424,12 @@ void Window::addFile(bool showOptions, const QString& startDir) {
 	this->markModified(true);
 }
 
-void Window::addDir(bool showOptions, const QString& startDir) {
-    auto dirPath = QFileDialog::getExistingDirectory(this, tr("Open Folder"));
-    if (dirPath.isEmpty()) {
+void Window::addDir(bool showOptions, const QString& startDir, const QString& dirPath) {
+	auto dirpath = dirPath;
+	if (dirpath.isEmpty()) {
+		dirpath = QFileDialog::getExistingDirectory(this, tr("Open Folder"));
+	}
+    if (dirpath.isEmpty()) {
         return;
     }
 
@@ -427,7 +437,7 @@ void Window::addDir(bool showOptions, const QString& startDir) {
     if (!prefilledPath.isEmpty()) {
         prefilledPath += '/';
     }
-    prefilledPath += std::filesystem::path(dirPath.toStdString()).filename().string().c_str();
+    prefilledPath += std::filesystem::path(dirpath.toStdString()).filename().string().c_str();
 
 	QString parentEntryPath = prefilledPath;
 	bool useArchiveVPK = false;
@@ -443,10 +453,10 @@ void Window::addDir(bool showOptions, const QString& startDir) {
 		preloadBytes = std::get<2>(*newEntryOptions);
 	}
 
-    QDirIterator it(dirPath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
+    QDirIterator it(dirpath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString subEntryPathFS = it.next();
-        QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirPath.length());
+        QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
         this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
         this->entryTree->addEntry(subEntryPath);
         this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
@@ -670,6 +680,30 @@ void Window::clearContents() {
 
     this->markModified(false);
     this->freezeActions(true, false); // Leave create/open unfrozen
+}
+
+void Window::dragEnterEvent(QDragEnterEvent* event) {
+	if (event->mimeData()->hasUrls() && this->fileViewer->isDirPreviewVisible()) {
+		event->acceptProposedAction();
+	}
+}
+
+void Window::dropEvent(QDropEvent* event) {
+	if (!event->mimeData()->hasUrls() || !this->fileViewer->isDirPreviewVisible()) {
+		return;
+	}
+	for(const QUrl& url : event->mimeData()->urls()) {
+		QFileInfo info(url.toLocalFile());
+		if (!info.exists()) {
+			continue;
+		}
+		const auto& relativePath = this->fileViewer->getDirPreviewCurrentPath();
+		if (info.isFile()) {
+			this->addFile(false, relativePath, info.absoluteFilePath());
+		} else {
+			this->addDir(false, relativePath, info.absoluteFilePath());
+		}
+	}
 }
 
 void Window::closeEvent(QCloseEvent* event) {

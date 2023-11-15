@@ -29,7 +29,7 @@ public:
 
     void newVPK(bool fromDirectory, const QString& startPath = QString());
 
-    void openVPK(const QString& startPath = QString());
+    void openVPK(const QString& startPath = QString(), const QString& filePath = QString());
 
     bool saveVPK();
 
@@ -41,9 +41,9 @@ public:
 
     void changeVPKVersion();
 
-    void addFile(bool showOptions, const QString& startDir = QString());
+    void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
 
-    void addDir(bool showOptions, const QString& startDir = QString());
+    void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString());
 
     bool removeFile(const QString& path);
 
@@ -80,6 +80,10 @@ public:
     void clearContents();
 
 protected:
+	void dragEnterEvent(QDragEnterEvent* event) override;
+
+	void dropEvent(QDropEvent* event) override;
+
     void closeEvent(QCloseEvent* event) override;
 
 private:
