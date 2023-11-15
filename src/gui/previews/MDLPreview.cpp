@@ -312,7 +312,7 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 
     // If holding shift, just move the mesh
     if (QApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) {
-        this->translationalVelocity = QVector3D(diff.x() / 2.0f, -diff.y() / 2.0f, 0.0);
+        this->translationalVelocity = QVector3D(diff.x() * this->distanceScale / 4.0f, -diff.y() * this->distanceScale / 4.0f, 0.0);
         this->target += this->translationalVelocity;
 	    this->mousePressPosition = QVector2D(event->position());
         this->update();
@@ -325,7 +325,7 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
         inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
     } else {
         // Rotation axis is the z-axis
-        inputAxis = QVector3D(0.0, 0.0, diff.x() + diff.y()).normalized();
+        inputAxis = QVector3D(0.0, 0.0, -diff.x()).normalized();
     }
 
 	// Accelerate relative to the length of the mouse sweep
@@ -343,9 +343,6 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 void MDLWidget::wheelEvent(QWheelEvent* event) {
     if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
         this->distance -= static_cast<float>(numDegrees.y()) * this->distanceScale;
-        if (this->distance < 0) {
-            this->distance = 0.0f;
-        }
         this->update();
     }
     event->accept();
