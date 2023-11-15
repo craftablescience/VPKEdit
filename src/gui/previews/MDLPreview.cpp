@@ -388,11 +388,20 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 					}
 				}
 
+				if (mdlParser.GetNumMaterials() < materialIndex) {
+					this->mdl->addSubMesh(indices);
+					continue;
+				}
 				// Try to find the material in the VPK
-				// todo: bounds check
-				if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.GetMaterialDirectory(materialIndex) + mdlParser.GetMaterialName(materialIndex) + ".vmt")) {
-					this->mdl->addSubMesh(indices, std::move(data.value()));
-				} else {
+				bool foundMaterial = false;
+				for (int materialDirIndex = 0; materialDirIndex < mdlParser.GetNumMaterialDirectories(); materialDirIndex++) {
+					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.GetMaterialDirectory(materialIndex) + mdlParser.GetMaterialName(materialIndex) + ".vmt")) {
+						this->mdl->addSubMesh(indices, std::move(data.value()));
+						foundMaterial = true;
+						break;
+					}
+				}
+				if (!foundMaterial) {
 					this->mdl->addSubMesh(indices);
 				}
 			}
