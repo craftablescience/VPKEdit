@@ -6,5 +6,5 @@ in vec2 fUVMesh;
 in vec2 fUVMatCap;
 
 void main() {
-    gl_FragColor = texture2D(uMeshTexture, fUVMesh) * texture2D(uMatCapTexture, fUVMatCap);
+    gl_FragColor = texture2D(uMeshTexture, fUVMesh) * (texture2D(uMatCapTexture, fUVMatCap) + 0.25);
 }
