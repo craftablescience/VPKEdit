@@ -1,3 +1,5 @@
+#version 150
+
 uniform sampler2D uMeshTexture;
 uniform sampler2D uMatCapTexture;
 

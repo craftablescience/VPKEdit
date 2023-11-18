@@ -9,12 +9,14 @@
 #include "Options.h"
 
 int main(int argc, char** argv) {
-    QApplication app(argc, argv);
-
 	QSurfaceFormat format;
+    format.setVersion(3, 2);
+    format.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
 	format.setDepthBufferSize(24);
 	format.setSamples(4);
 	QSurfaceFormat::setDefaultFormat(format);
+
+    QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName(VPKEDIT_ORGANIZATION_NAME);
     QCoreApplication::setApplicationName(VPKEDIT_PROJECT_NAME);
