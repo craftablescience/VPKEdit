@@ -67,8 +67,12 @@ MDLWidget::MDLWidget(QWidget* parent)
 
 MDLWidget::~MDLWidget() {
 	this->clearMeshes();
-	this->missingTexture.destroy();
-	this->matCapTexture.destroy();
+    if (this->missingTexture.isCreated()) {
+        this->missingTexture.destroy();
+    }
+    if (this->matCapTexture.isCreated()) {
+        this->matCapTexture.destroy();
+    }
 }
 
 void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
@@ -269,8 +273,8 @@ void MDLWidget::paintGL() {
 		this->matCapTexture.bind(1);
 
 		mesh.ebo.bind();
-		int offset = 0;
 
+		int offset = 0;
 		int vertexPosLocation = currentShaderProgram->attributeLocation("vPos");
 		currentShaderProgram->enableAttributeArray(vertexPosLocation);
 		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
@@ -288,9 +292,9 @@ void MDLWidget::paintGL() {
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
 
-		this->matCapTexture.release();
+		this->matCapTexture.release(1);
 
-		texture->release();
+		texture->release(0);
 	}
 
 	this->vertices.release();
