@@ -111,7 +111,7 @@ Window::Window(QWidget* parent)
 
     this->checkForUpdatesNetworkManager = new QNetworkAccessManager(this);
     QObject::connect(this->checkForUpdatesNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [=] {
         Window::checkForUpdates();
     });
 
@@ -188,7 +188,7 @@ Window::Window(QWidget* parent)
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [=] {
         this->about();
     });
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", [=] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", Qt::ALT | Qt::Key_F1, [=] {
         this->aboutQt();
     });
 
