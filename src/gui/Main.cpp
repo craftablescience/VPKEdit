@@ -10,8 +10,6 @@
 
 int main(int argc, char** argv) {
 	QSurfaceFormat format;
-    format.setVersion(3, 2);
-    format.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
 	format.setDepthBufferSize(24);
 	format.setSamples(4);
 	QSurfaceFormat::setDefaultFormat(format);

@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QStyleOption>
@@ -167,7 +168,10 @@ void MDLWidget::clearMeshes() {
 }
 
 void MDLWidget::initializeGL() {
-	this->initializeOpenGLFunctions();
+    if (!this->initializeOpenGLFunctions()) {
+        QMessageBox::critical(this, tr("Error"), tr("Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models."));
+        return; // and probably crash right after
+    }
 
 	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
 	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_wireframe.frag");
