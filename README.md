@@ -9,4 +9,4 @@ The libvpkedit library allows the user to read and write files in a VPK, as well
 A GUI is also included to preview files in a VPK, extract them to disk, add and remove files, and create new VPKs.
 It has all the capabilities of GCFScape and much more:
 
-![vtf](https://github.com/craftablescience/VPKEdit/blob/main/branding/readme_promo.png?raw=true)
+![image](https://github.com/craftablescience/VPKEdit/blob/main/branding/readme_promo.png?raw=true)
