@@ -120,7 +120,11 @@ void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
 	if (subfolderName.startsWith('/')) {
 		subfolderName.removeFirst();
 	}
-    subfolderName = subfolderName.sliced(0, subfolderName.indexOf('/'));
+    auto subFolderLastIndex = subfolderName.indexOf('/');
+    if (subFolderLastIndex < 0) {
+        subFolderLastIndex = subfolderName.size();
+    }
+    subfolderName = subfolderName.sliced(0, subFolderLastIndex);
     bool exists = false;
     for (int r = 0; r < this->rowCount(); r++) {
         if (this->item(r, DirPreviewColumn::TYPE)->text() != DIR_TYPE_NAME) {
