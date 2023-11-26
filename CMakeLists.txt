@@ -101,8 +101,8 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Options.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Options.cpp"
 
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewEntryDialog.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewEntryDialog.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/EntryOptionsDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/EntryOptionsDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewUpdateDialog.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewUpdateDialog.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/VPKVersionDialog.h"

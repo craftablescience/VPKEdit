@@ -28,7 +28,7 @@
 
 #include "config/Config.h"
 #include "config/Options.h"
-#include "dialogs/NewEntryDialog.h"
+#include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
 #include "dialogs/VPKVersionDialog.h"
 #include "EntryTree.h"
@@ -195,10 +195,16 @@ Window::Window(QWidget* parent)
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
     debugMenu->addAction("New Entry Dialog (File)", [this] {
-        (void) NewEntryDialog::getNewEntryOptions(false, "test", this);
+        (void) EntryOptionsDialog::getEntryOptions(false, false, "test", true, 0, this);
     });
     debugMenu->addAction("New Entry Dialog (Dir)", [this] {
-        (void) NewEntryDialog::getNewEntryOptions(true, "test", this);
+        (void) EntryOptionsDialog::getEntryOptions(false, true, "test", true, 0, this);
+    });
+    debugMenu->addAction("Edit Entry Dialog (File)", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(true, false, "test", true, 0, this);
+    });
+    debugMenu->addAction("Edit Entry Dialog (Dir)", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(true, true, "test", true, 0, this);
     });
     debugMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
@@ -408,7 +414,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	int preloadBytes = 0;
 
 	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
-		auto newEntryOptions = NewEntryDialog::getNewEntryOptions(false, prefilledPath, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, false, 0, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -417,7 +423,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 		preloadBytes = std::get<2>(*newEntryOptions);
 	}
 
-	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
+	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), useArchiveVPK, preloadBytes);
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(this->vpk.value(), entryPath);
 	this->markModified(true);
@@ -443,7 +449,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 	int preloadBytes = 0;
 
 	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
-		auto newEntryOptions = NewEntryDialog::getNewEntryOptions(true, prefilledPath, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, false, 0, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -456,7 +462,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     while (it.hasNext()) {
         QString subEntryPathFS = it.next();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
-        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
+        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), useArchiveVPK, preloadBytes);
         this->entryTree->addEntry(subEntryPath);
         this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
     }
@@ -479,6 +485,40 @@ void Window::removeDir(const QString& path) const {
 
 void Window::requestEntryRemoval(const QString& path) const {
     this->entryTree->removeEntryByPath(path);
+}
+
+void Window::editFile(const QString& oldPath) {
+    // Get file information and data
+    auto entry = this->vpk->findEntry(oldPath.toStdString());
+    if (!entry) {
+        QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not find file!").arg(oldPath));
+        return;
+    }
+    auto data = this->vpk->readBinaryEntry(*entry);
+    if (!data) {
+        QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not read file data!").arg(oldPath));
+        return;
+    }
+
+    // Get new properties
+    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, entry->archiveIndex == VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()), this);
+    if (!options) {
+        return;
+    }
+    const auto [newPath, useArchiveDir, preloadedBytes] = *options;
+
+    // Remove file
+    this->requestEntryRemoval(oldPath);
+
+    // Add new file with the same info and data at the new path
+    this->vpk->addBinaryEntry(newPath.toStdString(), std::move(data.value()), useArchiveDir, preloadedBytes);
+	this->entryTree->addEntry(newPath);
+	this->fileViewer->addEntry(this->vpk.value(), newPath);
+	this->markModified(true);
+}
+
+void Window::renameDir(const QString& oldPath) {
+    // todo: rename dir
 }
 
 void Window::about() {
