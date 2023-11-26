@@ -51,6 +51,10 @@ public:
 
     void requestEntryRemoval(const QString& path) const;
 
+    void editFile(const QString& oldPath);
+
+    void renameDir(const QString& oldPath);
+
     void about();
 
     void aboutQt();

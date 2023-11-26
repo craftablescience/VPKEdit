@@ -63,6 +63,8 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                     this->window->addFile(false, path);
                 } else if (selectedDirAction == contextMenuData.addDirToDirAction) {
                     this->window->addDir(false, path);
+                } else if (selectedDirAction == contextMenuData.renameDirAction) {
+                    this->window->renameDir(path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->removeEntry(selectedItem);
                 }
@@ -73,6 +75,8 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                 // Handle the selected action
                 if (selectedFileAction == contextMenuData.extractFileAction) {
                     this->window->extractFile(path);
+                } else if (selectedFileAction == contextMenuData.editFileAction) {
+                    this->window->editFile(path);
                 } else if (selectedFileAction == contextMenuData.removeFileAction) {
                     this->removeEntry(selectedItem);
                 }
