@@ -57,9 +57,9 @@ void FileStream::seekInput(std::uint64_t offset, std::ios::seekdir offsetFrom) {
         if (offsetFrom == std::ios::beg)
             this->streamPosRead = offset;
         else if (offsetFrom == std::ios::cur)
-            this->streamPosRead += offsetFrom;
+            this->streamPosRead += offset;
         else if (offsetFrom == std::ios::end)
-            this->streamPosRead = this->streamLen + offsetFrom;
+            this->streamPosRead = this->streamLen + offset;
     }
 }
 
@@ -77,9 +77,9 @@ void FileStream::seekOutput(std::uint64_t offset, std::ios::seekdir offsetFrom) 
         if (offsetFrom == std::ios::beg)
             this->streamPosWrite = offset;
         else if (offsetFrom == std::ios::cur)
-            this->streamPosWrite += offsetFrom;
+            this->streamPosWrite += offset;
         else if (offsetFrom == std::ios::end)
-            this->streamPosWrite = this->streamLen + offsetFrom;
+            this->streamPosWrite = this->streamLen + offset;
     }
 }
 
