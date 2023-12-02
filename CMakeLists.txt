@@ -6,7 +6,7 @@ project(vpkedit
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 include(GNUInstallDirs)
 
 option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
@@ -48,8 +48,8 @@ if(VPKEDIT_BUILD_GUI)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
-    # MDLParser
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/mdlparser")
+    # studiomodelpp
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/studiomodelpp")
 
     # SpeedyKeyV (for SAPP)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/speedykeyv")
@@ -151,10 +151,9 @@ if(VPKEDIT_BUILD_GUI)
 
     # Final Qt setup
     find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
-    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib MDLParser keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
+    target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
     target_include_directories(
             ${PROJECT_NAME} PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/mdlparser"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/thirdparty/sapp/include"
             "${QT_INCLUDE}"
             "${QT_INCLUDE}/QtCore"
