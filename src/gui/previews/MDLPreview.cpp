@@ -4,7 +4,7 @@
 #include <optional>
 #include <tuple>
 
-#include <MDLParser.h>
+#include <studiomodelpp/studiomodelpp.h>
 #include <QApplication>
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -25,6 +25,7 @@
 #include "info/InvalidMDLErrorPreview.h"
 
 using namespace std::literals;
+using namespace studiomodelpp;
 using namespace vpkedit;
 
 QList<QVector3D> AABB::getCorners() const {
@@ -485,95 +486,79 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		return;
 	}
 
-	MDL mdlParser(reinterpret_cast<const uint8_t*>(mdlData->data()), mdlData->size(),
-	              reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size(),
-	              reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size());
-    if (!mdlParser.IsValid()) {
+	StudioModel mdlParser;
+	bool opened = mdlParser.open(reinterpret_cast<const uint8_t*>(mdlData->data()), mdlData->size(),
+								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
+								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
+    if (!opened) {
 	    this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("This model is invalid, it cannot be previewed!"));
 	    this->fileViewer->showPreview<InvalidMDLErrorPreview>();
         return;
     }
-
-    AABB aabb;
 
 	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
 	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
 	QVector<MDLVertex> vertices;
 
 	// todo: apply lod fixup if it exists
-	for (int vertexIndex = 0; vertexIndex < mdlParser.GetNumVertices(); vertexIndex++) {
-		auto* vertex = mdlParser.GetVertex(vertexIndex);
-
-		QVector3D pos(vertex->pos.x, vertex->pos.y, vertex->pos.z);
-		QVector3D normal(vertex->normal.x, vertex->normal.y, vertex->normal.z);
-		QVector2D uv(vertex->texCoord.x, vertex->texCoord.y);
+	for (const auto& vertex : mdlParser.vvd.vertices) {
+		QVector3D pos(vertex.position.x, vertex.position.y, vertex.position.z);
+		QVector3D normal(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+		QVector2D uv(vertex.uv.x, vertex.uv.y);
 		vertices.emplace_back(pos, normal, uv);
-
-		// Resize bounding box
-		if (vertex->pos.x < aabb.min.x()) aabb.min.setX(vertex->pos.x);
-		else if (vertex->pos.x > aabb.max.x()) aabb.max.setX(vertex->pos.x);
-		if (vertex->pos.y < aabb.min.y()) aabb.min.setY(vertex->pos.y);
-		else if (vertex->pos.y > aabb.max.y()) aabb.max.setY(vertex->pos.y);
-		if (vertex->pos.z < aabb.min.z()) aabb.min.setZ(vertex->pos.z);
-		else if (vertex->pos.z > aabb.max.z()) aabb.max.setZ(vertex->pos.z);
 	}
-
 	this->mdl->setVertices(vertices);
-	this->mdl->setAABB(aabb);
+
+	this->mdl->setAABB({
+		{mdlParser.mdl.hullMin.x, mdlParser.mdl.hullMin.y, mdlParser.mdl.hullMin.z},
+		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
+	});
 
 	bool hasAMaterial = false;
 
 	// todo: figure out why any set of indices past the first one is corrupted
-	for (int body = 0; body < mdlParser.GetNumBodyParts(); body++) {
-		const MDLStructs::BodyPart* mdlBodyPart;
-		const VTXStructs::BodyPart* vtxBodyPart;
-		mdlParser.GetBodyPart(body, &mdlBodyPart, &vtxBodyPart);
+	for (int bodyPartIndex = 0; bodyPartIndex < mdlParser.mdl.bodyParts.size(); bodyPartIndex++) {
+		auto& mdlBodyPart = mdlParser.mdl.bodyParts.at(bodyPartIndex);
+		auto& vtxBodyPart = mdlParser.vtx.bodyParts.at(bodyPartIndex);
 
-		for (int modelIndex = 0; modelIndex < vtxBodyPart->numModels; modelIndex++) {
-			auto* modelMDL = mdlBodyPart->GetModel(modelIndex);
-			auto* modelVTX = vtxBodyPart->GetModel(modelIndex);
+		for (int modelIndex = 0; modelIndex < mdlBodyPart.models.size(); modelIndex++) {
+			auto& mdlModel = mdlBodyPart.models.at(modelIndex);
+			auto& vtxModel = vtxBodyPart.models.at(modelIndex);
 
-			for (int meshIndex = 0; meshIndex < modelMDL->meshesCount; meshIndex++) {
-				auto* meshMDL = modelMDL->GetMesh(meshIndex);
-				auto materialIndex = meshMDL->material;
-				auto* meshVTX = modelVTX->GetModelLoD(0)->GetMesh(meshIndex);
+			for (int meshIndex = 0; meshIndex < mdlModel.meshes.size(); meshIndex++) {
+				auto& mdlMesh = mdlModel.meshes.at(meshIndex);
+				auto materialIndex = mdlMesh.material;
+				auto& vtxMesh = vtxModel.modelLODs.at(0).meshes.at(meshIndex);
 
 				QVector<unsigned short> indices;
 
-				for (int stripGroupIndex = 0; stripGroupIndex < meshVTX->numStripGroups; stripGroupIndex++) {
-					auto* stripGroup = meshVTX->GetStripGroup(stripGroupIndex);
-
-					for (int stripIndex = 0; stripIndex < stripGroup->numStrips; stripIndex++) {
-						auto* strip = stripGroup->GetStrip(stripIndex);
-
-						bool isTriList = static_cast<unsigned char>(strip->flags) & static_cast<unsigned char>(VTXEnums::StripFlags::IS_TRILIST);
-
+				for (const auto& stripGroup : vtxMesh.stripGroups) {
+					for (const auto& strip : stripGroup.strips) {
 						// Add vertices in reverse order to flip the winding order
-						if (isTriList) {
-							for (int i = strip->numIndices - 1; i >= 0; i--) {
-								auto vertexID = *stripGroup->GetIndex(strip->indexOffset + i);
-								auto vertex = stripGroup->GetVertex(vertexID);
-								indices.push_back(vertex->origMeshVertId + modelMDL->vertsOffset);
+						if (strip.flags & VTX::Strip::FLAG_IS_TRILIST) {
+							for (int i = static_cast<int>(strip.indices.size()) - 1; i >= 0; i--) {
+								auto vertex = stripGroup.vertices.at(strip.indices[i]);
+								indices.push_back(vertex.meshVertexID + mdlModel.verticesOffset);
 							}
 						} else {
-							for (int i = strip->numIndices + strip->indexOffset; i >= strip->indexOffset + 2; i--) {
-								indices.push_back(stripGroup->GetVertex(*stripGroup->GetIndex(  i  ))->origMeshVertId + modelMDL->vertsOffset);
-								indices.push_back(stripGroup->GetVertex(*stripGroup->GetIndex(i - 2))->origMeshVertId + modelMDL->vertsOffset);
-								indices.push_back(stripGroup->GetVertex(*stripGroup->GetIndex(i - 1))->origMeshVertId + modelMDL->vertsOffset);
+							for (int i = strip.indices.size(); i >= 2; i--) {
+								indices.push_back(stripGroup.vertices.at(strip.indices[  i  ]).meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(stripGroup.vertices.at(strip.indices[i - 2]).meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(stripGroup.vertices.at(strip.indices[i - 1]).meshVertexID + mdlModel.verticesOffset);
 							}
 						}
 					}
 				}
 
-				if (mdlParser.GetNumMaterials() < materialIndex) {
+				if (mdlParser.mdl.materials.size() <= materialIndex) {
 					this->mdl->addSubMesh(indices);
 					continue;
 				}
 				// Try to find the material in the VPK
 				bool foundMaterial = false;
 				// todo: investigate crashes here with invalid string
-				for (int materialDirIndex = 0; materialDirIndex < mdlParser.GetNumMaterialDirectories(); materialDirIndex++) {
-					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.GetMaterialDirectory(materialIndex) + mdlParser.GetMaterialName(materialIndex) + ".vmt")) {
+				for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
+					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
 						this->mdl->addSubMesh(indices, std::move(data.value()));
 						foundMaterial = true;
 						hasAMaterial = true;
