@@ -151,6 +151,7 @@ public:
 			".vvd",
 			".phy",
 			".ani",
+			".vta",
 	};
 
 	explicit MDLPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
