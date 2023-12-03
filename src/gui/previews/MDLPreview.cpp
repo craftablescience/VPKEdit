@@ -2,8 +2,10 @@
 
 #include <filesystem>
 #include <optional>
+#include <ranges>
 #include <tuple>
 
+#include <KeyValue.h>
 #include <studiomodelpp/studiomodelpp.h>
 #include <QApplication>
 #include <QCheckBox>
@@ -15,10 +17,6 @@
 #include <QtMath>
 #include <vpkedit/VPK.h>
 #include <VTFLib.h>
-
-// Fuck windows
-#undef NO_ERROR
-#include "KeyValue.h"
 
 #include "../FileViewer.h"
 #include "info/FileLoadErrorPreview.h"
@@ -418,7 +416,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
 		button->setFlat(true);
 		button->setStyleSheet("QPushButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
-		QObject::connect(button, &QPushButton::pressed, [=] {
+		QObject::connect(button, &QPushButton::pressed, [=, this] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
 		controlsLayout->addWidget(button, Qt::AlignRight);
@@ -436,7 +434,7 @@ static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const st
 	if (!materialFile) return std::nullopt;
 
 	KeyValueRoot materialKV;
-	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NO_ERROR || !materialKV.HasChildren()) return std::nullopt;
+	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return std::nullopt;
 
 	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
 	if (!baseTexturePathKV.IsValid()) return std::nullopt;
@@ -536,15 +534,14 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 					for (const auto& strip : stripGroup.strips) {
 						// Add vertices in reverse order to flip the winding order
 						if (strip.flags & VTX::Strip::FLAG_IS_TRILIST) {
-							for (int i = static_cast<int>(strip.indices.size()) - 1; i >= 0; i--) {
-								auto vertex = stripGroup.vertices.at(strip.indices[i]);
-								indices.push_back(vertex.meshVertexID + mdlModel.verticesOffset);
+							for (auto index : strip.indices | std::views::reverse) {
+								indices.push_back(strip.vertices[index].meshVertexID + mdlModel.verticesOffset);
 							}
 						} else {
-							for (int i = strip.indices.size(); i >= 2; i--) {
-								indices.push_back(stripGroup.vertices.at(strip.indices[  i  ]).meshVertexID + mdlModel.verticesOffset);
-								indices.push_back(stripGroup.vertices.at(strip.indices[i - 2]).meshVertexID + mdlModel.verticesOffset);
-								indices.push_back(stripGroup.vertices.at(strip.indices[i - 1]).meshVertexID + mdlModel.verticesOffset);
+							for (auto i = strip.indices.size(); i >= 2; i--) {
+								indices.push_back(strip.vertices[strip.indices[ i ]].meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(strip.vertices[strip.indices[i-2]].meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(strip.vertices[strip.indices[i-1]].meshVertexID + mdlModel.verticesOffset);
 							}
 						}
 					}
