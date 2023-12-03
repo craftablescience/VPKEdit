@@ -31,7 +31,7 @@ public:
 
     void clearContents();
 
-    void addEntry(const QString& path) const;
+    void addEntry(const QString& path);
 
 public slots:
     void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/) const;

@@ -9,6 +9,22 @@
 
 using namespace vpkedit;
 
+class EntryItem : public QTreeWidgetItem {
+public:
+	explicit EntryItem(QTreeWidgetItem* parent)
+			: QTreeWidgetItem(parent) {}
+
+	bool operator<(const QTreeWidgetItem& other) const override {
+		if (!this->childCount() && other.childCount()) {
+			return false;
+		}
+		if (this->childCount() && !other.childCount()) {
+			return true;
+		}
+		return QTreeWidgetItem::operator<(other);
+	}
+};
+
 EntryTree::EntryTree(Window* window_, QWidget* parent)
         : QTreeWidget(parent)
         , window(window_)
@@ -21,7 +37,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(true, this);
-    QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=](const QPoint& pos) {
+    QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=, this](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
@@ -198,8 +214,9 @@ void EntryTree::clearContents() {
     this->clear();
 }
 
-void EntryTree::addEntry(const QString& path) const {
+void EntryTree::addEntry(const QString& path) {
     this->addNestedEntryComponents(path);
+	this->sortItems(0, Qt::AscendingOrder);
 }
 
 void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
@@ -261,9 +278,9 @@ void EntryTree::addNestedEntryComponents(const QString& path) const {
         // If the child item doesn't exist, create a new one
         if (!newItem) {
             if (currentItem) {
-                newItem = new QTreeWidgetItem(currentItem);
+                newItem = new EntryItem(currentItem);
             } else {
-                newItem = new QTreeWidgetItem(this->root);
+                newItem = new EntryItem(this->root);
             }
             newItem->setText(0, component);
         }
