@@ -513,6 +513,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	});
 
 	bool hasAMaterial = false;
+	std::size_t bodyPartTotalVertexOffset = 0;
 
 	// todo: figure out why any set of indices past the first one is corrupted
 	for (int bodyPartIndex = 0; bodyPartIndex < mdlParser.mdl.bodyParts.size(); bodyPartIndex++) {
@@ -528,20 +529,23 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				auto materialIndex = mdlMesh.material;
 				auto& vtxMesh = vtxModel.modelLODs.at(0).meshes.at(meshIndex);
 
+				const std::size_t currentBodyPartTotalVertexOffset = bodyPartTotalVertexOffset;
+
 				QVector<unsigned short> indices;
 
 				for (const auto& stripGroup : vtxMesh.stripGroups) {
+					bodyPartTotalVertexOffset += stripGroup.vertices.size();
 					for (const auto& strip : stripGroup.strips) {
 						// Add vertices in reverse order to flip the winding order
 						if (strip.flags & VTX::Strip::FLAG_IS_TRILIST) {
 							for (auto index : strip.indices | std::views::reverse) {
-								indices.push_back(strip.vertices[index].meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(strip.vertices[index].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
 							}
 						} else {
 							for (auto i = strip.indices.size(); i >= 2; i--) {
-								indices.push_back(strip.vertices[strip.indices[ i ]].meshVertexID + mdlModel.verticesOffset);
-								indices.push_back(strip.vertices[strip.indices[i-2]].meshVertexID + mdlModel.verticesOffset);
-								indices.push_back(strip.vertices[strip.indices[i-1]].meshVertexID + mdlModel.verticesOffset);
+								indices.push_back(strip.vertices[strip.indices[ i ]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+								indices.push_back(strip.vertices[strip.indices[i-2]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+								indices.push_back(strip.vertices[strip.indices[i-1]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
 							}
 						}
 					}
