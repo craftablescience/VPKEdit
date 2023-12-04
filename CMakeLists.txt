@@ -33,6 +33,9 @@ target_include_directories(
         lib${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+# libvpkedit doesn't use C++20 yet
+set_target_properties(lib${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+
 if(VPKEDIT_BUILD_GUI)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
