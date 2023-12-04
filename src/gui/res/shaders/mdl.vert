@@ -10,11 +10,13 @@ uniform mat3 uNormalMatrix;
 uniform vec3 uEyePosition;
 
 out vec3 fNormal;
+out float fDepth;
 out vec2 fUVMesh;
 out vec2 fUVMatCap;
 
 void main() {
-    gl_Position = uMVP * vec4(vPos, 1.0);
+    vec4 position = uMVP * vec4(vPos, 1.0);
+    gl_Position = position;
     fNormal = vNormal;
     fUVMesh = vUV;
 
@@ -26,4 +28,7 @@ void main() {
     r.z += 1.0;
     float m = 2.0 * length(r);
     fUVMatCap = r.xy / m + 0.5;
+
+    // Unused right now
+    fDepth = position.w;
 }
