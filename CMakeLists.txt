@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 project(vpkedit
         DESCRIPTION "A tool to read, preview, and write to VPK files."
-        VERSION 3.5.0
+        VERSION 3.6.0
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
