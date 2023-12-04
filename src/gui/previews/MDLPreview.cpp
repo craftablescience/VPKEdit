@@ -26,28 +26,28 @@ using namespace studiomodelpp;
 using namespace vpkedit;
 
 QList<QVector3D> AABB::getCorners() const {
-    return {
-            {this->min.x(), this->min.y(), this->min.z()},
-            {this->max.x(), this->min.y(), this->min.z()},
-            {this->min.x(), this->max.y(), this->min.z()},
-            {this->min.x(), this->min.y(), this->max.z()},
-            {this->max.x(), this->max.y(), this->max.z()},
-            {this->min.x(), this->max.y(), this->max.z()},
-            {this->max.x(), this->min.y(), this->max.z()},
-            {this->max.x(), this->max.y(), this->min.z()},
-    };
+	return {
+		{this->min.x(), this->min.y(), this->min.z()},
+		{this->max.x(), this->min.y(), this->min.z()},
+		{this->min.x(), this->max.y(), this->min.z()},
+		{this->min.x(), this->min.y(), this->max.z()},
+		{this->max.x(), this->max.y(), this->max.z()},
+		{this->min.x(), this->max.y(), this->max.z()},
+		{this->max.x(), this->min.y(), this->max.z()},
+		{this->max.x(), this->max.y(), this->min.z()},
+	};
 }
 
 float AABB::getWidth() const {
-    return this->max.x() - this->min.x();
+	return this->max.x() - this->min.x();
 }
 
 float AABB::getHeight() const {
-    return this->max.y() - this->min.y();
+	return this->max.y() - this->min.y();
 }
 
 float AABB::getDepth() const {
-    return this->max.z() - this->min.z();
+	return this->max.z() - this->min.z();
 }
 
 MDLWidget::MDLWidget(QWidget* parent)
@@ -58,20 +58,20 @@ MDLWidget::MDLWidget(QWidget* parent)
 		, vertexCount(0)
 		, shadingMode(MDLShadingMode::UNSHADED_TEXTURED)
 		, distance(0.0)
-        , distanceScale(0.0)
+		, distanceScale(0.0)
 		, fov(70.0)
 		, cullBackFaces(true)
 		, angularSpeed(0.0)
-        , rmbBeingHeld(false) {}
+		, rmbBeingHeld(false) {}
 
 MDLWidget::~MDLWidget() {
 	this->clearMeshes();
-    if (this->missingTexture.isCreated()) {
-        this->missingTexture.destroy();
-    }
-    if (this->matCapTexture.isCreated()) {
-        this->matCapTexture.destroy();
-    }
+	if (this->missingTexture.isCreated()) {
+		this->missingTexture.destroy();
+	}
+	if (this->matCapTexture.isCreated()) {
+		this->matCapTexture.destroy();
+	}
 }
 
 void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
@@ -529,9 +529,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	});
 
 	bool hasAMaterial = false;
-	std::size_t bodyPartTotalVertexOffset = 0;
 
-	// todo: figure out why any set of indices past the first one is corrupted
 	for (int bodyPartIndex = 0; bodyPartIndex < mdlParser.mdl.bodyParts.size(); bodyPartIndex++) {
 		auto& mdlBodyPart = mdlParser.mdl.bodyParts.at(bodyPartIndex);
 		auto& vtxBodyPart = mdlParser.vtx.bodyParts.at(bodyPartIndex);
@@ -540,20 +538,21 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 			auto& mdlModel = mdlBodyPart.models.at(modelIndex);
 			auto& vtxModel = vtxBodyPart.models.at(modelIndex);
 
+			if (mdlModel.verticesCount == 0) {
+				continue;
+			}
+
 			for (int meshIndex = 0; meshIndex < mdlModel.meshes.size(); meshIndex++) {
 				auto& mdlMesh = mdlModel.meshes.at(meshIndex);
 				auto materialIndex = mdlMesh.material;
 				auto& vtxMesh = vtxModel.modelLODs.at(currentLOD).meshes.at(meshIndex);
 
-				const std::size_t currentBodyPartTotalVertexOffset = bodyPartTotalVertexOffset;
-
 				QVector<unsigned short> indices;
 
 				for (const auto& stripGroup : vtxMesh.stripGroups) {
-					bodyPartTotalVertexOffset += stripGroup.vertices.size();
 					for (const auto& strip : stripGroup.strips) {
-						const auto addIndex = [currentBodyPartTotalVertexOffset, &indices, &mdlModel, &stripGroup](int index) {
-							indices.push_back(stripGroup.vertices[index].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+						const auto addIndex = [&indices, &mdlMesh, &mdlModel, &stripGroup](int index) {
+							indices.push_back(stripGroup.vertices.at(index).meshVertexID + mdlMesh.verticesOffset + mdlModel.verticesOffset);
 						};
 
 						// Remember to flip the winding order
