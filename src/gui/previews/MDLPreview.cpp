@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <optional>
-#include <ranges>
 #include <tuple>
 
 #include <KeyValue.h>
@@ -494,16 +493,33 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
         return;
     }
 
+	// Maybe we can add a setting for this...
+	constexpr int currentLOD = ROOT_LOD;
+
 	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
 	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
 	QVector<MDLVertex> vertices;
-
-	// todo: apply lod fixup if it exists
-	for (const auto& vertex : mdlParser.vvd.vertices) {
-		QVector3D pos(vertex.position.x, vertex.position.y, vertex.position.z);
-		QVector3D normal(vertex.normal.x, vertex.normal.y, vertex.normal.z);
-		QVector2D uv(vertex.uv.x, vertex.uv.y);
-		vertices.emplace_back(pos, normal, uv);
+	const auto convertVertexFormat = [](const VVD::Vertex& vertex) -> MDLVertex {
+		return {
+			QVector3D(vertex.position.x, vertex.position.y, vertex.position.z),
+			QVector3D(vertex.normal.x, vertex.normal.y, vertex.normal.z),
+			QVector2D(vertex.uv.x, vertex.uv.y),
+		};
+	};
+	if (mdlParser.vvd.fixups.empty()) {
+		for (const auto& vertex : mdlParser.vvd.vertices) {
+			vertices.push_back(convertVertexFormat(vertex));
+		}
+	} else {
+		for (const auto& fixup : mdlParser.vvd.fixups) {
+			if (fixup.LOD < currentLOD) {
+				continue;
+			}
+			std::span<VVD::Vertex> fixupVertices{mdlParser.vvd.vertices.begin() + fixup.sourceVertexID, static_cast<std::span<VVD::Vertex>::size_type>(fixup.vertexCount)};
+			for (const auto& vertex : fixupVertices) {
+				vertices.push_back(convertVertexFormat(vertex));
+			}
+		}
 	}
 	this->mdl->setVertices(vertices);
 
@@ -527,7 +543,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 			for (int meshIndex = 0; meshIndex < mdlModel.meshes.size(); meshIndex++) {
 				auto& mdlMesh = mdlModel.meshes.at(meshIndex);
 				auto materialIndex = mdlMesh.material;
-				auto& vtxMesh = vtxModel.modelLODs.at(0).meshes.at(meshIndex);
+				auto& vtxMesh = vtxModel.modelLODs.at(currentLOD).meshes.at(meshIndex);
 
 				const std::size_t currentBodyPartTotalVertexOffset = bodyPartTotalVertexOffset;
 
@@ -536,16 +552,22 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				for (const auto& stripGroup : vtxMesh.stripGroups) {
 					bodyPartTotalVertexOffset += stripGroup.vertices.size();
 					for (const auto& strip : stripGroup.strips) {
-						// Add vertices in reverse order to flip the winding order
+						const auto addIndex = [currentBodyPartTotalVertexOffset, &indices, &mdlModel, &stripGroup](int index) {
+							indices.push_back(stripGroup.vertices[index].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+						};
+
+						// Remember to flip the winding order
 						if (strip.flags & VTX::Strip::FLAG_IS_TRILIST) {
-							for (auto index : strip.indices | std::views::reverse) {
-								indices.push_back(strip.vertices[index].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+							for (int i = 0; i < strip.indices.size(); i += 3) {
+								addIndex(strip.indices[ i ]);
+								addIndex(strip.indices[i+2]);
+								addIndex(strip.indices[i+1]);
 							}
 						} else {
-							for (auto i = strip.indices.size(); i >= 2; i--) {
-								indices.push_back(strip.vertices[strip.indices[ i ]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
-								indices.push_back(strip.vertices[strip.indices[i-2]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
-								indices.push_back(strip.vertices[strip.indices[i-1]].meshVertexID + mdlModel.verticesOffset + currentBodyPartTotalVertexOffset);
+							for (auto i = strip.indices.size(); i >= 2; i -= 3) {
+								addIndex(strip.indices[ i ]);
+								addIndex(strip.indices[i-2]);
+								addIndex(strip.indices[i-1]);
 							}
 						}
 					}
@@ -557,7 +579,6 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				}
 				// Try to find the material in the VPK
 				bool foundMaterial = false;
-				// todo: investigate crashes here with invalid string
 				for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
 					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
 						this->mdl->addSubMesh(indices, std::move(data.value()));
