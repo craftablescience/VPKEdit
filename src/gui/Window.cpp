@@ -19,7 +19,6 @@
 #include <QMimeData>
 #include <QNetworkReply>
 #include <QProgressBar>
-#include <QSettings>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyleFactory>
@@ -49,13 +48,13 @@ Window::Window(QWidget* parent)
 
     // File menu
     auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [=] {
+    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [this] {
         this->newVPK(false);
     });
-    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [=] {
+    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [this] {
         this->newVPK(true);
     });
-    this->openVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [=] {
+    this->openVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [this] {
         this->openVPK();
     });
 
@@ -84,7 +83,7 @@ Window::Window(QWidget* parent)
 
         for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
             const auto relativeDirectory = relativeDirectoryPath.path();
-            this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [=] {
+            this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
                 this->openVPK(relativeDirectory);
             });
         }
@@ -92,17 +91,17 @@ Window::Window(QWidget* parent)
         this->openVPKRelativeToMenu = nullptr;
     }
 
-    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [=] {
+    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
         this->saveVPK();
     });
     this->saveVPKAction->setDisabled(true);
 
-    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [=] {
+    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [this] {
         this->saveAsVPK();
     });
     this->saveAsVPKAction->setDisabled(true);
 
-    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [=] {
+    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [this] {
         this->closeVPK();
     });
     this->closeFileAction->setDisabled(true);
@@ -111,34 +110,34 @@ Window::Window(QWidget* parent)
 
     this->checkForUpdatesNetworkManager = new QNetworkAccessManager(this);
     QObject::connect(this->checkForUpdatesNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [=] {
-        Window::checkForUpdates();
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [this] {
+        this->checkForUpdates();
     });
 
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [=] {
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [this] {
         this->close();
     });
 
     // Edit menu
     auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
-    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [=] {
+    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [this] {
         this->extractAll();
     });
     this->extractAllAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [=] {
+    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [this] {
         this->addFile(true);
     });
     this->addFileAction->setDisabled(true);
 
-    this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [=] {
+    this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
         this->addDir(true);
     });
     this->addDirAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->changeVersionAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Change Version..."), Qt::CTRL | Qt::ALT | Qt::Key_V, [=] {
+    this->changeVersionAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Change Version..."), Qt::CTRL | Qt::ALT | Qt::Key_V, [this] {
         this->changeVPKVersion();
     });
     this->changeVersionAction->setDisabled(true);
@@ -147,7 +146,7 @@ Window::Window(QWidget* parent)
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
 
     auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry List..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [=] {
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [this] {
 		Options::invert(OPT_ENTRY_LIST_AUTO_EXPAND);
         this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
     });
@@ -185,29 +184,29 @@ Window::Window(QWidget* parent)
 
     // Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [=] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [this] {
         this->about();
     });
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", Qt::ALT | Qt::Key_F1, [=] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", Qt::ALT | Qt::Key_F1, [this] {
         this->aboutQt();
     });
 
 #ifdef QT_DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
-    debugMenu->addAction("New Entry Dialog (File)", [=] {
+    debugMenu->addAction("New Entry Dialog (File)", [this] {
         (void) NewEntryDialog::getNewEntryOptions(false, "test", this);
     });
-    debugMenu->addAction("New Entry Dialog (Dir)", [=] {
+    debugMenu->addAction("New Entry Dialog (Dir)", [this] {
         (void) NewEntryDialog::getNewEntryOptions(true, "test", this);
     });
-    debugMenu->addAction("New Update Dialog", [=] {
+    debugMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
-    debugMenu->addAction("New VPK Dialog", [=] {
+    debugMenu->addAction("New VPK Dialog", [this] {
         (void) VPKVersionDialog::getVPKVersionOptions(false, 2, this);
     });
-    debugMenu->addAction("Set VPK Version Dialog", [=] {
+    debugMenu->addAction("Set VPK Version Dialog", [this] {
         (void) VPKVersionDialog::getVPKVersionOptions(true, 2, this);
     });
 #endif
@@ -226,7 +225,7 @@ Window::Window(QWidget* parent)
 
     this->searchBar = new QLineEdit(leftPane);
     this->searchBar->setPlaceholderText(QString("Find..."));
-    QObject::connect(this->searchBar, &QLineEdit::editingFinished, this, [=] {
+    QObject::connect(this->searchBar, &QLineEdit::editingFinished, this, [this] {
         this->entryTree->setSearchQuery(this->searchBar->text());
         this->fileViewer->setSearchQuery(this->searchBar->text());
     });
@@ -361,7 +360,7 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
         QMessageBox::critical(this, tr("Error"), tr("Error occurred checking for updates!"));
         return;
     }
-    const auto parseFailure = [=] {
+    const auto parseFailure = [this] {
         QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
     };
     QJsonDocument response = QJsonDocument::fromJson(QString(reply->readAll()).toUtf8());
@@ -586,13 +585,13 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
     this->extractWorkerThread = new QThread(this);
     auto* worker = new ExtractVPKWorker();
     worker->moveToThread(this->extractWorkerThread);
-    QObject::connect(this->extractWorkerThread, &QThread::started, worker, [=] {
+    QObject::connect(this->extractWorkerThread, &QThread::started, worker, [this, worker, saveDir, predicate] {
         worker->run(this, saveDir, predicate);
     });
-    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [=] {
+    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [this] {
         this->statusProgressBar->setValue(this->statusProgressBar->value() + 1);
     });
-    QObject::connect(worker, &ExtractVPKWorker::taskFinished, this, [=] {
+    QObject::connect(worker, &ExtractVPKWorker::taskFinished, this, [this] {
         // Kill thread
         this->extractWorkerThread->quit();
         this->extractWorkerThread->wait();
@@ -733,7 +732,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
 }
 
 bool Window::loadVPK(const QString& path) {
-    QString fixedPath(path);
+    QString fixedPath = QDir(path).absolutePath();
     fixedPath.replace('\\', '/');
 
     this->clearContents();
@@ -754,7 +753,7 @@ bool Window::loadVPK(const QString& path) {
     this->statusProgressBar->show();
     this->statusBar()->show();
 
-    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [=] {
+    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [this, path] {
         this->freezeActions(false);
 
         const auto version = this->vpk->getVersion();
