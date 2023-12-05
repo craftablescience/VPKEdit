@@ -594,7 +594,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 	}
 
 	if (hasAMaterial) {
-		this->setShadingMode(MDLShadingMode::UNSHADED_TEXTURED);
+		this->setShadingMode(MDLShadingMode::SHADED_TEXTURED);
 	} else {
 		this->setShadingMode(MDLShadingMode::SHADED_UNTEXTURED);
 	}
