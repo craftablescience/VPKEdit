@@ -202,30 +202,42 @@ if(VPKEDIT_BUILD_GUI)
         configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6"       "${CMAKE_BINARY_DIR}/libQt6Network.so.6"       COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6OpenGL.so.6"        "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"        COPYONLY)
         configure_file("${QT_BASEDIR}/lib/libQt6OpenGLWidgets.so.6" "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6" COPYONLY)
-        # Required by plugins
-        configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"   "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"   COPYONLY)
 
-        configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6" COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libQt6XcbQpa.so.6"        "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"        COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicui18n.so.56"         "${CMAKE_BINARY_DIR}/libicui18n.so.56"         COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicuuc.so.56"           "${CMAKE_BINARY_DIR}/libicuuc.so.56"           COPYONLY)
-        configure_file("${QT_BASEDIR}/lib/libicudata.so.56"         "${CMAKE_BINARY_DIR}/libicudata.so.56"         COPYONLY)
+        # Required by plugins
+        configure_file("${QT_BASEDIR}/lib/libicudata.so.56"                         "${CMAKE_BINARY_DIR}/libicudata.so.56"                         COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libicui18n.so.56"                         "${CMAKE_BINARY_DIR}/libicui18n.so.56"                         COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libicuuc.so.56"                           "${CMAKE_BINARY_DIR}/libicuuc.so.56"                           COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6DBus.so.6"                          "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"                          COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6EglFSDeviceIntegration.so.6"        "${CMAKE_BINARY_DIR}/libQt6EglFSDeviceIntegration.so.6"        COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6EglFsKmsSupport.so.6"               "${CMAKE_BINARY_DIR}/libQt6EglFsKmsSupport.so.6"               COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6WaylandClient.so.6"                 "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"                 COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6WaylandEglClientHwIntegration.so.6" "${CMAKE_BINARY_DIR}/libQt6WaylandEglClientHwIntegration.so.6" COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6WlShellIntegration.so.6"            "${CMAKE_BINARY_DIR}/libQt6WlShellIntegration.so.6"            COPYONLY)
+        configure_file("${QT_BASEDIR}/lib/libQt6XcbQpa.so.6"                        "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"                        COPYONLY)
 
         configure_file("${QT_BASEDIR}/plugins/imageformats/libqjpeg.so" "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so" COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/imageformats/libqtga.so"  "${CMAKE_BINARY_DIR}/imageformats/libqtga.so"  COPYONLY)
         configure_file("${QT_BASEDIR}/plugins/imageformats/libqwebp.so" "${CMAKE_BINARY_DIR}/imageformats/libqwebp.so" COPYONLY)
 
-        configure_file("${QT_BASEDIR}/plugins/platforms/libqwayland-generic.so" "${CMAKE_BINARY_DIR}/platforms/libqwayland-generic.so" COPYONLY)
-        configure_file("${QT_BASEDIR}/plugins/platforms/libqminimal.so"         "${CMAKE_BINARY_DIR}/platforms/libqminimal.so"         COPYONLY)
-        configure_file("${QT_BASEDIR}/plugins/platforms/libqxcb.so"             "${CMAKE_BINARY_DIR}/platforms/libqxcb.so"             COPYONLY)
-
-        configure_file("${QT_BASEDIR}/plugins/platformthemes/libqgtk3.so" "${CMAKE_BINARY_DIR}/platformthemes/libqgtk3.so" COPYONLY)
-
-        configure_file("${QT_BASEDIR}/plugins/tls/libqcertonlybackend.so" "${CMAKE_BINARY_DIR}/tls/libqcertonlybackend.so" COPYONLY)
-        configure_file("${QT_BASEDIR}/plugins/tls/libqopensslbackend.so"  "${CMAKE_BINARY_DIR}/tls/libqopensslbackend.so"  COPYONLY)
-
-        configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libxdg-shell.so" "${CMAKE_BINARY_DIR}/wayland-shell-integration/libxdg-shell.so" COPYONLY)
-        configure_file("${QT_BASEDIR}/plugins/wayland-shell-integration/libqt-shell.so"  "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"  COPYONLY)
+        # Copy all this stuff wholesale, who knows if we need it now or later
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_EGLDEVICEINTEGRATIONS               "${QT_BASEDIR}/plugins/egldeviceintegrations/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_PLATFORMINPUTCONTEXTS               "${QT_BASEDIR}/plugins/platforminputcontexts/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_PLATFORMS                           "${QT_BASEDIR}/plugins/platforms/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_PLATFORMTHEMES                      "${QT_BASEDIR}/plugins/platformthemes/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_TLS                                 "${QT_BASEDIR}/plugins/tls/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_WAYLANDDECORATIONCLIENT             "${QT_BASEDIR}/plugins/wayland-decoration-client/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_WAYLANDGRAPHICSINTEGRATIONCLIENT    "${QT_BASEDIR}/plugins/wayland-graphics-integration-client/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_WAYLANDSHELLINTEGRATION             "${QT_BASEDIR}/plugins/wayland-shell-integration/*.so*")
+        file(GLOB ${PROJECT_NAME}_QT_PLUGINS_XCBGLINTEGRATIONS                   "${QT_BASEDIR}/plugins/xcbglintegrations/*.so*")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_EGLDEVICEINTEGRATIONS}            DESTINATION "${CMAKE_BINARY_DIR}/egldeviceintegrations")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_PLATFORMINPUTCONTEXTS}            DESTINATION "${CMAKE_BINARY_DIR}/platforminputcontexts")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_PLATFORMS}                        DESTINATION "${CMAKE_BINARY_DIR}/platforms")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_PLATFORMTHEMES}                   DESTINATION "${CMAKE_BINARY_DIR}/platformthemes")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_TLS}                              DESTINATION "${CMAKE_BINARY_DIR}/tls")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_WAYLANDDECORATIONCLIENT}          DESTINATION "${CMAKE_BINARY_DIR}/wayland-decoration-client")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_WAYLANDGRAPHICSINTEGRATIONCLIENT} DESTINATION "${CMAKE_BINARY_DIR}/wayland-graphics-integration-client")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_WAYLANDSHELLINTEGRATION}          DESTINATION "${CMAKE_BINARY_DIR}/wayland-shell-integration")
+        file(COPY ${${PROJECT_NAME}_QT_PLUGINS_XCBGLINTEGRATIONS}                DESTINATION "${CMAKE_BINARY_DIR}/xcbglintegrations")
     endif()
 
     # Set up install rules
@@ -270,41 +282,32 @@ if(VPKEDIT_BUILD_GUI)
                     "${CMAKE_BINARY_DIR}/libQt6Network.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"
                     "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6"
-                    # Required by plugins
-                    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"
 
-                    "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"
-                    "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"
+                    # Required by plugins
+                    "${CMAKE_BINARY_DIR}/libicudata.so.56"
                     "${CMAKE_BINARY_DIR}/libicui18n.so.56"
                     "${CMAKE_BINARY_DIR}/libicuuc.so.56"
-                    "${CMAKE_BINARY_DIR}/libicudata.so.56"
+                    "${CMAKE_BINARY_DIR}/libQt6DBus.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6EglFSDeviceIntegration.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6EglFsKmsSupport.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6WaylandClient.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6WaylandEglClientHwIntegration.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6WlShellIntegration.so.6"
+                    "${CMAKE_BINARY_DIR}/libQt6XcbQpa.so.6"
                     DESTINATION .)
 
-            install(FILES
-                    "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so"
-                    "${CMAKE_BINARY_DIR}/imageformats/libqtga.so"
-                    "${CMAKE_BINARY_DIR}/imageformats/libqwebp.so"
-                    DESTINATION imageformats)
-
-            install(FILES
-                    "${CMAKE_BINARY_DIR}/platforms/libqwayland-generic.so"
-                    "${CMAKE_BINARY_DIR}/platforms/libqminimal.so"
-                    "${CMAKE_BINARY_DIR}/platforms/libqxcb.so"
-                    DESTINATION platforms)
-
-            install(FILES
-                    "${CMAKE_BINARY_DIR}/platformthemes/libqgtk3.so"
-                    DESTINATION platformthemes)
-
-            install(FILES
-                    "${CMAKE_BINARY_DIR}/tls/libqcertonlybackend.so"
-                    "${CMAKE_BINARY_DIR}/tls/libqopensslbackend.so"
-                    DESTINATION tls)
-
-            install(FILES
-                    "${CMAKE_BINARY_DIR}/wayland-shell-integration/libxdg-shell.so"
-                    "${CMAKE_BINARY_DIR}/wayland-shell-integration/libqt-shell.so"
-                    DESTINATION wayland-shell-integration)
+            install(DIRECTORY
+                    "${CMAKE_BINARY_DIR}/egldeviceintegrations"
+                    "${CMAKE_BINARY_DIR}/imageformats"
+                    "${CMAKE_BINARY_DIR}/platforminputcontexts"
+                    "${CMAKE_BINARY_DIR}/platforms"
+                    "${CMAKE_BINARY_DIR}/platformthemes"
+                    "${CMAKE_BINARY_DIR}/tls"
+                    "${CMAKE_BINARY_DIR}/wayland-decoration-client"
+                    "${CMAKE_BINARY_DIR}/wayland-graphics-integration-client"
+                    "${CMAKE_BINARY_DIR}/wayland-shell-integration"
+                    "${CMAKE_BINARY_DIR}/xcbglintegrations"
+                    DESTINATION .)
         else()
             install(IMPORTED_RUNTIME_ARTIFACTS
                     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets

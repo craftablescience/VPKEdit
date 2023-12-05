@@ -151,12 +151,16 @@ jobs:
             ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpkedit
             ${{env.BUILD_DIR}}/*.so*
+            ${{env.BUILD_DIR}}/egldeviceintegrations/*.so*
             ${{env.BUILD_DIR}}/imageformats/*.so*
+            ${{env.BUILD_DIR}}/platforminputcontexts/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
             ${{env.BUILD_DIR}}/platformthemes/*.so*
-            ${{env.BUILD_DIR}}/styles/*.so*
             ${{env.BUILD_DIR}}/tls/*.so*
+            ${{env.BUILD_DIR}}/wayland-decoration-client/*.so*
+            ${{env.BUILD_DIR}}/wayland-graphics-integration-client/*.so*
             ${{env.BUILD_DIR}}/wayland-shell-integration/*.so*
+            ${{env.BUILD_DIR}}/xcbglintegrations/*.so*
           retention-days: 7
 
       - name: Create Installer
