@@ -43,7 +43,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(false, this);
-    QObject::connect(this, &QTableWidget::customContextMenuRequested, [=](const QPoint& pos) {
+    QObject::connect(this, &QTableWidget::customContextMenuRequested, [=, this](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (this->item(selectedItem->row(), DirPreviewColumn::TYPE)->text() == DIR_TYPE_NAME) {
@@ -75,7 +75,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
         }
     });
 
-    QObject::connect(this, &QTableWidget::doubleClicked, [=](const QModelIndex& index) {
+    QObject::connect(this, &QTableWidget::doubleClicked, [this](const QModelIndex& index) {
         this->fileViewer->selectSubItemInDir(this->item(index.row(), DirPreviewColumn::NAME)->text());
     });
 }
