@@ -482,7 +482,7 @@ void Window::requestEntryRemoval(const QString& path) const {
 }
 
 void Window::about() {
-    QString creditsText = "# " VPKEDIT_PROJECT_NAME_PRETTY " v" VPKEDIT_PROJECT_VERSION "\n"
+    QString creditsText = "# " VPKEDIT_FULL_TITLE "\n"
                           "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
     QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
