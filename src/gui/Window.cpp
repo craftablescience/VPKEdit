@@ -51,7 +51,7 @@ Window::Window(QWidget* parent)
     this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [this] {
         this->newVPK(false);
     });
-    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::Key_N, [this] {
+    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
         this->newVPK(true);
     });
     this->openVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [this] {
