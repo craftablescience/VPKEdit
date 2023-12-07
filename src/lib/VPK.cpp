@@ -217,15 +217,13 @@ bool VPK::open(VPK& vpk) {
     for (unsigned int i = 0; i < entryNum; i++)
         vpk.md5Entries.push_back(vpk.reader.read<MD5Entry>());
 
-    if (vpk.header2.otherMD5SectionSize != 48 && vpk.header2.otherMD5SectionSize > 0)
-        return false;
+    if (vpk.header2.otherMD5SectionSize != 48)
+	    // This should always be 48
+        return true;
 
-    if (vpk.header2.otherMD5SectionSize > 0) {
-        // Assume it's 48
-        vpk.footer2.treeChecksum = vpk.reader.readBytes<16>();
-        vpk.footer2.md5EntriesChecksum = vpk.reader.readBytes<16>();
-        vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
-    }
+	vpk.footer2.treeChecksum = vpk.reader.readBytes<16>();
+	vpk.footer2.md5EntriesChecksum = vpk.reader.readBytes<16>();
+	vpk.footer2.wholeFileChecksum = vpk.reader.readBytes<16>();
 
     if (!vpk.header2.signatureSectionSize) {
         return true;
