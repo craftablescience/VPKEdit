@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     Options::setupOptions(*options);
 
     auto* window = new Window();
-    if (!options->value(OPT_START_MAXIMIZED).toBool()) {
+    if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
         window->show();
     } else {
         window->showMaximized();
