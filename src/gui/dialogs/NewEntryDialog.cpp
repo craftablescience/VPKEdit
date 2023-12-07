@@ -8,7 +8,7 @@
 #include <QFormLayout>
 #include <QSpinBox>
 
-#include "../Options.h"
+#include "../config/Options.h"
 
 NewEntryDialog::NewEntryDialog(bool isDir, const QString& prefilledPath, QWidget* parent)
         : QDialog(parent) {

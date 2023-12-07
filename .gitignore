@@ -7,5 +7,5 @@
 cmake-build-*/
 
 # Generated
+src/gui/config/Config.h
 src/gui/installer/deb/vpkedit.desktop
-src/gui/Config.h

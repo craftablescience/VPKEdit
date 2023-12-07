@@ -4,7 +4,7 @@
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 
-#include "../Config.h"
+#include "../config/Config.h"
 
 NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& version, QWidget* parent)
         : QDialog(parent) {

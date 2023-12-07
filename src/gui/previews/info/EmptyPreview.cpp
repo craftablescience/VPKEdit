@@ -1,6 +1,6 @@
 #include "EmptyPreview.h"
 
-#include "../../Config.h"
+#include "../../config/Config.h"
 
 EmptyPreview::EmptyPreview(QWidget* parent)
         : AbstractInfoPreview({":/icon.png"}, VPKEDIT_FULL_TITLE, parent) {

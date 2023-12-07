@@ -26,13 +26,13 @@
 
 #include <sapp/FilesystemSearchProvider.h>
 
-#include "popups/NewEntryDialog.h"
-#include "popups/NewUpdateDialog.h"
-#include "popups/VPKVersionDialog.h"
-#include "Config.h"
+#include "config/Config.h"
+#include "config/Options.h"
+#include "dialogs/NewEntryDialog.h"
+#include "dialogs/NewUpdateDialog.h"
+#include "dialogs/VPKVersionDialog.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
-#include "Options.h"
 
 using namespace vpkedit;
 

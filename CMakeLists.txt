@@ -91,28 +91,28 @@ if(VPKEDIT_BUILD_GUI)
 
     # Config file
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Config.h.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Config.h"
             @ONLY)
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/desktop.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop")
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Config.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Config.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Options.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Options.cpp"
 
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewEntryDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewEntryDialog.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewUpdateDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/NewUpdateDialog.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/VPKVersionDialog.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/dialogs/VPKVersionDialog.cpp"
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/formats/VTFDecoder.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/formats/VTFDecoder.cpp"
-
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewEntryDialog.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/NewUpdateDialog.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/VPKVersionDialog.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/popups/VPKVersionDialog.cpp"
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/AbstractInfoPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/AbstractInfoPreview.cpp"
@@ -134,13 +134,13 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/VTFPreview.cpp"
 
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/res.qrc"
+
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/EntryTree.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/EntryTree.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/FileViewer.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/FileViewer.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Main.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Options.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Options.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/Window.cpp")
     if(WIN32)
