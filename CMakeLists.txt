@@ -317,8 +317,9 @@ if(VPKEDIT_BUILD_GUI)
 
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
                 DESTINATION "/usr/share/applications/")
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/${PROJECT_NAME}.png"
-                DESTINATION "/usr/share/pixmaps/")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon-128.png"
+                DESTINATION "/usr/share/pixmaps/"
+                RENAME "${PROJECT_NAME}.png")
     endif()
 
     if(VPKEDIT_BUILD_INSTALLER)
@@ -345,7 +346,7 @@ if(VPKEDIT_BUILD_GUI)
             set(HELP_QUOTE "\"") # CMake is shit
             set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
                 WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'Valve PacK'
+                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'Valve Pack File'
                 WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
                 WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
                 WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
