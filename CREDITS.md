@@ -1,7 +1,8 @@
 ## Contributors
-- [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
+- [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, VPK file association for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
+- [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
 
 ## Acknowledgements
 - [ValvePak](https://github.com/ValveResourceFormat/ValvePak) - xPaw

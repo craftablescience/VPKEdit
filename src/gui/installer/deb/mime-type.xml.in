@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/x-vpk">
+    <comment>Valve Pack File</comment>
+    <icon name="application-x-vpk"/>
+    <acronym>VPK</acronym>
+    <expanded-acronym>Valve Pack File</expanded-acronym>
+    <glob-deleteall/>
+    <glob pattern="*.vpk"/>
+    <glob pattern="*.VPK"/>
+    </mime-type>
+</mime-info>
