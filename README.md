@@ -13,6 +13,7 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 - Add and remove files and folders from VPKs
 - Extract files and folders from VPKs
 - Switch version of existing VPKs
+- Native Linux compatibility
 
 It can also preview certain file types without needing to extract them from the VPK:
 - Text files
