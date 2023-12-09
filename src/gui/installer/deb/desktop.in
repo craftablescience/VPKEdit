@@ -2,8 +2,10 @@
 Version=${PROJECT_VERSION}
 Name=${PROJECT_NAME_PRETTY}
 Comment=${PROJECT_DESCRIPTION}
-Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME}
+Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME} %f
 Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
 Categories=Qt;Development;Utility;
+MimeType=application/x-vpk
+PrefersNonDefaultGPU=true

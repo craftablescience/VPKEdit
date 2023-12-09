@@ -94,9 +94,6 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Config.h.in"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/config/Config.h"
             @ONLY)
-    configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/desktop.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop")
 
     # Add sources and create executable
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -315,11 +312,29 @@ if(VPKEDIT_BUILD_GUI)
                     LIBRARY DESTINATION .)
         endif()
 
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/${PROJECT_NAME}.desktop"
+        # Desktop file
+        configure_file(
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/desktop.in"
+                "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/generated/${PROJECT_NAME}.desktop")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/generated/${PROJECT_NAME}.desktop"
                 DESTINATION "/usr/share/applications/")
         install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon-128.png"
                 DESTINATION "/usr/share/pixmaps/"
                 RENAME "${PROJECT_NAME}.png")
+
+        # MIME type info
+        configure_file(
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/mime-type.xml.in"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/generated/mime-type.xml")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/installer/deb/generated/mime-type.xml"
+                DESTINATION "/usr/share/mime/packages/"
+                RENAME "${PROJECT_NAME}.xml")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon-128.png"
+                DESTINATION "/usr/share/icons/hicolor/128x128/mimetypes/"
+                RENAME "application-x-vpk.png")
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/icon-512.png"
+                DESTINATION "/usr/share/icons/hicolor/512x512/mimetypes/"
+                RENAME "application-x-vpk.png")
     endif()
 
     if(VPKEDIT_BUILD_INSTALLER)
