@@ -36,7 +36,7 @@
 
 using namespace vpkedit;
 
-constexpr auto VPK_SAVE_FILTER = "Valve PacK (*.vpk);;All files (*.*)";
+constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk);;All files (*.*)";
 
 Window::Window(QWidget* parent)
         : QMainWindow(parent)
