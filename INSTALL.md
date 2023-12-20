@@ -15,7 +15,7 @@ both the standalone method and installer method.
 2. When that is installed, download either the standalone version or the installer version from [the latest
    GitHub release](https://github.com/craftablescience/VPKEdit/releases/latest), under the `Assets` dropdown.
 3. If you downloaded the standalone files, you're done, just unzip the files. If you downloaded the installer,
-   unzip the installer application and run it. Windows will give you a safety warning, ignore it and hit `Run Anyway`.
+   unzip the installer application and run it. Windows will give you a safety warning, ignore it and hit `More Info` → `Run Anyway`.
 
 ## Linux
 
