@@ -429,7 +429,7 @@ bool VPK::removeEntry(const std::string& directory, const std::string& filename_
             if (preexistingDir != dir) {
                 continue;
             }
-            for (auto it = unbakedEntryVec.begin(); it != unbakedEntryVec.end();) {
+            for (auto it = unbakedEntryVec.begin(); it != unbakedEntryVec.end(); ++it) {
                 if (it->filename == filename_) {
                     unbakedEntryVec.erase(it);
                     return true;
