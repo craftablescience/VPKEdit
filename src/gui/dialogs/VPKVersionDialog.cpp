@@ -1,9 +1,9 @@
 #include "VPKVersionDialog.h"
 
 #include <QComboBox>
-#include <QLabel>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QLabel>
 
 #include <vpkedit/VPK.h>
 

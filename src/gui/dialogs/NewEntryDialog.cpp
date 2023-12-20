@@ -1,11 +1,11 @@
 #include "NewEntryDialog.h"
 
 #include <QCheckBox>
+#include <QDialogButtonBox>
 #include <QDir>
+#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QDialogButtonBox>
-#include <QFormLayout>
 #include <QSpinBox>
 
 #include "../config/Options.h"
