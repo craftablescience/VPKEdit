@@ -7,6 +7,10 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 
 <img src="https://github.com/craftablescience/VPKEdit/blob/main/branding/readme_promo.png?raw=true" alt="A screenshot of VPKEdit with a VTF preview open." />
 
+## Installing
+
+Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/INSTALL.md) for step-by-step installation instructions.
+
 ## Features
 
 - Create VPKs of any version from scratch or an existing folder
