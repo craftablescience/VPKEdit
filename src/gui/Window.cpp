@@ -108,10 +108,10 @@ Window::Window(QWidget* parent)
 
     fileMenu->addSeparator();
 
-    this->checkForUpdatesNetworkManager = new QNetworkAccessManager(this);
-    QObject::connect(this->checkForUpdatesNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
+	this->checkForNewUpdateNetworkManager = new QNetworkAccessManager(this);
+	QObject::connect(this->checkForNewUpdateNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [this] {
-        this->checkForUpdates();
+        this->checkForNewUpdate();
     });
 
     fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [this] {
@@ -337,8 +337,8 @@ void Window::closeVPK() {
     this->vpk = std::nullopt;
 }
 
-void Window::checkForUpdates() const {
-    this->checkForUpdatesNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
+void Window::checkForNewUpdate() const {
+	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
 }
 
 void Window::changeVPKVersion() {
@@ -382,7 +382,7 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     auto version = release["tag_name"].toString();
 
     if (version == QString("v" VPKEDIT_PROJECT_VERSION)) {
-        QMessageBox::information(this, tr("No New Updates"), tr("You are running the most recent version!"));
+        QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
         return;
     }
     NewUpdateDialog::getNewUpdatePrompt(url, version, this);

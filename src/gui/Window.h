@@ -37,7 +37,7 @@ public:
 
     void closeVPK();
 
-    void checkForUpdates() const;
+	void checkForNewUpdate() const;
 
     void changeVPKVersion();
 
@@ -105,7 +105,7 @@ private:
     QAction* addDirAction;
     QAction* changeVersionAction;
 
-    QNetworkAccessManager* checkForUpdatesNetworkManager;
+    QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
     QThread* extractWorkerThread;
 
