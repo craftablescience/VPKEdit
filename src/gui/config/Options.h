@@ -6,7 +6,7 @@
 
 constexpr std::string_view OPT_STYLE = "style";
 constexpr std::string_view OPT_ENTRY_LIST_AUTO_EXPAND = "entry_list_auto_expand";
-constexpr std::string_view OPT_ADV_MODE = "adv_mode";
+constexpr std::string_view OPT_ADVANCED_FILE_PROPS = "adv_mode";
 constexpr std::string_view OPT_START_MAXIMIZED = "start_maximized";
 
 namespace Options {

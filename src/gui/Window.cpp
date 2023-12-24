@@ -170,11 +170,11 @@ Window::Window(QWidget* parent)
     }
 
     optionsMenu->addSeparator();
-    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced Mode"), [=] {
-        Options::invert(OPT_ADV_MODE);
+    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced File Properties"), [=] {
+        Options::invert(OPT_ADVANCED_FILE_PROPS);
     });
     optionAdvancedMode->setCheckable(true);
-    optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADV_MODE));
+    optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADVANCED_FILE_PROPS));
 
     optionsMenu->addSeparator();
     auto* optionStartMaximized = optionsMenu->addAction(tr("&Start Maximized"), [=] {
@@ -414,7 +414,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	bool useArchiveVPK = false;
 	int preloadBytes = 0;
 
-	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
+	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
 		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, false, 0, this);
 		if (!newEntryOptions) {
 			return;
@@ -449,7 +449,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 	bool useArchiveVPK = false;
 	int preloadBytes = 0;
 
-	if (showOptions || Options::get<bool>(OPT_ADV_MODE)) {
+	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
 		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, false, 0, this);
 		if (!newEntryOptions) {
 			return;
