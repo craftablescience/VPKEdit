@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -517,8 +518,56 @@ void Window::editFile(const QString& oldPath) {
 	this->markModified(true);
 }
 
-void Window::renameDir(const QString& oldPath) {
-    // todo: rename dir
+void Window::renameDir(const QString& oldPath, const QString& newPath_) {
+	// Get new path
+	QString newPath = newPath_;
+	if (newPath.isEmpty()) {
+		bool ok;
+		newPath = QInputDialog::getText(this, tr("Rename Folder"), tr("The new path:"), QLineEdit::Normal, oldPath, &ok);
+		if (!ok || newPath.isEmpty()) {
+			return;
+		}
+	}
+
+	std::vector<QString> paths;
+	for (const auto& [directory, entries] : this->vpk->getBakedEntries()) {
+		if (QString(directory.c_str()).startsWith(oldPath)) {
+			for (const auto& entry : entries) {
+				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
+			}
+		}
+	}
+	for (const auto& [directory, entries] : this->vpk->getUnbakedEntries()) {
+		if (QString(directory.c_str()).startsWith(oldPath)) {
+			for (const auto& entry : entries) {
+				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
+			}
+		}
+	}
+
+	for (const auto& path : paths) {
+		// Get data
+		auto entry = this->vpk->findEntry(path.toStdString());
+		if (!entry) {
+			continue;
+		}
+		auto entryData = this->vpk->readBinaryEntry(*entry);
+		if (!entryData) {
+			continue;
+		}
+
+		// Remove file
+		this->requestEntryRemoval(path);
+
+		// Calculate new path
+		QString newEntryPath = newPath + path.sliced(oldPath.length());
+
+		// Add new file with the same info and data at the new path
+		this->vpk->addBinaryEntry(newEntryPath.toStdString(), std::move(entryData.value()), entry->archiveIndex == VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()));
+		this->entryTree->addEntry(newEntryPath);
+		this->fileViewer->addEntry(this->vpk.value(), newEntryPath);
+	}
+	this->markModified(true);
 }
 
 void Window::about() {
@@ -608,12 +657,16 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
 
     // Get progress bar maximum
     int progressBarMax = 0;
-    for (const auto& [directory, entries] : this->vpk->getEntries()) {
-        if (!predicate(QString(directory.c_str()))) {
-            continue;
+    for (const auto& [directory, entries] : this->vpk->getBakedEntries()) {
+        if (predicate(QString(directory.c_str()))) {
+	        progressBarMax += static_cast<int>(entries.size());
         }
-        progressBarMax += static_cast<int>(entries.size());
     }
+	for (const auto& [directory, entries] : this->vpk->getUnbakedEntries()) {
+		if (predicate(QString(directory.c_str()))) {
+			progressBarMax += static_cast<int>(entries.size());
+		}
+	}
 
     this->statusProgressBar->setMinimum(0);
     this->statusProgressBar->setMaximum(progressBarMax);
@@ -825,23 +878,42 @@ void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
 
 void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
     int currentEntry = 0;
-    for (const auto& [directory, entries] : window->vpk->getEntries()) {
+    for (const auto& [directory, entries] : window->vpk->getBakedEntries()) {
         QString dir(directory.c_str());
         if (!predicate(dir)) {
             continue;
         }
 
         QDir qDir;
-        if (!qDir.mkpath(saveDir + '/' + dir)) {
+        if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
             QMessageBox::critical(window, tr("Error"), "Failed to create directory.");
             return;
         }
 
         for (const auto& entry : entries) {
-            auto filePath = saveDir + '/' + dir + '/' + entry.filename.c_str();
+            auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.filename.c_str();
             window->writeEntryToFile(filePath, entry);
             emit progressUpdated(++currentEntry);
         }
     }
+	// todo: don't duplicate this code
+	for (const auto& [directory, entries] : window->vpk->getUnbakedEntries()) {
+		QString dir(directory.c_str());
+		if (!predicate(dir)) {
+			continue;
+		}
+
+		QDir qDir;
+		if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
+			QMessageBox::critical(window, tr("Error"), "Failed to create directory.");
+			return;
+		}
+
+		for (const auto& entry : entries) {
+			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.filename.c_str();
+			window->writeEntryToFile(filePath, entry);
+			emit progressUpdated(++currentEntry);
+		}
+	}
     emit taskFinished();
 }
