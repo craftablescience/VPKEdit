@@ -53,7 +53,7 @@ public:
 
     void editFile(const QString& oldPath);
 
-    void renameDir(const QString& oldPath);
+    void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
     void about();
 

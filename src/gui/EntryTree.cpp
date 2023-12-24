@@ -95,7 +95,7 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
 
     // Set up progress bar
     progressBar->setMinimum(0);
-    progressBar->setMaximum(static_cast<int>(vpk.getEntries().size()));
+    progressBar->setMaximum(static_cast<int>(vpk.getBakedEntries().size()));
     progressBar->setValue(0);
 
     // Don't let the user touch anything
@@ -319,7 +319,7 @@ void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
 
 void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {
     int progress = 0;
-    for (const auto& [directory, entries] : vpk.getEntries()) {
+    for (const auto& [directory, entries] : vpk.getBakedEntries()) {
         emit progressUpdated(++progress);
         for (const auto& entry : entries) {
             tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.filename.c_str());

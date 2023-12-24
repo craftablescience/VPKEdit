@@ -127,7 +127,7 @@ public:
 
     void setVersion(std::uint32_t version);
 
-    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getEntries() const {
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getBakedEntries() const {
         return this->entries;
     }
 
