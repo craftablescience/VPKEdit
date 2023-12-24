@@ -18,7 +18,7 @@ struct EntryContextMenuData {
         this->contextMenuDir->addSeparator();
         this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
         this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
-        this->contextMenuFile->addSeparator();
+        this->contextMenuDir->addSeparator();
         this->renameDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move Folder..."));
         this->contextMenuDir->addSeparator();
         this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
