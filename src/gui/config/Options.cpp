@@ -21,8 +21,8 @@ void Options::setupOptions(QSettings& options) {
         options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, false);
     }
 
-    if (!options.contains(OPT_ADV_MODE)) {
-        options.setValue(OPT_ADV_MODE, false);
+    if (!options.contains(OPT_ADVANCED_FILE_PROPS)) {
+        options.setValue(OPT_ADVANCED_FILE_PROPS, false);
     }
 
     if (!options.contains(OPT_START_MAXIMIZED)) {

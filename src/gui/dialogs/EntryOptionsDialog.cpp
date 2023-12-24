@@ -12,10 +12,10 @@
 
 EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseDirVPK, int prefilledPreloadBytes, QWidget* parent)
         : QDialog(parent) {
-    const bool advancedMode = Options::get<bool>(OPT_ADV_MODE);
+    const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
     this->setModal(true);
-    this->setWindowTitle(tr("%1%2 %3").arg(advancedMode ? "(Advanced) " : "", edit ? "Edit" : "New", isDir ? "Folder" : "File"));
+    this->setWindowTitle(tr("%1%2 %3").arg(advancedFileProps ? "(Advanced) " : "", edit ? "Edit" : "New", isDir ? "Folder" : "File"));
 	// This works well enough without messing around with QFontMetrics
 	this->setMinimumWidth(static_cast<int>(130 + (prefilledPath.length() * 8)));
 
@@ -28,7 +28,7 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
     this->path->setText(prefilledPath);
     layout->addRow(pathLineEditLabel, this->path);
 
-    if (advancedMode) {
+    if (advancedFileProps) {
         auto* useDirVPKLabel = new QLabel(
                 isDir ? tr("Save this file to a new numbered archive\ninstead of the directory VPK:") : tr("Save each file to a new numbered archive\ninstead of the directory VPK:"),
                 this);
