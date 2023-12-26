@@ -24,6 +24,14 @@ public:
 
 	void setPath(const QString& newPath);
 
+	void navigateBack();
+
+	void navigateNext();
+
+	void navigateUp();
+
+	void navigatePath();
+
 	void clearContents();
 
 signals:
@@ -41,6 +49,10 @@ class FileViewer : public QWidget {
 
 public:
     explicit FileViewer(Window* window_, QWidget* parent = nullptr);
+
+	void requestNavigateBack();
+
+	void requestNavigateNext();
 
     void displayEntry(const QString& path, const vpkedit::VPK& vpk);
 
