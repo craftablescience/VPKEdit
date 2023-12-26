@@ -3,6 +3,8 @@
 #include <filesystem>
 
 #include <QHBoxLayout>
+#include <QLineEdit>
+#include <QToolButton>
 
 #include "previews/DirPreview.h"
 #include "previews/info/EmptyPreview.h"
@@ -16,11 +18,56 @@
 
 using namespace vpkedit;
 
+// NavBar will hold a list of places visited, uses pathChanged signal to go between them
+// Back button - goes back in the list
+// Next button - goes forward in the list
+// Up button   - strips the directory/file off the end of the path
+// Current Path - set the path explicitly, if valid fire pathChanged, otherwise reset the text
+NavBar::NavBar(QWidget* parent)
+		: QWidget(parent) {
+	auto* layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+
+	this->backButton = new QToolButton(this);
+	layout->addWidget(this->backButton);
+	// todo: navbar
+	this->backButton->setDisabled(true);
+
+	this->nextButton = new QToolButton(this);
+	layout->addWidget(this->nextButton);
+	// todo: navbar
+	this->nextButton->setDisabled(true);
+
+	this->upButton = new QToolButton(this);
+	layout->addWidget(this->upButton);
+	// todo: navbar
+	this->upButton->setDisabled(true);
+
+	this->currentPath = new QLineEdit(this);
+	layout->addWidget(this->currentPath);
+	// todo: navbar
+	this->currentPath->setDisabled(true);
+}
+
+void NavBar::setPath(const QString& newPath) {
+	this->currentPath->setText(newPath);
+}
+
+void NavBar::clearContents() {
+	this->currentPath->clear();
+}
+
 FileViewer::FileViewer(Window* window_, QWidget* parent)
         : QWidget(parent)
         , window(window_) {
-    auto* layout = new QHBoxLayout(this);
+    auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+
+	this->navbar = new NavBar(this);
+	QObject::connect(this->navbar, &NavBar::pathChanged, [](const QString& newPath) {
+		// todo: navbar
+	});
+	layout->addWidget(this->navbar);
 
     auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
@@ -55,6 +102,8 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
     QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
 
     this->clearContents();
+	this->navbar->setPath(path);
+
     if (ImagePreview::EXTENSIONS.contains(extension)) {
 	    // Image
 	    auto binary = this->window->readBinaryEntry(path);
@@ -96,6 +145,8 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
 
 void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
     this->clearContents();
+	this->navbar->setPath(path);
+
     this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, vpk);
     this->showPreview<DirPreview>();
 }
@@ -133,5 +184,6 @@ const QString& FileViewer::getDirPreviewCurrentPath() {
 }
 
 void FileViewer::clearContents() {
+	this->navbar->clearContents();
     this->showPreview<EmptyPreview>();
 }

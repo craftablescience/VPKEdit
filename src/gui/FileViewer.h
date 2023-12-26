@@ -5,7 +5,8 @@
 
 #include <QWidget>
 
-class QTextEdit;
+class QLineEdit;
+class QToolButton;
 
 namespace vpkedit {
 
@@ -14,6 +15,26 @@ class VPK;
 } // namespace vpkedit
 
 class Window;
+
+class NavBar : public QWidget {
+	Q_OBJECT;
+
+public:
+	explicit NavBar(QWidget* parent = nullptr);
+
+	void setPath(const QString& newPath);
+
+	void clearContents();
+
+signals:
+	void pathChanged(const QString& newPath);
+
+private:
+	QToolButton* backButton;
+	QToolButton* nextButton;
+	QToolButton* upButton;
+	QLineEdit* currentPath;
+};
 
 class FileViewer : public QWidget {
     Q_OBJECT;
@@ -61,6 +82,8 @@ public:
 
 private:
     Window* window;
+
+	NavBar* navbar;
 
     std::unordered_map<std::type_index, QWidget*> previews;
 
