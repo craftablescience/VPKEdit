@@ -255,6 +255,7 @@ Window::Window(QWidget* parent)
     splitter->addWidget(rightPane);
 
     splitter->setStretchFactor(0, 1);
+	// todo: qt stretch 20 hack
     splitter->setStretchFactor(1, 20); // qt "stretch factor" can go fuck itself this is a magic number that works
 
     this->statusText = new QLabel(this->statusBar());
@@ -758,7 +759,7 @@ void Window::clearContents() {
         return;
     }
 
-    this->statusText->setText("");
+    this->statusText->clear();
     this->statusProgressBar->hide();
     this->statusBar()->hide();
 
