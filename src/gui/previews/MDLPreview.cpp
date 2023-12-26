@@ -11,8 +11,8 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QPushButton>
 #include <QStyleOption>
+#include <QToolButton>
 #include <QtMath>
 #include <vpkedit/VPK.h>
 #include <VTFLib.h>
@@ -404,18 +404,20 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	});
 	controlsLayout->addWidget(this->backfaceCulling, Qt::AlignVCenter | Qt::AlignLeft);
 
-	const QList<QPushButton**> buttons{
+	const QList<QToolButton**> buttons{
 		&this->shadingModeWireframe,
 		&this->shadingModeShadedUntextured,
 		&this->shadingModeUnshadedTextured,
 		&this->shadingModeShadedTextured,
 	};
 	for (int i = 0; i < buttons.size(); i++) {
-		auto* button = *buttons[i] = new QPushButton(this);
+		auto* button = *buttons[i] = new QToolButton(this);
+		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
-		button->setFlat(true);
-		button->setStyleSheet("QPushButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
-		QObject::connect(button, &QPushButton::pressed, [=, this] {
+		button->setStyleSheet(
+				"QToolButton          { background-color: rgba(0,0,0,0); border: none; }\n"
+				"QToolButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
+		QObject::connect(button, &QToolButton::pressed, [=, this] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
 		controlsLayout->addWidget(button, Qt::AlignRight);
@@ -607,7 +609,7 @@ void MDLPreview::setShadingMode(MDLShadingMode mode) const {
 
 	this->backfaceCulling->setDisabled(mode == MDLShadingMode::WIREFRAME);
 
-	const QList<std::tuple<QPushButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
+	const QList<std::tuple<QToolButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
 			{&this->shadingModeWireframe, ":/icons/wireframe.png", MDLShadingMode::WIREFRAME},
 			{&this->shadingModeShadedUntextured, ":/icons/shaded_untextured.png", MDLShadingMode::SHADED_UNTEXTURED},
 			{&this->shadingModeUnshadedTextured, ":/icons/unshaded_textured.png", MDLShadingMode::UNSHADED_TEXTURED},

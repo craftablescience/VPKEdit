@@ -21,8 +21,8 @@ class VPK;
 
 class QCheckBox;
 class QMouseEvent;
-class QPushButton;
 class QTimerEvent;
+class QToolButton;
 
 class FileViewer;
 
@@ -165,8 +165,8 @@ private:
 
 	MDLWidget* mdl;
 	QCheckBox* backfaceCulling;
-    QPushButton* shadingModeWireframe;
-    QPushButton* shadingModeShadedUntextured;
-    QPushButton* shadingModeUnshadedTextured;
-    QPushButton* shadingModeShadedTextured;
+    QToolButton* shadingModeWireframe;
+    QToolButton* shadingModeShadedUntextured;
+    QToolButton* shadingModeUnshadedTextured;
+    QToolButton* shadingModeShadedTextured;
 };
