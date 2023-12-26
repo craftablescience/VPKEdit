@@ -18,6 +18,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QMouseEvent>
 #include <QNetworkReply>
 #include <QProgressBar>
 #include <QSplitter>
@@ -773,6 +774,16 @@ void Window::clearContents() {
 
     this->markModified(false);
     this->freezeActions(true, false); // Leave create/open unfrozen
+}
+
+void Window::mousePressEvent(QMouseEvent* event) {
+	if (event->button() == Qt::BackButton) {
+		this->fileViewer->requestNavigateBack();
+		event->accept();
+	} else if (event->button() == Qt::ForwardButton) {
+		this->fileViewer->requestNavigateNext();
+		event->accept();
+	}
 }
 
 void Window::dragEnterEvent(QDragEnterEvent* event) {
