@@ -404,19 +404,20 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	});
 	controlsLayout->addWidget(this->backfaceCulling, Qt::AlignVCenter | Qt::AlignLeft);
 
-	const QList<QToolButton**> buttons{
-		&this->shadingModeWireframe,
-		&this->shadingModeShadedUntextured,
-		&this->shadingModeUnshadedTextured,
-		&this->shadingModeShadedTextured,
+	const QVector<QPair<QToolButton**, Qt::Key>> buttons{
+		{&this->shadingModeWireframe,        Qt::Key_1},
+		{&this->shadingModeShadedUntextured, Qt::Key_2},
+		{&this->shadingModeUnshadedTextured, Qt::Key_3},
+		{&this->shadingModeShadedTextured,   Qt::Key_4},
 	};
 	for (int i = 0; i < buttons.size(); i++) {
-		auto* button = *buttons[i] = new QToolButton(this);
+		auto* button = *(buttons[i].first) = new QToolButton(this);
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
 		button->setStyleSheet(
 				"QToolButton          { background-color: rgba(0,0,0,0); border: none; }\n"
 				"QToolButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
+		button->setShortcut(buttons[i].second);
 		QObject::connect(button, &QToolButton::pressed, [=, this] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
