@@ -52,6 +52,14 @@ NavBar::NavBar(QWidget* parent)
 	QObject::connect(this->upButton, &QToolButton::triggered, this, &NavBar::navigateUp);
 	layout->addWidget(this->upButton);
 
+	this->homeButton = new QToolButton(this);
+	this->homeButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+	auto* homeButtonAction = new QAction("/", this->homeButton);
+	homeButtonAction->setShortcut(Qt::Key_Home);
+	this->homeButton->setDefaultAction(homeButtonAction);
+	QObject::connect(this->homeButton, &QToolButton::triggered, this, &NavBar::navigateHome);
+	layout->addWidget(this->homeButton);
+
 	this->currentPath = new QLineEdit(this);
 	this->currentPath->setPlaceholderText(tr("Navigate..."));
 	QObject::connect(this->currentPath, &QLineEdit::editingFinished, this, &NavBar::navigatePath);
@@ -71,6 +79,10 @@ void NavBar::navigateNext() {
 }
 
 void NavBar::navigateUp() {
+	// todo: navbar
+}
+
+void NavBar::navigateHome() {
 	// todo: navbar
 }
 
