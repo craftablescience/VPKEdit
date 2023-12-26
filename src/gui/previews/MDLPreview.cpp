@@ -310,11 +310,14 @@ void MDLWidget::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::MouseButton::RightButton) {
         this->rmbBeingHeld = true;
     }
+
+	event->accept();
 }
 
 void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::MouseButton::RightButton) {
         this->rmbBeingHeld = false;
+		event->accept();
     }
 }
 
@@ -349,6 +352,8 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
     // Update old position
 	this->mousePressPosition = QVector2D(event->position());
     this->update();
+
+	event->accept();
 }
 
 void MDLWidget::wheelEvent(QWheelEvent* event) {
