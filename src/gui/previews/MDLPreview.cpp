@@ -402,7 +402,8 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, [&](int state) {
 		this->mdl->setCullBackFaces(state == Qt::CheckState::Checked);
 	});
-	controlsLayout->addWidget(this->backfaceCulling, Qt::AlignVCenter | Qt::AlignLeft);
+	// todo: qt stretch 20 hack
+	controlsLayout->addWidget(this->backfaceCulling, 20, Qt::AlignVCenter | Qt::AlignLeft);
 
 	const QVector<QPair<QToolButton**, Qt::Key>> buttons{
 		{&this->shadingModeWireframe,        Qt::Key_1},
@@ -421,7 +422,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 		QObject::connect(button, &QToolButton::pressed, [=, this] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
-		controlsLayout->addWidget(button, Qt::AlignRight);
+		controlsLayout->addWidget(button, 0, Qt::AlignVCenter | Qt::AlignRight);
 	}
 
 	this->mdl = new MDLWidget(this);
