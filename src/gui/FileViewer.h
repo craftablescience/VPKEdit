@@ -30,6 +30,8 @@ public:
 
 	void navigateUp();
 
+	void navigateHome();
+
 	void navigatePath();
 
 	void clearContents();
@@ -41,6 +43,7 @@ private:
 	QToolButton* backButton;
 	QToolButton* nextButton;
 	QToolButton* upButton;
+	QToolButton* homeButton;
 	QLineEdit* currentPath;
 };
 
