@@ -91,7 +91,7 @@ ImagePreview::ImagePreview(QWidget* parent)
     auto* alphaCheckBoxLabel = new QLabel(tr("Alpha"), alphaCheckBoxParent);
     alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
     this->alphaCheckBox = new QCheckBox(controls);
-    QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, [&] {
+    QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
         this->image->setAlphaEnabled(this->alphaCheckBox->isChecked());
         this->image->repaint();
     });
@@ -103,7 +103,7 @@ ImagePreview::ImagePreview(QWidget* parent)
     auto* tileCheckBoxLabel = new QLabel(tr("Tile"), tileCheckBoxParent);
     tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
     this->tileCheckBox = new QCheckBox(controls);
-    QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, [&] {
+    QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
         this->image->setTileEnabled(this->tileCheckBox->isChecked());
         this->image->repaint();
     });
@@ -118,7 +118,7 @@ ImagePreview::ImagePreview(QWidget* parent)
     this->zoomSlider->setMinimum(20);
     this->zoomSlider->setMaximum(800);
     this->zoomSlider->setValue(100);
-    QObject::connect(this->zoomSlider, &QSlider::valueChanged, [&] {
+    QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
         this->image->setZoom(this->zoomSlider->value());
         this->image->repaint();
     });
