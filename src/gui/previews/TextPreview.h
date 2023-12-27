@@ -35,7 +35,7 @@ private:
         QRegularExpression pattern;
         QTextCharFormat format;
     };
-    QVector<HighlightingRule> highlightingRules;
+    QList<HighlightingRule> highlightingRules;
 };
 
 class TextPreview : public QPlainTextEdit {
@@ -69,7 +69,9 @@ protected:
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
+
     void updateLineNumberArea(const QRect& rect, int dy);
+
     void highlightCurrentLine();
 
 private:

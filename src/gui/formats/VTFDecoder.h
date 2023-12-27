@@ -5,7 +5,6 @@
 #include <tuple>
 
 #include <QImage>
-#include <QVector>
 #include <VTFLib.h>
 
 struct VTFData {
