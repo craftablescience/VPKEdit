@@ -16,5 +16,6 @@
 
         <file>error.png</file>
         <file alias="icon.png">icon-fullres.png</file>
+        <file>warning.png</file>
     </qresource>
 </RCC>

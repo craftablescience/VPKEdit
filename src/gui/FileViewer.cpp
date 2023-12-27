@@ -10,6 +10,7 @@
 #include "previews/info/EmptyPreview.h"
 #include "previews/info/FileLoadErrorPreview.h"
 #include "previews/info/InvalidMDLErrorPreview.h"
+#include "previews/info/NoAvailablePreview.h"
 #include "previews/ImagePreview.h"
 #include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
@@ -188,6 +189,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* invalidMDLErrorPreview = newPreview<InvalidMDLErrorPreview>(this);
 	layout->addWidget(invalidMDLErrorPreview);
 
+	auto* noAvailablePreview = newPreview<NoAvailablePreview>(this);
+	layout->addWidget(noAvailablePreview);
+
 	auto* mdlPreview = newPreview<MDLPreview>(this, this);
 	layout->addWidget(mdlPreview);
 
@@ -252,7 +256,9 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
         }
 	    this->showPreview<TextPreview>();
         this->getPreview<TextPreview>()->setText(*text, extension);
-    }
+    } else {
+		this->showPreview<NoAvailablePreview>();
+	}
 }
 
 void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
