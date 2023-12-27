@@ -119,6 +119,8 @@ if(VPKEDIT_BUILD_GUI)
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/FileLoadErrorPreview.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/InvalidMDLErrorPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/InvalidMDLErrorPreview.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/NoAvailablePreview.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/info/NoAvailablePreview.cpp"
 
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/previews/DirPreview.cpp"
