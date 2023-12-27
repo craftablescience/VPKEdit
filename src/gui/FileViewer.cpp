@@ -18,13 +18,32 @@
 
 using namespace vpkedit;
 
-// NavBar will hold a list of places visited, uses pathChanged signal to go between them
-// Back button - goes back in the list
-// Next button - goes forward in the list
-// Up button   - strips the directory/file off the end of the path
-// Current Path - set the path explicitly, if valid fire pathChanged, otherwise reset the text
-NavBar::NavBar(QWidget* parent)
-		: QWidget(parent) {
+static QString stripSlashes(QString input) {
+	while (input.startsWith('/')) {
+		input = input.sliced(1);
+	}
+	while (input.endsWith('/')) {
+		if (input.length() <= 1) {
+			input = "";
+		} else {
+			input = input.sliced(0, input.length() - 1);
+		}
+	}
+	return input;
+}
+
+/*
+ * NavBar holds a list of places visited, uses pathChanged signal to tell FileViewer to go between them
+ * Back button - goes back in the list
+ * Next button - goes forward in the list
+ * Up button - strips the directory/file off the end of the path
+ * Home button - go to the root directory
+ * Current Path - set the path explicitly, if valid fire pathChanged, otherwise reset the text to last valid path
+ */
+NavBar::NavBar(Window* window_, QWidget* parent)
+		: QWidget(parent)
+		, window(window_)
+		, historyIndex(0) {
 	auto* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 
@@ -68,31 +87,78 @@ NavBar::NavBar(QWidget* parent)
 
 void NavBar::setPath(const QString& newPath) {
 	this->currentPath->setText(newPath);
+	this->processPathChanged(newPath, true, false);
 }
 
 void NavBar::navigateBack() {
-	// todo: navbar
+	if (this->historyIndex > 0) {
+		this->historyIndex--;
+		this->processPathChanged(this->history.at(this->historyIndex), false);
+	}
 }
 
 void NavBar::navigateNext() {
-	// todo: navbar
+	if (this->historyIndex < this->history.size() - 1) {
+		this->historyIndex++;
+		this->processPathChanged(this->history.at(this->historyIndex), false);
+	}
 }
 
 void NavBar::navigateUp() {
-	// todo: navbar
+	auto path = this->history.at(this->historyIndex);
+	auto index = path.lastIndexOf('/');
+	if (index < 0) {
+		return this->navigateHome();
+	}
+	path = path.sliced(0, index);
+	this->processPathChanged(path);
 }
 
 void NavBar::navigateHome() {
-	// todo: navbar
+	this->processPathChanged("");
 }
 
 void NavBar::navigatePath() {
-	// todo: navbar, check if path is valid first
-	emit this->pathChanged(this->currentPath->text());
+	auto newPath = stripSlashes(this->currentPath->text());
+	if (!this->window->hasEntry(newPath)) {
+		this->currentPath->setText(this->history.at(this->historyIndex));
+		return;
+	}
+	this->processPathChanged(newPath);
 }
 
-void NavBar::clearContents() {
+void NavBar::clearContents(bool resetHistory) {
 	this->currentPath->clear();
+
+	if (resetHistory) {
+		this->history.clear();
+		this->history.push_back(""); // root
+		this->historyIndex = 0;
+
+		this->backButton->setDisabled(true);
+		this->nextButton->setDisabled(true);
+	}
+}
+
+void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool firePathChanged) {
+	if (addToHistory && newPath != this->history.at(this->historyIndex)) {
+		while (this->historyIndex < this->history.size() - 1) {
+			this->history.pop_back();
+		}
+		this->history.push_back(newPath);
+		this->historyIndex = static_cast<int>(this->history.size() - 1);
+
+		while (this->history.size() > NavBar::NAVIGATION_HISTORY_LIMIT) {
+			this->history.pop_front();
+		}
+	}
+
+	this->backButton->setDisabled(!this->historyIndex);
+	this->nextButton->setDisabled(this->historyIndex == this->history.size() - 1);
+
+	if (firePathChanged) {
+		emit this->pathChanged(newPath);
+	}
 }
 
 FileViewer::FileViewer(Window* window_, QWidget* parent)
@@ -101,9 +167,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-	this->navbar = new NavBar(this);
-	QObject::connect(this->navbar, &NavBar::pathChanged, [](const QString& newPath) {
-		// todo: navbar
+	this->navbar = new NavBar(this->window, this);
+	QObject::connect(this->navbar, &NavBar::pathChanged, this, [this](const QString& newPath) {
+		this->window->selectEntryInEntryTree(newPath);
 	});
 	layout->addWidget(this->navbar);
 
@@ -131,7 +197,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* vtfPreview = newPreview<VTFPreview>(this);
     layout->addWidget(vtfPreview);
 
-    this->clearContents();
+    this->clearContents(true);
 }
 
 void FileViewer::requestNavigateBack() {
@@ -147,7 +213,7 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
     std::filesystem::path helperPath(path.toLower().toStdString());
     QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
 
-    this->clearContents();
+    this->clearContents(false);
 	this->navbar->setPath(path);
 
     if (ImagePreview::EXTENSIONS.contains(extension)) {
@@ -190,7 +256,7 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
 }
 
 void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
-    this->clearContents();
+    this->clearContents(false);
 	this->navbar->setPath(path);
 
     this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, vpk);
@@ -229,7 +295,7 @@ const QString& FileViewer::getDirPreviewCurrentPath() {
 	return this->getPreview<DirPreview>()->getCurrentPath();
 }
 
-void FileViewer::clearContents() {
-	this->navbar->clearContents();
+void FileViewer::clearContents(bool resetHistory) {
+	this->navbar->clearContents(resetHistory);
     this->showPreview<EmptyPreview>();
 }

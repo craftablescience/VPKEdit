@@ -63,9 +63,13 @@ public:
 
     [[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
 
-    void selectEntry(const QString& path) const;
+	void selectEntryInEntryTree(const QString& path) const;
 
-    void selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const;
+    void selectEntryInFileViewer(const QString& path) const;
+
+    void selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const;
+
+	[[nodiscard]] bool hasEntry(const QString& path) const;
 
     void selectSubItemInDir(const QString& path) const;
 

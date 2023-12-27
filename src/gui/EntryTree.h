@@ -21,6 +21,10 @@ public:
 
     void loadVPK(vpkedit::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
+	[[nodiscard]] bool hasEntry(const QString& path) const;
+
+    void selectEntry(const QString& path);
+
     void selectSubItem(const QString& name);
 
     void setSearchQuery(const QString& query);
@@ -38,6 +42,8 @@ public slots:
 
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item) const;
+
+	[[nodiscard]] QTreeWidgetItem* getItemAtPath(const QString& path) const;
 
     void addNestedEntryComponents(const QString& path) const;
 
