@@ -147,7 +147,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     frameSpinLayout->addWidget(frameSpinLabel);
     this->frameSpin = new QSpinBox(frameSpinParent);
     this->frameSpin->setMinimum(1);
-    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
+    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
         this->vtf->setFrame(this->frameSpin->value());
         this->vtf->repaint();
     });
@@ -160,7 +160,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     faceSpinLayout->addWidget(faceSpinLabel);
     this->faceSpin = new QSpinBox(controls);
     this->faceSpin->setMinimum(1);
-    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
+    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
         this->vtf->setFace(this->faceSpin->value());
         this->vtf->repaint();
     });
@@ -173,7 +173,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     mipSpinLayout->addWidget(mipSpinLabel);
     this->mipSpin = new QSpinBox(controls);
     this->mipSpin->setMinimum(0);
-    QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), [&] {
+    QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
         this->vtf->setMip(this->mipSpin->value());
         this->vtf->repaint();
     });
@@ -185,7 +185,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     auto* alphaCheckBoxLabel = new QLabel(tr("Alpha"), alphaCheckBoxParent);
     alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
     this->alphaCheckBox = new QCheckBox(controls);
-    QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, [&] {
+    QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
         this->vtf->setAlphaEnabled(this->alphaCheckBox->isChecked());
         this->vtf->repaint();
     });
@@ -197,7 +197,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     auto* tileCheckBoxLabel = new QLabel(tr("Tile"), tileCheckBoxParent);
     tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
     this->tileCheckBox = new QCheckBox(controls);
-    QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, [&] {
+    QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
         this->vtf->setTileEnabled(this->tileCheckBox->isChecked());
         this->vtf->repaint();
     });
@@ -212,7 +212,7 @@ VTFPreview::VTFPreview(QWidget* parent)
     this->zoomSlider->setMinimum(20);
     this->zoomSlider->setMaximum(800);
     this->zoomSlider->setValue(100);
-    QObject::connect(this->zoomSlider, &QSlider::valueChanged, [&] {
+    QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
         this->vtf->setZoom(this->zoomSlider->value());
         this->vtf->repaint();
     });

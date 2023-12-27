@@ -404,7 +404,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 
 	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), this);
 	this->backfaceCulling->setCheckState(Qt::CheckState::Checked);
-	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, [&](int state) {
+	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, this, [&](int state) {
 		this->mdl->setCullBackFaces(state == Qt::CheckState::Checked);
 	});
 	// todo: qt stretch 20 hack
@@ -424,7 +424,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 				"QToolButton          { background-color: rgba(0,0,0,0); border: none; }\n"
 				"QToolButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
 		button->setShortcut(buttons[i].second);
-		QObject::connect(button, &QToolButton::pressed, [=, this] {
+		QObject::connect(button, &QToolButton::pressed, this, [=, this] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
 		controlsLayout->addWidget(button, 0, Qt::AlignVCenter | Qt::AlignRight);

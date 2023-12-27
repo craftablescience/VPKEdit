@@ -37,7 +37,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(true, this);
-    QObject::connect(this, &QTreeWidget::customContextMenuRequested, [=, this](const QPoint& pos) {
+    QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [=, this](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
