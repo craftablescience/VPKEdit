@@ -20,7 +20,10 @@ class NavBar : public QWidget {
 	Q_OBJECT;
 
 public:
-	explicit NavBar(QWidget* parent = nullptr);
+	// This should be more than enough for anybody
+	static constexpr int NAVIGATION_HISTORY_LIMIT = 512;
+
+	explicit NavBar(Window* window_, QWidget* parent = nullptr);
 
 	void setPath(const QString& newPath);
 
@@ -34,17 +37,24 @@ public:
 
 	void navigatePath();
 
-	void clearContents();
+	void clearContents(bool resetHistory = true);
 
 signals:
 	void pathChanged(const QString& newPath);
 
 private:
+	Window* window;
+
 	QToolButton* backButton;
 	QToolButton* nextButton;
 	QToolButton* upButton;
 	QToolButton* homeButton;
 	QLineEdit* currentPath;
+
+	QList<QString> history;
+	int historyIndex;
+
+	void processPathChanged(const QString& newPath, bool addToHistory = true, bool firePathChanged = true);
 };
 
 class FileViewer : public QWidget {
@@ -75,7 +85,7 @@ public:
 
 	[[nodiscard]] const QString& getDirPreviewCurrentPath();
 
-    void clearContents();
+    void clearContents(bool resetHistory);
 
 	template<typename T>
 	T* getPreview() {

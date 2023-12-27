@@ -616,12 +616,20 @@ std::optional<QString> Window::readTextEntry(const QString& path) const {
     return QString(textData->c_str());
 }
 
-void Window::selectEntry(const QString& path) const {
+void Window::selectEntryInEntryTree(const QString& path) const {
+	this->entryTree->selectEntry(path);
+}
+
+void Window::selectEntryInFileViewer(const QString& path) const {
     this->fileViewer->displayEntry(path, this->vpk.value());
 }
 
-void Window::selectDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {
+void Window::selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {
     this->fileViewer->displayDir(path, subfolders, entryPaths, this->vpk.value());
+}
+
+bool Window::hasEntry(const QString& path) const {
+	return this->entryTree->hasEntry(path);
 }
 
 void Window::selectSubItemInDir(const QString& path) const {
@@ -764,13 +772,13 @@ void Window::clearContents() {
     this->statusProgressBar->hide();
     this->statusBar()->hide();
 
-    this->searchBar->setText(QString(""));
+    this->searchBar->clear();
     this->searchBar->setDisabled(true);
 
     this->entryTree->clearContents();
     this->entryTree->setDisabled(true);
 
-    this->fileViewer->clearContents();
+    this->fileViewer->clearContents(true);
 
     this->markModified(false);
     this->freezeActions(true, false); // Leave create/open unfrozen

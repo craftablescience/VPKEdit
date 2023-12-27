@@ -133,6 +133,29 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
     this->workerThread->start();
 }
 
+bool EntryTree::hasEntry(const QString& path) const {
+	return static_cast<bool>(this->getItemAtPath(path));
+}
+
+void EntryTree::selectEntry(const QString& path) {
+	for (auto* selected : this->selectedItems()) {
+		selected->setSelected(false);
+	}
+	auto* entry = this->getItemAtPath(path);
+
+	auto* currentEntry = entry;
+	while (currentEntry != this->root) {
+		currentEntry->setExpanded(true);
+		currentEntry = currentEntry->parent();
+	}
+	this->root->setExpanded(true);
+
+	entry->setSelected(true);
+	this->onCurrentItemChanged(entry);
+	entry->setExpanded(true);
+	this->scrollToItem(entry, QAbstractItemView::ScrollHint::PositionAtCenter);
+}
+
 void EntryTree::selectSubItem(const QString& name) {
     for (auto* selected : this->selectedItems()) {
         selected->setSelected(false);
@@ -234,7 +257,7 @@ void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
 
     auto path = this->getItemPath(item);
     if (item->childCount() == 0) {
-        this->window->selectEntry(path);
+	    this->window->selectEntryInFileViewer(path);
     } else {
         QList<QString> subfolders;
         QList<QString> entryPaths;
@@ -246,7 +269,7 @@ void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
                 subfolders << child->text(0);
             }
         }
-        this->window->selectDir(path, subfolders, entryPaths);
+	    this->window->selectDirInFileViewer(path, subfolders, entryPaths);
     }
 }
 
@@ -260,6 +283,33 @@ QString EntryTree::getItemPath(QTreeWidgetItem* item) const {
         path.prepend(item->text(0));
     }
     return path;
+}
+
+QTreeWidgetItem* EntryTree::getItemAtPath(const QString& path) const {
+	if (path.isEmpty()) {
+		return this->root;
+	}
+
+	// Traverse down the item hierarchy until reaching the lowest item
+	auto pieces = path.split('/');
+	auto* currentEntry = this->root;
+	while (currentEntry && !pieces.isEmpty()) {
+		bool found = false;
+		for (int i = 0; i < currentEntry->childCount() && !found; i++) {
+			if (currentEntry->child(i)->text(0) == pieces[0]) {
+				currentEntry = currentEntry->child(i);
+				pieces.pop_front();
+				found = true;
+			}
+		}
+		if (!found) {
+			currentEntry = nullptr;
+		}
+	}
+	if (!pieces.isEmpty()) {
+		return nullptr;
+	}
+	return currentEntry;
 }
 
 void EntryTree::addNestedEntryComponents(const QString& path) const {
