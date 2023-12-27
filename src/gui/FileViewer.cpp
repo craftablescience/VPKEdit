@@ -156,6 +156,8 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 
 	this->backButton->setDisabled(!this->historyIndex);
 	this->nextButton->setDisabled(this->historyIndex == this->history.size() - 1);
+	this->upButton->setDisabled(this->history.at(this->historyIndex) == "");
+	this->homeButton->setDisabled(this->history.at(this->historyIndex) == "");
 
 	if (firePathChanged) {
 		emit this->pathChanged(newPath);
