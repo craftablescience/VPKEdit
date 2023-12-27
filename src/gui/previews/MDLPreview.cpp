@@ -74,7 +74,7 @@ MDLWidget::~MDLWidget() {
 	}
 }
 
-void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
+void MDLWidget::setVertices(const QList<MDLVertex>& vertices_) {
 	if (this->vertices.isCreated()) {
 		this->vertices.destroy();
 	}
@@ -86,7 +86,7 @@ void MDLWidget::setVertices(const QVector<MDLVertex>& vertices_) {
 	this->vertices.release();
 }
 
-void MDLWidget::addSubMesh(const QVector<unsigned short>& indices) {
+void MDLWidget::addSubMesh(const QList<unsigned short>& indices) {
 	auto& mesh = this->meshes.emplace_back();
 
 	mesh.texture = nullptr;
@@ -98,7 +98,7 @@ void MDLWidget::addSubMesh(const QVector<unsigned short>& indices) {
 	mesh.ebo.release();
 }
 
-void MDLWidget::addSubMesh(const QVector<unsigned short>& indices, VTFData&& vtfData) {
+void MDLWidget::addSubMesh(const QList<unsigned short>& indices, VTFData&& vtfData) {
 	auto& mesh = this->meshes.emplace_back();
 
 	mesh.vtfData = std::move(vtfData);
@@ -410,7 +410,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	// todo: qt stretch 20 hack
 	controlsLayout->addWidget(this->backfaceCulling, 20, Qt::AlignVCenter | Qt::AlignLeft);
 
-	const QVector<QPair<QToolButton**, Qt::Key>> buttons{
+	const QList<QPair<QToolButton**, Qt::Key>> buttons{
 		{&this->shadingModeWireframe,        Qt::Key_1},
 		{&this->shadingModeShadedUntextured, Qt::Key_2},
 		{&this->shadingModeUnshadedTextured, Qt::Key_3},
@@ -507,7 +507,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 
 	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
 	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
-	QVector<MDLVertex> vertices;
+	QList<MDLVertex> vertices;
 	const auto convertVertexFormat = [](const VVD::Vertex& vertex) -> MDLVertex {
 		return {
 			QVector3D(vertex.position.x, vertex.position.y, vertex.position.z),
@@ -556,7 +556,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				auto materialIndex = mdlMesh.material;
 				auto& vtxMesh = vtxModel.modelLODs.at(currentLOD).meshes.at(meshIndex);
 
-				QVector<unsigned short> indices;
+				QList<unsigned short> indices;
 
 				for (const auto& stripGroup : vtxMesh.stripGroups) {
 					for (const auto& strip : stripGroup.strips) {

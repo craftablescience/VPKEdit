@@ -74,11 +74,11 @@ public:
 
 	~MDLWidget() override;
 
-	void setVertices(const QVector<MDLVertex>& vertices_);
+	void setVertices(const QList<MDLVertex>& vertices_);
 
-	void addSubMesh(const QVector<unsigned short>& indices);
+	void addSubMesh(const QList<unsigned short>& indices);
 
-	void addSubMesh(const QVector<unsigned short>& indices, VTFData&& vtfData);
+	void addSubMesh(const QList<unsigned short>& indices, VTFData&& vtfData);
 
 	void setAABB(AABB aabb);
 
