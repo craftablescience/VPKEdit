@@ -21,6 +21,10 @@ void Options::setupOptions(QSettings& options) {
         options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, false);
     }
 
+	if (!options.contains(OPT_ENTRY_LIST_AUTO_COLLAPSE)) {
+		options.setValue(OPT_ENTRY_LIST_AUTO_COLLAPSE, false);
+	}
+
     if (!options.contains(OPT_ADVANCED_FILE_PROPS)) {
         options.setValue(OPT_ADVANCED_FILE_PROPS, false);
     }

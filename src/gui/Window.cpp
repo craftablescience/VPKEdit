@@ -155,6 +155,13 @@ Window::Window(QWidget* parent)
     entryListMenuAutoExpandAction->setCheckable(true);
     entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
 
+	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start &Collapsed"), [this] {
+		Options::invert(OPT_ENTRY_LIST_AUTO_COLLAPSE);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE));
+	});
+	entryListMenuAutoCollapseAction->setCheckable(true);
+	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE));
+
     auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("&Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
@@ -258,6 +265,11 @@ Window::Window(QWidget* parent)
     splitter->setStretchFactor(0, 1);
 	// todo: qt stretch 20 hack
     splitter->setStretchFactor(1, 20); // qt "stretch factor" can go fuck itself this is a magic number that works
+
+	// Automatically collapse entry tree
+	if (Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE)) {
+		splitter->setSizes({0, splitter->size().width()});
+	}
 
     this->statusText = new QLabel(this->statusBar());
     this->statusProgressBar = new QProgressBar(this->statusBar());
