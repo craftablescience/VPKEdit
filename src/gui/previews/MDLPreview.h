@@ -70,7 +70,7 @@ class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core {
 	Q_OBJECT;
 
 public:
-	explicit MDLWidget(QWidget *parent = nullptr);
+	explicit MDLWidget(QWidget* parent = nullptr);
 
 	~MDLWidget() override;
 
