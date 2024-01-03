@@ -23,7 +23,7 @@ TEST(VPK, read) {
     auto vpk = VPK::open(PORTAL2_PAK_PATH);
     ASSERT_TRUE(vpk);
 
-    for (const auto& [directory, files] : vpk->getEntries()) {
+    for (const auto& [directory, files] : vpk->getBakedEntries()) {
         for (const auto& file : files) {
             // Terminal explosion
             std::cout << directory << '/' << file.filename << '\n';
