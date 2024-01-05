@@ -27,7 +27,7 @@ std::string removeVPKAndOrDirSuffix(const std::string& path) {
     return filename;
 }
 
-std::pair<std::string, std::string> splitFileNameAndParentDir(const std::string& filename) {
+std::pair<std::string, std::string> splitFilenameAndParentDir(const std::string& filename) {
     auto name = filename;
     std::replace(name.begin(), name.end(), '\\', '/');
 
@@ -238,7 +238,7 @@ bool VPK::open(VPK& vpk) {
 }
 
 std::optional<VPKEntry> VPK::findEntry(const std::string& filename_, bool includeUnbaked) const {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     return this->findEntry(dir, name, includeUnbaked);
 }
 
@@ -330,7 +330,7 @@ std::optional<std::string> VPK::readTextEntry(const VPKEntry& entry) const {
 }
 
 void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     this->addEntry(dir, name, pathToFile, saveToDir, preloadBytes);
 }
 
@@ -342,7 +342,7 @@ void VPK::addEntry(const std::string& directory, const std::string& filename_, c
 }
 
 void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir, int preloadBytes) {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     this->addBinaryEntry(dir, name, std::forward<std::vector<std::byte>>(buffer), saveToDir, preloadBytes);
 }
 
@@ -378,7 +378,7 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
 }
 
 void VPK::addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool saveToDir, int preloadBytes) {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     this->addBinaryEntry(dir, name, buffer, bufferLen, saveToDir, preloadBytes);
 }
 
@@ -390,7 +390,7 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
 }
 
 void VPK::addTextEntry(const std::string& filename_, const std::string& text, bool saveToDir, int preloadBytes) {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     this->addTextEntry(dir, name, text, saveToDir, preloadBytes);
 }
 
@@ -404,7 +404,7 @@ void VPK::addTextEntry(const std::string& directory, const std::string& filename
 }
 
 bool VPK::removeEntry(const std::string& filename_) {
-    const auto [dir, name] = splitFileNameAndParentDir(filename_);
+    const auto [dir, name] = splitFilenameAndParentDir(filename_);
     return this->removeEntry(dir, name);
 }
 
@@ -500,7 +500,7 @@ bool VPK::bake(const std::string& outputFolder_) {
 
     // Get the file output paths
     std::string outputFilename = std::filesystem::path(this->fullPath).filename().string();
-    std::string outputFilenameNoExtension = this->getRealFileName();
+    std::string outputFilenameNoExtension = this->getRealFilename();
     std::string outputFolder;
     if (!outputFolder_.empty()) {
         outputFolder = outputFolder_;
@@ -579,7 +579,7 @@ bool VPK::bake(const std::string& outputFolder_) {
                         entry->offset = newEntryArchiveOffset;
                         entry->archiveIndex = this->numArchives;
                         if (!outArchive) {
-                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFileName().data() + '_' + padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
+                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFilename().data() + '_' + padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
                             this->numArchives++;
                         }
                         outArchive->write(entryData, entryDataSize);
@@ -722,6 +722,6 @@ void VPK::setVersion(std::uint32_t version) {
     this->md5Entries.clear();
 }
 
-std::string VPK::getRealFileName() const {
+std::string VPK::getRealFilename() const {
     return std::filesystem::path(this->fullPath).stem().string();
 }

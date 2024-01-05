@@ -91,7 +91,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
 void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
     this->root = new QTreeWidgetItem(this);
-    this->root->setText(0, vpk.getPrettyFileName().data());
+    this->root->setText(0, vpk.getPrettyFilename().data());
 
     // Set up progress bar
     progressBar->setMinimum(0);
