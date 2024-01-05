@@ -1,10 +1,8 @@
 #include <vpkedit/VPK.h>
 
 #include <algorithm>
-#include <filesystem>
 #include <iterator>
 #include <memory>
-#include <utility>
 
 #include <MD5.h>
 #include <vpkedit/detail/CRC.h>
@@ -157,11 +155,9 @@ bool VPK::open(VPK& vpk) {
 
                 if (extension == " ") {
                     entry.filename = entryname;
-                    entry.filenamePair = std::make_pair(entryname, "");
                 } else {
                     entry.filename = entryname + '.';
                     entry.filename += extension;
-                    entry.filenamePair = std::make_pair(entryname, extension);
                 }
 
                 std::string fullDir;
@@ -358,13 +354,6 @@ void VPK::addBinaryEntry(const std::string& directory, const std::string& filena
     entry.unbaked = true;
     entry.filename = filename_;
 
-    std::filesystem::path filePath{entry.filename};
-    auto ext = filePath.extension().string();
-    if (!ext.empty() && ext.at(0) == '.') {
-        ext = ext.substr(1);
-    }
-    entry.filenamePair = std::make_pair(filePath.stem().string(), ext);
-
     entry.crc32 = computeCRC(buffer);
     entry.length = buffer.size();
 
@@ -461,7 +450,10 @@ bool VPK::bake(const std::string& outputFolder_) {
 
     for (auto& [tDir, tEntries] : this->entries) {
         for (auto& tEntry : tEntries) {
-            std::string extension = tEntry.filenamePair.second.empty() ? " " : tEntry.filenamePair.second;
+	        std::string extension = tEntry.getExtension();
+	        if (extension.empty()) {
+		        extension = " ";
+	        }
             if (!temp.count(extension)) {
                 temp[extension] = {};
             }
@@ -472,8 +464,11 @@ bool VPK::bake(const std::string& outputFolder_) {
         }
     }
     for (auto& [tDir, tEntries]: this->unbakedEntries) {
-        for (VPKEntry& tEntry : tEntries) {
-            std::string extension = tEntry.filenamePair.second.empty() ? " " : tEntry.filenamePair.second;
+        for (auto& tEntry : tEntries) {
+			std::string extension = tEntry.getExtension();
+			if (extension.empty()) {
+				extension = " ";
+			}
             if (!temp.count(extension)) {
                 temp[extension] = {};
             }
@@ -595,7 +590,7 @@ bool VPK::bake(const std::string& outputFolder_) {
                     }
                 }
 
-                outDir.write(entry->filenamePair.first);
+                outDir.write(entry->getStem());
                 outDir.write('\0');
                 outDir.write(entry->crc32);
                 outDir.write(static_cast<std::uint16_t>(entry->preloadedData.size()));

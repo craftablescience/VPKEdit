@@ -893,17 +893,17 @@ bool Window::loadVPK(const QString& path) {
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
     auto data = this->vpk->readBinaryEntry(entry);
     if (!data) {
-        QMessageBox::critical(this, tr("Error"), QString("Failed to read data from the VPK for \"") + entry.filename.c_str() + "\". Please ensure that a game or another application is not using the VPK.");
+        QMessageBox::critical(this, tr("Error"), tr("Failed to read data from the VPK for \"%1\". Please ensure that a game or another application is not using the VPK.").arg(entry.filename.c_str()));
         return;
     }
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
+        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
         return;
     }
     auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), entry.length);
     if (bytesWritten != entry.length) {
-        QMessageBox::critical(this, tr("Error"), QString("Failed to write to file at \"") + path + "\".");
+        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
     }
     file.close();
 }
