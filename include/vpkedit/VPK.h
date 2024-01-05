@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <optional>
 #include <unordered_map>
 #include <utility>
@@ -20,9 +21,6 @@ constexpr int VPK_MAX_PRELOAD_BYTES = 1024;
 struct VPKEntry {
     /// File name of this entry (e.g. "cable.vmt")
     std::string filename;
-    /// File name and extension of this entry (e.g. "cable, vmt")
-    /// Included for technical reasons
-    std::pair<std::string, std::string> filenamePair;
     /// CRC32 checksum
     std::uint32_t crc32 = 0;
     /// Length in bytes
@@ -37,6 +35,20 @@ struct VPKEntry {
     bool unbaked = false;
     /// The data attached to the unbaked entry - don't access this!
     std::vector<std::byte> unbakedData;
+
+	/// Returns the file stem (e.g. "cable.vmt" -> "cable")
+	[[nodiscard]] std::string getStem() const {
+		return std::filesystem::path{this->filename}.stem().string();
+	}
+
+	/// Returns the file extension without a period (e.g. "cable.vmt" -> "vmt")
+	[[nodiscard]] std::string getExtension() const {
+		auto ext = std::filesystem::path{this->filename}.extension().string();
+		if (!ext.empty() && ext.at(0) == '.') {
+			ext = ext.substr(1);
+		}
+		return ext;
+	}
 
 private:
     friend class VPK;
