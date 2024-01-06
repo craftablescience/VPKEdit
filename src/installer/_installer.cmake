@@ -1,13 +1,22 @@
 # Set up install rules
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}cli vtflib
+install(TARGETS ${PROJECT_NAME} vtflib
         CONFIGURATIONS ${CMAKE_BUILD_TYPE}
         RUNTIME DESTINATION .
         LIBRARY DESTINATION .)
+
+if(VPKEDIT_BUILD_CLI)
+    install(TARGETS ${PROJECT_NAME}cli
+            CONFIGURATIONS ${CMAKE_BUILD_TYPE}
+            RUNTIME DESTINATION .
+            LIBRARY DESTINATION .)
+endif()
+
 install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
         "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
         "${CMAKE_CURRENT_LIST_DIR}/.nonportable"
         DESTINATION .)
+
 if(WIN32)
     install(IMPORTED_RUNTIME_ARTIFACTS
             Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets

@@ -28,7 +28,7 @@ if(VPKEDIT_BUILD_GUI)
 endif()
 
 # Installer
-if(VPKEDIT_BUILD_INSTALLER)
+if(VPKEDIT_BUILD_GUI AND VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
 endif()
 
