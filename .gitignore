@@ -8,4 +8,4 @@ cmake-build-*/
 
 # Generated
 generated/
-src/gui/config/Config.h
+include/vpkedit/Version.h

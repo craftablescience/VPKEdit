@@ -1,11 +1,18 @@
 # For hashing parts of the VPK and stored files
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/md5")
 
+# Configure version header
+configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
+        @ONLY)
+
 add_library(
         lib${PROJECT_NAME}
 
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/VPK.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/detail/CRC.cpp"

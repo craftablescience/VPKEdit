@@ -50,15 +50,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Config file
-configure_file(
-        "${CMAKE_CURRENT_LIST_DIR}/config/Config.h.in"
-        "${CMAKE_CURRENT_LIST_DIR}/config/Config.h"
-        @ONLY)
-
 # Add sources and create executable
 list(APPEND ${PROJECT_NAME}_SOURCES
-        "${CMAKE_CURRENT_LIST_DIR}/config/Config.h"
         "${CMAKE_CURRENT_LIST_DIR}/config/Options.h"
         "${CMAKE_CURRENT_LIST_DIR}/config/Options.cpp"
 

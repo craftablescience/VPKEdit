@@ -16,4 +16,5 @@
 - [VTFLib](https://github.com/StrataSource/VTFLib) - Neil 'Jed' Jedrzejewski, Joshua Ashton, Strata Source Contributors
 - [SAPP](https://github.com/Trico-Everfire/SteamAppPathProvider) - Trico Everfire
 - [SpeedyKeyV](https://github.com/ozxybox/SpeedyKeyV) - OzxyBox
+- [argparse](https://github.com/p-ranav/argparse) - p-ranav and contributors
 - Default MatCap texture is from [https://github.com/nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)

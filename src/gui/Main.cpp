@@ -4,9 +4,12 @@
 #include <QSettings>
 #include <QSurfaceFormat>
 
-#include "config/Config.h"
+#include <vpkedit/Version.h>
+
 #include "config/Options.h"
 #include "Window.h"
+
+using namespace vpkedit;
 
 int main(int argc, char** argv) {
 	QSurfaceFormat format;
@@ -16,12 +19,12 @@ int main(int argc, char** argv) {
 
     QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName(VPKEDIT_ORGANIZATION_NAME);
-    QCoreApplication::setApplicationName(VPKEDIT_PROJECT_NAME);
-    QCoreApplication::setApplicationVersion(VPKEDIT_PROJECT_VERSION);
+    QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
+    QCoreApplication::setApplicationName(PROJECT_NAME.data());
+    QCoreApplication::setApplicationVersion(PROJECT_VERSION.data());
 
 #if !defined(__APPLE__) && !defined(_WIN32)
-    QGuiApplication::setDesktopFileName(VPKEDIT_PROJECT_NAME);
+    QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
 #endif
 
     std::unique_ptr<QSettings> options;
