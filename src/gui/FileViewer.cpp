@@ -151,6 +151,7 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 
 		while (this->history.size() > NavBar::NAVIGATION_HISTORY_LIMIT) {
 			this->history.pop_front();
+			this->historyIndex--;
 		}
 	}
 
