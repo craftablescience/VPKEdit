@@ -27,6 +27,11 @@ if(VPKEDIT_BUILD_GUI)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 endif()
 
+# Installer
+if(VPKEDIT_BUILD_INSTALLER)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
+endif()
+
 # vpkedittest
 if(VPKEDIT_BUILD_TESTS)
     include("${CMAKE_CURRENT_SOURCE_DIR}/test/_test.cmake")
