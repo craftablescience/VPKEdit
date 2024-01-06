@@ -157,6 +157,7 @@ jobs:
           done
 
       - name: Upload Standalone CLI
+        if: ${{ matrix.compiler == 'gcc' }}
         uses: actions/upload-artifact@v3
         with:
           name: VPKEdit-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
@@ -167,6 +168,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Standalone GUI
+        if: ${{ matrix.compiler == 'gcc' }}
         uses: actions/upload-artifact@v3
         with:
           name: VPKEdit-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
@@ -192,6 +194,7 @@ jobs:
         run: cpack
 
       - name: Upload Installer
+        if: ${{ matrix.compiler == 'gcc' }}
         uses: actions/upload-artifact@v3
         with:
           name: VPKEdit-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
