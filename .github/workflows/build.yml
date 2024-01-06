@@ -50,12 +50,24 @@ jobs:
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
-        run: cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
 
-      - name: Upload Standalone
+      - name: Upload Standalone CLI
         uses: actions/upload-artifact@v3
         with:
-          name: VPKEdit-Windows-Standalone-msvc-${{matrix.build_type}}
+          name: VPKEdit-Windows-Standalone-CLI-msvc-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+          retention-days: 7
+
+      - name: Upload Standalone GUI
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKEdit-Windows-Standalone-GUI-msvc-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -126,7 +138,9 @@ jobs:
 
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
-        run: cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
 
       - name: Fixup Binaries
         run: |
@@ -142,10 +156,20 @@ jobs:
             chrpath -r '$ORIGIN/..' "$f"
           done
 
-      - name: Upload Standalone
+      - name: Upload Standalone CLI
         uses: actions/upload-artifact@v3
         with:
-          name: VPKEdit-Linux-Standalone-${{matrix.compiler}}-${{matrix.build_type}}
+          name: VPKEdit-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkeditcli
+          retention-days: 7
+
+      - name: Upload Standalone GUI
+        uses: actions/upload-artifact@v3
+        with:
+          name: VPKEdit-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
