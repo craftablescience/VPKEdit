@@ -305,9 +305,10 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
     auto [version] = *vpkOptions;
 
     if (fromDirectory) {
-        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), version);
+		// todo: option to save as multichunk VPK
+        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), true, {.version = version});
     } else {
-        (void) VPK::createEmpty(vpkPath.toStdString(), version);
+        (void) VPK::createEmpty(vpkPath.toStdString(), {.version = version});
     }
     this->loadVPK(vpkPath);
 }

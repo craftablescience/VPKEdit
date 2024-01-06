@@ -13,8 +13,9 @@ namespace vpkedit::detail {
 enum FileStreamOptions {
     FILESTREAM_OPT_READ                  = 1 << 0,
     FILESTREAM_OPT_WRITE                 = 1 << 1,
-    FILESTREAM_OPT_TRUNCATE              = 1 << 2,
-    FILESTREAM_OPT_CREATE_IF_NONEXISTENT = 1 << 3,
+    FILESTREAM_OPT_APPEND                = 1 << 2,
+    FILESTREAM_OPT_TRUNCATE              = 1 << 3,
+    FILESTREAM_OPT_CREATE_IF_NONEXISTENT = 1 << 4,
 };
 
 class FileStream {
