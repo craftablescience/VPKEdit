@@ -1,10 +1,7 @@
 #include "Window.h"
 
-#include <optional>
-
 #include <QActionGroup>
 #include <QApplication>
-#include <QCloseEvent>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
