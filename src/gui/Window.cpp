@@ -22,10 +22,9 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <QThread>
-
 #include <sapp/FilesystemSearchProvider.h>
+#include <vpkedit/Version.h>
 
-#include "config/Config.h"
 #include "config/Options.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
@@ -41,7 +40,7 @@ Window::Window(QWidget* parent)
         : QMainWindow(parent)
         , extractWorkerThread(nullptr)
         , modified(false) {
-    this->setWindowTitle(VPKEDIT_FULL_TITLE);
+    this->setWindowTitle(PROJECT_TITLE.data());
     this->setWindowIcon(QIcon(":/icon.png"));
     this->setMinimumSize(900, 500);
 
@@ -356,7 +355,7 @@ void Window::closeVPK() {
 }
 
 void Window::checkForNewUpdate() const {
-	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(VPKEDIT_PROJECT_HOMEPAGE_API "/releases")));
+	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases")));
 }
 
 void Window::changeVPKVersion() {
@@ -399,7 +398,7 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     }
     auto version = release["tag_name"].toString();
 
-    if (version == QString("v" VPKEDIT_PROJECT_VERSION)) {
+    if (version == QString("v") + PROJECT_VERSION.data()) {
         QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
         return;
     }
@@ -582,8 +581,8 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 }
 
 void Window::about() {
-    QString creditsText = "# " VPKEDIT_FULL_TITLE "\n"
-                          "*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n";
+    QString creditsText = tr("# %1\n*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n")
+			.arg(PROJECT_TITLE.data());
     QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
         QTextStream in(&creditsFile);
@@ -745,9 +744,9 @@ void Window::markModified(bool modified_) {
     this->modified = modified_;
 
     if (this->modified) {
-        this->setWindowTitle(VPKEDIT_FULL_TITLE " (*)");
+        this->setWindowTitle(PROJECT_TITLE.data() + QString(" (*)"));
     } else {
-        this->setWindowTitle(VPKEDIT_FULL_TITLE);
+        this->setWindowTitle(PROJECT_TITLE.data());
     }
 
     this->saveVPKAction->setDisabled(!this->modified);

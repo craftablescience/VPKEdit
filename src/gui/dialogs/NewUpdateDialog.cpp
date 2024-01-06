@@ -4,7 +4,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include "../config/Config.h"
+#include <vpkedit/Version.h>
+
+using namespace vpkedit;
 
 NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& version, QWidget* parent)
         : QDialog(parent) {
@@ -14,9 +16,9 @@ NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& vers
     auto* layout = new QVBoxLayout(this);
 
     auto* label = new QLabel(tr("There is a new update available.\n\n"
-							    "Current version:  *v" VPKEDIT_PROJECT_VERSION "*\n\n"
-							    "Latest version:  *%1*\n\n"
-                                "[Click here to download the new version.](%2)").arg(version, releaseLink), this);
+							    "Current version:  *v%1*\n\n"
+							    "Latest version:  *%2*\n\n"
+                                "[Click here to download the new version.](%3)").arg(PROJECT_VERSION.data(), version, releaseLink), this);
     label->setTextFormat(Qt::MarkdownText);
     label->setOpenExternalLinks(true);
     layout->addWidget(label);

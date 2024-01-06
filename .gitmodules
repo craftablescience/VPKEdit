@@ -1,3 +1,6 @@
+[submodule "src/cli/thirdparty/argparse"]
+	path = src/cli/thirdparty/argparse
+	url = https://github.com/p-ranav/argparse
 [submodule "src/gui/thirdparty/vtflib"]
 	path = src/gui/thirdparty/vtflib
 	url = https://github.com/StrataSource/VTFLib
