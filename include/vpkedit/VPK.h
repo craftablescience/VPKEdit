@@ -7,6 +7,7 @@
 #include <utility>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 #include <vpkedit/detail/FileStream.h>
@@ -19,6 +20,10 @@ constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 constexpr int VPK_MAX_PRELOAD_BYTES = 1024;
 
 struct VPKEntry {
+private:
+	friend class VPK;
+
+public:
     /// File name of this entry (e.g. "cable.vmt")
     std::string filename;
     /// CRC32 checksum
@@ -31,10 +36,8 @@ struct VPKEntry {
     std::uint16_t archiveIndex = 0;
     /// Preloaded data
     std::vector<std::byte> preloadedData;
-    /// Use to check if entry is saved to file
+    /// Used to check if entry is saved in the loaded VPK
     bool unbaked = false;
-    /// The data attached to the unbaked entry - don't access this!
-    std::vector<std::byte> unbakedData;
 
 	/// Returns the file stem (e.g. "cable.vmt" -> "cable")
 	[[nodiscard]] std::string getStem() const {
@@ -51,7 +54,11 @@ struct VPKEntry {
 	}
 
 private:
-    friend class VPK;
+	/// The data attached to the unbaked entry, or the path to the file containing the unbaked entry's data
+	std::variant<std::string, std::vector<std::byte>> unbakedData;
+	/// Which one?
+	bool unbakedUsingByteBuffer = false;
+
     VPKEntry() = default;
 };
 
@@ -110,26 +117,24 @@ public:
     /// Also baking new entries will fail
     [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen);
 
+	/// Try to find an entry within the VPK given the file path
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
-    [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& directory, const std::string& filename_, bool includeUnbaked = true) const;
 
+	/// Try to read an entry within the VPK (returns binary)
     [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const VPKEntry& entry) const;
+
+	/// Try to read an entry within the VPK (returns text)
     [[nodiscard]] std::optional<std::string> readTextEntry(const VPKEntry& entry) const;
 
     void addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir = true, int preloadBytes = 0);
-    void addEntry(const std::string& directory, const std::string& filename_, const std::string& pathToFile, bool saveToDir = true, int preloadBytes = 0);
 
     void addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir = true, int preloadBytes = 0);
-    void addBinaryEntry(const std::string& directory, const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir = true, int preloadBytes = 0);
 
     void addBinaryEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool saveToDir = true, int preloadBytes = 0);
-    void addBinaryEntry(const std::string& directory, const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, bool saveToDir = true, int preloadBytes = 0);
 
     void addTextEntry(const std::string& filename_, const std::string& text, bool saveToDir = true, int preloadBytes = VPK_MAX_PRELOAD_BYTES);
-    void addTextEntry(const std::string& directory, const std::string& filename_, const std::string& text, bool saveToDir = true, int preloadBytes = VPK_MAX_PRELOAD_BYTES);
 
     bool removeEntry(const std::string& filename_);
-    bool removeEntry(const std::string& directory, const std::string& filename_);
 
     /// If output folder is unspecified, it will overwrite the original
     bool bake(const std::string& outputFolder_ = "");
@@ -137,6 +142,7 @@ public:
     /// Returns 1 for v1, 2 for v2
     [[nodiscard]] std::uint32_t getVersion() const;
 
+	/// Change the version of the VPK. Valid values are 1 and 2
     void setVersion(std::uint32_t version);
 
     [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getBakedEntries() const {
