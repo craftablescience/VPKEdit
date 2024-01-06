@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <memory>
 
 #include <MD5.h>
 #include <vpkedit/detail/CRC.h>
@@ -44,33 +43,34 @@ std::string padArchiveIndex(int num) {
     return std::string(WIDTH - std::min<std::string::size_type>(WIDTH, numStr.length()), '0') + numStr;
 }
 
-std::vector<std::byte> readFileData(const std::string& filepath) {
+std::vector<std::byte> readFileData(const std::string& filepath, std::size_t preloadBytesOffset) {
 	FileStream stream{filepath};
 	if (!stream) {
 		return {};
 	}
-	stream.seekInput(0);
-	return stream.readBytes(std::filesystem::file_size(filepath));
+	stream.seekInput(preloadBytesOffset);
+	return stream.readBytes(std::filesystem::file_size(filepath) - preloadBytesOffset);
 }
 
 } // namespace
 
-VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_)
+VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_, std::uint32_t preferredChunkSize_)
         : reader(std::move(reader_))
         , fullPath(std::move(fullPath_))
-        , filename(std::move(filename_)) {}
+        , filename(std::move(filename_))
+		, preferredChunkSize(preferredChunkSize_) {}
 
-VPK VPK::createEmpty(const std::string& path, std::uint32_t version) {
+VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
 	{
         FileStream stream{path, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
         Header1 header1{};
         header1.signature = VPK_ID;
-        header1.version = version;
+        header1.version = options.version;
         header1.treeSize = 1;
         stream.write(&header1);
 
-        if (version != 1) {
+        if (options.version != 1) {
             Header2 header2{};
             header2.fileDataSectionSize = 0;
             header2.archiveMD5SectionSize = 0;
@@ -81,11 +81,11 @@ VPK VPK::createEmpty(const std::string& path, std::uint32_t version) {
 
 		stream.write('\0');
     }
-    return *VPK::open(path);
+    return *VPK::open(path, options.preferredChunkSize);
 }
 
-VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version) {
-    auto vpk = VPK::createEmpty(vpkPath, version);
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, bool saveToDir, VPKOptions options) {
+    auto vpk = VPK::createEmpty(vpkPath, options);
     for (const auto& file : std::filesystem::recursive_directory_iterator(directoryPath)) {
         if (file.is_directory()) {
             continue;
@@ -97,13 +97,13 @@ VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& dire
         while (entryPath.at(0) == '/' || entryPath.at(0) == '\\') {
             entryPath = entryPath.substr(1);
         }
-        vpk.addEntry(entryPath, file.path().string());
+        vpk.addEntry(entryPath, file.path().string(), saveToDir);
     }
     vpk.bake();
     return vpk;
 }
 
-std::optional<VPK> VPK::open(const std::string& path) {
+std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChunkSize) {
     if (!std::filesystem::exists(path)) {
         // File does not exist
         return std::nullopt;
@@ -111,16 +111,16 @@ std::optional<VPK> VPK::open(const std::string& path) {
 
     std::string fileNameNoSuffix = ::removeVPKAndOrDirSuffix(path);
 
-    VPK vpk{FileStream{path}, path, fileNameNoSuffix};
-    if (open(vpk)) {
+    VPK vpk{FileStream{path}, path, fileNameNoSuffix, preferredChunkSize};
+    if (VPK::open(vpk)) {
         return vpk;
     }
     return std::nullopt;
 }
 
-std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen) {
-    VPK vpk{FileStream{buffer, bufferLen}, "", ""};
-    if (open(vpk)) {
+std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize) {
+    VPK vpk{FileStream{buffer, bufferLen}, "", "", preferredChunkSize};
+    if (VPK::open(vpk)) {
         return vpk;
     }
     return std::nullopt;
@@ -294,7 +294,7 @@ std::optional<std::vector<std::byte>> VPK::readBinaryEntry(const VPKEntry& entry
 	                if (unbakedEntry.unbakedUsingByteBuffer) {
 		                unbakedData = std::get<std::vector<std::byte>>(unbakedEntry.unbakedData);
 	                } else {
-	                    unbakedData = ::readFileData(std::get<std::string>(unbakedEntry.unbakedData));
+	                    unbakedData = ::readFileData(std::get<std::string>(unbakedEntry.unbakedData), unbakedEntry.preloadedData.size());
                     }
 	                std::copy(unbakedData.begin(), unbakedData.end(), output.begin() + static_cast<long long>(entry.preloadedData.size()));
 	                return output;
@@ -341,7 +341,8 @@ std::optional<std::string> VPK::readTextEntry(const VPKEntry& entry) const {
 
 void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
 	const auto [dir, name] = ::splitFilenameAndParentDir(filename_);
-	auto buffer = ::readFileData(pathToFile);
+	// We process preload bytes later
+	auto buffer = ::readFileData(pathToFile, 0);
 
 	VPKEntry entry{};
 	entry.unbaked = true;
@@ -361,6 +362,18 @@ void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, 
 		entry.preloadedData.resize(clampedPreloadBytes);
 		std::memcpy(entry.preloadedData.data(), buffer.data(), clampedPreloadBytes);
 		buffer.erase(buffer.begin(), buffer.begin() + clampedPreloadBytes);
+	}
+
+	// Now that archive index is calculated for this entry, check if it needs to be incremented
+	if (!saveToDir) {
+		entry.offset = this->currentlyFilledChunkSize;
+		this->currentlyFilledChunkSize += static_cast<int>(buffer.size());
+		if (this->preferredChunkSize) {
+			if (this->currentlyFilledChunkSize > this->preferredChunkSize) {
+				this->currentlyFilledChunkSize = 0;
+				this->numArchives++;
+			}
+		}
 	}
 
 	if (!this->unbakedEntries.count(dir)) {
@@ -393,6 +406,18 @@ void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& 
         std::memcpy(entry.preloadedData.data(), buffer.data(), clampedPreloadBytes);
         buffer.erase(buffer.begin(), buffer.begin() + clampedPreloadBytes);
     }
+
+	// Now that archive index is calculated for this entry, check if it needs to be incremented
+	if (!saveToDir) {
+		entry.offset = this->currentlyFilledChunkSize;
+		this->currentlyFilledChunkSize += static_cast<int>(buffer.size());
+		if (this->preferredChunkSize) {
+			if (this->currentlyFilledChunkSize > this->preferredChunkSize) {
+				this->currentlyFilledChunkSize = 0;
+				this->numArchives++;
+			}
+		}
+	}
 
     if (!this->unbakedEntries.count(dir)) {
         this->unbakedEntries[dir] = {};
@@ -526,22 +551,26 @@ bool VPK::bake(const std::string& outputFolder_) {
         }
     }
 
+	// Helper
+	const auto getArchiveFilename = [](const std::string& filename_, int archiveIndex) {
+		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + ".vpk";
+	};
+
     // Copy external binary blobs to the new dir
     auto dirVPKFilePath = outputFolder + '/' + outputFilename;
     if (!outputFolder_.empty()) {
         for (int archiveIndex = 0; archiveIndex < this->numArchives; archiveIndex++) {
-            try {
-                std::string dest = outputFolder + '/';
-                dest.append(outputFilenameNoExtension + '_');
-                dest.append(::padArchiveIndex(archiveIndex));
-                dest.append(".vpk");
-                std::filesystem::copy(this->filename + '_' + ::padArchiveIndex(archiveIndex) + ".vpk", dest, std::filesystem::copy_options::overwrite_existing);
-            } catch (const std::filesystem::filesystem_error&) {}
+	        std::string dest = outputFolder + '/';
+			dest += outputFilenameNoExtension;
+			dest = getArchiveFilename(dest, archiveIndex);
+			if (!std::filesystem::exists(dest)) {
+				continue;
+			}
+			std::filesystem::copy(getArchiveFilename(this->filename, archiveIndex), dest, std::filesystem::copy_options::overwrite_existing);
         }
     }
 
     FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
-    std::unique_ptr<FileStream> outArchive = nullptr;
 
     // Dummy header
     outDir.seekInput(0);
@@ -552,7 +581,6 @@ bool VPK::bake(const std::string& outputFolder_) {
     }
 
     // File tree data
-    std::size_t newEntryArchiveOffset = 0;
     for (auto& [ext, tDirs] : temp) {
         outDir.write(ext);
         outDir.write('\0');
@@ -568,7 +596,7 @@ bool VPK::bake(const std::string& outputFolder_) {
 					if (entry->unbakedUsingByteBuffer) {
 						entryData = std::get<std::vector<std::byte>>(entry->unbakedData);
 					} else {
-						entryData = ::readFileData(std::get<std::string>(entry->unbakedData));
+						entryData = ::readFileData(std::get<std::string>(entry->unbakedData), entry->preloadedData.size());
 					}
 
                     if (entry->length == entry->preloadedData.size()) {
@@ -576,14 +604,11 @@ bool VPK::bake(const std::string& outputFolder_) {
                         entry->archiveIndex = VPK_DIR_INDEX;
                         entry->offset = dirVPKEntryData.size();
                     } else if (entry->archiveIndex != VPK_DIR_INDEX) {
-                        entry->offset = newEntryArchiveOffset;
-                        entry->archiveIndex = this->numArchives;
-                        if (!outArchive) {
-                            outArchive = std::make_unique<FileStream>(outputFolder + '/' + this->getPrettyFilename().data() + '_' + ::padArchiveIndex(this->numArchives) + ".vpk", FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT);
-                            this->numArchives++;
-                        }
-                        outArchive->write(entryData.data(), entryData.size());
-                        newEntryArchiveOffset += entryData.size();
+						auto archiveFilename = getArchiveFilename(outputFolder + '/' + this->getPrettyFilename().data(), entry->archiveIndex);
+						entry->offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
+
+                        FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+                        stream.write(entryData.data(), entryData.size());
                     } else {
                         entry->offset = dirVPKEntryData.size();
                         dirVPKEntryData.insert(dirVPKEntryData.end(), entryData.data(), entryData.data() + entryData.size());

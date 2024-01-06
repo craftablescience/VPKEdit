@@ -17,7 +17,12 @@ namespace vpkedit {
 constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
 constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
+
+/// Maximum preload data size in bytes
 constexpr int VPK_MAX_PRELOAD_BYTES = 1024;
+
+/// Chunk size in bytes (default is 200mb)
+constexpr std::uint32_t VPK_DEFAULT_CHUNK_SIZE = 200 * 1024 * 1024;
 
 struct VPKEntry {
 private:
@@ -62,6 +67,13 @@ private:
     VPKEntry() = default;
 };
 
+struct VPKOptions {
+	/// VPK version
+	std::uint32_t version = 2;
+	/// If this value is 0, chunks have an unlimited size
+	std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE;
+};
+
 class VPK {
 #pragma pack(push, 1)
     struct Header1 {
@@ -104,18 +116,18 @@ public:
     VPK& operator=(VPK&& other) noexcept = default;
 
     /// Create a new directory VPK file - must end in "_dir.vpk"! This is not enforced but STRONGLY recommended
-    [[nodiscard]] static VPK createEmpty(const std::string& path, std::uint32_t version = 2);
+    [[nodiscard]] static VPK createEmpty(const std::string& path, VPKOptions options = {});
 
     /// Create a new directory VPK file from a directory (see above comment)
-    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, std::uint32_t version = 2);
+    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, bool saveToDir = true, VPKOptions options = {});
 
     /// Open a directory VPK file
-    [[nodiscard]] static std::optional<VPK> open(const std::string& path);
+    [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE);
 
     /// Open a directory VPK from memory
     /// Note that any content not stored in the directory VPK will fail to load!
     /// Also baking new entries will fail
-    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen);
+    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE);
 
 	/// Try to find an entry within the VPK given the file path
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
@@ -173,11 +185,14 @@ public:
     [[nodiscard]] std::string getRealFilename() const;
 
 protected:
-    VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_);
+    VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_, std::uint32_t preferredChunkSize_);
 
     std::string fullPath;
     std::string filename;
-    int numArchives = -1;
+
+	int numArchives = -1;
+	std::uint32_t preferredChunkSize = 0;
+	std::uint32_t currentlyFilledChunkSize = 0;
 
     Header1 header1{}; // Present in all VPK versions
     Header2 header2{}; // Present in VPK v2
