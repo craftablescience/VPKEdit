@@ -15,5 +15,6 @@ AbstractInfoPreview::AbstractInfoPreview(const QPixmap& icon, const QString& tex
 
     this->error = new QLabel(this);
     this->error->setText(text);
+	this->error->setAlignment(Qt::AlignHCenter);
     layout->addWidget(this->error, 0, Qt::AlignHCenter | Qt::AlignTop);
 }
