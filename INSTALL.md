@@ -33,7 +33,7 @@ specific to the following distros:
 if you want to be able to use the CLI without needing to specify the path to the CLI application do the following
 1. unzip the standalone CLI zip where ever
 2. set ```vpkeditcli``` to be an executable using ```chmod +x vpkeditcli```
-3. then move ```vpkeditcli``` to ```usr/local/bin``` with the command ```mv ./vpkeditcli /usr/local/bin/
+3. then move ```vpkeditcli``` to ```usr/local/bin``` with the command ```mv ./vpkeditcli /usr/local/bin/```
 
 You can now use the CLI by just typing ```vpkeditcli``` in your Linux terminal
 
