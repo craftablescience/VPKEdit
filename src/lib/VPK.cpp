@@ -90,7 +90,12 @@ VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& dire
         if (file.is_directory()) {
             continue;
         }
-        std::string entryPath = std::filesystem::absolute(file.path()).string().substr(directoryPath.length());
+	    std::string entryPath;
+		try {
+			entryPath = std::filesystem::absolute(file.path()).string().substr(directoryPath.length());
+		} catch (const std::exception&) {
+			continue;
+		}
         if (entryPath.empty()) {
             continue;
         }
