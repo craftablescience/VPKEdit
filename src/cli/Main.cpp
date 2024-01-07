@@ -13,19 +13,19 @@ int main(int argc, const char* const* argv) {
 	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION.data(), argparse::default_arguments::help};
 
 	cli.add_epilog("Program details:\n"
-				   "                    /$$                       /$$ /$$   /$$       \n"
-	               "                   | $$                      | $$|__/  | $$       \n"
-	               " /$$    /$$/$$$$$$ | $$   /$$  /$$$$$$   /$$$$$$$ /$$ /$$$$$$     \n"
-	               "|  $$  /$$/$$__  $$| $$  /$$/ /$$__  $$ /$$__  $$| $$|_  $$_/     \n"
-	               " \\  $$/$$/ $$  \\ $$| $$$$$$/ | $$$$$$$$| $$  | $$| $$  | $$     \n"
-	               "  \\  $$$/| $$  | $$| $$_  $$ | $$_____/| $$  | $$| $$  | $$ /$$  \n"
-	               "   \\  $/ | $$$$$$$/| $$ \\  $$|  $$$$$$$|  $$$$$$$| $$  |  $$$$/ \n"
-	               "    \\_/  | $$____/ |__/  \\__/ \\_______/ \\_______/|__/   \\___/\n"
-	               "         | $$                                                     \n"
-	               "         | $$             version v"s + PROJECT_VERSION.data() + "\n"
-				   "         |__/                                                     \n"
-	               "                                                                  \n"
-	               "Created by craftablescience. Contributors and libraries used are  \n"
+				   "                    /$$                       /$$ /$$   /$$        \n"
+	               "                   | $$                      | $$|__/  | $$        \n"
+	               " /$$    /$$/$$$$$$ | $$   /$$  /$$$$$$   /$$$$$$$ /$$ /$$$$$$      \n"
+	               "|  $$  /$$/$$__  $$| $$  /$$/ /$$__  $$ /$$__  $$| $$|_  $$_/      \n"
+	               " \\  $$/$$/ $$  \\ $$| $$$$$$/ | $$$$$$$$| $$  | $$| $$  | $$      \n"
+	               "  \\  $$$/| $$  | $$| $$_  $$ | $$_____/| $$  | $$| $$  | $$ /$$   \n"
+	               "   \\  $/ | $$$$$$$/| $$ \\  $$|  $$$$$$$|  $$$$$$$| $$  |  $$$$/  \n"
+	               "    \\_/  | $$____/ |__/  \\__/ \\_______/ \\_______/|__/   \\____/\n"
+	               "         | $$                                                      \n"
+	               "         | $$             version v"s + PROJECT_VERSION.data() +  "\n"
+				   "         |__/                                                      \n"
+	               "                                                                   \n"
+	               "Created by craftablescience. Contributors and libraries used are   \n"
 	               "listed in CREDITS.md. VPKEdit is licensed under the MIT License.");
 
 #ifdef _WIN32
