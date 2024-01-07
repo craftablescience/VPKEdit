@@ -590,7 +590,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 void Window::about() {
     QString creditsText = tr("# %1\n*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n")
 			.arg(PROJECT_TITLE.data());
-    QFile creditsFile(QCoreApplication::applicationDirPath() + "/CREDITS.md");
+    QFile creditsFile(":/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
         QTextStream in(&creditsFile);
         while(!in.atEnd()) {

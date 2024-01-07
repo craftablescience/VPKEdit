@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file alias="CREDITS.md">../../../CREDITS.md</file>
+
         <file>icons/shaded_textured.png</file>
         <file>icons/shaded_untextured.png</file>
         <file>icons/unshaded_textured.png</file>
