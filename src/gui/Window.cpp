@@ -397,13 +397,14 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     if (!release.contains("tag_name") || !release["tag_name"].isString()) {
         return parseFailure();
     }
-    auto version = release["tag_name"].toString();
+	auto versionName = release["name"].toString();
+    auto versionTag = release["tag_name"].toString();
 
-    if (version == QString("v") + PROJECT_VERSION.data()) {
+    if (versionTag == QString("v") + PROJECT_VERSION.data()) {
         QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
         return;
     }
-    NewUpdateDialog::getNewUpdatePrompt(url, version, this);
+    NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
 }
 
 void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
