@@ -389,22 +389,27 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
     if (releases.isEmpty() || !releases.at(0).isObject()) {
         return parseFailure();
     }
-    auto release = releases.at(0).toObject();
-    if (!release.contains("html_url") || !release["html_url"].isString()) {
-        return parseFailure();
-    }
-    auto url = release["html_url"].toString();
-    if (!release.contains("tag_name") || !release["tag_name"].isString()) {
-        return parseFailure();
-    }
-	auto versionName = release["name"].toString();
-    auto versionTag = release["tag_name"].toString();
+	for (auto releaseValue : releases) {
+		auto release = releaseValue.toObject();
+		if (!release.contains("html_url") || !release["html_url"].isString()) {
+			return parseFailure();
+		}
+		auto url = release["html_url"].toString();
+		if (!release.contains("tag_name") || !release["tag_name"].isString()) {
+			return parseFailure();
+		}
+		auto versionName = release["name"].toString();
+		auto versionTag = release["tag_name"].toString();
 
-    if (versionTag == QString("v") + PROJECT_VERSION.data()) {
-        QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
-        return;
-    }
-    NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
+		if (versionTag == QString("v") + PROJECT_VERSION.data()) {
+			QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
+			return;
+		} else if (release["prerelease"].toBool()) {
+			continue;
+		}
+		NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
+		return;
+	}
 }
 
 void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
