@@ -609,7 +609,7 @@ bool VPK::bake(const std::string& outputFolder_) {
                         entry->archiveIndex = VPK_DIR_INDEX;
                         entry->offset = dirVPKEntryData.size();
                     } else if (entry->archiveIndex != VPK_DIR_INDEX) {
-						auto archiveFilename = getArchiveFilename(outputFolder + '/' + this->getPrettyFilename().data(), entry->archiveIndex);
+						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(dirVPKFilePath), entry->archiveIndex);
 						entry->offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
 
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
