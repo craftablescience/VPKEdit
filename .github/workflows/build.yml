@@ -139,8 +139,8 @@ jobs:
       - name: Build
         working-directory: ${{env.BUILD_DIR}}
         run: |
-          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
 
       - name: Fixup Binaries
         run: |

@@ -1,4 +1,5 @@
 # Set up install rules
+include(GNUInstallDirs)
 set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 install(TARGETS ${PROJECT_NAME} vtflib
@@ -154,5 +155,13 @@ else()
     set(CPACK_STRIP_FILES ON)
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
     set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${PROJECT_NAME}")
+
+    # Add symlinks so it can be ran from anywhere
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/deb/${PROJECT_NAME}cli)")
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/deb/${PROJECT_NAME})")
+    install(FILES
+            "${CMAKE_CURRENT_LIST_DIR}/deb/${PROJECT_NAME}cli"
+            "${CMAKE_CURRENT_LIST_DIR}/deb/${PROJECT_NAME}"
+            DESTINATION "/usr/bin")
 endif()
 include(CPack)
