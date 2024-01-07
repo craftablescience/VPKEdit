@@ -7,7 +7,6 @@ set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 20)
-include(GNUInstallDirs)
 
 option(VPKEDIT_BUILD_CLI "Build VPKEdit CLI application" ON)
 option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
