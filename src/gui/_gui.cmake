@@ -97,13 +97,10 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/Window.h"
         "${CMAKE_CURRENT_LIST_DIR}/Window.cpp")
 if(WIN32)
-    list(APPEND ${PROJECT_NAME}_SOURCES
-            "${CMAKE_CURRENT_LIST_DIR}/res/icon.rc")
+    list(APPEND ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_LIST_DIR}/res/icon.rc")
 endif()
 
-add_executable(
-        ${PROJECT_NAME} WIN32
-        ${${PROJECT_NAME}_SOURCES})
+add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 # Final Qt setup
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
