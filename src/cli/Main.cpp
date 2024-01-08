@@ -71,7 +71,7 @@ int main(int argc, const char* const* argv) {
 		}
 		if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
 			// Pack
-			auto outputPath = inputPath + (cli.get<bool>("-s") ? ".vpk" : "_dir.vpk");
+			auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
 			if (cli.is_used("-o")) {
 				if (!cli.get("-o").ends_with(".vpk")) {
 					throw std::runtime_error("Output path must be a VPK file!");
