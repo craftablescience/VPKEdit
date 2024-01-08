@@ -20,8 +20,19 @@ both the standalone method and installer method.
 ## Linux
 
 Installation on Linux will vary depending on your distro. On all distros you should be able to run the standalone
-application without any issues. There are two ways of *installing* VPKEdit
-specific to the following distros:
+application without any issues. The installer will symlink the CLI and GUI applications to `/usr/bin` automatically,
+but if you prefer or need to use a standalone version, you can run one or both of the following commands to add them to the PATH:
+
+```sh
+# CLI:
+ln -s /path/to/standalone/vpkeditcli /usr/bin/vpkeditcli
+# GUI:
+ln -s /path/to/standalone/vpkedit /usr/bin/vpkedit
+```
+
+With the symlink in place, updating your standalone install will automatically update the binary on the PATH.
+
+There are two ways of *installing* VPKEdit specific to the following distros:
 
 #### Debian-based:
 
