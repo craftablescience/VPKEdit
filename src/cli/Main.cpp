@@ -65,16 +65,24 @@ int main(int argc, const char* const* argv) {
 	try {
 		cli.parse_args(argc, argv);
 
-		std::string path{cli.get("<path>")};
-		if (!std::filesystem::exists(path)) {
+		std::string inputPath{cli.get("<path>")};
+		if (!std::filesystem::exists(inputPath)) {
 			throw std::runtime_error("Given path does not exist!");
 		}
-		if (std::filesystem::status(path).type() == std::filesystem::file_type::directory) {
+		if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
 			// Pack
-			if (cli.is_used("-o") && !cli.get("-o").ends_with(".vpk")) {
-				throw std::runtime_error("Output path must be a VPK file!");
+			auto outputPath = inputPath + (cli.get<bool>("-s") ? ".vpk" : "_dir.vpk");
+			if (cli.is_used("-o")) {
+				if (!cli.get("-o").ends_with(".vpk")) {
+					throw std::runtime_error("Output path must be a VPK file!");
+				}
+				outputPath = cli.get("-o");
+				if (!cli.get<bool>("-s") && !outputPath.ends_with("_dir.vpk")) {
+					std::cerr << "Warning: multichunk VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
+								 "This VPK may not be able to be loaded by the Source engine or other VPK browsers!\n" << std::endl;
+				}
 			}
-			auto vpk = VPK::createFromDirectory(cli.is_used("-o") ? cli.get("-o") : path + ".vpk", path, cli.get<bool>("-s"), {
+			auto vpk = VPK::createFromDirectory(outputPath, inputPath, cli.get<bool>("-s"), {
 				.version = static_cast<std::uint32_t>(std::stoi(cli.get("-v"))),
 				.preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-m")) * 1024 * 1024),
 			});
