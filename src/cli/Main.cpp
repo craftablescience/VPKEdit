@@ -69,6 +69,9 @@ int main(int argc, const char* const* argv) {
 		if (!std::filesystem::exists(inputPath)) {
 			throw std::runtime_error("Given path does not exist!");
 		}
+		if (inputPath.ends_with('/') || inputPath.ends_with('\\')) {
+			inputPath.pop_back();
+		}
 		if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
 			// Pack
 			auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
