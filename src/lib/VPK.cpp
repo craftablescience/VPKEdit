@@ -84,15 +84,18 @@ VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
     return *VPK::open(path, options.preferredChunkSize);
 }
 
-VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, bool saveToDir, VPKOptions options) {
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options) {
     auto vpk = VPK::createEmpty(vpkPath, options);
-    for (const auto& file : std::filesystem::recursive_directory_iterator(directoryPath)) {
+	if (!std::filesystem::exists(contentPath) || std::filesystem::status(contentPath).type() != std::filesystem::file_type::directory) {
+		return vpk;
+	}
+    for (const auto& file : std::filesystem::recursive_directory_iterator(contentPath)) {
         if (file.is_directory()) {
             continue;
         }
 	    std::string entryPath;
 		try {
-			entryPath = std::filesystem::absolute(file.path()).string().substr(directoryPath.length());
+			entryPath = std::filesystem::absolute(file.path()).string().substr(std::filesystem::absolute(contentPath).string().length());
 		} catch (const std::exception&) {
 			continue;
 		}
