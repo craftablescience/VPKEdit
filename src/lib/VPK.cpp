@@ -556,7 +556,9 @@ bool VPK::bake(const std::string& outputFolder_) {
         auto lastSlash = outputFolder.rfind('/');
         if (lastSlash != std::string::npos) {
             outputFolder = filename.substr(0, lastSlash);
-        }
+        } else {
+			outputFolder = "./";
+		}
     }
 
 	// Helper
