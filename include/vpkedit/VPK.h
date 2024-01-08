@@ -119,7 +119,7 @@ public:
     [[nodiscard]] static VPK createEmpty(const std::string& path, VPKOptions options = {});
 
     /// Create a new directory VPK file from a directory (see above comment)
-    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& directoryPath, bool saveToDir = true, VPKOptions options = {});
+    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {});
 
     /// Open a directory VPK file
     [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE);
