@@ -20,22 +20,24 @@ both the standalone method and installer method.
 ## Linux
 
 Installation on Linux will vary depending on your distro. On all distros you should be able to run the standalone
-application without any issues. There are two ways of *installing* VPKEdit
-specific to the following distros:
+application without any issues. The installer will symlink the CLI and GUI applications to `/usr/bin` automatically,
+but if you prefer or need to use a standalone version, you can run one or both of the following commands to add them to the PATH:
+
+```sh
+# CLI:
+ln -s /path/to/standalone/vpkeditcli /usr/bin/vpkeditcli
+# GUI:
+ln -s /path/to/standalone/vpkedit /usr/bin/vpkedit
+```
+
+With the symlink in place, updating your standalone install will automatically update the binary on the PATH.
+
+There are two ways of *installing* VPKEdit specific to the following distros:
 
 #### Debian-based:
 
 1. Download the installer from the GitHub releases section, and extract the `.deb` file from inside.
 2. Run `sudo apt install ./<name of deb file>.deb` in the directory you extracted it to.
-
-##### installing cli
-
-if you want to be able to use the CLI without needing to specify the path to the CLI application do the following
-1. unzip the standalone CLI zip where ever
-2. set ```vpkeditcli``` to be an executable using ```chmod +x vpkeditcli```
-3. then move ```vpkeditcli``` to ```usr/local/bin``` with the command ```mv ./vpkeditcli /usr/local/bin/```
-
-You can now use the CLI by just typing ```vpkeditcli``` in your Linux terminal
 
 #### Arch-based:
 
