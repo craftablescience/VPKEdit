@@ -5,6 +5,12 @@
 
 VPKEdit is an open source MIT-licensed tool that can create, extract from, preview the contents of and write to VPK archives.
 
+<div>
+  <img src="https://img.shields.io/github/license/craftablescience/VPKEdit?label=license" alt="License" />
+  <img src="https://img.shields.io/github/actions/workflow/status/craftablescience/VPKEdit/build.yml?branch=main&label=builds" alt="Workflow Status" />
+  <img src="https://img.shields.io/discord/678074864346857482?label=discord&logo=Discord&logoColor=%23FFFFFF" alt="Discord" />
+</div>
+
 <img src="https://github.com/craftablescience/VPKEdit/blob/main/branding/readme_promo.png?raw=true" alt="A screenshot of VPKEdit with a VTF preview open." />
 
 ## Installing
