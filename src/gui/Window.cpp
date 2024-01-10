@@ -323,8 +323,9 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	    this->createFromDirWorkerThread = new QThread(this);
 	    auto* worker = new CreateFromDirVPKWorker();
 	    worker->moveToThread(this->createFromDirWorkerThread);
-	    QObject::connect(this->createFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile, version] {
-		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile, {.version = version});
+		// Cringe compiler moment in the lambda capture list
+	    QObject::connect(this->createFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, version_=version] {
+		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, {.version = version_});
 	    });
 	    QObject::connect(worker, &CreateFromDirVPKWorker::taskFinished, this, [this, vpkPath] {
 		    // Kill thread
