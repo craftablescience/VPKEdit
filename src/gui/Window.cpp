@@ -76,10 +76,11 @@ Window::Window(QWidget* parent)
             gameName.replace("&", "&&");
             sourceGames.emplace_back(gameName, steamGameInfo->icon, relativeDirectoryPath);
         }
-        std::sort(sourceGames.begin(), sourceGames.end(), [=](const auto& lhs, const auto& rhs) {
-            return std::get<0>(lhs) < std::get<0>(rhs);
-        });
-
+		if (!sourceGames.empty()) {
+			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
+				return std::get<0>(lhs) < std::get<0>(rhs);
+			});
+		}
         for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
             const auto relativeDirectory = relativeDirectoryPath.path();
             this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
