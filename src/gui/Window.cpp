@@ -38,6 +38,7 @@ constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk);;All files (*.*)";
 
 Window::Window(QWidget* parent)
         : QMainWindow(parent)
+		, createFromDirWorkerThread(nullptr)
 		, saveWorkerThread(nullptr)
         , extractWorkerThread(nullptr)
         , modified(false) {
@@ -307,11 +308,40 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
     auto [version, singleFile] = *vpkOptions;
 
     if (fromDirectory) {
-        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), singleFile, {.version = version});
+	    // Set up progress bar
+	    this->statusText->hide();
+	    this->statusProgressBar->show();
+	    this->statusBar()->show();
+
+	    // Show progress bar is busy
+		this->statusProgressBar->setValue(0);
+		this->statusProgressBar->setRange(0, 0);
+
+	    this->freezeActions(true);
+
+	    // Set up thread
+	    this->createFromDirWorkerThread = new QThread(this);
+	    auto* worker = new CreateFromDirVPKWorker();
+	    worker->moveToThread(this->createFromDirWorkerThread);
+	    QObject::connect(this->createFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile, version] {
+		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile, {.version = version});
+	    });
+	    QObject::connect(worker, &CreateFromDirVPKWorker::taskFinished, this, [this, vpkPath] {
+		    // Kill thread
+		    this->createFromDirWorkerThread->quit();
+		    this->createFromDirWorkerThread->wait();
+		    delete this->createFromDirWorkerThread;
+		    this->createFromDirWorkerThread = nullptr;
+
+			// loadVPK freezes them right away again
+		    // this->freezeActions(false);
+		    this->loadVPK(vpkPath);
+	    });
+	    this->createFromDirWorkerThread->start();
     } else {
         (void) VPK::createEmpty(vpkPath.toStdString(), {.version = version});
+	    this->loadVPK(vpkPath);
     }
-    this->loadVPK(vpkPath);
 }
 
 void Window::openVPK(const QString& startPath, const QString& filePath) {
@@ -957,6 +987,11 @@ void Window::resetStatusBar() {
 	this->statusText->setText(tr(" Loaded \"%1.vpk\" - Version v%2").arg(this->vpk->getRealFilename().data()).arg(version));
 	this->statusText->show();
 	this->statusProgressBar->hide();
+}
+
+void CreateFromDirVPKWorker::run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options) {
+	(void) VPK::createFromDirectory(vpkPath, contentPath, saveToDir, options);
+	emit taskFinished();
 }
 
 void SaveVPKWorker::run(Window* window, const QString& savePath) {

@@ -22,6 +22,7 @@ class FileViewer;
 class Window : public QMainWindow {
     Q_OBJECT;
 
+    friend class CreateFromDirVPKWorker;
     friend class SaveVPKWorker;
     friend class ExtractVPKWorker;
 
@@ -118,6 +119,7 @@ private:
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
+    QThread* createFromDirWorkerThread;
     QThread* saveWorkerThread;
     QThread* extractWorkerThread;
 
@@ -133,6 +135,18 @@ private:
     void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
 
 	void resetStatusBar();
+};
+
+class CreateFromDirVPKWorker : public QObject {
+	Q_OBJECT;
+
+public:
+	CreateFromDirVPKWorker() = default;
+
+	void run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, vpkedit::VPKOptions options);
+
+signals:
+	void taskFinished();
 };
 
 class SaveVPKWorker : public QObject {
