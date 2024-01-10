@@ -22,6 +22,7 @@ class FileViewer;
 class Window : public QMainWindow {
     Q_OBJECT;
 
+    friend class SaveVPKWorker;
     friend class ExtractVPKWorker;
 
 public:
@@ -31,9 +32,9 @@ public:
 
     void openVPK(const QString& startPath = QString(), const QString& filePath = QString());
 
-    bool saveVPK();
+    void saveVPK(bool saveAs = false);
 
-    bool saveAsVPK();
+    void saveAsVPK();
 
     void closeVPK();
 
@@ -117,6 +118,7 @@ private:
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
+    QThread* saveWorkerThread;
     QThread* extractWorkerThread;
 
     std::optional<vpkedit::VPK> vpk;
@@ -129,6 +131,19 @@ private:
     void checkForUpdatesReply(QNetworkReply* reply);
 
     void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
+};
+
+class SaveVPKWorker : public QObject {
+	Q_OBJECT;
+
+public:
+	SaveVPKWorker() = default;
+
+	void run(Window* window, const QString& savePath);
+
+signals:
+	void progressUpdated(int value);
+	void taskFinished(bool success);
 };
 
 class ExtractVPKWorker : public QObject {

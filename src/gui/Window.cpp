@@ -38,6 +38,7 @@ constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk);;All files (*.*)";
 
 Window::Window(QWidget* parent)
         : QMainWindow(parent)
+		, saveWorkerThread(nullptr)
         , extractWorkerThread(nullptr)
         , modified(false) {
     this->setWindowTitle(PROJECT_TITLE.data());
@@ -326,28 +327,75 @@ void Window::openVPK(const QString& startPath, const QString& filePath) {
     }
 }
 
-bool Window::saveVPK() {
-    if (!this->vpk->bake()) {
-        QMessageBox::warning(this, tr("Could not save!"),
-                             tr("An error occurred while saving changes to the VPK. Check that you have permissions to write to the file."));
-        return false;
-    }
-    this->markModified(false);
-    return true;
+void Window::saveVPK(bool saveAs) {
+	QString savePath = "";
+	if (saveAs) {
+		savePath = QFileDialog::getExistingDirectory(this, tr("Save VPK to..."));
+		if (savePath.isEmpty()) {
+			return;
+		}
+	}
+
+	// Set up progress bar
+	this->statusText->hide();
+	this->statusProgressBar->show();
+
+	// Get progress bar maximum
+	int progressBarMax = static_cast<int>(this->vpk->getEntryCount());
+
+	// Show progress indicator
+	this->statusProgressBar->setRange(0, progressBarMax);
+	this->statusProgressBar->setValue(0);
+
+	this->freezeActions(true);
+
+	// Set up thread
+	this->saveWorkerThread = new QThread(this);
+	auto* worker = new SaveVPKWorker();
+	worker->moveToThread(this->saveWorkerThread);
+	QObject::connect(this->saveWorkerThread, &QThread::started, worker, [this, worker, savePath] {
+		worker->run(this, savePath);
+	});
+	QObject::connect(worker, &SaveVPKWorker::progressUpdated, this, [this, progressBarMax](int value) {
+		static bool alreadyShownBusy = false;
+		if (progressBarMax == value) {
+			// Show busy indicator if we haven't already
+			if (alreadyShownBusy) {
+				return;
+			}
+			alreadyShownBusy = true;
+			this->statusProgressBar->setValue(0);
+			this->statusProgressBar->setRange(0, 0);
+		} else {
+			alreadyShownBusy = false;
+			this->statusProgressBar->setRange(0, progressBarMax);
+			this->statusProgressBar->setValue(value);
+		}
+	});
+	QObject::connect(worker, &SaveVPKWorker::taskFinished, this, [this](bool success) {
+		// Kill thread
+		this->saveWorkerThread->quit();
+		this->saveWorkerThread->wait();
+		delete this->saveWorkerThread;
+		this->saveWorkerThread = nullptr;
+
+		this->freezeActions(false);
+
+		this->statusText->show();
+		this->statusProgressBar->hide();
+
+		if (!success) {
+			QMessageBox::warning(this, tr("Could not save!"),
+			                     tr("An error occurred while saving changes to the VPK. Check that you have permissions to write to the file."));
+		} else {
+			this->markModified(false);
+		}
+	});
+	this->saveWorkerThread->start();
 }
 
-bool Window::saveAsVPK() {
-    auto savePath = QFileDialog::getExistingDirectory(this, tr("Save VPK to..."));
-    if (savePath.isEmpty()) {
-        return false;
-    }
-    if (!this->vpk->bake(savePath.toStdString())) {
-        QMessageBox::warning(this, tr("Could not save!"),
-                             tr("An error occurred while saving the VPK. Check that you have permissions to write to the given location."));
-        return false;
-    }
-    this->markModified(false);
-    return true;
+void Window::saveAsVPK() {
+    this->saveVPK(true);
 }
 
 void Window::closeVPK() {
@@ -693,8 +741,7 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
 		}
 	}
 
-    this->statusProgressBar->setMinimum(0);
-    this->statusProgressBar->setMaximum(progressBarMax);
+    this->statusProgressBar->setRange(0, progressBarMax);
     this->statusProgressBar->setValue(0);
 
     this->freezeActions(true);
@@ -706,8 +753,8 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
     QObject::connect(this->extractWorkerThread, &QThread::started, worker, [this, worker, saveDir, predicate] {
         worker->run(this, saveDir, predicate);
     });
-    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [this] {
-        this->statusProgressBar->setValue(this->statusProgressBar->value() + 1);
+    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [this](int value) {
+        this->statusProgressBar->setValue(value);
     });
     QObject::connect(worker, &ExtractVPKWorker::taskFinished, this, [this] {
         // Kill thread
@@ -911,6 +958,14 @@ void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
     file.close();
 }
 
+void SaveVPKWorker::run(Window* window, const QString& savePath) {
+	int currentEntry = 0;
+	bool success = window->vpk->bake(savePath.toStdString(), [this, &currentEntry](const std::string&, const VPKEntry&) {
+		emit progressUpdated(++currentEntry);
+	});
+	emit taskFinished(success);
+}
+
 void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
     int currentEntry = 0;
     for (const auto& [directory, entries] : window->vpk->getBakedEntries()) {
@@ -931,7 +986,6 @@ void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::fu
             emit progressUpdated(++currentEntry);
         }
     }
-	// todo: don't duplicate this code
 	for (const auto& [directory, entries] : window->vpk->getUnbakedEntries()) {
 		QString dir(directory.c_str());
 		if (!predicate(dir)) {
