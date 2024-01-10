@@ -381,8 +381,7 @@ void Window::saveVPK(bool saveAs) {
 
 		this->freezeActions(false);
 
-		this->statusText->show();
-		this->statusProgressBar->hide();
+		this->resetStatusBar();
 
 		if (!success) {
 			QMessageBox::warning(this, tr("Could not save!"),
@@ -415,8 +414,7 @@ void Window::changeVPKVersion() {
     auto [version] = *vpkOptions;
     this->vpk->setVersion(version);
 
-    // Hack - assume vpk versions are never longer than 1 digit
-    this->statusText->setText(this->statusText->text().removeLast() + QString::number(version));
+	this->resetStatusBar();
 
     this->markModified(true);
 }
@@ -765,8 +763,7 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
 
         this->freezeActions(false);
 
-        this->statusText->show();
-        this->statusProgressBar->hide();
+        this->resetStatusBar();
     });
     this->extractWorkerThread->start();
 }
@@ -931,10 +928,7 @@ bool Window::loadVPK(const QString& path) {
     this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [this, path] {
         this->freezeActions(false);
 
-        const auto version = this->vpk->getVersion();
-        this->statusText->setText(tr(" Loaded \"%1\" - Version v%2").arg(path).arg(version));
-        this->statusText->show();
-        this->statusProgressBar->hide();
+		this->resetStatusBar();
     });
 
     return true;
@@ -956,6 +950,13 @@ void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
         QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
     }
     file.close();
+}
+
+void Window::resetStatusBar() {
+	const auto version = this->vpk->getVersion();
+	this->statusText->setText(tr(" Loaded \"%1.vpk\" - Version v%2").arg(this->vpk->getRealFilename().data()).arg(version));
+	this->statusText->show();
+	this->statusProgressBar->hide();
 }
 
 void SaveVPKWorker::run(Window* window, const QString& savePath) {

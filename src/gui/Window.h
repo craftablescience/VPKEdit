@@ -131,6 +131,8 @@ private:
     void checkForUpdatesReply(QNetworkReply* reply);
 
     void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
+
+	void resetStatusBar();
 };
 
 class SaveVPKWorker : public QObject {
