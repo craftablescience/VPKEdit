@@ -46,18 +46,10 @@ public:
     bool unbaked = false;
 
 	/// Returns the file stem (e.g. "cable.vmt" -> "cable")
-	[[nodiscard]] std::string getStem() const {
-		return std::filesystem::path{this->filename}.stem().string();
-	}
+	[[nodiscard]] std::string getStem() const;
 
 	/// Returns the file extension without a period (e.g. "cable.vmt" -> "vmt")
-	[[nodiscard]] std::string getExtension() const {
-		auto ext = std::filesystem::path{this->filename}.extension().string();
-		if (!ext.empty() && ext.at(0) == '.') {
-			ext = ext.substr(1);
-		}
-		return ext;
-	}
+	[[nodiscard]] std::string getExtension() const;
 
 private:
 	/// The data attached to the unbaked entry, or the path to the file containing the unbaked entry's data
@@ -160,29 +152,16 @@ public:
 	/// Change the version of the VPK. Valid values are 1 and 2
     void setVersion(std::uint32_t version);
 
-    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getBakedEntries() const {
-        return this->entries;
-    }
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getBakedEntries() const;
 
-    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getUnbakedEntries() const {
-        return this->unbakedEntries;
-    }
+    [[nodiscard]] const std::unordered_map<std::string, std::vector<VPKEntry>>& getUnbakedEntries() const;
 
-    [[nodiscard]] std::uint32_t getHeaderLength() const {
-        if (this->header1.version < 2) {
-            return sizeof(Header1);
-        }
-        return sizeof(Header1) + sizeof(Header2);
-    }
+	[[nodiscard]] std::uint64_t getEntryCount(bool includeUnbaked = true) const;
+
+    [[nodiscard]] std::uint32_t getHeaderLength() const;
 
     /// pak01_dir.vpk -> pak01
-    [[nodiscard]] std::string_view getPrettyFilename() const {
-        // Find the last occurrence of the slash character
-        if (std::size_t lastSlashIndex = this->filename.find_last_of('/'); lastSlashIndex != std::string::npos) {
-            return {this->filename.data() + lastSlashIndex + 1, this->filename.length() - lastSlashIndex - 1};
-        }
-        return this->filename; // not much else to do, should never happen
-    }
+    [[nodiscard]] std::string_view getPrettyFilename() const;
 
     /// pak01_dir.vpk -> pak01_dir
     [[nodiscard]] std::string getRealFilename() const;

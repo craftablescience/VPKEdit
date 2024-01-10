@@ -54,6 +54,18 @@ std::vector<std::byte> readFileData(const std::string& filepath, std::size_t pre
 
 } // namespace
 
+std::string VPKEntry::getStem() const {
+	return std::filesystem::path{this->filename}.stem().string();
+}
+
+std::string VPKEntry::getExtension() const {
+	auto ext = std::filesystem::path{this->filename}.extension().string();
+	if (!ext.empty() && ext.at(0) == '.') {
+		ext = ext.substr(1);
+	}
+	return ext;
+}
+
 VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_, std::uint32_t preferredChunkSize_)
         : reader(std::move(reader_))
         , fullPath(std::move(fullPath_))
@@ -763,6 +775,42 @@ void VPK::setVersion(std::uint32_t version) {
     this->header2 = Header2{};
     this->footer2 = Footer2{};
     this->md5Entries.clear();
+}
+
+const std::unordered_map<std::string, std::vector<VPKEntry>>& VPK::getBakedEntries() const {
+	return this->entries;
+}
+
+const std::unordered_map<std::string, std::vector<VPKEntry>>& VPK::getUnbakedEntries() const {
+	return this->unbakedEntries;
+}
+
+std::uint64_t VPK::getEntryCount(bool includeUnbaked) const {
+	std::uint64_t count = 0;
+	for (const auto& [directory, entries_] : this->entries) {
+		count += entries_.size();
+	}
+	if (includeUnbaked) {
+		for (const auto& [directory, entries_] : this->unbakedEntries) {
+			count += entries_.size();
+		}
+	}
+	return count;
+}
+
+std::uint32_t VPK::getHeaderLength() const {
+	if (this->header1.version < 2) {
+		return sizeof(Header1);
+	}
+	return sizeof(Header1) + sizeof(Header2);
+}
+
+std::string_view VPK::getPrettyFilename() const {
+	// Find the last occurrence of the slash character
+	if (std::size_t lastSlashIndex = this->filename.find_last_of('/'); lastSlashIndex != std::string::npos) {
+		return {this->filename.data() + lastSlashIndex + 1, this->filename.length() - lastSlashIndex - 1};
+	}
+	return this->filename; // not much else to do, should never happen
 }
 
 std::string VPK::getRealFilename() const {
