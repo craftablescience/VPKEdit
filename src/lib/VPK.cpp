@@ -84,7 +84,7 @@ VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
     return *VPK::open(path, options.preferredChunkSize);
 }
 
-VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options) {
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options, const Callback& callback) {
     auto vpk = VPK::createEmpty(vpkPath, options);
 	if (!std::filesystem::exists(contentPath) || std::filesystem::status(contentPath).type() != std::filesystem::file_type::directory) {
 		return vpk;
@@ -107,11 +107,11 @@ VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& cont
         }
         vpk.addEntry(entryPath, file.path().string(), saveToDir);
     }
-    vpk.bake();
+    vpk.bake("", callback);
     return vpk;
 }
 
-std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChunkSize) {
+std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChunkSize, const Callback& callback) {
     if (!std::filesystem::exists(path)) {
         // File does not exist
         return std::nullopt;
@@ -120,21 +120,21 @@ std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChu
     std::string fileNameNoSuffix = ::removeVPKAndOrDirSuffix(path);
 
     VPK vpk{FileStream{path}, path, fileNameNoSuffix, preferredChunkSize};
-    if (VPK::open(vpk)) {
+    if (VPK::open(vpk, callback)) {
         return vpk;
     }
     return std::nullopt;
 }
 
-std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize) {
+std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize, const Callback& callback) {
     VPK vpk{FileStream{buffer, bufferLen}, "", "", preferredChunkSize};
-    if (VPK::open(vpk)) {
+    if (VPK::open(vpk, callback)) {
         return vpk;
     }
     return std::nullopt;
 }
 
-bool VPK::open(VPK& vpk) {
+bool VPK::open(VPK& vpk, const Callback& callback) {
     vpk.reader.seekInput(0);
     vpk.reader.read(vpk.header1);
     if (vpk.header1.signature != VPK_ID) {
@@ -209,6 +209,10 @@ bool VPK::open(VPK& vpk) {
                 if (entry.archiveIndex != VPK_DIR_INDEX && entry.archiveIndex > vpk.numArchives) {
                     vpk.numArchives = entry.archiveIndex;
                 }
+
+				if (callback) {
+					callback(fullDir, entry);
+				}
             }
         }
     }
@@ -482,7 +486,7 @@ bool VPK::removeEntry(const std::string& filename_) {
     return false;
 }
 
-bool VPK::bake(const std::string& outputFolder_) {
+bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     // Loaded from memory
     if (this->fullPath.empty())
         return false;
@@ -637,6 +641,10 @@ bool VPK::bake(const std::string& outputFolder_) {
                 if (!entry->preloadedData.empty()) {
                     outDir.writeBytes(entry->preloadedData);
                 }
+
+				if (callback) {
+					callback(dir, *entry);
+				}
             }
             outDir.write('\0');
         }

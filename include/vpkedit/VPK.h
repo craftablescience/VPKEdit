@@ -2,6 +2,7 @@
 
 #include <array>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <unordered_map>
 #include <utility>
@@ -110,6 +111,8 @@ class VPK {
 #pragma pack(pop)
 
 public:
+	using Callback = std::function<void(const std::string& directory, const VPKEntry& entry)>;
+
     VPK(const VPK& other) = delete;
     VPK& operator=(const VPK& other) = delete;
     VPK(VPK&& other) noexcept = default;
@@ -119,15 +122,15 @@ public:
     [[nodiscard]] static VPK createEmpty(const std::string& path, VPKOptions options = {});
 
     /// Create a new directory VPK file from a directory (see above comment)
-    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {});
+    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {}, const Callback& callback = nullptr);
 
     /// Open a directory VPK file
-    [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE);
+    [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE, const Callback& callback = nullptr);
 
     /// Open a directory VPK from memory
     /// Note that any content not stored in the directory VPK will fail to load!
     /// Also baking new entries will fail
-    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE);
+    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE, const Callback& callback = nullptr);
 
 	/// Try to find an entry within the VPK given the file path
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
@@ -149,7 +152,7 @@ public:
     bool removeEntry(const std::string& filename_);
 
     /// If output folder is unspecified, it will overwrite the original
-    bool bake(const std::string& outputFolder_ = "");
+    bool bake(const std::string& outputFolder_ = "", const Callback& callback = nullptr);
 
     /// Returns 1 for v1, 2 for v2
     [[nodiscard]] std::uint32_t getVersion() const;
@@ -205,7 +208,7 @@ protected:
     detail::FileStream reader;
 
 private:
-    [[nodiscard]] static bool open(VPK& vpk);
+    [[nodiscard]] static bool open(VPK& vpk, const Callback& callback = nullptr);
 };
 
 } // namespace vpkedit
