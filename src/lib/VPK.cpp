@@ -102,14 +102,14 @@ VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& cont
 		return vpk;
 	}
     for (const auto& file : std::filesystem::recursive_directory_iterator(contentPath)) {
-        if (file.is_directory()) {
+        if (!file.is_regular_file()) {
             continue;
         }
 	    std::string entryPath;
 		try {
 			entryPath = std::filesystem::absolute(file.path()).string().substr(std::filesystem::absolute(contentPath).string().length());
 		} catch (const std::exception&) {
-			continue;
+			continue; // Likely a Unicode error, unsupported filename
 		}
         if (entryPath.empty()) {
             continue;
