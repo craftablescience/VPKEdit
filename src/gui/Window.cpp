@@ -291,21 +291,21 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
+	auto vpkOptions = VPKPropertiesDialog::getVPKProperties(false, 2, false, this);
+	if (!vpkOptions) {
+		return;
+	}
+	auto [version, singleFile] = *vpkOptions;
+
     auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, tr("Use This Folder"), startPath) : "";
     if (fromDirectory && dirPath.isEmpty()) {
         return;
     }
 
-    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(std::filesystem::path(dirPath.toStdString()).stem().string().c_str()) + ".vpk" : startPath, VPK_SAVE_FILTER);
+    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(std::filesystem::path(dirPath.toStdString()).stem().string().c_str()) + (singleFile ? ".vpk" : "_dir.vpk") : startPath, VPK_SAVE_FILTER);
     if (vpkPath.isEmpty()) {
         return;
     }
-
-    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(false, 2, false, this);
-    if (!vpkOptions) {
-        return;
-    }
-    auto [version, singleFile] = *vpkOptions;
 
     if (fromDirectory) {
 	    // Set up progress bar
