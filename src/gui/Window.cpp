@@ -28,7 +28,7 @@
 #include "config/Options.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
-#include "dialogs/VPKVersionDialog.h"
+#include "dialogs/VPKPropertiesDialog.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -216,10 +216,10 @@ Window::Window(QWidget* parent)
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
     debugMenu->addAction("New VPK Dialog", [this] {
-        (void) VPKVersionDialog::getVPKVersionOptions(false, 2, this);
+        (void) VPKPropertiesDialog::getVPKProperties(false, 2, true, this);
     });
     debugMenu->addAction("Set VPK Version Dialog", [this] {
-        (void) VPKVersionDialog::getVPKVersionOptions(true, 2, this);
+        (void) VPKPropertiesDialog::getVPKProperties(true, 2, true, this);
     });
 #endif
 
@@ -299,15 +299,14 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-    auto vpkOptions = VPKVersionDialog::getVPKVersionOptions(false, 2, this);
+    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(false, 2, false, this);
     if (!vpkOptions) {
         return;
     }
-    auto [version] = *vpkOptions;
+    auto [version, singleFile] = *vpkOptions;
 
     if (fromDirectory) {
-		// todo: option to save as multichunk VPK
-        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), true, {.version = version});
+        (void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), singleFile, {.version = version});
     } else {
         (void) VPK::createEmpty(vpkPath.toStdString(), {.version = version});
     }
@@ -407,11 +406,11 @@ void Window::checkForNewUpdate() const {
 }
 
 void Window::changeVPKVersion() {
-    auto vpkOptions = VPKVersionDialog::getVPKVersionOptions(true, this->vpk->getVersion(), this);
+    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(true, this->vpk->getVersion(), false, this);
     if (!vpkOptions) {
         return;
     }
-    auto [version] = *vpkOptions;
+    auto [version, singleFile] = *vpkOptions;
     this->vpk->setVersion(version);
 
 	this->resetStatusBar();
