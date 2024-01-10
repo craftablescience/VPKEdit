@@ -59,8 +59,6 @@ Window::Window(QWidget* parent)
     });
 
     if (CFileSystemSearchProvider provider; provider.Available()) {
-        this->openVPKRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
-
         QList<std::tuple<QString, QString, QDir>> sourceGames;
         auto installedSteamAppCount = provider.GetNumInstalledApps();
         std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
@@ -81,13 +79,17 @@ Window::Window(QWidget* parent)
 			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
 				return std::get<0>(lhs) < std::get<0>(rhs);
 			});
+
+			this->openVPKRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
+			for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
+				const auto relativeDirectory = relativeDirectoryPath.path();
+				this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
+					this->openVPK(relativeDirectory);
+				});
+			}
+		} else {
+			this->openVPKRelativeToMenu = nullptr;
 		}
-        for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
-            const auto relativeDirectory = relativeDirectoryPath.path();
-            this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
-                this->openVPK(relativeDirectory);
-            });
-        }
     } else {
         this->openVPKRelativeToMenu = nullptr;
     }
