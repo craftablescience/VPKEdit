@@ -58,6 +58,7 @@ Window::Window(QWidget* parent)
         this->openVPK();
     });
 
+	this->openVPKRelativeToMenu = nullptr;
     if (CFileSystemSearchProvider provider; provider.Available()) {
         QList<std::tuple<QString, QString, QDir>> sourceGames;
         auto installedSteamAppCount = provider.GetNumInstalledApps();
@@ -87,11 +88,7 @@ Window::Window(QWidget* parent)
 					this->openVPK(relativeDirectory);
 				});
 			}
-		} else {
-			this->openVPKRelativeToMenu = nullptr;
 		}
-    } else {
-        this->openVPKRelativeToMenu = nullptr;
     }
 
     this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
