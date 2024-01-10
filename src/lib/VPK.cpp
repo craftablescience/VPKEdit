@@ -590,6 +590,9 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 		        continue;
 	        }
 	        std::string dest = getArchiveFilename(outputFolder + '/' + this->getPrettyFilename().data(), archiveIndex);
+			if (from == dest) {
+				continue;
+			}
 			std::filesystem::copy(from, dest, std::filesystem::copy_options::overwrite_existing);
         }
     }
