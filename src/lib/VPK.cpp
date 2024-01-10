@@ -558,7 +558,6 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 
     // Get the file output paths
     std::string outputFilename = std::filesystem::path(this->fullPath).filename().string();
-    std::string outputFilenameNoExtension = this->getRealFilename();
     std::string outputFolder;
     if (!outputFolder_.empty()) {
         outputFolder = outputFolder_;
@@ -586,13 +585,12 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     auto dirVPKFilePath = outputFolder + '/' + outputFilename;
     if (!outputFolder_.empty()) {
         for (int archiveIndex = 0; archiveIndex < this->numArchives; archiveIndex++) {
-	        std::string dest = outputFolder + '/';
-			dest += outputFilenameNoExtension;
-			dest = getArchiveFilename(dest, archiveIndex);
-			if (!std::filesystem::exists(dest)) {
-				continue;
-			}
-			std::filesystem::copy(getArchiveFilename(this->filename, archiveIndex), dest, std::filesystem::copy_options::overwrite_existing);
+			auto from = getArchiveFilename(this->filename, archiveIndex);
+	        if (!std::filesystem::exists(from)) {
+		        continue;
+	        }
+	        std::string dest = getArchiveFilename(outputFolder + '/' + this->getPrettyFilename().data(), archiveIndex);
+			std::filesystem::copy(from, dest, std::filesystem::copy_options::overwrite_existing);
         }
     }
 
