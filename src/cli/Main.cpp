@@ -9,6 +9,46 @@
 using namespace std::literals::string_literals;
 using namespace vpkedit;
 
+namespace {
+
+/// Pack contents of a directory into a VPK
+void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
+	if (cli.is_used("-o")) {
+		if (!cli.get("-o").ends_with(".vpk")) {
+			throw std::runtime_error("Output path must be a VPK file!");
+		}
+		outputPath = cli.get("-o");
+		if (!cli.get<bool>("-s") && !outputPath.ends_with("_dir.vpk")) {
+			std::cerr << "Warning: multichunk VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
+			             "This VPK may not be able to be loaded by the Source engine or other VPK browsers!\n" << std::endl;
+		}
+	}
+
+	bool saveToDir = cli.get<bool>("-s");
+	auto preloadExtensions = cli.get<std::vector<std::string>>("-p");
+	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
+	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-m")) * 1024 * 1024);
+
+	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
+		int preloadBytes = 0;
+		for (const auto& preloadExtension : preloadExtensions) {
+			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path(fullEntryPath).extension().string().ends_with(preloadExtension)) ||
+			    std::filesystem::path(fullEntryPath).filename().string() == preloadExtension) {
+				preloadBytes = VPK_MAX_PRELOAD_BYTES;
+				break;
+			}
+		}
+		return std::make_tuple(saveToDir, preloadBytes);
+	}, {
+		.version = version,
+		.preferredChunkSize = preferredChunkSize,
+	});
+	std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
+}
+
+} // namespace
+
 int main(int argc, const char* const* argv) {
 	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION.data(), argparse::default_arguments::help};
 
@@ -26,7 +66,7 @@ int main(int argc, const char* const* argv) {
 				   "         |__/                                                      \n"
 	               "                                                                   \n"
 	               "Created by craftablescience. Contributors and libraries used are   \n"
-	               "listed in CREDITS.md. VPKEdit is licensed under the MIT License.");
+	               "listed in CREDITS.md. " + PROJECT_NAME_PRETTY.data() + " is licensed under the MIT License.");
 
 #ifdef _WIN32
 	// Add the Windows-specific ones because why not
@@ -52,6 +92,15 @@ int main(int argc, const char* const* argv) {
 		.default_value("200")
 		.nargs(1);
 
+	cli.add_argument("-p", "--preload")
+		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
+			  "preloaded in the directory VPK. Full file names are also supported here\n"
+			  "(i.e. this would preload any files named README.md or files ending in vmt:\n"
+			  "\"-p README.md vmt\"). It preloads materials by default to match Valve\n"
+			  "behavior.")
+		.default_value(std::vector<std::string>{"vmt"})
+		.remaining();
+
 	cli.add_argument("-s", "--single-file")
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
 			  "May break if the total file size is larger than ~2gb.")
@@ -67,25 +116,9 @@ int main(int argc, const char* const* argv) {
 		if (inputPath.ends_with('/') || inputPath.ends_with('\\')) {
 			inputPath.pop_back();
 		}
+
 		if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
-			// Pack
-			auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
-			if (cli.is_used("-o")) {
-				if (!cli.get("-o").ends_with(".vpk")) {
-					throw std::runtime_error("Output path must be a VPK file!");
-				}
-				outputPath = cli.get("-o");
-				if (!cli.get<bool>("-s") && !outputPath.ends_with("_dir.vpk")) {
-					std::cerr << "Warning: multichunk VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
-								 "This VPK may not be able to be loaded by the Source engine or other VPK browsers!\n" << std::endl;
-				}
-			}
-			auto vpk = VPK::createFromDirectory(outputPath, inputPath, cli.get<bool>("-s"), {
-				.version = static_cast<std::uint32_t>(std::stoi(cli.get("-v"))),
-				.preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-m")) * 1024 * 1024),
-			});
-			std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
-			return EXIT_SUCCESS;
+			::pack(cli, inputPath);
 		}
 	} catch (const std::exception& e) {
 		if (argc > 1) {
