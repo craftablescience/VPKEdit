@@ -28,7 +28,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	bool saveToDir = cli.get<bool>("-s");
 	auto preloadExtensions = cli.get<std::vector<std::string>>("-p");
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
-	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-m")) * 1024 * 1024);
+	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-c")) * 1024 * 1024);
 
 	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
@@ -87,7 +87,7 @@ int main(int argc, const char* const* argv) {
 	   .choices("1", "2")
 	   .nargs(1);
 
-	cli.add_argument("-m", "--multichunk")
+	cli.add_argument("-c", "--chunksize")
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
 		.nargs(1);
