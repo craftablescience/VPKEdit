@@ -8,6 +8,7 @@
 #include <utility>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <variant>
 #include <vector>
 
@@ -103,7 +104,10 @@ class VPK {
 #pragma pack(pop)
 
 public:
+	// Accepts the entry parent directory and the entry metadata
 	using Callback = std::function<void(const std::string& directory, const VPKEntry& entry)>;
+	// Accepts the full entry path (parent directory + filename), returns saveToDir and preloadBytes
+	using EntryCreationCallback = std::function<std::tuple<bool, int>(const std::string& fullEntryPath)>;
 
     VPK(const VPK& other) = delete;
     VPK& operator=(const VPK& other) = delete;
@@ -114,7 +118,10 @@ public:
     [[nodiscard]] static VPK createEmpty(const std::string& path, VPKOptions options = {});
 
     /// Create a new directory VPK file from a directory, the contents of the directory will be present in the root VPK directory (see above comment)
-    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {}, const Callback& callback = nullptr);
+    [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {}, const Callback& bakeCallback = nullptr);
+
+	/// Create a new directory VPK file from a directory, the contents of the directory will be present in the root VPK directory. Each entry's properties is determined by a callback. (see above comment)
+	[[nodiscard]] static VPK createFromDirectoryProcedural(const std::string& vpkPath, const std::string& contentPath, const EntryCreationCallback& creationCallback, VPKOptions options = {}, const Callback& bakeCallback = nullptr);
 
     /// Open a directory VPK file
     [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE, const Callback& callback = nullptr);

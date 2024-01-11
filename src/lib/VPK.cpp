@@ -11,6 +11,10 @@ using namespace vpkedit::detail;
 
 namespace {
 
+void normalizeSlashes(std::string& path) {
+	std::replace(path.begin(), path.end(), '\\', '/');
+}
+
 std::string removeVPKAndOrDirSuffix(const std::string& path) {
     std::string filename = path;
     if (filename.length() >= 4 && filename.substr(filename.length() - 4) == ".vpk") {
@@ -28,7 +32,7 @@ std::string removeVPKAndOrDirSuffix(const std::string& path) {
 
 std::pair<std::string, std::string> splitFilenameAndParentDir(const std::string& filename) {
     auto name = filename;
-    std::replace(name.begin(), name.end(), '\\', '/');
+    ::normalizeSlashes(name);
 
     auto lastSeparator = name.rfind('/');
     auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
@@ -96,31 +100,43 @@ VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
     return *VPK::open(path, options.preferredChunkSize);
 }
 
-VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options, const Callback& callback) {
-    auto vpk = VPK::createEmpty(vpkPath, options);
+VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options, const Callback& bakeCallback) {
+    return VPK::createFromDirectoryProcedural(vpkPath, contentPath, [saveToDir](const std::string&) {
+		return std::make_tuple(saveToDir, 0);
+	}, options, bakeCallback);
+}
+
+VPK VPK::createFromDirectoryProcedural(const std::string& vpkPath, const std::string& contentPath, const EntryCreationCallback& creationCallback, VPKOptions options, const Callback& bakeCallback) {
+	auto vpk = VPK::createEmpty(vpkPath, options);
 	if (!std::filesystem::exists(contentPath) || std::filesystem::status(contentPath).type() != std::filesystem::file_type::directory) {
 		return vpk;
 	}
-    for (const auto& file : std::filesystem::recursive_directory_iterator(contentPath)) {
-        if (!file.is_regular_file()) {
-            continue;
-        }
-	    std::string entryPath;
+	for (const auto& file : std::filesystem::recursive_directory_iterator(contentPath, std::filesystem::directory_options::skip_permission_denied)) {
+		if (!file.is_regular_file()) {
+			continue;
+		}
+		std::string entryPath;
 		try {
 			entryPath = std::filesystem::absolute(file.path()).string().substr(std::filesystem::absolute(contentPath).string().length());
+			::normalizeSlashes(entryPath);
 		} catch (const std::exception&) {
 			continue; // Likely a Unicode error, unsupported filename
 		}
-        if (entryPath.empty()) {
-            continue;
-        }
-        while (entryPath.at(0) == '/' || entryPath.at(0) == '\\') {
-            entryPath = entryPath.substr(1);
-        }
-        vpk.addEntry(entryPath, file.path().string(), saveToDir);
-    }
-    vpk.bake("", callback);
-    return vpk;
+		if (entryPath.empty()) {
+			continue;
+		}
+		while (entryPath.at(0) == '/') {
+			entryPath = entryPath.substr(1);
+		}
+		if (creationCallback) {
+			auto [saveToDir, preloadBytes] = creationCallback(entryPath);
+			vpk.addEntry(entryPath, file.path().string(), saveToDir, preloadBytes);
+		} else {
+			vpk.addEntry(entryPath, file.path().string());
+		}
+	}
+	vpk.bake("", bakeCallback);
+	return vpk;
 }
 
 std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChunkSize, const Callback& callback) {
@@ -567,7 +583,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
         this->fullPath = outputFolder + '/' + outputFilename;
     } else {
         outputFolder = this->fullPath;
-        std::replace(outputFolder.begin(), outputFolder.end(), '\\', '/');
+        ::normalizeSlashes(outputFolder);
         auto lastSlash = outputFolder.rfind('/');
         if (lastSlash != std::string::npos) {
             outputFolder = filename.substr(0, lastSlash);
