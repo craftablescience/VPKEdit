@@ -57,11 +57,6 @@ int main(int argc, const char* const* argv) {
 			  "May break if the total file size is larger than ~2gb.")
 		.flag();
 
-	// todo: list files
-	//cli.add_argument("-l", "--list")
-	//   .help("(Extract) Rather than extracting the files, print a list of files the VPK contains.")
-	//   .flag();
-
 	try {
 		cli.parse_args(argc, argv);
 
@@ -91,11 +86,7 @@ int main(int argc, const char* const* argv) {
 			});
 			std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
 			return EXIT_SUCCESS;
-		} /*else if (path.ends_with(".vpk")) {
-			// Extract
-			// todo: extract files
-			return EXIT_SUCCESS;
-		}*/
+		}
 	} catch (const std::exception& e) {
 		if (argc > 1) {
 			std::cerr << e.what() << "\n\n";

@@ -113,7 +113,7 @@ public:
     /// Create a new directory VPK file - must end in "_dir.vpk"! This is not enforced but STRONGLY recommended
     [[nodiscard]] static VPK createEmpty(const std::string& path, VPKOptions options = {});
 
-    /// Create a new directory VPK file from a directory (see above comment)
+    /// Create a new directory VPK file from a directory, the contents of the directory will be present in the root VPK directory (see above comment)
     [[nodiscard]] static VPK createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, VPKOptions options = {}, const Callback& callback = nullptr);
 
     /// Open a directory VPK file
