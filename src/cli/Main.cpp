@@ -109,7 +109,7 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("-s", "--single-file")
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
-			  "May break if the total file size is larger than ~2gb.")
+			  "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
 
 	try {

@@ -25,7 +25,7 @@ VPKPropertiesDialog::VPKPropertiesDialog(bool exists, std::uint32_t startVersion
     layout->addRow(versionLabel, this->version);
 
 	if (!exists) {
-		auto* singleFileLabel = new QLabel(tr("Save to single file:\nNote: this may not work for VPKs larger than ~2gb!"), this);
+		auto* singleFileLabel = new QLabel(tr("Save to single file:\nBreaks the VPK if its size will be >= 4gb!"), this);
 		this->singleFile = new QCheckBox(this);
 		this->singleFile->setChecked(singleFile);
 		layout->addRow(singleFileLabel, this->singleFile);
