@@ -29,6 +29,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto preloadExtensions = cli.get<std::vector<std::string>>("-p");
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-c")) * 1024 * 1024);
+	auto generateMD5Entries = cli.get<bool>("--gen-md5-entries");
 
 	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
@@ -43,6 +44,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}, {
 		.version = version,
 		.preferredChunkSize = preferredChunkSize,
+		.generateMD5Entries = generateMD5Entries,
 	});
 	std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
 }
@@ -91,6 +93,10 @@ int main(int argc, const char* const* argv) {
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
 		.nargs(1);
+
+	cli.add_argument("--gen-md5-entries")
+		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
+		.flag();
 
 	cli.add_argument("-p", "--preload")
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
