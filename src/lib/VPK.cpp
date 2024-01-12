@@ -70,11 +70,11 @@ std::string VPKEntry::getExtension() const {
 	return ext;
 }
 
-VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_, std::uint32_t preferredChunkSize_)
+VPK::VPK(FileStream&& reader_, std::string fullPath_, std::string filename_, VPKOptions options_)
         : reader(std::move(reader_))
         , fullPath(std::move(fullPath_))
         , filename(std::move(filename_))
-		, preferredChunkSize(preferredChunkSize_) {}
+		, options(options_) {}
 
 VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
 	{
@@ -97,7 +97,7 @@ VPK VPK::createEmpty(const std::string& path, VPKOptions options) {
 
 		stream.write('\0');
     }
-    return *VPK::open(path, options.preferredChunkSize);
+    return *VPK::open(path, options);
 }
 
 VPK VPK::createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options, const Callback& bakeCallback) {
@@ -139,7 +139,7 @@ VPK VPK::createFromDirectoryProcedural(const std::string& vpkPath, const std::st
 	return vpk;
 }
 
-std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChunkSize, const Callback& callback) {
+std::optional<VPK> VPK::open(const std::string& path, VPKOptions options, const Callback& callback) {
     if (!std::filesystem::exists(path)) {
         // File does not exist
         return std::nullopt;
@@ -147,15 +147,15 @@ std::optional<VPK> VPK::open(const std::string& path, std::uint32_t preferredChu
 
     std::string fileNameNoSuffix = ::removeVPKAndOrDirSuffix(path);
 
-    VPK vpk{FileStream{path}, path, fileNameNoSuffix, preferredChunkSize};
+    VPK vpk{FileStream{path}, path, fileNameNoSuffix, options};
     if (VPK::open(vpk, callback)) {
         return vpk;
     }
     return std::nullopt;
 }
 
-std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize, const Callback& callback) {
-    VPK vpk{FileStream{buffer, bufferLen}, "", "", preferredChunkSize};
+std::optional<VPK> VPK::open(std::byte* buffer, std::uint64_t bufferLen, VPKOptions options, const Callback& callback) {
+    VPK vpk{FileStream{buffer, bufferLen}, "", "", options};
     if (VPK::open(vpk, callback)) {
         return vpk;
     }
@@ -169,6 +169,8 @@ bool VPK::open(VPK& vpk, const Callback& callback) {
         // File is not a VPK
         return false;
     }
+	// Might as well
+	vpk.options.version = vpk.header1.version;
     if (vpk.header1.version == 2) {
         vpk.reader.read(vpk.header2);
     } else if (vpk.header1.version != 1) {
@@ -408,8 +410,8 @@ void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, 
 	if (!saveToDir) {
 		entry.offset = this->currentlyFilledChunkSize;
 		this->currentlyFilledChunkSize += static_cast<int>(buffer.size());
-		if (this->preferredChunkSize) {
-			if (this->currentlyFilledChunkSize > this->preferredChunkSize) {
+		if (this->options.preferredChunkSize) {
+			if (this->currentlyFilledChunkSize > this->options.preferredChunkSize) {
 				this->currentlyFilledChunkSize = 0;
 				this->numArchives++;
 			}
@@ -451,8 +453,8 @@ void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& 
 	if (!saveToDir) {
 		entry.offset = this->currentlyFilledChunkSize;
 		this->currentlyFilledChunkSize += static_cast<int>(buffer.size());
-		if (this->preferredChunkSize) {
-			if (this->currentlyFilledChunkSize > this->preferredChunkSize) {
+		if (this->options.preferredChunkSize) {
+			if (this->currentlyFilledChunkSize > this->options.preferredChunkSize) {
 				this->currentlyFilledChunkSize = 0;
 				this->numArchives++;
 			}
@@ -705,21 +707,23 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     if (this->header1.version != 1) {
         // Calculate hashes for all entries
         this->md5Entries.clear();
-        for (const auto& [tDir, tEntries] : this->entries) {
-            for (const auto& tEntry : tEntries) {
-                // Believe it or not this should be safe to call by now
-                auto binData = this->readBinaryEntry(tEntry);
-                if (!binData) {
-                    continue;
-                }
-                MD5Entry md5Entry{};
-                md5Entry.archiveIndex = tEntry.archiveIndex;
-                md5Entry.length = tEntry.length - tEntry.preloadedData.size();
-                md5Entry.offset = tEntry.offset;
-                md5Entry.checksum = md5(*binData);
-                this->md5Entries.push_back(md5Entry);
-            }
-        }
+		if (options.generateMD5Entries) {
+			for (const auto& [tDir, tEntries] : this->entries) {
+				for (const auto& tEntry : tEntries) {
+					// Believe it or not this should be safe to call by now
+					auto binData = this->readBinaryEntry(tEntry);
+					if (!binData) {
+						continue;
+					}
+					MD5Entry md5Entry{};
+					md5Entry.archiveIndex = tEntry.archiveIndex;
+					md5Entry.length = tEntry.length - tEntry.preloadedData.size();
+					md5Entry.offset = tEntry.offset;
+					md5Entry.checksum = md5(*binData);
+					this->md5Entries.push_back(md5Entry);
+				}
+			}
+		}
 
         // Calculate Header2
         this->header2.fileDataSectionSize = dirVPKEntryData.size();

@@ -62,10 +62,12 @@ private:
 };
 
 struct VPKOptions {
-	/// VPK version
+	/// VPK version (ignored when opening an existing VPK)
 	std::uint32_t version = 2;
 	/// If this value is 0, chunks have an unlimited size
 	std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE;
+	/// Controls generation of per-file MD5 hashes (only for VPK v2)
+	bool generateMD5Entries = false;
 };
 
 class VPK {
@@ -92,13 +94,13 @@ class VPK {
     };
 
     struct MD5Entry {
-        /// The CRC32 checksum of this entry.
+		/// The archive index of the file
         std::uint32_t archiveIndex;
-        /// The offset in the package.
+        /// The offset in the archive
         std::uint32_t offset;
-        /// The length in bytes.
+        /// The length in bytes
         std::uint32_t length;
-        /// The expected Checksum checksum.
+	    /// The CRC32 checksum of this entry
         std::array<std::byte, 16> checksum;
     };
 #pragma pack(pop)
@@ -124,12 +126,12 @@ public:
 	[[nodiscard]] static VPK createFromDirectoryProcedural(const std::string& vpkPath, const std::string& contentPath, const EntryCreationCallback& creationCallback, VPKOptions options = {}, const Callback& bakeCallback = nullptr);
 
     /// Open a directory VPK file
-    [[nodiscard]] static std::optional<VPK> open(const std::string& path, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE, const Callback& callback = nullptr);
+    [[nodiscard]] static std::optional<VPK> open(const std::string& path, VPKOptions options = {}, const Callback& callback = nullptr);
 
     /// Open a directory VPK from memory
     /// Note that any content not stored in the directory VPK will fail to load!
     /// Also baking new entries will fail
-    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen, std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE, const Callback& callback = nullptr);
+    [[nodiscard]] static std::optional<VPK> open(std::byte* buffer, std::uint64_t bufferLen, VPKOptions options = {}, const Callback& callback = nullptr);
 
 	/// Try to find an entry within the VPK given the file path
     [[nodiscard]] std::optional<VPKEntry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
@@ -174,13 +176,14 @@ public:
     [[nodiscard]] std::string getRealFilename() const;
 
 protected:
-    VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_, std::uint32_t preferredChunkSize_);
+    VPK(detail::FileStream&& reader_, std::string fullPath_, std::string filename_, VPKOptions options_);
 
     std::string fullPath;
     std::string filename;
 
+	VPKOptions options;
+
 	int numArchives = -1;
-	std::uint32_t preferredChunkSize = 0;
 	std::uint32_t currentlyFilledChunkSize = 0;
 
     Header1 header1{}; // Present in all VPK versions
