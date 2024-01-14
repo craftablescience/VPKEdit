@@ -1,0 +1,15 @@
+name: Feature Request
+description: Request a feature here
+labels: [enhancement]
+assignees:
+- craftablescience
+body:
+- type: textarea
+  attributes:
+    label: Describe Your Suggestion
+    description: Give a clear explanation of what you want to be added. Feel free to add pictures or video.
+    placeholder: |
+      Please don't give vague suggestions.
+      How does it work? What is the expected outcome?
+  validations:
+    required: true
