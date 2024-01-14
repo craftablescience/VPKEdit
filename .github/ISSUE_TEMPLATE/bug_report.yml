@@ -1,0 +1,30 @@
+name: Bug Report
+description: Report any bugs here
+labels: [bug]
+assignees:
+- craftablescience
+body:
+- type: textarea
+  attributes:
+    label: Describe the Bug
+    description: A clear description of what the bug is. Feel free to add pictures or videos.
+    placeholder: |
+      When I do X then Y happens.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: To Reproduce
+    description: Steps to reproduce the bug.
+    placeholder: |
+      1. Open ...
+      2. Do ...
+      3. See ...
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Operating System
+    placeholder: Windows/Linux, plus version info if known.
+  validations:
+    required: true
