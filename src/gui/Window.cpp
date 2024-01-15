@@ -517,6 +517,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 		preloadBytes = std::get<2>(*newEntryOptions);
 	}
 
+	this->vpk->removeEntry(entryPath.toStdString());
 	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), useArchiveVPK, preloadBytes);
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(this->vpk.value(), entryPath);
@@ -556,6 +557,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     while (it.hasNext()) {
         QString subEntryPathFS = it.next();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
+	    this->vpk->removeEntry(subEntryPath.toStdString());
         this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), useArchiveVPK, preloadBytes);
         this->entryTree->addEntry(subEntryPath);
         this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
