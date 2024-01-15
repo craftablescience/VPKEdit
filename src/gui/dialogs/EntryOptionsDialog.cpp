@@ -8,7 +8,11 @@
 #include <QLineEdit>
 #include <QSpinBox>
 
+#include <vpkedit/VPK.h>
+
 #include "../config/Options.h"
+
+using namespace vpkedit;
 
 EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseDirVPK, int prefilledPreloadBytes, QWidget* parent)
         : QDialog(parent) {
@@ -21,27 +25,21 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 
     auto* layout = new QFormLayout(this);
 
-    auto* pathLineEditLabel = new QLabel(
-            isDir ? tr("The path of the folder in the VPK:\n(e.g. \"materials/dev\")") : tr("The path of the file in the VPK:\n(e.g. \"materials/cable.vmt\")"),
-            this);
+    auto* pathLineEditLabel = new QLabel(tr("The path of the %1 in the VPK:\n(e.g. \"%2\")").arg(isDir ? "folder" : "file", isDir ? "materials/dev" : "materials/cable.vmt"), this);
     this->path = new QLineEdit(this);
     this->path->setText(prefilledPath);
     layout->addRow(pathLineEditLabel, this->path);
 
     if (advancedFileProps) {
-        auto* useDirVPKLabel = new QLabel(
-                isDir ? tr("Save this file to a new numbered archive\ninstead of the directory VPK:") : tr("Save each file to a new numbered archive\ninstead of the directory VPK:"),
-                this);
+        auto* useDirVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
         this->useDirVPK = new QCheckBox(this);
         this->useDirVPK->setCheckState(prefilledUseDirVPK ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
         layout->addRow(useDirVPKLabel, this->useDirVPK);
 
-        auto* preloadBytesLabel = new QLabel(
-                isDir ? tr("Set the bytes of the file to preload:\n(From 0 to 1023 bytes)") : tr("Set the bytes of each file to preload:\n(From 0 to 1023 bytes)"),
-                this);
+        auto* preloadBytesLabel = new QLabel(tr("Set the bytes of %1 file to preload:\n(From 0 to %2 bytes)").arg(isDir ? "each" : "the").arg(VPK_MAX_PRELOAD_BYTES), this);
         this->preloadBytes = new QSpinBox(this);
         this->preloadBytes->setMinimum(0);
-        this->preloadBytes->setMaximum(1023);
+        this->preloadBytes->setMaximum(VPK_MAX_PRELOAD_BYTES);
         this->preloadBytes->setValue(prefilledPreloadBytes);
         layout->addRow(preloadBytesLabel, this->preloadBytes);
     } else {
