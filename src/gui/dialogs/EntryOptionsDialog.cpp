@@ -62,7 +62,7 @@ std::optional<std::tuple<QString, bool, int>> EntryOptionsDialog::getEntryOption
         return std::nullopt;
     }
     return std::make_tuple(
-            QDir::cleanPath(dialog->path->text()),
+            QDir::cleanPath(dialog->path->text().toLower()),
             !dialog->useDirVPK || dialog->useDirVPK->checkState() == Qt::Checked,
             dialog->preloadBytes ? dialog->preloadBytes->value() : 0
     );

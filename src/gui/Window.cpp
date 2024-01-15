@@ -503,7 +503,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
     }
     prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
 
-	QString entryPath = prefilledPath;
+	QString entryPath = prefilledPath.toLower();
 	bool useArchiveVPK = false;
 	int preloadBytes = 0;
 
@@ -539,7 +539,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     }
     prefilledPath += std::filesystem::path(dirpath.toStdString()).filename().string().c_str();
 
-	QString parentEntryPath = prefilledPath;
+	QString parentEntryPath = prefilledPath.toLower();
 	bool useArchiveVPK = false;
 	int preloadBytes = 0;
 
@@ -555,7 +555,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 
     QDirIterator it(dirpath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
-        QString subEntryPathFS = it.next();
+        QString subEntryPathFS = it.next().toLower();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
 	    this->vpk->removeEntry(subEntryPath.toStdString());
         this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), useArchiveVPK, preloadBytes);
