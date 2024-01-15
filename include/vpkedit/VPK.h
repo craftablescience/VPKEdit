@@ -64,12 +64,15 @@ private:
 struct VPKOptions {
 	/// VPK version (ignored when opening an existing VPK)
 	std::uint32_t version = 2;
-	/// If this value is 0, chunks have an unlimited size (not controlled by the library).
+	/// If this value is 0, chunks have an unlimited size (not controlled by the library)
 	/// Chunk size is max 4gb, but since its not useful to have large chunks, try to keep
-	/// the preferred chunk size around the default.
+	/// the preferred chunk size around the default
 	std::uint32_t preferredChunkSize = VPK_DEFAULT_CHUNK_SIZE;
 	/// Controls generation of per-file MD5 hashes (only for VPK v2)
 	bool generateMD5Entries = false;
+	/// Whether or not to allow uppercase letters in VPK filenames. This affects all functions:
+	/// if this value is false, filenames will be treated as case-insensitive.
+	bool allowUppercaseLettersInFilenames = false;
 };
 
 class VPK {

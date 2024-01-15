@@ -1,6 +1,7 @@
 #include <vpkedit/VPK.h>
 
 #include <algorithm>
+#include <cctype>
 #include <iterator>
 
 #include <MD5.h>
@@ -10,6 +11,10 @@ using namespace vpkedit;
 using namespace vpkedit::detail;
 
 namespace {
+
+void toLowerCase(std::string& input) {
+	std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c){ return std::tolower(c); });
+}
 
 void normalizeSlashes(std::string& path) {
 	std::replace(path.begin(), path.end(), '\\', '/');
@@ -291,6 +296,11 @@ bool VPK::open(VPK& vpk, const Callback& callback) {
 
 std::optional<VPKEntry> VPK::findEntry(const std::string& filename_, bool includeUnbaked) const {
     auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	if (!this->options.allowUppercaseLettersInFilenames) {
+		::toLowerCase(dir);
+		::toLowerCase(name);
+	}
+
     if (!dir.empty()) {
         if (dir.length() > 1 && dir.substr(0, 1) == "/") {
             dir = dir.substr(1);
@@ -382,7 +392,12 @@ std::optional<std::string> VPK::readTextEntry(const VPKEntry& entry) const {
 }
 
 void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, bool saveToDir, int preloadBytes) {
-	const auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	if (!this->options.allowUppercaseLettersInFilenames) {
+		::toLowerCase(dir);
+		::toLowerCase(name);
+	}
+
 	// We process preload bytes later
 	auto buffer = ::readFileData(pathToFile, 0);
 
@@ -427,7 +442,11 @@ void VPK::addEntry(const std::string& filename_, const std::string& pathToFile, 
 }
 
 void VPK::addBinaryEntry(const std::string& filename_, std::vector<std::byte>&& buffer, bool saveToDir, int preloadBytes) {
-    const auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+    auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	if (!this->options.allowUppercaseLettersInFilenames) {
+		::toLowerCase(dir);
+		::toLowerCase(name);
+	}
 
     VPKEntry entry{};
     entry.unbaked = true;
@@ -486,7 +505,11 @@ void VPK::addTextEntry(const std::string& filename_, const std::string& text, bo
 }
 
 bool VPK::removeEntry(const std::string& filename_) {
-    const auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+    auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	if (!this->options.allowUppercaseLettersInFilenames) {
+		::toLowerCase(dir);
+		::toLowerCase(name);
+	}
 
     // Check unbaked entries first
     if (this->unbakedEntries.count(dir)) {
