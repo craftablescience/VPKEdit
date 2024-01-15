@@ -18,7 +18,7 @@ NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& vers
     auto* label = new QLabel(tr("There is a new update available.\n\n"
 							    "Current version:  *v%1*\n\n"
 							    "Latest version:  *%2*\n\n"
-                                "[Click here to download the new version.](%3)").arg(PROJECT_VERSION.data(), version, releaseLink), this);
+                                "[Click here to download the new version.](%3)").arg(PROJECT_VERSION_PRETTY.data(), version, releaseLink), this);
     label->setTextFormat(Qt::MarkdownText);
     label->setOpenExternalLinks(true);
     layout->addWidget(label);

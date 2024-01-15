@@ -52,7 +52,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 } // namespace
 
 int main(int argc, const char* const* argv) {
-	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION.data(), argparse::default_arguments::help};
+	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION_PRETTY.data(), argparse::default_arguments::help};
 
 	cli.add_epilog("Program details:\n"
 				   "                    /$$                       /$$ /$$   /$$        \n"
@@ -64,7 +64,7 @@ int main(int argc, const char* const* argv) {
 	               "   \\  $/ | $$$$$$$/| $$ \\  $$|  $$$$$$$|  $$$$$$$| $$  |  $$$$/  \n"
 	               "    \\_/  | $$____/ |__/  \\__/ \\_______/ \\_______/|__/   \\____/\n"
 	               "         | $$                                                      \n"
-	               "         | $$             version v"s + PROJECT_VERSION.data() +  "\n"
+	               "         | $$             version v"s + PROJECT_VERSION_PRETTY.data() + "\n"
 				   "         |__/                                                      \n"
 	               "                                                                   \n"
 	               "Created by craftablescience. Contributors and libraries used are   \n"
