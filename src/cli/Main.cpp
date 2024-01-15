@@ -30,6 +30,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-c")) * 1024 * 1024);
 	auto generateMD5Entries = cli.get<bool>("--gen-md5-entries");
+	auto allowUppercaseLettersInFilenames = cli.get<bool>("--allow-caps");
 
 	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
@@ -45,6 +46,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		.version = version,
 		.preferredChunkSize = preferredChunkSize,
 		.generateMD5Entries = generateMD5Entries,
+		.allowUppercaseLettersInFilenames = allowUppercaseLettersInFilenames,
 	});
 	std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
 }
@@ -111,6 +113,11 @@ int main(int argc, const char* const* argv) {
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
 			  "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
+
+	cli.add_argument("--allow-caps")
+	   .help("(Pack) Allow files to have uppercase letters. If this flag is not present,\n"
+			 "all filenames will be converted to lowercase in the VPK.")
+	   .flag();
 
 	try {
 		cli.parse_args(argc, argv);
