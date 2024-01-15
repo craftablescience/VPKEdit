@@ -8,7 +8,7 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 <div>
   <img src="https://img.shields.io/github/license/craftablescience/VPKEdit?label=license" alt="License" />
   <img src="https://img.shields.io/github/actions/workflow/status/craftablescience/VPKEdit/build.yml?branch=main&label=builds" alt="Workflow Status" />
-  <img src="https://img.shields.io/discord/678074864346857482?label=discord&logo=Discord&logoColor=%23FFFFFF" alt="Discord" />
+  <a href="https://discord.gg/ASgHFkX" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/discord/678074864346857482?label=discord&logo=Discord&logoColor=%23FFFFFF" alt="Discord" /></a>
 </div>
 
 <img src="https://github.com/craftablescience/VPKEdit/blob/main/branding/readme_promo.png?raw=true" alt="A screenshot of VPKEdit with a VTF preview open." />
