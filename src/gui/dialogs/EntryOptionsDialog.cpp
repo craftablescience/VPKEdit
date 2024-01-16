@@ -14,7 +14,7 @@
 
 using namespace vpkedit;
 
-EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseDirVPK, int prefilledPreloadBytes, QWidget* parent)
+EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseArchiveVPK, int prefilledPreloadBytes, QWidget* parent)
         : QDialog(parent) {
     const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
@@ -31,10 +31,10 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
     layout->addRow(pathLineEditLabel, this->path);
 
     if (advancedFileProps) {
-        auto* useDirVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
-        this->useDirVPK = new QCheckBox(this);
-        this->useDirVPK->setCheckState(prefilledUseDirVPK ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
-        layout->addRow(useDirVPKLabel, this->useDirVPK);
+        auto* useArchiveVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
+        this->useArchiveVPK = new QCheckBox(this);
+        this->useArchiveVPK->setCheckState(prefilledUseArchiveVPK ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+        layout->addRow(useArchiveVPKLabel, this->useArchiveVPK);
 
         auto* preloadBytesLabel = new QLabel(tr("Set the bytes of %1 file to preload:\n(From 0 to %2 bytes)").arg(isDir ? "each" : "the").arg(VPK_MAX_PRELOAD_BYTES), this);
         this->preloadBytes = new QSpinBox(this);
@@ -43,7 +43,7 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
         this->preloadBytes->setValue(prefilledPreloadBytes);
         layout->addRow(preloadBytesLabel, this->preloadBytes);
     } else {
-        this->useDirVPK = nullptr;
+        this->useArchiveVPK = nullptr;
         this->preloadBytes = nullptr;
     }
 
@@ -54,8 +54,8 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
     QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &EntryOptionsDialog::reject);
 }
 
-std::optional<std::tuple<QString, bool, int>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseDirVPK, int prefilledPreloadBytes, QWidget* parent) {
-    auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, prefilledUseDirVPK, prefilledPreloadBytes, parent);
+std::optional<std::tuple<QString, bool, int>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseArchiveVPK, int prefilledPreloadBytes, QWidget* parent) {
+    auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, prefilledUseArchiveVPK, prefilledPreloadBytes, parent);
     int ret = dialog->exec();
     if (ret != QDialog::Accepted) {
         dialog->deleteLater();
@@ -63,7 +63,7 @@ std::optional<std::tuple<QString, bool, int>> EntryOptionsDialog::getEntryOption
     }
     return std::make_tuple(
             QDir::cleanPath(dialog->path->text().toLower()),
-            !dialog->useDirVPK || dialog->useDirVPK->checkState() == Qt::Checked,
+            dialog->useArchiveVPK && dialog->useArchiveVPK->checkState() == Qt::Checked,
             dialog->preloadBytes ? dialog->preloadBytes->value() : 0
     );
 }
