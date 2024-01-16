@@ -40,6 +40,9 @@ public:
 public slots:
     void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/) const;
 
+protected:
+	void keyPressEvent(QKeyEvent* event) override;
+
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item) const;
 

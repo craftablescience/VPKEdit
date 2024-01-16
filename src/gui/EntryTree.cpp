@@ -1,5 +1,7 @@
 #include "EntryTree.h"
 
+#include <QKeyEvent>
+#include <QMessageBox>
 #include <QProgressBar>
 #include <QStyle>
 #include <QThread>
@@ -271,6 +273,21 @@ void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
         }
 	    this->window->selectDirInFileViewer(path, subfolders, entryPaths);
     }
+}
+
+void EntryTree::keyPressEvent(QKeyEvent* event) {
+	if (event->keyCombination().key() == Qt::Key_Delete) {
+		event->accept();
+		for (auto* item : this->selectedItems()) {
+			if (event->keyCombination().keyboardModifiers() != Qt::SHIFT) {
+				auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(this->getItemPath(item)), QMessageBox::Ok | QMessageBox::Cancel);
+				if (reply == QMessageBox::Cancel) {
+					continue;
+				}
+			}
+			this->removeEntry(item);
+		}
+	}
 }
 
 QString EntryTree::getItemPath(QTreeWidgetItem* item) const {
