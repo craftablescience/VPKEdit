@@ -518,7 +518,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	}
 
 	this->vpk->removeEntry(entryPath.toStdString());
-	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), useArchiveVPK, preloadBytes);
+	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(this->vpk.value(), entryPath);
 	this->markModified(true);
@@ -558,7 +558,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
         QString subEntryPathFS = it.next().toLower();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
 	    this->vpk->removeEntry(subEntryPath.toStdString());
-        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), useArchiveVPK, preloadBytes);
+        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
         this->entryTree->addEntry(subEntryPath);
         this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
     }
@@ -597,7 +597,7 @@ void Window::editFile(const QString& oldPath) {
     }
 
     // Get new properties
-    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, entry->archiveIndex == VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()), this);
+    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, entry->archiveIndex != VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()), this);
     if (!options) {
         return;
     }
@@ -607,7 +607,7 @@ void Window::editFile(const QString& oldPath) {
     this->requestEntryRemoval(oldPath);
 
     // Add new file with the same info and data at the new path
-    this->vpk->addBinaryEntry(newPath.toStdString(), std::move(data.value()), useArchiveDir, preloadedBytes);
+    this->vpk->addBinaryEntry(newPath.toStdString(), std::move(data.value()), !useArchiveDir, preloadedBytes);
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(this->vpk.value(), newPath);
 	this->markModified(true);
