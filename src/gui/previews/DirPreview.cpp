@@ -1,6 +1,8 @@
 #include "DirPreview.h"
 
 #include <QHeaderView>
+#include <QKeyEvent>
+#include <QMessageBox>
 
 #include <vpkedit/VPK.h>
 
@@ -214,6 +216,23 @@ void DirPreview::setSearchQuery(const QString& query) {
 
 const QString& DirPreview::getCurrentPath() const {
     return this->currentPath;
+}
+
+void DirPreview::keyPressEvent(QKeyEvent* event) {
+	// Depends on only one row being selectable, makes the logic easier
+	if (event->keyCombination().key() == Qt::Key_Delete && !this->selectedItems().empty()) {
+		event->accept();
+
+		const auto path = this->getItemPath(this->selectedItems().at(0));
+
+		if (event->keyCombination().keyboardModifiers() != Qt::SHIFT) {
+			auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(path), QMessageBox::Ok | QMessageBox::Cancel);
+			if (reply == QMessageBox::Cancel) {
+				return;
+			}
+		}
+		this->window->requestEntryRemoval(this->getItemPath(this->selectedItems().at(0)));
+	}
 }
 
 void DirPreview::addRowForFile(const VPK& vpk, const QString& path) {

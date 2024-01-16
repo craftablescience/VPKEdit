@@ -29,6 +29,9 @@ public:
 
     [[nodiscard]] const QString& getCurrentPath() const;
 
+protected:
+	void keyPressEvent(QKeyEvent* event) override;
+
 private:
     void addRowForFile(const vpkedit::VPK& vpk, const QString& path);
 
