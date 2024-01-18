@@ -301,7 +301,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(std::filesystem::path(dirPath.toStdString()).stem().string().c_str()) + (singleFile ? ".vpk" : "_dir.vpk") : startPath, VPK_SAVE_FILTER);
+    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(std::filesystem::path(dirPath.toStdString()).stem().string().c_str()) + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk") : startPath, VPK_SAVE_FILTER);
     if (vpkPath.isEmpty()) {
         return;
     }
