@@ -61,6 +61,8 @@ public:
 
     void aboutQt();
 
+    void controls();
+
     [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
     [[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;

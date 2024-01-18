@@ -55,6 +55,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/config/Options.h"
         "${CMAKE_CURRENT_LIST_DIR}/config/Options.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.h"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/EntryOptionsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/EntryOptionsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/NewUpdateDialog.h"
