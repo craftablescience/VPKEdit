@@ -433,7 +433,7 @@ void Window::closeVPK() {
 }
 
 void Window::checkForNewUpdate() const {
-	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases")));
+	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases/latest")));
 }
 
 void Window::changeVPKVersion() {
@@ -458,34 +458,32 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
         QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
     };
     QJsonDocument response = QJsonDocument::fromJson(QString(reply->readAll()).toUtf8());
-    if (!response.isArray()) {
-        return parseFailure();
-    }
-    QJsonArray releases = response.array();
-    if (releases.isEmpty() || !releases.at(0).isObject()) {
-        return parseFailure();
-    }
-	for (auto releaseValue : releases) {
-		auto release = releaseValue.toObject();
-		if (!release.contains("html_url") || !release["html_url"].isString()) {
-			return parseFailure();
-		}
-		auto url = release["html_url"].toString();
-		if (!release.contains("tag_name") || !release["tag_name"].isString()) {
-			return parseFailure();
-		}
-		auto versionName = release["name"].toString();
-		auto versionTag = release["tag_name"].toString();
 
-		if (versionTag == QString("v") + PROJECT_VERSION.data()) {
-			QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
-			return;
-		} else if (release["prerelease"].toBool()) {
-			continue;
-		}
-		NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
+	if (!response.isObject()) {
+        return parseFailure();
+    }
+    QJsonObject release = response.object();
+
+	if (!release.contains("html_url") || !release["html_url"].isString()) {
+		return parseFailure();
+	}
+	auto url = release["html_url"].toString();
+
+	if (!release.contains("tag_name") || !release["tag_name"].isString()) {
+		return parseFailure();
+	}
+	auto versionTag = release["tag_name"].toString();
+
+	if (!release.contains("name") || !release["name"].isString()) {
+		return parseFailure();
+	}
+	auto versionName = release["name"].toString();
+
+	if (versionTag == QString("v") + PROJECT_VERSION.data()) {
+		QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
 		return;
 	}
+	NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
 }
 
 void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
