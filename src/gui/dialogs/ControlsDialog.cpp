@@ -12,9 +12,7 @@ QString getControlsText() {
 	QFile controlsFile(":/CONTROLS.md");
 	if (controlsFile.open(QIODevice::ReadOnly)) {
 		QTextStream in(&controlsFile);
-		while(!in.atEnd()) {
-			controlsText += in.readLine() + '\n';
-		}
+		controlsText = in.readAll();
 		controlsFile.close();
 	}
 	return controlsText;

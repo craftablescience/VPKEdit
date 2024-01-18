@@ -673,9 +673,7 @@ void Window::about() {
     QFile creditsFile(":/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
         QTextStream in(&creditsFile);
-        while(!in.atEnd()) {
-            creditsText += in.readLine() + '\n';
-        }
+		creditsText += in.readAll();
         creditsFile.close();
     }
 
