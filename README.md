@@ -32,6 +32,8 @@ It can also preview certain file types without needing to extract them from the 
 - Source 1 Textures
 - Source 1 Models
 
+Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
+
 A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface.
 It does not allow the user to preview packed files for an obvious reason.
 
