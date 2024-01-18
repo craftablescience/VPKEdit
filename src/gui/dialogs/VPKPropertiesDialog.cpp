@@ -43,8 +43,8 @@ VPKPropertiesDialog::VPKPropertiesDialog(bool exists, std::uint32_t startVersion
 std::optional<std::tuple<std::uint32_t, bool>> VPKPropertiesDialog::getVPKProperties(bool exists, std::uint32_t startVersion, bool singleFile, QWidget* parent) {
     auto* dialog = new VPKPropertiesDialog(exists, startVersion, singleFile, parent);
     int ret = dialog->exec();
+	dialog->deleteLater();
     if (ret != QDialog::Accepted) {
-        dialog->deleteLater();
         return std::nullopt;
     }
     // v1 - 1, v2 - 2

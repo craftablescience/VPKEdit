@@ -2,8 +2,6 @@
 
 #include <QDialog>
 
-class QComboBox;
-
 class NewUpdateDialog : public QDialog {
     Q_OBJECT;
 
