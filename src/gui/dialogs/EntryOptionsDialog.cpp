@@ -57,8 +57,8 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 std::optional<std::tuple<QString, bool, int>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, bool prefilledUseArchiveVPK, int prefilledPreloadBytes, QWidget* parent) {
     auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, prefilledUseArchiveVPK, prefilledPreloadBytes, parent);
     int ret = dialog->exec();
+	dialog->deleteLater();
     if (ret != QDialog::Accepted) {
-        dialog->deleteLater();
         return std::nullopt;
     }
     return std::make_tuple(
