@@ -26,6 +26,7 @@
 #include <vpkedit/Version.h>
 
 #include "config/Options.h"
+#include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
 #include "dialogs/VPKPropertiesDialog.h"
@@ -194,9 +195,12 @@ Window::Window(QWidget* parent)
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [this] {
         this->about();
     });
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), "About &Qt", Qt::ALT | Qt::Key_F1, [this] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About &Qt"), Qt::ALT | Qt::Key_F1, [this] {
         this->aboutQt();
     });
+	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogListView), tr("Controls"), Qt::Key_F2, [this] {
+		this->controls();
+	});
 
 #ifdef QT_DEBUG
     // Debug menu
@@ -685,6 +689,10 @@ void Window::about() {
 
 void Window::aboutQt() {
     QMessageBox::aboutQt(this);
+}
+
+void Window::controls() {
+	ControlsDialog::showControlsDialog(this);
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
