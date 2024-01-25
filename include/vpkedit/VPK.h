@@ -1,10 +1,6 @@
 #pragma once
 
-#include <array>
-#include <optional>
-#include <unordered_map>
 #include <utility>
-#include <string_view>
 #include <tuple>
 
 #include <vpkedit/detail/FileStream.h>
@@ -69,12 +65,6 @@ public:
 
     [[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const final;
 
-    void addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options) final;
-
-    void addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options) final;
-
-    void addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options) final;
-
     bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) final;
 
 	[[nodiscard]] std::string getTruncatedFilestem() const final;
@@ -87,6 +77,8 @@ public:
 
 protected:
     VPK(const std::string& fullFilePath_, PackFileOptions options_);
+
+	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
 
 	detail::FileStream reader;
 

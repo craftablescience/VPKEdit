@@ -13,3 +13,6 @@
 [submodule "src/gui/thirdparty/studiomodelpp"]
 	path = src/gui/thirdparty/studiomodelpp
 	url = https://github.com/craftablescience/studiomodelpp
+[submodule "src/lib/thirdparty/minizip-ng"]
+	path = src/lib/thirdparty/minizip-ng
+	url = https://github.com/zlib-ng/minizip-ng

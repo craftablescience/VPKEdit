@@ -36,7 +36,7 @@
 
 using namespace vpkedit;
 
-constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk);;All files (*.*)";
+constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk)";
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
@@ -362,7 +362,16 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 void Window::openPackFile(const QString& startPath, const QString& filePath) {
 	auto path = filePath;
 	if (path.isEmpty()) {
-		path = QFileDialog::getOpenFileName(this, tr("Open Pack File"), startPath, VPK_SAVE_FILTER);
+		auto supportedExtensions = PackFile::getSupportedFileTypes();
+		QString filter = "Supported Files (";
+		for (int i = 0; i < supportedExtensions.size(); i++) {
+			if (i != 0) {
+				filter += ' ';
+			}
+			filter += ('*' + supportedExtensions[i]).c_str();
+		}
+		filter += ")";
+		path = QFileDialog::getOpenFileName(this, tr("Open Pack File"), startPath, filter);
 	}
     if (path.isEmpty()) {
         return;

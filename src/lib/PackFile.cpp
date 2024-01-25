@@ -4,7 +4,9 @@
 #include <utility>
 
 #include <vpkedit/detail/Misc.h>
+#include <vpkedit/BSP.h>
 #include <vpkedit/VPK.h>
+#include <vpkedit/ZIP.h>
 
 using namespace vpkedit;
 using namespace vpkedit::detail;
@@ -69,6 +71,34 @@ std::optional<std::string> PackFile::readEntryText(const Entry& entry) const {
 		out += static_cast<char>(byte);
 	}
 	return out;
+}
+
+void PackFile::addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_) {
+	auto buffer = ::readFileData(pathToFile, 0);
+
+	Entry entry{};
+	entry.unbaked = true;
+	entry.unbakedUsingByteBuffer = false;
+	entry.unbakedData = pathToFile;
+
+	Entry& finalEntry = this->addEntryInternal(entry, filename_, buffer, options_);
+	finalEntry.unbakedData = pathToFile;
+}
+
+void PackFile::addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options_) {
+	Entry entry{};
+	entry.unbaked = true;
+	entry.unbakedUsingByteBuffer = true;
+
+	Entry& finalEntry = this->addEntryInternal(entry, filename_, buffer, options_);
+	finalEntry.unbakedData = std::move(buffer);
+}
+
+void PackFile::addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options_) {
+	std::vector<std::byte> data;
+	data.resize(bufferLen);
+	std::memcpy(data.data(), buffer, bufferLen);
+	this->addEntry(filename_, std::move(data), options_);
 }
 
 bool PackFile::removeEntry(const std::string& filename_) {
@@ -152,6 +182,14 @@ std::string PackFile::getTruncatedFilestem() const {
 	return this->getFilestem();
 }
 
+std::vector<std::string> PackFile::getSupportedFileTypes() {
+	std::vector<std::string> out;
+	for (const auto& [extension, factoryFunction] : PackFile::getExtensionRegistry()) {
+		out.push_back(extension);
+	}
+	return out;
+}
+
 Entry PackFile::createNewEntry() {
 	return {};
 }
@@ -160,16 +198,8 @@ const std::variant<std::string, std::vector<std::byte>>& PackFile::getEntryUnbak
 	return entry.unbakedData;
 }
 
-void PackFile::setEntryUnbakedData(Entry& entry, const std::variant<std::string, std::vector<std::byte>>& unbakedData) {
-	entry.unbakedData = unbakedData;
-}
-
 bool PackFile::isEntryUnbakedUsingByteBuffer(const Entry& entry) {
 	return entry.unbakedUsingByteBuffer;
-}
-
-void PackFile::setEntryUnbakedUsingByteBuffer(Entry& entry, bool unbakedUsingByteBuffer) {
-	entry.unbakedUsingByteBuffer = unbakedUsingByteBuffer;
 }
 
 std::unordered_map<std::string, PackFile::FactoryFunction>& PackFile::getExtensionRegistry() {

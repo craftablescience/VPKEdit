@@ -5,6 +5,7 @@
 #include <optional>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 #include "Entry.h"
 #include "Options.h"
@@ -14,6 +15,8 @@ namespace vpkedit {
 enum class PackFileType {
 	GENERIC,
 	VPK,
+	BSP,
+	ZIP,
 };
 
 class PackFile {
@@ -44,13 +47,13 @@ public:
 	[[nodiscard]] std::optional<std::string> readEntryText(const Entry& entry) const;
 
 	/// Add a new entry from a file path - the first parameter is the path in the PackFile, the second is the path on disk
-	virtual void addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options) = 0;
+	void addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_);
 
 	/// Add a new entry from a buffer
-	virtual void addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options) = 0;
+	void addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options_);
 
 	/// Add a new entry from a buffer
-	virtual void addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options) = 0;
+	void addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options_);
 
 	/// Remove an entry
 	bool removeEntry(const std::string& filename_);
@@ -85,18 +88,19 @@ public:
 	/// /home/user/pak01_dir.vpk -> pak01
 	[[nodiscard]] virtual std::string getTruncatedFilestem() const;
 
+	/// Returns a list of supported extensions, e.g. {".vpk", ".bsp"}
+	static std::vector<std::string> getSupportedFileTypes();
+
 protected:
 	PackFile(std::string fullFilePath_, PackFileOptions options_);
+
+	virtual Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
 
 	[[nodiscard]] static Entry createNewEntry();
 
 	[[nodiscard]] static const std::variant<std::string, std::vector<std::byte>>& getEntryUnbakedData(const Entry& entry);
 
-	static void setEntryUnbakedData(Entry& entry, const std::variant<std::string, std::vector<std::byte>>& unbakedData);
-
 	[[nodiscard]] static bool isEntryUnbakedUsingByteBuffer(const Entry& entry);
-
-	static void setEntryUnbakedUsingByteBuffer(Entry& entry, bool unbakedUsingByteBuffer);
 
 	std::string fullFilePath;
 
@@ -116,4 +120,4 @@ protected:
 } // namespace vpkedit
 
 #define VPKEDIT_REGISTER_PACKFILE_EXTENSION(extension, function) \
-	static inline auto packFileTypeFactoryFunction = PackFile::registerExtensionForTypeFactory(extension, function)
+	static inline auto packFileTypeFactoryFunction ## __LINE__ = PackFile::registerExtensionForTypeFactory(extension, function)
