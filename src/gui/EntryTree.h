@@ -6,6 +6,7 @@
 
 #include <vpkedit/VPK.h>
 
+class QKeyEvent;
 class QProgressBar;
 class QThread;
 

@@ -8,6 +8,8 @@ class VPK;
 
 } // namespace vpkedit
 
+class QKeyEvent;
+
 class FileViewer;
 class Window;
 

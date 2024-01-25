@@ -20,6 +20,7 @@ class VPK;
 } // namespace vpkedit
 
 class QCheckBox;
+class QKeyEvent;
 class QMouseEvent;
 class QTimerEvent;
 class QToolButton;
