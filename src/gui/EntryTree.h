@@ -4,7 +4,7 @@
 
 #include <QTreeWidget>
 
-#include <vpkedit/VPK.h>
+#include <vpkedit/PackFile.h>
 
 class QKeyEvent;
 class QProgressBar;
@@ -15,12 +15,12 @@ class Window;
 class EntryTree : public QTreeWidget {
     Q_OBJECT;
 
-    friend class LoadVPKWorker;
+    friend class LoadPackFileWorker;
 
 public:
     explicit EntryTree(Window* window_, QWidget* parent = nullptr);
 
-    void loadVPK(vpkedit::VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback);
+    void loadPackFile(vpkedit::PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
 	[[nodiscard]] bool hasEntry(const QString& path) const;
 
@@ -63,13 +63,13 @@ private:
     bool autoExpandDirectories;
 };
 
-class LoadVPKWorker : public QObject {
+class LoadPackFileWorker : public QObject {
     Q_OBJECT;
 
 public:
-    LoadVPKWorker() = default;
+    LoadPackFileWorker() = default;
 
-    void run(EntryTree* tree, const vpkedit::VPK& vpk);
+    void run(EntryTree* tree, const vpkedit::PackFile& packFile);
 
 signals:
     void progressUpdated(int value);

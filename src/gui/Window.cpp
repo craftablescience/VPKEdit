@@ -24,6 +24,7 @@
 #include <QThread>
 #include <sapp/FilesystemSearchProvider.h>
 #include <vpkedit/Version.h>
+#include <vpkedit/VPK.h>
 
 #include "config/Options.h"
 #include "dialogs/ControlsDialog.h"
@@ -38,89 +39,89 @@ using namespace vpkedit;
 constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk);;All files (*.*)";
 
 Window::Window(QWidget* parent)
-        : QMainWindow(parent)
-		, createFromDirWorkerThread(nullptr)
-		, saveWorkerThread(nullptr)
-        , extractWorkerThread(nullptr)
-        , modified(false) {
-    this->setWindowTitle(PROJECT_TITLE.data());
-    this->setWindowIcon(QIcon(":/icon.png"));
-    this->setMinimumSize(900, 500);
+		: QMainWindow(parent)
+		, createVPKFromDirWorkerThread(nullptr)
+		, savePackFileWorkerThread(nullptr)
+        , extractPackFileWorkerThread(nullptr)
+		, modified(false) {
+	this->setWindowTitle(PROJECT_TITLE.data());
+	this->setWindowIcon(QIcon(":/icon.png"));
+	this->setMinimumSize(900, 500);
 
-    // File menu
-    auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty..."), Qt::CTRL | Qt::Key_N, [this] {
-        this->newVPK(false);
-    });
-    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create From &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
-        this->newVPK(true);
-    });
-    this->openVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [this] {
-        this->openVPK();
-    });
+	// File menu
+	auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
+    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty VPK..."), Qt::CTRL | Qt::Key_N, [this] {
+		this->newVPK(false);
+	});
+    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create VPK From &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
+		this->newVPK(true);
+	});
+    this->openAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [this] {
+		this->openPackFile();
+	});
 
-	this->openVPKRelativeToMenu = nullptr;
-    if (CFileSystemSearchProvider provider; provider.Available()) {
-        QList<std::tuple<QString, QString, QDir>> sourceGames;
-        auto installedSteamAppCount = provider.GetNumInstalledApps();
-        std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
+	this->openRelativeToMenu = nullptr;
+	if (CFileSystemSearchProvider provider; provider.Available()) {
+		QList<std::tuple<QString, QString, QDir>> sourceGames;
+		auto installedSteamAppCount = provider.GetNumInstalledApps();
+		std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
 
-        for (int i = 0; i < installedSteamAppCount; i++) {
-            if (!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
-                continue;
+		for (int i = 0; i < installedSteamAppCount; i++) {
+			if (!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
+				continue;
 
-            std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
-            auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir);
+			std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
+			auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir);
 
-            // Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
-            QString gameName(steamGameInfo->gameName);
-            gameName.replace("&", "&&");
-            sourceGames.emplace_back(gameName, steamGameInfo->icon, relativeDirectoryPath);
-        }
+			// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
+			QString gameName(steamGameInfo->gameName);
+			gameName.replace("&", "&&");
+			sourceGames.emplace_back(gameName, steamGameInfo->icon, relativeDirectoryPath);
+		}
 		if (!sourceGames.empty()) {
 			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
 				return std::get<0>(lhs) < std::get<0>(rhs);
 			});
 
-			this->openVPKRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
+			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
 			for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
 				const auto relativeDirectory = relativeDirectoryPath.path();
-				this->openVPKRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
-					this->openVPK(relativeDirectory);
+				this->openRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
+					this->openPackFile(relativeDirectory);
 				});
 			}
 		}
-    }
+	}
 
-	this->openRecentVPKMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &Recent..."));
+	this->openRecentMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &Recent..."));
 	this->rebuildOpenRecentMenu(Options::get<QStringList>(STR_OPEN_RECENT));
 
-    this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
-        this->saveVPK();
-    });
-    this->saveVPKAction->setDisabled(true);
+	this->saveAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
+		this->savePackFile();
+	});
+	this->saveAction->setDisabled(true);
 
-    this->saveAsVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [this] {
-        this->saveAsVPK();
-    });
-    this->saveAsVPKAction->setDisabled(true);
+	this->saveAsAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [this] {
+		this->saveAsPackFile();
+	});
+	this->saveAsAction->setDisabled(true);
 
-    this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [this] {
-        this->closeVPK();
-    });
-    this->closeFileAction->setDisabled(true);
+	this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [this] {
+		this->closePackFile();
+	});
+	this->closeFileAction->setDisabled(true);
 
-    fileMenu->addSeparator();
+	fileMenu->addSeparator();
 
 	this->checkForNewUpdateNetworkManager = new QNetworkAccessManager(this);
 	QObject::connect(this->checkForNewUpdateNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [this] {
-        this->checkForNewUpdate();
-    });
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [this] {
+		this->checkForNewUpdate();
+	});
 
-    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [this] {
-        this->close();
-    });
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [this] {
+		this->close();
+	});
 
     // Edit menu
     auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
@@ -216,16 +217,16 @@ Window::Window(QWidget* parent)
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
     debugMenu->addAction("New Entry Dialog (File)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(false, false, "test", true, 0, this);
+        (void) EntryOptionsDialog::getEntryOptions(false, false, "test", true, true, 0, this);
     });
     debugMenu->addAction("New Entry Dialog (Dir)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(false, true, "test", true, 0, this);
+        (void) EntryOptionsDialog::getEntryOptions(false, true, "test", true, true, 0, this);
     });
     debugMenu->addAction("Edit Entry Dialog (File)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(true, false, "test", true, 0, this);
+        (void) EntryOptionsDialog::getEntryOptions(true, false, "test", true, true, 0, this);
     });
     debugMenu->addAction("Edit Entry Dialog (Dir)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(true, true, "test", true, 0, this);
+        (void) EntryOptionsDialog::getEntryOptions(true, true, "test", true, true, 0, this);
     });
     debugMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
@@ -291,10 +292,10 @@ Window::Window(QWidget* parent)
 
 	(void) this->clearContents();
 
-    // Load the VPK if given one through the command-line or double-clicking a file
+    // Load the pack file if given one through the command-line or double-clicking a file
     // An error here means shut the application down
     const auto& args = QApplication::arguments();
-    if ((args.length() > 1 && args[1].endsWith(".vpk") && QFile::exists(args[1])) && !this->loadVPK(args[1])) {
+    if ((args.length() > 1 && QFile::exists(args[1])) && !this->loadPackFile(args[1])) {
         exit(1);
     }
 }
@@ -333,46 +334,46 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	    this->freezeActions(true);
 
 	    // Set up thread
-	    this->createFromDirWorkerThread = new QThread(this);
-	    auto* worker = new CreateFromDirVPKWorker();
-	    worker->moveToThread(this->createFromDirWorkerThread);
+	    this->createVPKFromDirWorkerThread = new QThread(this);
+	    auto* worker = new CreateVPKFromDirWorker();
+	    worker->moveToThread(this->createVPKFromDirWorkerThread);
 		// Cringe compiler moment in the lambda capture list
-	    QObject::connect(this->createFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, version_=version] {
-		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, {.version = version_});
+	    QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, version_=version] {
+		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, { .vpk_version = version_ });
 	    });
-	    QObject::connect(worker, &CreateFromDirVPKWorker::taskFinished, this, [this, vpkPath] {
+	    QObject::connect(worker, &CreateVPKFromDirWorker::taskFinished, this, [this, vpkPath] {
 		    // Kill thread
-		    this->createFromDirWorkerThread->quit();
-		    this->createFromDirWorkerThread->wait();
-		    delete this->createFromDirWorkerThread;
-		    this->createFromDirWorkerThread = nullptr;
+		    this->createVPKFromDirWorkerThread->quit();
+		    this->createVPKFromDirWorkerThread->wait();
+		    delete this->createVPKFromDirWorkerThread;
+		    this->createVPKFromDirWorkerThread = nullptr;
 
 			// loadVPK freezes them right away again
 		    // this->freezeActions(false);
-		    this->loadVPK(vpkPath);
+		    this->loadPackFile(vpkPath);
 	    });
-	    this->createFromDirWorkerThread->start();
+	    this->createVPKFromDirWorkerThread->start();
     } else {
-        (void) VPK::createEmpty(vpkPath.toStdString(), {.version = version});
-	    this->loadVPK(vpkPath);
+        (void) VPK::createEmpty(vpkPath.toStdString(), { .vpk_version = version });
+	    this->loadPackFile(vpkPath);
     }
 }
 
-void Window::openVPK(const QString& startPath, const QString& filePath) {
+void Window::openPackFile(const QString& startPath, const QString& filePath) {
 	auto path = filePath;
 	if (path.isEmpty()) {
-		path = QFileDialog::getOpenFileName(this, tr("Open VPK"), startPath, VPK_SAVE_FILTER);
+		path = QFileDialog::getOpenFileName(this, tr("Open Pack File"), startPath, VPK_SAVE_FILTER);
 	}
     if (path.isEmpty()) {
         return;
     }
-    this->loadVPK(path);
+	this->loadPackFile(path);
 }
 
-void Window::saveVPK(bool saveAs) {
+void Window::savePackFile(bool saveAs) {
 	QString savePath = "";
 	if (saveAs) {
-		savePath = QFileDialog::getExistingDirectory(this, tr("Save VPK to..."));
+		savePath = QFileDialog::getExistingDirectory(this, tr("Save to..."));
 		if (savePath.isEmpty()) {
 			return;
 		}
@@ -383,7 +384,7 @@ void Window::saveVPK(bool saveAs) {
 	this->statusProgressBar->show();
 
 	// Get progress bar maximum
-	int progressBarMax = static_cast<int>(this->vpk->getEntryCount());
+	int progressBarMax = static_cast<int>(this->packFile->getEntryCount());
 
 	// Show progress indicator
 	this->statusProgressBar->setRange(0, progressBarMax);
@@ -392,13 +393,13 @@ void Window::saveVPK(bool saveAs) {
 	this->freezeActions(true);
 
 	// Set up thread
-	this->saveWorkerThread = new QThread(this);
-	auto* worker = new SaveVPKWorker();
-	worker->moveToThread(this->saveWorkerThread);
-	QObject::connect(this->saveWorkerThread, &QThread::started, worker, [this, worker, savePath] {
+	this->savePackFileWorkerThread = new QThread(this);
+	auto* worker = new SavePackFileWorker();
+	worker->moveToThread(this->savePackFileWorkerThread);
+	QObject::connect(this->savePackFileWorkerThread, &QThread::started, worker, [this, worker, savePath] {
 		worker->run(this, savePath);
 	});
-	QObject::connect(worker, &SaveVPKWorker::progressUpdated, this, [this, progressBarMax](int value) {
+	QObject::connect(worker, &SavePackFileWorker::progressUpdated, this, [this, progressBarMax](int value) {
 		static bool alreadyShownBusy = false;
 		if (progressBarMax == value) {
 			// Show busy indicator if we haven't already
@@ -414,12 +415,12 @@ void Window::saveVPK(bool saveAs) {
 			this->statusProgressBar->setValue(value);
 		}
 	});
-	QObject::connect(worker, &SaveVPKWorker::taskFinished, this, [this](bool success) {
+	QObject::connect(worker, &SavePackFileWorker::taskFinished, this, [this](bool success) {
 		// Kill thread
-		this->saveWorkerThread->quit();
-		this->saveWorkerThread->wait();
-		delete this->saveWorkerThread;
-		this->saveWorkerThread = nullptr;
+		this->savePackFileWorkerThread->quit();
+		this->savePackFileWorkerThread->wait();
+		delete this->savePackFileWorkerThread;
+		this->savePackFileWorkerThread = nullptr;
 
 		this->freezeActions(false);
 
@@ -432,16 +433,16 @@ void Window::saveVPK(bool saveAs) {
 			this->markModified(false);
 		}
 	});
-	this->saveWorkerThread->start();
+	this->savePackFileWorkerThread->start();
 }
 
-void Window::saveAsVPK() {
-    this->saveVPK(true);
+void Window::saveAsPackFile() {
+	this->savePackFile(true);
 }
 
-void Window::closeVPK() {
+void Window::closePackFile() {
     if (this->clearContents()) {
-	    this->vpk = std::nullopt;
+	    this->packFile = nullptr;
     }
 }
 
@@ -450,12 +451,13 @@ void Window::checkForNewUpdate() const {
 }
 
 void Window::changeVPKVersion() {
-    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(true, this->vpk->getVersion(), false, this);
+	auto* properVPKPointer = dynamic_cast<VPK*>(this->packFile.get());
+    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(true, properVPKPointer->getVersion(), false, this);
     if (!vpkOptions) {
         return;
     }
     auto [version, singleFile] = *vpkOptions;
-    this->vpk->setVersion(version);
+    properVPKPointer->setVersion(version);
 
 	this->resetStatusBar();
 
@@ -516,10 +518,10 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 
 	QString entryPath = prefilledPath.toLower();
 	bool useArchiveVPK = false;
-	int preloadBytes = 0;
+	std::uint32_t preloadBytes = 0;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, false, 0, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, this->packFile->getType() == PackFileType::VPK, false, 0, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -528,10 +530,10 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 		preloadBytes = std::get<2>(*newEntryOptions);
 	}
 
-	this->vpk->removeEntry(entryPath.toStdString());
-	this->vpk->addEntry(entryPath.toStdString(), filepath.toStdString(), !useArchiveVPK, preloadBytes);
+	this->packFile->removeEntry(entryPath.toStdString());
+	this->packFile->addEntry(entryPath.toStdString(), filepath.toStdString(), { .vpk_saveToDirectory = !useArchiveVPK, .vpk_preloadBytes = preloadBytes });
 	this->entryTree->addEntry(entryPath);
-	this->fileViewer->addEntry(this->vpk.value(), entryPath);
+	this->fileViewer->addEntry(*this->packFile, entryPath);
 	this->markModified(true);
 }
 
@@ -552,10 +554,10 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 
 	QString parentEntryPath = prefilledPath.toLower();
 	bool useArchiveVPK = false;
-	int preloadBytes = 0;
+	std::uint32_t preloadBytes = 0;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, false, 0, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, this->packFile->getType() == PackFileType::VPK, false, 0, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -568,16 +570,19 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     while (it.hasNext()) {
         QString subEntryPathFS = it.next().toLower();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
-	    this->vpk->removeEntry(subEntryPath.toStdString());
-        this->vpk->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), !useArchiveVPK, preloadBytes);
+	    this->packFile->removeEntry(subEntryPath.toStdString());
+        this->packFile->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), {
+			.vpk_saveToDirectory = !useArchiveVPK,
+			.vpk_preloadBytes = preloadBytes,
+		});
         this->entryTree->addEntry(subEntryPath);
-        this->fileViewer->addEntry(this->vpk.value(), subEntryPath);
+        this->fileViewer->addEntry(*this->packFile, subEntryPath);
     }
     this->markModified(true);
 }
 
 bool Window::removeFile(const QString& path) {
-    if (!this->vpk->removeEntry(path.toStdString())) {
+    if (!this->packFile->removeEntry(path.toStdString())) {
         QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"!").arg(path));
         return false;
     }
@@ -596,19 +601,19 @@ void Window::requestEntryRemoval(const QString& path) const {
 
 void Window::editFile(const QString& oldPath) {
     // Get file information and data
-    auto entry = this->vpk->findEntry(oldPath.toStdString());
+    auto entry = this->packFile->findEntry(oldPath.toStdString());
     if (!entry) {
         QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not find file!").arg(oldPath));
         return;
     }
-    auto data = this->vpk->readBinaryEntry(*entry);
+    auto data = this->packFile->readEntry(*entry);
     if (!data) {
         QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not read file data!").arg(oldPath));
         return;
     }
 
     // Get new properties
-    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, entry->archiveIndex != VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()), this);
+    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType() == PackFileType::VPK, entry->vpk_archiveIndex != VPK_DIR_INDEX, static_cast<unsigned int>(entry->vpk_preloadedData.size()), this);
     if (!options) {
         return;
     }
@@ -618,9 +623,12 @@ void Window::editFile(const QString& oldPath) {
     this->requestEntryRemoval(oldPath);
 
     // Add new file with the same info and data at the new path
-    this->vpk->addBinaryEntry(newPath.toStdString(), std::move(data.value()), !useArchiveDir, preloadedBytes);
+    this->packFile->addEntry(newPath.toStdString(), std::move(data.value()), {
+		.vpk_saveToDirectory = !useArchiveDir,
+		.vpk_preloadBytes = preloadedBytes,
+	});
 	this->entryTree->addEntry(newPath);
-	this->fileViewer->addEntry(this->vpk.value(), newPath);
+	this->fileViewer->addEntry(*this->packFile, newPath);
 	this->markModified(true);
 }
 
@@ -636,14 +644,14 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	}
 
 	std::vector<QString> paths;
-	for (const auto& [directory, entries] : this->vpk->getBakedEntries()) {
+	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
 		if (QString(directory.c_str()).startsWith(oldPath)) {
 			for (const auto& entry : entries) {
 				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
 			}
 		}
 	}
-	for (const auto& [directory, entries] : this->vpk->getUnbakedEntries()) {
+	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
 		if (QString(directory.c_str()).startsWith(oldPath)) {
 			for (const auto& entry : entries) {
 				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
@@ -653,11 +661,11 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 
 	for (const auto& path : paths) {
 		// Get data
-		auto entry = this->vpk->findEntry(path.toStdString());
+		auto entry = this->packFile->findEntry(path.toStdString());
 		if (!entry) {
 			continue;
 		}
-		auto entryData = this->vpk->readBinaryEntry(*entry);
+		auto entryData = this->packFile->readEntry(*entry);
 		if (!entryData) {
 			continue;
 		}
@@ -669,9 +677,12 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		QString newEntryPath = newPath + path.sliced(oldPath.length());
 
 		// Add new file with the same info and data at the new path
-		this->vpk->addBinaryEntry(newEntryPath.toStdString(), std::move(entryData.value()), entry->archiveIndex == VPK_DIR_INDEX, static_cast<int>(entry->preloadedData.size()));
+		this->packFile->addEntry(newEntryPath.toStdString(), std::move(entryData.value()), {
+			.vpk_saveToDirectory = entry->vpk_archiveIndex == VPK_DIR_INDEX,
+			.vpk_preloadBytes = static_cast<unsigned int>(entry->vpk_preloadedData.size()),
+		});
 		this->entryTree->addEntry(newEntryPath);
-		this->fileViewer->addEntry(this->vpk.value(), newEntryPath);
+		this->fileViewer->addEntry(*this->packFile, newEntryPath);
 	}
 	this->markModified(true);
 }
@@ -703,19 +714,19 @@ void Window::controls() {
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
-    auto entry = this->vpk->findEntry(path.toStdString());
+    auto entry = this->packFile->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
     }
-    return this->vpk->readBinaryEntry(*entry);
+    return this->packFile->readEntry(*entry);
 }
 
 std::optional<QString> Window::readTextEntry(const QString& path) const {
-    auto entry = this->vpk->findEntry(path.toStdString());
+    auto entry = this->packFile->findEntry(path.toStdString());
     if (!entry) {
         return std::nullopt;
     }
-    auto textData = this->vpk->readTextEntry(*entry);
+    auto textData = this->packFile->readEntryText(*entry);
     if (!textData) {
         return std::nullopt;
     }
@@ -727,11 +738,11 @@ void Window::selectEntryInEntryTree(const QString& path) const {
 }
 
 void Window::selectEntryInFileViewer(const QString& path) const {
-    this->fileViewer->displayEntry(path, this->vpk.value());
+    this->fileViewer->displayEntry(path, *this->packFile);
 }
 
 void Window::selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {
-    this->fileViewer->displayDir(path, subfolders, entryPaths, this->vpk.value());
+    this->fileViewer->displayDir(path, subfolders, entryPaths, *this->packFile);
 }
 
 bool Window::hasEntry(const QString& path) const {
@@ -743,9 +754,9 @@ void Window::selectSubItemInDir(const QString& path) const {
 }
 
 void Window::extractFile(const QString& path, QString savePath) {
-    auto entry = this->vpk->findEntry(path.toStdString());
+    auto entry = this->packFile->findEntry(path.toStdString());
     if (!entry) {
-        QMessageBox::critical(this, tr("Error"), "Failed to find file in VPK.");
+        QMessageBox::critical(this, tr("Error"), tr("Failed to find file at \"%1\".").arg(path));
         return;
     }
 
@@ -773,12 +784,12 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
 
     // Get progress bar maximum
     int progressBarMax = 0;
-    for (const auto& [directory, entries] : this->vpk->getBakedEntries()) {
+    for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
         if (predicate(QString(directory.c_str()))) {
 	        progressBarMax += static_cast<int>(entries.size());
         }
     }
-	for (const auto& [directory, entries] : this->vpk->getUnbakedEntries()) {
+	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
 		if (predicate(QString(directory.c_str()))) {
 			progressBarMax += static_cast<int>(entries.size());
 		}
@@ -790,27 +801,27 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
     this->freezeActions(true);
 
     // Set up thread
-    this->extractWorkerThread = new QThread(this);
-    auto* worker = new ExtractVPKWorker();
-    worker->moveToThread(this->extractWorkerThread);
-    QObject::connect(this->extractWorkerThread, &QThread::started, worker, [this, worker, saveDir, predicate] {
+    this->extractPackFileWorkerThread = new QThread(this);
+    auto* worker = new ExtractPackFileWorker();
+    worker->moveToThread(this->extractPackFileWorkerThread);
+    QObject::connect(this->extractPackFileWorkerThread, &QThread::started, worker, [this, worker, saveDir, predicate] {
         worker->run(this, saveDir, predicate);
     });
-    QObject::connect(worker, &ExtractVPKWorker::progressUpdated, this, [this](int value) {
+    QObject::connect(worker, &ExtractPackFileWorker::progressUpdated, this, [this](int value) {
         this->statusProgressBar->setValue(value);
     });
-    QObject::connect(worker, &ExtractVPKWorker::taskFinished, this, [this] {
+    QObject::connect(worker, &ExtractPackFileWorker::taskFinished, this, [this] {
         // Kill thread
-        this->extractWorkerThread->quit();
-        this->extractWorkerThread->wait();
-        delete this->extractWorkerThread;
-        this->extractWorkerThread = nullptr;
+        this->extractPackFileWorkerThread->quit();
+        this->extractPackFileWorkerThread->wait();
+        delete this->extractPackFileWorkerThread;
+        this->extractPackFileWorkerThread = nullptr;
 
         this->freezeActions(false);
 
         this->resetStatusBar();
     });
-    this->extractWorkerThread->start();
+    this->extractPackFileWorkerThread->start();
 }
 
 void Window::extractDir(const QString& path, QString saveDir) {
@@ -831,7 +842,7 @@ void Window::extractAll(QString saveDir) {
         return;
     }
     saveDir += '/';
-    saveDir += this->vpk->getRealFilename().c_str();
+    saveDir += this->packFile->getFilename().c_str();
 
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }
@@ -845,21 +856,20 @@ void Window::markModified(bool modified_) {
         this->setWindowTitle(PROJECT_TITLE.data());
     }
 
-    this->saveVPKAction->setDisabled(!this->modified);
+    this->saveAction->setDisabled(!this->modified);
 }
 
 bool Window::promptUserToKeepModifications() {
     auto response = QMessageBox::warning(this,
             tr("Save changes?"),
-            tr("This VPK has unsaved changes! Would you like to save these changes first?"),
+            tr("This file has unsaved changes! Would you like to save these changes first?"),
             QMessageBox::Ok | QMessageBox::Discard | QMessageBox::Cancel);
     switch (response) {
         case QMessageBox::Cancel:
             return true;
         case QMessageBox::Discard:
             return false;
-        case QMessageBox::Ok:
-            this->saveVPK();
+        case QMessageBox::Ok:this->savePackFile();
             return false;
         default:
             break;
@@ -935,11 +945,11 @@ void Window::closeEvent(QCloseEvent* event) {
 void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
     this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
-    this->openVPKAction->setDisabled(freeze && freezeCreationActions);
-    if (this->openVPKRelativeToMenu) this->openVPKRelativeToMenu->setDisabled(freeze && freezeCreationActions);
-    this->openRecentVPKMenu->setDisabled(freeze && freezeCreationActions);
-    this->saveVPKAction->setDisabled(freeze || !this->modified);
-    this->saveAsVPKAction->setDisabled(freeze);
+    this->openAction->setDisabled(freeze && freezeCreationActions);
+    if (this->openRelativeToMenu) this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
+    this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
+    this->saveAction->setDisabled(freeze || !this->modified);
+    this->saveAsAction->setDisabled(freeze);
     this->closeFileAction->setDisabled(freeze);
     this->extractAllAction->setDisabled(freeze);
     this->addFileAction->setDisabled(freeze);
@@ -951,7 +961,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->fileViewer->setDisabled(freeze);
 }
 
-bool Window::loadVPK(const QString& path) {
+bool Window::loadPackFile(const QString& path) {
     if (!this->clearContents()) {
 		return false;
 	}
@@ -959,14 +969,9 @@ bool Window::loadVPK(const QString& path) {
 
 	QString fixedPath = QDir(path).absolutePath();
 	fixedPath.replace('\\', '/');
-    this->vpk = VPK::open(fixedPath.toStdString());
-    if (!this->vpk && fixedPath.length() > 8) {
-		// If it just tried to load a numbered archive, let's try to load the directory VPK
-		fixedPath = fixedPath.sliced(0, fixedPath.length() - 8) + "_dir.vpk";
-	    this->vpk = VPK::open(fixedPath.toStdString());
-    }
-	if (!this->vpk) {
-        QMessageBox::critical(this, tr("Error"), tr("Unable to load given VPK. Please ensure that a game or another application is not using the VPK."));
+    this->packFile = PackFile::open(fixedPath.toStdString());
+	if (!this->packFile) {
+        QMessageBox::critical(this, tr("Error"), tr("Unable to load this file. Please ensure that a game or another application is not using the file."));
 		this->freezeActions(false);
         return false;
     }
@@ -991,38 +996,38 @@ bool Window::loadVPK(const QString& path) {
     this->statusProgressBar->show();
     this->statusBar()->show();
 
-    this->entryTree->loadVPK(this->vpk.value(), this->statusProgressBar, [this, path] {
-        this->freezeActions(false);
+	this->entryTree->loadPackFile(*this->packFile, this->statusProgressBar, [this, path] {
+		this->freezeActions(false);
 
 		this->resetStatusBar();
-    });
+	});
 
     return true;
 }
 
 void Window::rebuildOpenRecentMenu(const QStringList& paths) {
-	this->openRecentVPKMenu->clear();
+	this->openRecentMenu->clear();
 	if (paths.empty()) {
-		auto* openRecentVPKMenuNoRecentFilesAction = this->openRecentVPKMenu->addAction(tr("No recent files."));
+		auto* openRecentVPKMenuNoRecentFilesAction = this->openRecentMenu->addAction(tr("No recent files."));
 		openRecentVPKMenuNoRecentFilesAction->setDisabled(true);
 		return;
 	}
 	for (int i = 0; i < paths.size(); i++) {
-		this->openRecentVPKMenu->addAction(("&%1 \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
-			this->loadVPK(path);
+		this->openRecentMenu->addAction(("&%1 \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
+			this->loadPackFile(path);
 		});
 	}
-	this->openRecentVPKMenu->addSeparator();
-	this->openRecentVPKMenu->addAction(tr("&Clear"), [this] {
+	this->openRecentMenu->addSeparator();
+	this->openRecentMenu->addAction(tr("&Clear"), [this] {
 		Options::set(STR_OPEN_RECENT, QStringList{});
 		this->rebuildOpenRecentMenu({});
 	});
 }
 
-void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
-    auto data = this->vpk->readBinaryEntry(entry);
+void Window::writeEntryToFile(const QString& path, const Entry& entry) {
+    auto data = this->packFile->readEntry(entry);
     if (!data) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to read data from the VPK for \"%1\". Please ensure that a game or another application is not using the VPK.").arg(entry.filename.c_str()));
+        QMessageBox::critical(this, tr("Error"), tr("Failed to read data for \"%1\". Please ensure that a game or another application is not using the file.").arg(entry.filename.c_str()));
         return;
     }
     QFile file(path);
@@ -1038,28 +1043,32 @@ void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {
 }
 
 void Window::resetStatusBar() {
-	const auto version = this->vpk->getVersion();
-	this->statusText->setText(tr(" Loaded \"%1.vpk\" - Version v%2").arg(this->vpk->getRealFilename().data()).arg(version));
+	if (this->packFile->getType() == PackFileType::VPK) {
+		const auto version = dynamic_cast<VPK*>(this->packFile.get())->getVersion();
+		this->statusText->setText(tr(" Loaded \"%1\" - Version v%2").arg(this->packFile->getFilename().data()).arg(version));
+	} else {
+		this->statusText->setText(tr(" Loaded \"%1\"").arg(this->packFile->getFilename().data()));
+	}
 	this->statusText->show();
 	this->statusProgressBar->hide();
 }
 
-void CreateFromDirVPKWorker::run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, VPKOptions options) {
+void CreateVPKFromDirWorker::run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, PackFileOptions options) {
 	(void) VPK::createFromDirectory(vpkPath, contentPath, saveToDir, options);
 	emit taskFinished();
 }
 
-void SaveVPKWorker::run(Window* window, const QString& savePath) {
+void SavePackFileWorker::run(Window* window, const QString& savePath) {
 	int currentEntry = 0;
-	bool success = window->vpk->bake(savePath.toStdString(), [this, &currentEntry](const std::string&, const VPKEntry&) {
+	bool success = window->packFile->bake(savePath.toStdString(), [this, &currentEntry](const std::string&, const Entry&) {
 		emit progressUpdated(++currentEntry);
 	});
 	emit taskFinished(success);
 }
 
-void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
+void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
     int currentEntry = 0;
-    for (const auto& [directory, entries] : window->vpk->getBakedEntries()) {
+    for (const auto& [directory, entries] : window->packFile->getBakedEntries()) {
         QString dir(directory.c_str());
         if (!predicate(dir)) {
             continue;
@@ -1067,7 +1076,7 @@ void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::fu
 
         QDir qDir;
         if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
-            QMessageBox::critical(window, tr("Error"), "Failed to create directory.");
+            QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
             return;
         }
 
@@ -1077,7 +1086,7 @@ void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::fu
             emit progressUpdated(++currentEntry);
         }
     }
-	for (const auto& [directory, entries] : window->vpk->getUnbakedEntries()) {
+	for (const auto& [directory, entries] : window->packFile->getUnbakedEntries()) {
 		QString dir(directory.c_str());
 		if (!predicate(dir)) {
 			continue;
@@ -1085,7 +1094,7 @@ void ExtractVPKWorker::run(Window* window, const QString& saveDir, const std::fu
 
 		QDir qDir;
 		if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
-			QMessageBox::critical(window, tr("Error"), "Failed to create directory.");
+			QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
 			return;
 		}
 

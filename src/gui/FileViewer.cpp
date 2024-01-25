@@ -215,7 +215,7 @@ void FileViewer::requestNavigateNext() {
 	this->navbar->navigateNext();
 }
 
-void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
+void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
     // Get extension
     std::filesystem::path helperPath(path.toLower().toStdString());
     QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
@@ -240,7 +240,7 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
 		    return;
 	    }
 	    this->showPreview<MDLPreview>();
-	    this->getPreview<MDLPreview>()->setMesh(path, vpk);
+	    this->getPreview<MDLPreview>()->setMesh(path, packFile);
     } else if (VTFPreview::EXTENSIONS.contains(extension)) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
@@ -264,16 +264,16 @@ void FileViewer::displayEntry(const QString& path, const VPK& vpk) {
 	}
 }
 
-void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
+void FileViewer::displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const PackFile& packFile) {
     this->clearContents(false);
 	this->navbar->setPath(path);
 
-    this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, vpk);
+    this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, packFile);
     this->showPreview<DirPreview>();
 }
 
-void FileViewer::addEntry(const vpkedit::VPK& vpk, const QString& path) {
-    this->getPreview<DirPreview>()->addEntry(vpk, path);
+void FileViewer::addEntry(const vpkedit::PackFile& packFile, const QString& path) {
+    this->getPreview<DirPreview>()->addEntry(packFile, path);
 }
 
 void FileViewer::removeFile(const QString& path) {

@@ -10,7 +10,7 @@ class QToolButton;
 
 namespace vpkedit {
 
-class VPK;
+class PackFile;
 
 } // namespace vpkedit
 
@@ -67,11 +67,11 @@ public:
 
 	void requestNavigateNext();
 
-    void displayEntry(const QString& path, const vpkedit::VPK& vpk);
+    void displayEntry(const QString& path, const vpkedit::PackFile& packFile);
 
-    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
+    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
 
-    void addEntry(const vpkedit::VPK& vpk, const QString& path);
+    void addEntry(const vpkedit::PackFile& packFile, const QString& path);
 
     void removeFile(const QString& path);
 

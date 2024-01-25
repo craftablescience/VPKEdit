@@ -14,7 +14,7 @@
 #include <QStyleOption>
 #include <QToolButton>
 #include <QtMath>
-#include <vpkedit/VPK.h>
+#include <vpkedit/PackFile.h>
 #include <VTFLib.h>
 
 #include "../FileViewer.h"
@@ -434,11 +434,11 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	layout->addWidget(this->mdl);
 }
 
-static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const std::string& materialPath) {
-	auto materialEntry = vpk.findEntry(materialPath);
+static std::optional<VTFData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
+	auto materialEntry = packFile.findEntry(materialPath);
 	if (!materialEntry) return std::nullopt;
 
-	auto materialFile = vpk.readTextEntry(*materialEntry);
+	auto materialFile = packFile.readEntryText(*materialEntry);
 	if (!materialFile) return std::nullopt;
 
 	KeyValueRoot materialKV;
@@ -447,10 +447,10 @@ static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const st
 	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
 	if (!baseTexturePathKV.IsValid()) return std::nullopt;
 
-	auto textureEntry = vpk.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
+	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
 	if (!textureEntry) return std::nullopt;
 
-	auto textureFile = vpk.readBinaryEntry(*textureEntry);
+	auto textureFile = packFile.readEntry(*textureEntry);
 	if (!textureFile) return std::nullopt;
 
 	VTFLib::CVTFFile vtf;
@@ -458,7 +458,7 @@ static std::optional<VTFData> getTextureDataForMaterial(const VPK& vpk, const st
 	return VTFDecoder::decodeImage(vtf, 1, 1, 0, false);
 }
 
-void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
+void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	this->mdl->clearMeshes();
 
 	QString basePath = std::filesystem::path(path.toStdString()).replace_extension().string().c_str();
@@ -467,26 +467,26 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 		basePath = std::filesystem::path(basePath.toStdString()).replace_extension().string().c_str();
 	}
 
-	auto mdlEntry = vpk.findEntry(basePath.toStdString() + ".mdl");
-	auto vvdEntry = vpk.findEntry(basePath.toStdString() + ".vvd");
-	auto vtxEntry = vpk.findEntry(basePath.toStdString() + ".vtx");
+	auto mdlEntry = packFile.findEntry(basePath.toStdString() + ".mdl");
+	auto vvdEntry = packFile.findEntry(basePath.toStdString() + ".vvd");
+	auto vtxEntry = packFile.findEntry(basePath.toStdString() + ".vtx");
 	if (!vtxEntry) {
-		vtxEntry = vpk.findEntry(basePath.toStdString() + ".dx90.vtx");
+		vtxEntry = packFile.findEntry(basePath.toStdString() + ".dx90.vtx");
 	}
 	if (!vtxEntry) {
-		vtxEntry = vpk.findEntry(basePath.toStdString() + ".dx80.vtx");
+		vtxEntry = packFile.findEntry(basePath.toStdString() + ".dx80.vtx");
 	}
 	if (!vtxEntry) {
-		vtxEntry = vpk.findEntry(basePath.toStdString() + ".sw.vtx");
+		vtxEntry = packFile.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
 		this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("Unable to find all the required files the model is composed of!"));
 		this->fileViewer->showPreview<InvalidMDLErrorPreview>();
 		return;
 	}
-	auto mdlData = vpk.readBinaryEntry(*mdlEntry);
-	auto vvdData = vpk.readBinaryEntry(*vvdEntry);
-	auto vtxData = vpk.readBinaryEntry(*vtxEntry);
+	auto mdlData = packFile.readEntry(*mdlEntry);
+	auto vvdData = packFile.readEntry(*vvdEntry);
+	auto vtxData = packFile.readEntry(*vtxEntry);
 	if (!mdlData || !vvdData || !vtxData) {
 		this->fileViewer->showPreview<FileLoadErrorPreview>();
 		return;
@@ -588,7 +588,7 @@ void MDLPreview::setMesh(const QString& path, const VPK& vpk) const {
 				// Try to find the material in the VPK
 				bool foundMaterial = false;
 				for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
-					if (auto data = getTextureDataForMaterial(vpk, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
+					if (auto data = getTextureDataForMaterial(packFile, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
 						this->mdl->addSubMesh(indices, std::move(data.value()));
 						foundMaterial = true;
 						hasAMaterial = true;

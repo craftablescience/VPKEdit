@@ -12,11 +12,18 @@ add_library(
 
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Entry.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Options.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/PackFile.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/VPK.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/detail/CRC.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/detail/FileStream.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/VPK.cpp")
 
 target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5)
@@ -24,6 +31,3 @@ target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5)
 target_include_directories(
         lib${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-# libvpkedit doesn't use C++20 yet
-set_target_properties(lib${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)

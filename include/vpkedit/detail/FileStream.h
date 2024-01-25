@@ -10,6 +10,9 @@
 
 namespace vpkedit::detail {
 
+template<typename T>
+concept PODType = std::is_trivial_v<T> && std::is_standard_layout_v<T>;
+
 enum FileStreamOptions {
     FILESTREAM_OPT_READ                  = 1 << 0,
     FILESTREAM_OPT_WRITE                 = 1 << 1,
@@ -21,8 +24,6 @@ enum FileStreamOptions {
 class FileStream {
 public:
     explicit FileStream(const std::string& filepath, int options = FILESTREAM_OPT_READ);
-    FileStream(std::byte* buffer, std::uint64_t bufferLength);
-    ~FileStream();
     FileStream(const FileStream& other) = delete;
     FileStream& operator=(const FileStream& other) = delete;
     FileStream(FileStream&& other) noexcept = default;
@@ -31,110 +32,155 @@ public:
     explicit operator bool() const;
     bool operator!() const;
 
-    void seekInput(std::uint64_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
+	void seek_input(std::size_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
 
-    [[nodiscard]] std::uint64_t tellInput();
+	template<PODType T = std::byte>
+	void skip_input(std::size_t n = 1) {
+		if (!n) {
+			return;
+		}
+		this->seek_input(sizeof(T) * n, std::ios::cur);
+	}
 
-    void seekOutput(std::uint64_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
+	[[nodiscard]] std::size_t tell_input();
 
-    [[nodiscard]] std::uint64_t tellOutput();
+	void seek_output(std::size_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
 
-    template<std::uint64_t L>
-    [[nodiscard]] std::array<std::byte, L> readBytes() {
-        std::array<std::byte, L> out;
-        if (this->isFile) {
-            this->streamFile.read(reinterpret_cast<char*>(out.data()), L);
-        } else {
-            for (int i = 0; i < L; i++, this->streamPosRead++) {
-                out[i] = this->streamBuffer[this->streamPosRead];
-            }
-        }
-        return out;
-    }
+	template<PODType T = std::byte>
+	void skip_output(std::size_t n = 1) {
+		if (!n) {
+			return;
+		}
+		this->seek_output(sizeof(T) * n, std::ios::cur);
+	}
 
-    [[nodiscard]] std::vector<std::byte> readBytes(std::uint64_t length);
+	[[nodiscard]] std::size_t tell_output();
 
-    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T> && std::is_trivially_constructible_v<T>, bool> = true>
-    [[nodiscard]] T read() {
-        T obj{};
-        this->read(obj);
-        return obj;
-    }
+	[[nodiscard]] std::byte peek(long offset = 0);
 
-    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
-    void read(T& obj) {
-        if (this->isFile) {
-            this->streamFile.read(reinterpret_cast<char*>(&obj), sizeof(T));
-        } else {
-            for (int i = 0; i < sizeof(T); i++, this->streamPosRead++) {
-                reinterpret_cast<std::byte*>(&obj)[i] = this->streamBuffer[this->streamPosRead];
-            }
-        }
-    }
+	template<PODType T>
+	[[nodiscard]] T read() {
+		T obj{};
+		this->read(obj);
+		return obj;
+	}
 
-    void read(std::string& obj) {
-        char temp = this->read<char>();
-        while (temp != '\0') {
-            obj += temp;
-            temp = this->read<char>();
-        }
-    }
+	template<std::size_t L>
+	[[nodiscard]] std::array<std::byte, L> read_bytes() {
+		std::array<std::byte, L> out;
+		this->streamFile.read(reinterpret_cast<char*>(out.data()), L);
+		return out;
+	}
 
-    [[nodiscard]] std::byte peek(long offset = 0);
+	[[nodiscard]] std::vector<std::byte> read_bytes(std::size_t length);
 
-    template<std::uint64_t L>
-    void writeBytes(const std::array<std::byte, L> obj) {
-        if (this->isFile) {
-            this->streamFile.write(reinterpret_cast<const char*>(obj.data()), L);
-        } else {
-            return; // unimplemented for buffers
-        }
-    }
+	[[nodiscard]] std::string read_string();
 
-    void writeBytes(const std::vector<std::byte>& buffer);
+	[[nodiscard]] std::string read_string(std::size_t n, bool stopOnNullTerminator = true);
 
-    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
-    void write(T obj) {
-        this->write(&obj);
-    }
+	template<PODType T>
+	void read(T& obj) {
+		this->streamFile.read(reinterpret_cast<char*>(&obj), sizeof(T));
+	}
 
-    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
-    void write(T* obj) {
-        if (this->isFile) {
-            this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T));
-        } else {
-            return; // unimplemented for buffers
-        }
-    }
+	template<PODType T, std::size_t N>
+	void read(T(&obj)[N]) {
+		for (int i = 0; i < N; i++) {
+			obj[i] = this->read<T>();
+		}
+	}
 
-    template<typename T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
-    void write(T* obj, std::size_t len) {
-        if (this->isFile) {
-            this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T) * len);
-        } else {
-            return; // unimplemented for buffers
-        }
-    }
+	template<PODType T, std::size_t N>
+	void read(std::array<T, N>& obj) {
+		for (int i = 0; i < N; i++) {
+			obj[i] = this->read<T>();
+		}
+	}
 
-    void write(const std::string& obj) {
-        if (this->isFile) {
-            this->streamFile.write(obj.data(), static_cast<std::streamsize>(obj.size()));
-        } else {
-            return; // unimplemented for buffers
-        }
-    }
+	template<PODType T>
+	void read(std::vector<T>& obj, std::size_t n) {
+		obj.clear();
+		if (!n) {
+			return;
+		}
+		obj.reserve(n);
+		for (int i = 0; i < n; i++) {
+			obj.push_back(this->read<T>());
+		}
+	}
 
-    void flush();
+	void read(std::string& obj) {
+		obj.clear();
+		char temp = this->read<char>();
+		while (temp != '\0') {
+			obj += temp;
+			temp = this->read<char>();
+		}
+	}
+
+	void read(std::string& obj, std::size_t n, bool stopOnNullTerminator = true) {
+		obj.clear();
+		if (!n) {
+			return;
+		}
+		obj.reserve(n);
+		for (int i = 0; i < n; i++) {
+			char temp = this->read<char>();
+			if (temp == '\0' && stopOnNullTerminator) {
+				// Read the required number of characters and exit
+				this->skip_input<char>(n - i - 1);
+				break;
+			}
+			obj += temp;
+		}
+	}
+
+	template<PODType T>
+	void write(T obj) {
+		this->streamFile.write(reinterpret_cast<const char*>(&obj), sizeof(T));
+	}
+
+	template<std::size_t L>
+	void write_bytes(const std::array<std::byte, L>& buffer) {
+		this->streamFile.write(reinterpret_cast<const char*>(buffer.data()), L);
+	}
+
+	void write_bytes(const std::vector<std::byte>& buffer);
+
+	template<PODType T, std::size_t N>
+	void write(T(&obj)[N]) {
+		for (int i = 0; i < N; i++) {
+			this->write(obj[i]);
+		}
+	}
+
+	template<PODType T, std::size_t N>
+	void write(std::array<T, N>& obj) {
+		for (int i = 0; i < N; i++) {
+			this->write(obj[i]);
+		}
+	}
+
+	template<PODType T>
+	void write(const std::vector<T>& obj) {
+		for (int i = 0; i < obj.size(); i++) {
+			this->write(obj[i]);
+		}
+	}
+
+	template<PODType T>
+	void write_unsafe(T* obj, std::size_t len) {
+		this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T) * len);
+	}
+
+	void write(std::string_view obj) {
+		this->streamFile.write(obj.data(), static_cast<std::streamsize>(obj.size()));
+	}
+
+	void flush();
 
 protected:
     std::fstream streamFile;
-
-    std::byte* streamBuffer;
-    std::uint64_t streamLen;
-    std::uint64_t streamPosRead;
-    std::uint64_t streamPosWrite;
-
-    bool isFile;
 };
 
 } // namespace vpkedit::detail

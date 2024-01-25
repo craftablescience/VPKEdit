@@ -101,7 +101,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(true, this);
-    QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [=, this](const QPoint& pos) {
+    QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
@@ -153,9 +153,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     this->clearContents();
 }
 
-void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
+void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
     this->root = new EntryItem(this);
-    this->root->setText(0, vpk.getPrettyFilename().data());
+    this->root->setText(0, packFile.getTruncatedFilestem().c_str());
 	if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
 		// Set the icon now even though its set later, that way it will be present while loading
 		this->root->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
@@ -163,7 +163,7 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
 
     // Set up progress bar
     progressBar->setMinimum(0);
-    progressBar->setMaximum(static_cast<int>(vpk.getBakedEntries().size()));
+    progressBar->setMaximum(static_cast<int>(packFile.getBakedEntries().size()));
     progressBar->setValue(0);
 
     // Don't let the user touch anything
@@ -172,15 +172,15 @@ void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function
 
     // Set up thread
     this->workerThread = new QThread(this);
-    auto* worker = new LoadVPKWorker();
+    auto* worker = new LoadPackFileWorker();
     worker->moveToThread(this->workerThread);
-    QObject::connect(this->workerThread, &QThread::started, worker, [this, worker, &vpk] {
-        worker->run(this, vpk);
+    QObject::connect(this->workerThread, &QThread::started, worker, [this, worker, &packFile] {
+        worker->run(this, packFile);
     });
-    QObject::connect(worker, &LoadVPKWorker::progressUpdated, this, [progressBar](int value) {
+    QObject::connect(worker, &LoadPackFileWorker::progressUpdated, this, [progressBar](int value) {
         progressBar->setValue(value);
     });
-    QObject::connect(worker, &LoadVPKWorker::taskFinished, this, [this, finishCallback] {
+    QObject::connect(worker, &LoadPackFileWorker::taskFinished, this, [this, finishCallback] {
         // Kill thread
         this->workerThread->quit();
         this->workerThread->wait();
@@ -458,9 +458,9 @@ void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
     delete item;
 }
 
-void LoadVPKWorker::run(EntryTree* tree, const VPK& vpk) {
+void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
     int progress = 0;
-    for (const auto& [directory, entries] : vpk.getBakedEntries()) {
+    for (const auto& [directory, entries] : packFile.getBakedEntries()) {
         emit progressUpdated(++progress);
         for (const auto& entry : entries) {
             tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.filename.c_str());

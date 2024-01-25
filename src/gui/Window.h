@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <QMainWindow>
-#include <vpkedit/VPK.h>
+#include <vpkedit/PackFile.h>
 
 class QAction;
 class QLabel;
@@ -22,22 +22,22 @@ class FileViewer;
 class Window : public QMainWindow {
     Q_OBJECT;
 
-    friend class CreateFromDirVPKWorker;
-    friend class SaveVPKWorker;
-    friend class ExtractVPKWorker;
+    friend class CreateVPKFromDirWorker;
+    friend class SavePackFileWorker;
+    friend class ExtractPackFileWorker;
 
 public:
     explicit Window(QWidget* parent = nullptr);
 
     void newVPK(bool fromDirectory, const QString& startPath = QString());
 
-    void openVPK(const QString& startPath = QString(), const QString& filePath = QString());
+    void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
 
-    void saveVPK(bool saveAs = false);
+    void savePackFile(bool saveAs = false);
 
-    void saveAsVPK();
+    void saveAsPackFile();
 
-    void closeVPK();
+    void closePackFile();
 
 	void checkForNewUpdate() const;
 
@@ -109,11 +109,11 @@ private:
 
     QAction* createEmptyVPKAction;
     QAction* createVPKFromDirAction;
-    QAction* openVPKAction;
-    QMenu*   openVPKRelativeToMenu;
-    QMenu*   openRecentVPKMenu;
-    QAction* saveVPKAction;
-    QAction* saveAsVPKAction;
+    QAction* openAction;
+    QMenu*   openRelativeToMenu;
+    QMenu*   openRecentMenu;
+    QAction* saveAction;
+    QAction* saveAsAction;
     QAction* closeFileAction;
     QAction* extractAllAction;
     QAction* addFileAction;
@@ -122,43 +122,43 @@ private:
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
-    QThread* createFromDirWorkerThread;
-    QThread* saveWorkerThread;
-    QThread* extractWorkerThread;
+    QThread* createVPKFromDirWorkerThread;
+    QThread* savePackFileWorkerThread;
+    QThread* extractPackFileWorkerThread;
 
-    std::optional<vpkedit::VPK> vpk;
+    std::unique_ptr<vpkedit::PackFile> packFile;
     bool modified;
 
     void freezeActions(bool freeze, bool freezeCreationActions = true) const;
 
-    bool loadVPK(const QString& path);
+    bool loadPackFile(const QString& path);
 
 	void rebuildOpenRecentMenu(const QStringList& paths);
 
     void checkForUpdatesReply(QNetworkReply* reply);
 
-    void writeEntryToFile(const QString& path, const vpkedit::VPKEntry& entry);
+    void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
 
 	void resetStatusBar();
 };
 
-class CreateFromDirVPKWorker : public QObject {
+class CreateVPKFromDirWorker : public QObject {
 	Q_OBJECT;
 
 public:
-	CreateFromDirVPKWorker() = default;
+	CreateVPKFromDirWorker() = default;
 
-	void run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, vpkedit::VPKOptions options);
+	void run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, vpkedit::PackFileOptions options);
 
 signals:
 	void taskFinished();
 };
 
-class SaveVPKWorker : public QObject {
+class SavePackFileWorker : public QObject {
 	Q_OBJECT;
 
 public:
-	SaveVPKWorker() = default;
+	SavePackFileWorker() = default;
 
 	void run(Window* window, const QString& savePath);
 
@@ -167,11 +167,11 @@ signals:
 	void taskFinished(bool success);
 };
 
-class ExtractVPKWorker : public QObject {
+class ExtractPackFileWorker : public QObject {
     Q_OBJECT;
 
 public:
-    ExtractVPKWorker() = default;
+    ExtractPackFileWorker() = default;
 
     void run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate);
 

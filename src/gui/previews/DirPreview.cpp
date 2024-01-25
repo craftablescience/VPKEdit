@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
+#include <vpkedit/PackFile.h>
 #include <vpkedit/VPK.h>
 
 #include "../EntryContextMenuData.h"
@@ -86,30 +87,38 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
     });
 }
 
-void DirPreview::setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const VPK& vpk) {
+void DirPreview::setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const PackFile& packFile) {
     this->clear();
     this->setRowCount(0);
-    this->setHorizontalHeaderLabels({"Name", "Type", "Size", "Preloaded Size", "Archive Index"});
+
+	const bool isVPK = packFile.getType() == PackFileType::VPK;
+	if (isVPK) {
+		this->setColumnCount(DirPreviewColumn::NUM_COLUMNS);
+		this->setHorizontalHeaderLabels({"Name", "Type", "Size", "Preloaded Size", "Archive Index"});
+	} else {
+		this->setColumnCount(DirPreviewColumn::NUM_COLUMNS - 2);
+		this->setHorizontalHeaderLabels({"Name", "Type", "Size"});
+	}
 
     this->currentPath = currentDir;
 
     for (const auto& subfolder : subfolders) {
-        this->addRowForDir(subfolder);
+        this->addRowForDir(subfolder, isVPK);
     }
     for (const auto& path : entryPaths) {
-        this->addRowForFile(vpk, path);
+        this->addRowForFile(packFile, path, isVPK);
     }
 
     // Make sure the active search query is applied
     this->setSearchQuery(this->currentSearchQuery);
 }
 
-void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
+void DirPreview::addEntry(const PackFile& packFile, const QString& path) {
     // If the parent is identical to us then we're the direct parent, add the file
     const auto lastIndex = path.lastIndexOf('/');
     const QString parent = lastIndex < 0 ? "" : path.sliced(0, lastIndex);
     if (parent == this->currentPath) {
-        this->addRowForFile(vpk, path);
+        this->addRowForFile(packFile, path, packFile.getType() == PackFileType::VPK);
         return;
     }
 
@@ -142,7 +151,7 @@ void DirPreview::addEntry(const vpkedit::VPK& vpk, const QString& path) {
         }
     }
     if (!exists) {
-        this->addRowForDir(subfolderName);
+        this->addRowForDir(subfolderName, packFile.getType() == PackFileType::VPK);
     }
 }
 
@@ -235,9 +244,9 @@ void DirPreview::keyPressEvent(QKeyEvent* event) {
 	}
 }
 
-void DirPreview::addRowForFile(const VPK& vpk, const QString& path) {
+void DirPreview::addRowForFile(const PackFile& packFile, const QString& path, bool isVPK) {
     // Note: does not check if the path is inside the directory being previewed
-    auto entry = vpk.findEntry(path.toStdString());
+    auto entry = packFile.findEntry(path.toStdString());
     if (!entry) {
         return;
     }
@@ -269,16 +278,19 @@ void DirPreview::addRowForFile(const VPK& vpk, const QString& path) {
     }
     this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, sizeItem);
 
-    auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->preloadedData.size()) + " bytes");
-    this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, preloadedSizeItem);
+	if (isVPK) {
+		auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->vpk_preloadedData.size()) + " bytes");
+		this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, preloadedSizeItem);
 
-    auto archiveIndex = entry->archiveIndex;
-    // If the archive index is the dir index, it's included in the directory VPK
-    auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
-    this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, archiveIndexItem);
+		auto archiveIndex = entry->vpk_archiveIndex;
+		// If the archive index is the dir index, it's included in the directory VPK
+		auto* archiveIndexItem = new QTableWidgetItem(
+				archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
+		this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, archiveIndexItem);
+	}
 }
 
-void DirPreview::addRowForDir(const QString& name) {
+void DirPreview::addRowForDir(const QString& name, bool isVPK) {
     this->setRowCount(this->rowCount() + 1);
 
     auto* nameItem = new QTableWidgetItem(name);
@@ -289,8 +301,11 @@ void DirPreview::addRowForDir(const QString& name) {
 
     // Need to fill the rest of the columns with an item to fix the context menu not showing up on these cells
     this->setItem(this->rowCount() - 1, DirPreviewColumn::TOTAL_SIZE, new QTableWidgetItem(""));
-    this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, new QTableWidgetItem(""));
-    this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, new QTableWidgetItem(""));
+
+	if (isVPK) {
+		this->setItem(this->rowCount() - 1, DirPreviewColumn::PRELOADED_SIZE, new QTableWidgetItem(""));
+		this->setItem(this->rowCount() - 1, DirPreviewColumn::ARCHIVE_INDEX, new QTableWidgetItem(""));
+	}
 }
 
 QString DirPreview::getItemPath(QTableWidgetItem* item) const {
