@@ -286,7 +286,7 @@ Window::Window(QWidget* parent)
     this->statusBar()->addPermanentWidget(this->statusText, 1);
     this->statusBar()->addPermanentWidget(this->statusProgressBar, 1);
 
-    this->clearContents();
+	(void) this->clearContents();
 
     // Load the VPK if given one through the command-line or double-clicking a file
     // An error here means shut the application down
@@ -363,9 +363,7 @@ void Window::openVPK(const QString& startPath, const QString& filePath) {
     if (path.isEmpty()) {
         return;
     }
-    if (!this->loadVPK(path)) {
-        this->clearContents();
-    }
+    this->loadVPK(path);
 }
 
 void Window::saveVPK(bool saveAs) {
@@ -439,8 +437,9 @@ void Window::saveAsVPK() {
 }
 
 void Window::closeVPK() {
-    this->clearContents();
-    this->vpk = std::nullopt;
+    if (this->clearContents()) {
+	    this->vpk = std::nullopt;
+    }
 }
 
 void Window::checkForNewUpdate() const {
@@ -865,9 +864,9 @@ bool Window::promptUserToKeepModifications() {
     return true;
 }
 
-void Window::clearContents() {
+bool Window::clearContents() {
     if (this->modified && this->promptUserToKeepModifications()) {
-        return;
+        return false;
     }
 
     this->statusText->clear();
@@ -884,6 +883,8 @@ void Window::clearContents() {
 
     this->markModified(false);
     this->freezeActions(true, false); // Leave create/open unfrozen
+
+	return true;
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {
@@ -947,12 +948,13 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
 }
 
 bool Window::loadVPK(const QString& path) {
-    QString fixedPath = QDir(path).absolutePath();
-    fixedPath.replace('\\', '/');
-
-    this->clearContents();
+    if (!this->clearContents()) {
+		return false;
+	}
     this->freezeActions(true);
 
+	QString fixedPath = QDir(path).absolutePath();
+	fixedPath.replace('\\', '/');
     this->vpk = VPK::open(fixedPath.toStdString());
     if (!this->vpk && fixedPath.length() > 8) {
 		// If it just tried to load a numbered archive, let's try to load the directory VPK

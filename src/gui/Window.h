@@ -89,7 +89,7 @@ public:
 
     [[nodiscard]] bool promptUserToKeepModifications();
 
-    void clearContents();
+    [[nodiscard]] bool clearContents();
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
