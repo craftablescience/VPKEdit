@@ -111,6 +111,7 @@ private:
     QAction* createVPKFromDirAction;
     QAction* openVPKAction;
     QMenu*   openVPKRelativeToMenu;
+    QMenu*   openRecentVPKMenu;
     QAction* saveVPKAction;
     QAction* saveAsVPKAction;
     QAction* closeFileAction;
@@ -131,6 +132,8 @@ private:
     void freezeActions(bool freeze, bool freezeCreationActions = true) const;
 
     bool loadVPK(const QString& path);
+
+	void rebuildOpenRecentMenu(const QStringList& paths);
 
     void checkForUpdatesReply(QNetworkReply* reply);
 

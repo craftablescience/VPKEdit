@@ -92,6 +92,9 @@ Window::Window(QWidget* parent)
 		}
     }
 
+	this->openRecentVPKMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &Recent..."));
+	this->rebuildOpenRecentMenu(Options::get<QStringList>(STR_OPEN_RECENT));
+
     this->saveVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
         this->saveVPK();
     });
@@ -934,6 +937,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
     this->openVPKAction->setDisabled(freeze && freezeCreationActions);
     if (this->openVPKRelativeToMenu) this->openVPKRelativeToMenu->setDisabled(freeze && freezeCreationActions);
+    this->openRecentVPKMenu->setDisabled(freeze && freezeCreationActions);
     this->saveVPKAction->setDisabled(freeze || !this->modified);
     this->saveAsVPKAction->setDisabled(freeze);
     this->closeFileAction->setDisabled(freeze);
@@ -958,12 +962,29 @@ bool Window::loadVPK(const QString& path) {
     this->vpk = VPK::open(fixedPath.toStdString());
     if (!this->vpk && fixedPath.length() > 8) {
 		// If it just tried to load a numbered archive, let's try to load the directory VPK
-	    this->vpk = VPK::open(fixedPath.sliced(0, fixedPath.length() - 8).toStdString() + "_dir.vpk");
+		fixedPath = fixedPath.sliced(0, fixedPath.length() - 8) + "_dir.vpk";
+	    this->vpk = VPK::open(fixedPath.toStdString());
     }
 	if (!this->vpk) {
         QMessageBox::critical(this, tr("Error"), tr("Unable to load given VPK. Please ensure that a game or another application is not using the VPK."));
         return false;
     }
+
+	// Add VPK to recent paths
+	auto recentPaths = Options::get<QStringList>(STR_OPEN_RECENT);
+	if (!recentPaths.contains(fixedPath)) {
+		recentPaths.push_front(fixedPath);
+		if (recentPaths.size() > 10) {
+			recentPaths.pop_back();
+		}
+		Options::set(STR_OPEN_RECENT, recentPaths);
+		this->rebuildOpenRecentMenu(recentPaths);
+	} else if (auto pathIndex = recentPaths.indexOf(fixedPath); pathIndex > 0) {
+		recentPaths.remove(pathIndex);
+		recentPaths.push_front(fixedPath);
+		Options::set(STR_OPEN_RECENT, recentPaths);
+		this->rebuildOpenRecentMenu(recentPaths);
+	}
 
     this->statusText->hide();
     this->statusProgressBar->show();
@@ -976,6 +997,25 @@ bool Window::loadVPK(const QString& path) {
     });
 
     return true;
+}
+
+void Window::rebuildOpenRecentMenu(const QStringList& paths) {
+	this->openRecentVPKMenu->clear();
+	if (paths.empty()) {
+		auto* openRecentVPKMenuNoRecentFilesAction = this->openRecentVPKMenu->addAction(tr("No recent files."));
+		openRecentVPKMenuNoRecentFilesAction->setDisabled(true);
+		return;
+	}
+	for (int i = 0; i < paths.size(); i++) {
+		this->openRecentVPKMenu->addAction(("&%1 \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
+			this->loadVPK(path);
+		});
+	}
+	this->openRecentVPKMenu->addSeparator();
+	this->openRecentVPKMenu->addAction(tr("&Clear"), [this] {
+		Options::set(STR_OPEN_RECENT, QStringList{});
+		this->rebuildOpenRecentMenu({});
+	});
 }
 
 void Window::writeEntryToFile(const QString& path, const VPKEntry& entry) {

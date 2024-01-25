@@ -2,7 +2,10 @@
 
 #include <QApplication>
 #include <QFileInfo>
+#include <QMetaType>
 #include <QStyle>
+
+Q_DECLARE_METATYPE(QStringList)
 
 QSettings* opts = nullptr;
 
@@ -36,6 +39,10 @@ void Options::setupOptions(QSettings& options) {
     if (!options.contains(OPT_START_MAXIMIZED)) {
         options.setValue(OPT_START_MAXIMIZED, false);
     }
+
+	if (!options.contains(STR_OPEN_RECENT)) {
+		options.setValue(STR_OPEN_RECENT, QStringList{});
+	}
 
 	opts = &options;
 }
