@@ -954,13 +954,12 @@ bool Window::loadVPK(const QString& path) {
     this->freezeActions(true);
 
     this->vpk = VPK::open(fixedPath.toStdString());
-    if (!this->vpk) {
-        QMessageBox::critical(this, tr("Error"), tr(
-                "Unable to load given VPK. Please ensure you are loading a "
-                "\"directory\" VPK (typically ending in _dir), not a VPK that "
-                "ends with 3 numbers. Loading a directory VPK will allow you "
-                "to browse the contents of the numbered archives next to it.\n"
-                "Also, please ensure that a game or another application is not using the VPK."));
+    if (!this->vpk && fixedPath.length() > 8) {
+		// If it just tried to load a numbered archive, let's try to load the directory VPK
+	    this->vpk = VPK::open(fixedPath.sliced(0, fixedPath.length() - 8).toStdString() + "_dir.vpk");
+    }
+	if (!this->vpk) {
+        QMessageBox::critical(this, tr("Error"), tr("Unable to load given VPK. Please ensure that a game or another application is not using the VPK."));
         return false;
     }
 
