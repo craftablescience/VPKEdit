@@ -55,7 +55,7 @@ const QIcon& getIconForExtension(QString extension) {
 	}
 #endif
 	static QMimeDatabase mimeDatabase;
-	QList<QMimeType> mimeTypes = mimeDatabase.mimeTypesForFileName(extension);
+	QList<QMimeType> mimeTypes = mimeDatabase.mimeTypesForFileName("_" + extension);
 	for (const auto& mimeType : mimeTypes) {
 		if (auto icon = QIcon::fromTheme(mimeType.iconName()); !icon.isNull()) {
 			cachedExtensions[extension] = icon;
@@ -63,8 +63,9 @@ const QIcon& getIconForExtension(QString extension) {
 		}
 	}
 
-	static auto defaultExtensionIcon = QApplication::style()->standardIcon(QStyle::SP_FileIcon);
-	return defaultExtensionIcon;
+	// Couldn't find it, use a generic file icon
+	cachedExtensions[extension] = QApplication::style()->standardIcon(QStyle::SP_FileIcon);
+	return cachedExtensions[extension];
 }
 
 } // namespace
