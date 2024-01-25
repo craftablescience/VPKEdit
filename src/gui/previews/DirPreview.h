@@ -4,7 +4,7 @@
 
 namespace vpkedit {
 
-class VPK;
+class PackFile;
 
 } // namespace vpkedit
 
@@ -19,9 +19,9 @@ class DirPreview : public QTableWidget {
 public:
     DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
 
-    void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::VPK& vpk);
+    void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
 
-    void addEntry(const vpkedit::VPK& vpk, const QString& path);
+    void addEntry(const vpkedit::PackFile& packFile, const QString& path);
 
     void removeFile(const QString& path);
 
@@ -35,9 +35,9 @@ protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
 private:
-    void addRowForFile(const vpkedit::VPK& vpk, const QString& path);
+    void addRowForFile(const vpkedit::PackFile& packFile, const QString& path, bool isVPK);
 
-    void addRowForDir(const QString& name);
+    void addRowForDir(const QString& name, bool isVPK);
 
     QString getItemPath(QTableWidgetItem* item) const;
 

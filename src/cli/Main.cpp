@@ -43,12 +43,12 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 		return std::make_tuple(saveToDir, preloadBytes);
 	}, {
-		.version = version,
-		.preferredChunkSize = preferredChunkSize,
-		.generateMD5Entries = generateMD5Entries,
 		.allowUppercaseLettersInFilenames = allowUppercaseLettersInFilenames,
+		.vpk_version = version,
+		.vpk_preferredChunkSize = preferredChunkSize,
+		.vpk_generateMD5Entries = generateMD5Entries,
 	});
-	std::cout << "Successfully created VPK at \"" << vpk.getRealFilename() << ".vpk\"" << std::endl;
+	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << ".vpk\"" << std::endl;
 }
 
 } // namespace

@@ -15,7 +15,7 @@
 
 namespace vpkedit {
 
-class VPK;
+class PackFile;
 
 } // namespace vpkedit
 
@@ -157,7 +157,7 @@ public:
 
 	explicit MDLPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
 
-	void setMesh(const QString& path, const vpkedit::VPK& vpk) const;
+	void setMesh(const QString& path, const vpkedit::PackFile& packFile) const;
 
 private:
 	void setShadingMode(MDLShadingMode mode) const;
