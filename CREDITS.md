@@ -8,11 +8,11 @@
 ## Acknowledgements
 - [ValvePak](https://github.com/ValveResourceFormat/ValvePak) - xPaw
 
-  Most of the early code in the libvpkedit library was indirectly
-  based off ValvePak and/or the Valve Developer Wiki, and the CRC
-  calculation code is copied directly from ValvePak. Many thanks
-  to the ValvePak developers for making their code open source!
+  Most of the very early code in the libvpkedit library was indirectly
+  based off ValvePak and the Valve Developer Wiki, and the VPK entry CRC
+  calculation code was copied directly from ValvePak.
 - RSA Data Security, Inc. MD5 Message-Digest Algorithm implementation - Frank Thilo
+- [minizip-ng](https://github.com/zlib-ng/minizip-ng) - Gilles Vollant, Nathan Moinvaziri
 - [Qt](https://www.qt.io) - The Qt Company
 - [VTFLib](https://github.com/StrataSource/VTFLib) - Neil 'Jed' Jedrzejewski, Joshua Ashton, Strata Source Contributors
 - [SAPP](https://github.com/Trico-Everfire/SteamAppPathProvider) - Trico Everfire

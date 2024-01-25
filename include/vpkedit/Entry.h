@@ -18,8 +18,6 @@ public:
 	std::string filename;
 	/// Length in bytes
 	std::uint32_t length = 0;
-	/// Offset in the VPK
-	std::uint32_t offset = 0;
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
@@ -27,6 +25,8 @@ public:
 	std::uint32_t vpk_crc32 = 0;
 	/// VPK - Which VPK this entry is in
 	std::uint16_t vpk_archiveIndex = 0;
+	/// VPK - Offset in the VPK
+	std::uint32_t vpk_offset = 0;
 	/// VPK - Preloaded data
 	std::vector<std::byte> vpk_preloadedData;
 
