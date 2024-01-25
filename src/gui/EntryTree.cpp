@@ -10,6 +10,7 @@
 #include <QStyle>
 #include <QThread>
 
+#include "config/Options.h"
 #include "previews/TextPreview.h"
 #include "EntryContextMenuData.h"
 #include "Window.h"
@@ -154,8 +155,10 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 void EntryTree::loadVPK(VPK& vpk, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
     this->root = new EntryItem(this);
     this->root->setText(0, vpk.getPrettyFilename().data());
-	// Set the icon now even though its set later, that way it will be present while loading
-	this->root->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
+	if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
+		// Set the icon now even though its set later, that way it will be present while loading
+		this->root->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
+	}
 
     // Set up progress bar
     progressBar->setMinimum(0);
@@ -416,10 +419,13 @@ void EntryTree::addNestedEntryComponents(const QString& path) const {
                 newItem = new EntryItem(this->root);
             }
             newItem->setText(0, components[i]);
-			if (i != components.size() - 1) { // is a directory
-				newItem->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
-			} else {
-				newItem->setIcon(0, ::getIconForExtension("." + QFileInfo(components[i]).suffix()));
+
+			if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
+				if (i != components.size() - 1) { // is a directory
+					newItem->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
+				} else {
+					newItem->setIcon(0, ::getIconForExtension("." + QFileInfo(components[i]).suffix()));
+				}
 			}
         }
 

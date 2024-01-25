@@ -17,12 +17,16 @@ void Options::setupOptions(QSettings& options) {
     }
     QApplication::setStyle(options.value(OPT_STYLE).toString());
 
-    if (!options.contains(OPT_ENTRY_LIST_AUTO_EXPAND)) {
-        options.setValue(OPT_ENTRY_LIST_AUTO_EXPAND, false);
+    if (!options.contains(OPT_ENTRY_TREE_AUTO_EXPAND)) {
+        options.setValue(OPT_ENTRY_TREE_AUTO_EXPAND, false);
     }
 
-	if (!options.contains(OPT_ENTRY_LIST_AUTO_COLLAPSE)) {
-		options.setValue(OPT_ENTRY_LIST_AUTO_COLLAPSE, false);
+	if (!options.contains(OPT_ENTRY_TREE_AUTO_COLLAPSE)) {
+		options.setValue(OPT_ENTRY_TREE_AUTO_COLLAPSE, false);
+	}
+
+	if (!options.contains(OPT_ENTRY_TREE_HIDE_ICONS)) {
+		options.setValue(OPT_ENTRY_TREE_HIDE_ICONS, false);
 	}
 
     if (!options.contains(OPT_ADVANCED_FILE_PROPS)) {

@@ -146,20 +146,27 @@ Window::Window(QWidget* parent)
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
 
-    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry List..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Open Folder When Selected"), [this] {
-		Options::invert(OPT_ENTRY_LIST_AUTO_EXPAND);
-        this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
+    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry Tree..."));
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Expand Folder When Selected"), [this] {
+		Options::invert(OPT_ENTRY_TREE_AUTO_EXPAND);
+        this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
     });
     entryListMenuAutoExpandAction->setCheckable(true);
-    entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
+    entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
 
-	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start &Collapsed"), [this] {
-		Options::invert(OPT_ENTRY_LIST_AUTO_COLLAPSE);
-		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE));
+	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("&Start Collapsed"), [this] {
+		Options::invert(OPT_ENTRY_TREE_AUTO_COLLAPSE);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
 	});
 	entryListMenuAutoCollapseAction->setCheckable(true);
-	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE));
+	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
+
+	auto* entryListMenuHideIconsAction = entryListMenu->addAction(tr("&Hide Icons"), [this] {
+		Options::invert(OPT_ENTRY_TREE_HIDE_ICONS);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
+	});
+	entryListMenuHideIconsAction->setCheckable(true);
+	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 
     auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("&Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
@@ -249,7 +256,7 @@ Window::Window(QWidget* parent)
     leftPaneLayout->addWidget(this->searchBar);
 
     this->entryTree = new EntryTree(this, leftPane);
-    this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_LIST_AUTO_EXPAND));
+    this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
     leftPaneLayout->addWidget(this->entryTree);
 
     splitter->addWidget(leftPane);
@@ -269,7 +276,7 @@ Window::Window(QWidget* parent)
     splitter->setStretchFactor(1, 20); // qt "stretch factor" can go fuck itself this is a magic number that works
 
 	// Automatically collapse entry tree
-	if (Options::get<bool>(OPT_ENTRY_LIST_AUTO_COLLAPSE)) {
+	if (Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE)) {
 		splitter->setSizes({0, splitter->size().width()});
 	}
 
