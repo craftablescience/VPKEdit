@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <unordered_map>
 
 #include "Entry.h"
 #include "Options.h"
@@ -11,7 +12,7 @@
 namespace vpkedit {
 
 enum class PackFileType {
-	UNKNOWN,
+	GENERIC,
 	VPK,
 };
 
@@ -99,11 +100,20 @@ protected:
 
 	std::string fullFilePath;
 
-	PackFileType type = PackFileType::UNKNOWN;
+	PackFileType type = PackFileType::GENERIC;
 	PackFileOptions options;
 
 	std::unordered_map<std::string, std::vector<Entry>> entries;
 	std::unordered_map<std::string, std::vector<Entry>> unbakedEntries;
+
+	using FactoryFunction = std::function<std::unique_ptr<PackFile>(const std::string& path, PackFileOptions options, const Callback& callback)>;
+
+	static std::unordered_map<std::string, FactoryFunction>& getExtensionRegistry();
+
+	static const FactoryFunction& registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory);
 };
 
 } // namespace vpkedit
+
+#define VPKEDIT_REGISTER_PACKFILE_EXTENSION(extension, function) \
+	static inline auto packFileTypeFactoryFunction = PackFile::registerExtensionForTypeFactory(extension, function)

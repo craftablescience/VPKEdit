@@ -14,15 +14,9 @@ PackFile::PackFile(std::string fullFilePath_, PackFileOptions options_)
 		, options(options_) {}
 
 std::unique_ptr<PackFile> PackFile::open(const std::string& path, PackFileOptions options, const Callback& callback) {
-	// todo: extension registry
 	auto extension = std::filesystem::path(path).extension().string();
-	if (extension == ".vpk") {
-		auto vpk = VPK::open(path, options, callback);
-		if (!vpk && path.length() > 8) {
-			// If it just tried to load a numbered archive, let's try to load the directory VPK
-			vpk = VPK::open(path.substr(0, path.length() - 8) + "_dir.vpk");
-		}
-		return vpk;
+	if (PackFile::getExtensionRegistry().contains(extension)) {
+		return PackFile::getExtensionRegistry()[extension](path, options, callback);
 	}
 	return nullptr;
 }
@@ -176,4 +170,14 @@ bool PackFile::isEntryUnbakedUsingByteBuffer(const Entry& entry) {
 
 void PackFile::setEntryUnbakedUsingByteBuffer(Entry& entry, bool unbakedUsingByteBuffer) {
 	entry.unbakedUsingByteBuffer = unbakedUsingByteBuffer;
+}
+
+std::unordered_map<std::string, PackFile::FactoryFunction>& PackFile::getExtensionRegistry() {
+	static std::unordered_map<std::string, PackFile::FactoryFunction> extensionRegistry;
+	return extensionRegistry;
+}
+
+const PackFile::FactoryFunction& PackFile::registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory) {
+	PackFile::getExtensionRegistry()[extension] = factory;
+	return factory;
 }

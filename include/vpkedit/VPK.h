@@ -101,6 +101,15 @@ protected:
 
 private:
 	[[nodiscard]] std::uint32_t getHeaderLength() const;
+
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vpk", [](const std::string& path, PackFileOptions options, const Callback& callback) {
+		auto vpk = VPK::open(path, options, callback);
+		if (!vpk && path.length() > 8) {
+			// If it just tried to load a numbered archive, let's try to load the directory VPK
+			vpk = VPK::open(path.substr(0, path.length() - 8) + "_dir.vpk", options, callback);
+		}
+		return vpk;
+	});
 };
 
 } // namespace vpkedit
