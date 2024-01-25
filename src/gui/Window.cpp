@@ -967,6 +967,7 @@ bool Window::loadVPK(const QString& path) {
     }
 	if (!this->vpk) {
         QMessageBox::critical(this, tr("Error"), tr("Unable to load given VPK. Please ensure that a game or another application is not using the VPK."));
+		this->freezeActions(false);
         return false;
     }
 
