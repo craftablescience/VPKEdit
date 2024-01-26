@@ -142,10 +142,10 @@ Window::Window(QWidget* parent)
     this->addDirAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->changeVersionAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Change Version..."), Qt::CTRL | Qt::ALT | Qt::Key_V, [this] {
-        this->changeVPKVersion();
+    this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Set &Properties..."), Qt::CTRL | Qt::Key_P, [this] {
+	    this->setProperties();
     });
-    this->changeVersionAction->setDisabled(true);
+    this->setPropertiesAction->setDisabled(true);
 
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
@@ -459,7 +459,7 @@ void Window::checkForNewUpdate() const {
 	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases/latest")));
 }
 
-void Window::changeVPKVersion() {
+void Window::setProperties() {
 	auto* properVPKPointer = dynamic_cast<VPK*>(this->packFile.get());
     auto vpkOptions = VPKPropertiesDialog::getVPKProperties(true, properVPKPointer->getVersion(), false, this);
     if (!vpkOptions) {
@@ -656,14 +656,14 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
 		if (QString(directory.c_str()).startsWith(oldPath)) {
 			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
+				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
 			}
 		}
 	}
 	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
 		if (QString(directory.c_str()).startsWith(oldPath)) {
 			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.filename.c_str());
+				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
 			}
 		}
 	}
@@ -963,7 +963,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->extractAllAction->setDisabled(freeze);
     this->addFileAction->setDisabled(freeze);
     this->addDirAction->setDisabled(freeze);
-    this->changeVersionAction->setDisabled(freeze);
+    this->setPropertiesAction->setDisabled(freeze);
 
     this->searchBar->setDisabled(freeze);
     this->entryTree->setDisabled(freeze);
@@ -1036,7 +1036,7 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 void Window::writeEntryToFile(const QString& path, const Entry& entry) {
     auto data = this->packFile->readEntry(entry);
     if (!data) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to read data for \"%1\". Please ensure that a game or another application is not using the file.").arg(entry.filename.c_str()));
+        QMessageBox::critical(this, tr("Error"), tr("Failed to read data for \"%1\". Please ensure that a game or another application is not using the file.").arg(entry.path.c_str()));
         return;
     }
     QFile file(path);
@@ -1090,7 +1090,7 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
         }
 
         for (const auto& entry : entries) {
-            auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.filename.c_str();
+            auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
             window->writeEntryToFile(filePath, entry);
             emit progressUpdated(++currentEntry);
         }
@@ -1108,7 +1108,7 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 		}
 
 		for (const auto& entry : entries) {
-			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.filename.c_str();
+			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
 			window->writeEntryToFile(filePath, entry);
 			emit progressUpdated(++currentEntry);
 		}

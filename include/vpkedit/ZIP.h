@@ -4,8 +4,10 @@
 
 namespace vpkedit {
 
-class ZIP : public PackFile {
+class ZIP final : public PackFile {
 public:
+	~ZIP() final;
+
 	/// Open a ZIP file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
@@ -19,6 +21,11 @@ protected:
 	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
 
 private:
+	void* streamHandle = nullptr;
+	bool streamOpen = false;
+	void* zipHandle = nullptr;
+	bool zipOpen = false;
+
 	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".zip", &ZIP::open);
 };
 

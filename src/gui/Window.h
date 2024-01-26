@@ -41,7 +41,7 @@ public:
 
 	void checkForNewUpdate() const;
 
-    void changeVPKVersion();
+    void setProperties();
 
     void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
 
@@ -118,7 +118,7 @@ private:
     QAction* extractAllAction;
     QAction* addFileAction;
     QAction* addDirAction;
-    QAction* changeVersionAction;
+    QAction* setPropertiesAction;
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 

@@ -4,7 +4,7 @@
 
 namespace vpkedit {
 
-class BSP : public PackFile {
+class BSP final : public PackFile {
 public:
 	/// Open a BSP pack lump
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
