@@ -28,11 +28,12 @@ PackFileType PackFile::getType() const {
 }
 
 std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool includeUnbaked) const {
-	auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	auto filename = filename_;
+	::normalizeSlashes(filename);
 	if (!this->options.allowUppercaseLettersInFilenames) {
-		::toLowerCase(dir);
-		::toLowerCase(name);
+		::toLowerCase(filename);
 	}
+	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	if (!dir.empty()) {
 		if (dir.length() > 1 && dir.substr(0, 1) == "/") {
@@ -42,16 +43,16 @@ std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool incl
 			dir = dir.substr(0, dir.length() - 2);
 		}
 	}
-	if (this->entries.count(dir)) {
+	if (this->entries.contains(dir)) {
 		for (const Entry& entry : this->entries.at(dir)) {
-			if (entry.filename == name) {
+			if (entry.path == filename) {
 				return entry;
 			}
 		}
 	}
-	if (includeUnbaked && this->unbakedEntries.count(dir)) {
+	if (includeUnbaked && this->unbakedEntries.contains(dir)) {
 		for (const Entry& unbakedEntry : this->unbakedEntries.at(dir)) {
-			if (unbakedEntry.filename == name) {
+			if (unbakedEntry.path == filename) {
 				return unbakedEntry;
 			}
 		}
@@ -102,20 +103,20 @@ void PackFile::addEntry(const std::string& filename_, const std::byte* buffer, s
 }
 
 bool PackFile::removeEntry(const std::string& filename_) {
-	auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	auto filename = filename_;
 	if (!this->options.allowUppercaseLettersInFilenames) {
-		::toLowerCase(dir);
-		::toLowerCase(name);
+		::toLowerCase(filename);
 	}
+	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	// Check unbaked entries first
-	if (this->unbakedEntries.count(dir)) {
+	if (this->unbakedEntries.contains(dir)) {
 		for (auto& [preexistingDir, unbakedEntryVec] : this->unbakedEntries) {
 			if (preexistingDir != dir) {
 				continue;
 			}
 			for (auto it = unbakedEntryVec.begin(); it != unbakedEntryVec.end(); ++it) {
-				if (it->filename == name) {
+				if (it->path == filename) {
 					unbakedEntryVec.erase(it);
 					return true;
 				}
@@ -124,11 +125,11 @@ bool PackFile::removeEntry(const std::string& filename_) {
 	}
 
 	// If it's not in regular entries either you can't remove it!
-	if (!this->entries.count(dir))
+	if (!this->entries.contains(dir))
 		return false;
 
 	for (auto it = this->entries.at(dir).begin(); it != this->entries.at(dir).end(); ++it) {
-		if (it->filename == name) {
+		if (it->path == filename) {
 			this->entries.at(dir).erase(it);
 			return true;
 		}

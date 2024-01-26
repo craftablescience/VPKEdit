@@ -12,7 +12,7 @@ constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
 constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 
-class VPK : public PackFile {
+class VPK final : public PackFile {
 #pragma pack(push, 1)
     struct Header1 {
         std::uint32_t signature;

@@ -253,7 +253,7 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path, bo
 
     this->setRowCount(this->rowCount() + 1);
 
-    auto* nameItem = new QTableWidgetItem(entry->filename.c_str());
+    auto* nameItem = new QTableWidgetItem(entry->getFilename().c_str());
     this->setItem(this->rowCount() - 1, DirPreviewColumn::NAME, nameItem);
 
     auto* typeItem = new QTableWidgetItem(QString(entry->getExtension().c_str()).toUpper());

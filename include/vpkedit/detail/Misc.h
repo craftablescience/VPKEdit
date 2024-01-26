@@ -13,6 +13,6 @@ void normalizeSlashes(std::string& path);
 
 std::pair<std::string, std::string> splitFilenameAndParentDir(const std::string& filename);
 
-std::vector<std::byte> readFileData(const std::string& filepath, std::size_t preloadBytesOffset);
+std::vector<std::byte> readFileData(const std::string& filepath, std::size_t preloadBytesOffset = 0);
 
 } // namespace vpkedit::detail

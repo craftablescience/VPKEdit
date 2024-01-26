@@ -14,15 +14,16 @@ class Entry {
 	friend class PackFile;
 
 public:
-	/// File name of this entry (e.g. "cable.vmt")
-	std::string filename;
-	/// Length in bytes
+	/// Path to this entry (e.g. "materials/cable.vmt")
+	std::string path;
+	/// Length in bytes (in formats with compression, this is the uncompressed length)
 	std::uint32_t length = 0;
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
-	/// VPK - CRC32 checksum
-	std::uint32_t vpk_crc32 = 0;
+	/// VPK, BSP, ZIP - CRC32 checksum
+	std::uint32_t crc32 = 0;
+
 	/// VPK - Which VPK this entry is in
 	std::uint16_t vpk_archiveIndex = 0;
 	/// VPK - Offset in the VPK
@@ -30,10 +31,16 @@ public:
 	/// VPK - Preloaded data
 	std::vector<std::byte> vpk_preloadedData;
 
-	/// Returns the file stem (e.g. "cable.vmt" -> "cable")
+	/// Returns the parent directory's path (e.g. "materials/cable.vmt" -> "materials")
+	[[nodiscard]] std::string getParentPath() const;
+
+	/// Returns the filename (e.g. "materials/cable.vmt" -> "cable.vmt")
+	[[nodiscard]] std::string getFilename() const;
+
+	/// Returns the file stem (e.g. "materials/cable.vmt" -> "cable")
 	[[nodiscard]] std::string getStem() const;
 
-	/// Returns the file extension without a period (e.g. "cable.vmt" -> "vmt")
+	/// Returns the file extension without a period (e.g. "materials/cable.vmt" -> "vmt")
 	[[nodiscard]] std::string getExtension() const;
 
 private:

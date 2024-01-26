@@ -463,7 +463,7 @@ void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
     for (const auto& [directory, entries] : packFile.getBakedEntries()) {
         emit progressUpdated(++progress);
         for (const auto& entry : entries) {
-            tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.filename.c_str());
+            tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
         }
     }
     tree->sortItems(0, Qt::AscendingOrder);

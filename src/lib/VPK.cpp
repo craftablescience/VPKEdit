@@ -141,6 +141,16 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
             if (directory.empty())
                 break;
 
+	        std::string fullDir;
+	        if (directory == " ") {
+		        fullDir = "";
+	        } else {
+		        fullDir = directory;
+	        }
+	        if (!vpk->entries.contains(fullDir)) {
+		        vpk->entries[fullDir] = {};
+	        }
+
             // Files
             while (true) {
                 std::string entryName;
@@ -151,23 +161,15 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
                 Entry entry = createNewEntry();
 
                 if (extension == " ") {
-                    entry.filename = entryName;
+					entry.path = fullDir.empty() ? "" : fullDir + '/';
+					entry.path += entryName;
                 } else {
-                    entry.filename = entryName + '.';
-                    entry.filename += extension;
+	                entry.path = fullDir.empty() ? "" : fullDir + '/';
+					entry.path += entryName + '.';
+                    entry.path += extension;
                 }
 
-                std::string fullDir;
-                if (directory == " ") {
-                    fullDir = "";
-                } else {
-                    fullDir = directory;
-                }
-                if (!vpk->entries.count(fullDir)) {
-                    vpk->entries[fullDir] = {};
-                }
-
-                vpk->reader.read(entry.vpk_crc32);
+                vpk->reader.read(entry.crc32);
                 auto preloadedDataSize = vpk->reader.read<std::uint16_t>();
                 vpk->reader.read(entry.vpk_archiveIndex);
                 vpk->reader.read(entry.vpk_offset);
@@ -253,7 +255,7 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
         // Get the stored data
         for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
             for (const Entry& unbakedEntry : unbakedEntryList) {
-                if (unbakedEntry.filename == entry.filename) {
+                if (unbakedEntry.path == entry.path) {
 	                std::vector<std::byte> unbakedData;
 	                if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
 		                unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
@@ -265,7 +267,9 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
                 }
             }
         }
+		return std::nullopt;
     } else if (entry.vpk_archiveIndex != VPK_DIR_INDEX) {
+		// Stored in a numbered archive
         FileStream stream{this->getTruncatedFilepath() + '_' + ::padArchiveIndex(entry.vpk_archiveIndex) + ".vpk"};
         if (!stream) {
             return std::nullopt;
@@ -274,6 +278,7 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
         auto bytes = stream.read_bytes(entry.length - entry.vpk_preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.vpk_preloadedData.size()));
     } else {
+		// Stored in this directory VPK
         FileStream stream{this->fullFilePath};
         if (!stream) {
             return std::nullopt;
@@ -287,14 +292,14 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
 }
 
 Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
-	auto [dir, name] = ::splitFilenameAndParentDir(filename_);
+	auto filename = filename_;
 	if (!this->options.allowUppercaseLettersInFilenames) {
-		::toLowerCase(dir);
-		::toLowerCase(name);
+		::toLowerCase(filename);
 	}
+	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
-	entry.filename = name;
-	entry.vpk_crc32 = computeCRC(buffer);
+	entry.path = filename;
+	entry.crc32 = computeCRC(buffer);
 	entry.length = buffer.size();
 
 	// Offset and archive index might be reset when the VPK is baked
@@ -320,10 +325,10 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 		}
 	}
 
-	if (!this->unbakedEntries.count(dir)) {
+	if (!this->unbakedEntries.contains(dir)) {
 		this->unbakedEntries[dir] = {};
 	}
-	this->unbakedEntries.at(dir).push_back(std::move(entry));
+	this->unbakedEntries.at(dir).push_back(entry);
 	return this->unbakedEntries.at(dir).back();
 }
 
@@ -337,10 +342,10 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 	        if (extension.empty()) {
 		        extension = " ";
 	        }
-            if (!temp.count(extension)) {
+            if (!temp.contains(extension)) {
                 temp[extension] = {};
             }
-            if (!temp.at(extension).count(tDir)) {
+            if (!temp.at(extension).contains(tDir)) {
                 temp.at(extension)[tDir] = {};
             }
             temp.at(extension).at(tDir).push_back(&tEntry);
@@ -352,10 +357,10 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 			if (extension.empty()) {
 				extension = " ";
 			}
-            if (!temp.count(extension)) {
+            if (!temp.contains(extension)) {
                 temp[extension] = {};
             }
-            if (!temp.at(extension).count(tDir)) {
+            if (!temp.at(extension).contains(tDir)) {
                 temp.at(extension)[tDir] = {};
             }
             temp.at(extension).at(tDir).push_back(&tEntry);
@@ -469,7 +474,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 
                 outDir.write(entry->getStem());
                 outDir.write('\0');
-                outDir.write(entry->vpk_crc32);
+                outDir.write(entry->crc32);
                 outDir.write(static_cast<std::uint16_t>(entry->vpk_preloadedData.size()));
                 outDir.write(entry->vpk_archiveIndex);
                 outDir.write(entry->vpk_offset);
@@ -498,7 +503,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     // Merge unbaked into baked entries
     for (auto& [tDir, tUnbakedEntriesAndData] : this->unbakedEntries) {
         for (Entry& tUnbakedEntry : tUnbakedEntriesAndData) {
-            if (!this->entries.count(tDir)) {
+            if (!this->entries.contains(tDir)) {
                 this->entries[tDir] = {};
             }
             tUnbakedEntry.unbaked = false;
