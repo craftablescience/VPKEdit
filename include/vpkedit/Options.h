@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <mz.h>
+
 namespace vpkedit {
 
 /// VPK - Maximum preload data size in bytes
@@ -33,6 +35,9 @@ struct EntryOptions {
 
 	/// VPK - The amount in bytes of the file to preload. Maximum is controlled by VPK_MAX_PRELOAD_BYTES
 	std::uint32_t vpk_preloadBytes = 0;
+
+	/// ZIP/BSP - The compression method. Check the MZ_COMPRESS_METHOD definitions for valid values. Accepts STORE and LZMA
+	std::uint16_t zip_compressionMethod = MZ_COMPRESS_METHOD_STORE;
 };
 
 } // namespace vpkedit

@@ -1,5 +1,6 @@
 #include <vpkedit/ZIP.h>
 
+#include <cstdlib>
 #include <filesystem>
 
 #include <MD5.h>
@@ -7,6 +8,7 @@
 #include <mz_strm.h>
 #include <mz_strm_os.h>
 #include <mz_zip.h>
+#include <mz_zip_rw.h>
 #include <vpkedit/detail/CRC.h>
 #include <vpkedit/detail/Misc.h>
 
@@ -19,14 +21,7 @@ ZIP::ZIP(const std::string& fullFilePath_, PackFileOptions options_)
 }
 
 ZIP::~ZIP() {
-	if (this->zipOpen) {
-		mz_zip_close(this->zipHandle);
-		mz_zip_delete(&this->zipHandle);
-	}
-	if (this->streamOpen) {
-		mz_stream_os_close(this->streamHandle);
-		mz_stream_os_delete(&this->streamHandle);
-	}
+	this->closeZIP();
 }
 
 std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions options, const Callback& callback) {
@@ -38,24 +33,13 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 	auto* zip = new ZIP{path, options};
 	auto packFile = std::unique_ptr<PackFile>(zip);
 
-	zip->streamHandle = mz_stream_os_create();
-	if (mz_stream_open(zip->streamHandle, path.c_str(), MZ_OPEN_MODE_READ) != MZ_OK) {
+	if (!zip->openZIPAtCurrentPath()) {
 		return nullptr;
 	}
-	zip->streamOpen = true;
-
-	zip->zipHandle = mz_zip_create();
-	if (mz_zip_open(zip->zipHandle, zip->streamHandle, MZ_OPEN_MODE_READ) != MZ_OK) {
-		mz_stream_os_close(zip->streamHandle);
-		mz_stream_os_delete(&zip->streamHandle);
-		return nullptr;
-	}
-	zip->zipOpen = true;
 
 	for (auto code = mz_zip_goto_first_entry(zip->zipHandle); code == MZ_OK; code = mz_zip_goto_next_entry(zip->zipHandle)) {
 		mz_zip_file* fileInfo = nullptr;
-		code = mz_zip_entry_get_info(zip->zipHandle, &fileInfo);
-		if (code != MZ_OK) {
+		if (mz_zip_entry_get_info(zip->zipHandle, &fileInfo)) {
 			return nullptr;
 		}
 		if (mz_zip_entry_is_dir(zip->zipHandle) == MZ_OK) {
@@ -70,7 +54,9 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 		}
 
 		entry.length = fileInfo->uncompressed_size;
+		entry.compressedLength = fileInfo->compressed_size;
 		entry.crc32 = fileInfo->crc;
+		entry.zip_compressionMethod = fileInfo->compression_method;
 
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);
@@ -109,6 +95,9 @@ std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 		return std::nullopt;
 	}
 	// It's baked into the file on disk
+	if (!this->streamOpen || !this->zipOpen) {
+		return std::nullopt;
+	}
 	if (mz_zip_locate_entry(this->zipHandle, entry.path.c_str(), !this->options.allowUppercaseLettersInFilenames) != MZ_OK) {
 		return std::nullopt;
 	}
@@ -130,8 +119,10 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
-	entry.crc32 = computeCRC(buffer); // todo: may not be needed
 	entry.length = buffer.size();
+	entry.compressedLength = buffer.size();
+	entry.crc32 = ::computeCRC(buffer);
+	entry.zip_compressionMethod = options_.zip_compressionMethod;
 
 	if (!this->unbakedEntries.contains(dir)) {
 		this->unbakedEntries[dir] = {};
@@ -141,5 +132,107 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 }
 
 bool ZIP::bake(const std::string& outputFolder_, const Callback& callback) {
-	return true; // todo: save file
+	// Use temp folder so we can read from the current ZIP
+	const auto writeZipPath = (std::filesystem::temp_directory_path() / "tmp.zip").string();
+
+	void* writeStreamHandle = mz_stream_os_create();
+	if (mz_stream_os_open(writeStreamHandle, writeZipPath.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
+		return false;
+	}
+
+	void* writeZipHandle = mz_zip_writer_create();
+	if (mz_zip_writer_open(writeZipHandle, writeStreamHandle, 0)) {
+		return false;
+	}
+
+	for (const auto& [entryDir, entries] : this->getBakedEntries()) {
+		for (const Entry& entry : entries) {
+			auto binData = this->readEntry(entry);
+			if (!binData) {
+				continue;
+			}
+
+			mz_zip_file fileInfo;
+			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
+			fileInfo.filename = entry.path.c_str();
+			fileInfo.filename_size = entry.path.length();
+			fileInfo.uncompressed_size = entry.length;
+			fileInfo.compressed_size = entry.compressedLength;
+			fileInfo.crc = entry.crc32;
+			fileInfo.compression_method = entry.zip_compressionMethod;
+			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
+				return false;
+			}
+
+			if (callback) {
+				callback(entry.getParentPath(), entry);
+			}
+		}
+	}
+	for (const auto& [entryDir, entries] : this->getUnbakedEntries()) {
+		for (const Entry& entry : entries) {
+			auto binData = this->readEntry(entry);
+			if (!binData) {
+				continue;
+			}
+
+			mz_zip_entry fileInfo;
+			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
+			fileInfo.filename = entry.path.c_str();
+			fileInfo.filename_size = entry.path.length();
+			fileInfo.uncompressed_size = entry.length;
+			fileInfo.compressed_size = entry.compressedLength;
+			fileInfo.crc = entry.crc32;
+			fileInfo.compression_method = entry.zip_compressionMethod;
+			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
+				return false;
+			}
+
+			if (callback) {
+				callback(entry.getParentPath(), entry);
+			}
+		}
+	}
+
+	if (mz_zip_writer_close(writeZipHandle)) {
+		return false;
+	}
+	mz_zip_writer_delete(&writeZipHandle);
+
+	if (mz_stream_os_close(writeStreamHandle)) {
+		return false;
+	}
+	mz_stream_os_delete(&writeStreamHandle);
+
+	// Close our ZIP and reopen it
+	this->closeZIP();
+	std::filesystem::rename(writeZipPath, this->fullFilePath);
+	return this->openZIPAtCurrentPath();
+}
+
+bool ZIP::openZIPAtCurrentPath() {
+	this->streamHandle = mz_stream_os_create();
+	if (mz_stream_os_open(this->streamHandle, this->fullFilePath.c_str(), MZ_OPEN_MODE_READ) != MZ_OK) {
+		return false;
+	}
+	this->streamOpen = true;
+
+	this->zipHandle = mz_zip_create();
+	if (mz_zip_open(this->zipHandle, this->streamHandle, MZ_OPEN_MODE_READ) != MZ_OK) {
+		return false; // No need to delete the stream, it's done when we destruct
+	}
+	this->zipOpen = true;
+
+	return true;
+}
+
+void ZIP::closeZIP() {
+	if (this->zipOpen) {
+		mz_zip_close(this->zipHandle);
+		mz_zip_delete(&this->zipHandle);
+	}
+	if (this->streamOpen) {
+		mz_stream_os_close(this->streamHandle);
+		mz_stream_os_delete(&this->streamHandle);
+	}
 }

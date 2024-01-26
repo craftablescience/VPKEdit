@@ -1,5 +1,6 @@
 #include <vpkedit/PackFile.h>
 
+#include <cstdlib>
 #include <filesystem>
 #include <utility>
 
