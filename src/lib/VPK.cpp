@@ -299,7 +299,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
-	entry.crc32 = computeCRC(buffer);
+	entry.crc32 = ::computeCRC(buffer);
 	entry.length = buffer.size();
 
 	// Offset and archive index might be reset when the VPK is baked

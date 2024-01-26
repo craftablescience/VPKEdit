@@ -6,6 +6,8 @@
 #include <variant>
 #include <vector>
 
+#include <mz.h>
+
 namespace vpkedit {
 
 /// This class represents the metadata that a file has inside a PackFile.
@@ -18,10 +20,13 @@ public:
 	std::string path;
 	/// Length in bytes (in formats with compression, this is the uncompressed length)
 	std::uint32_t length = 0;
+	/// If the format supports compression, this is the compressed length
+	/// If compression is not supported, this will remain 0
+	std::uint32_t compressedLength = 0;
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
-	/// VPK, BSP, ZIP - CRC32 checksum
+	/// VPK, ZIP/BSP - CRC32 checksum
 	std::uint32_t crc32 = 0;
 
 	/// VPK - Which VPK this entry is in
@@ -30,6 +35,9 @@ public:
 	std::uint32_t vpk_offset = 0;
 	/// VPK - Preloaded data
 	std::vector<std::byte> vpk_preloadedData;
+
+	/// ZIP/BSP - Compression type
+	std::uint16_t zip_compressionMethod = MZ_COMPRESS_METHOD_STORE;
 
 	/// Returns the parent directory's path (e.g. "materials/cable.vmt" -> "materials")
 	[[nodiscard]] std::string getParentPath() const;

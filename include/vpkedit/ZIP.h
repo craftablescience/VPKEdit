@@ -20,6 +20,10 @@ protected:
 
 	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
 
+	bool openZIPAtCurrentPath();
+
+	void closeZIP();
+
 private:
 	void* streamHandle = nullptr;
 	bool streamOpen = false;
