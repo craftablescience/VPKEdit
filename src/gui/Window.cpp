@@ -142,7 +142,7 @@ Window::Window(QWidget* parent)
     this->addDirAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Set &Properties..."), Qt::CTRL | Qt::Key_P, [this] {
+    this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Properties..."), Qt::CTRL | Qt::Key_P, [this] {
 	    this->setProperties();
     });
     this->setPropertiesAction->setDisabled(true);

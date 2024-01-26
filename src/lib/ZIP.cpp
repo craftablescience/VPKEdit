@@ -1,6 +1,6 @@
 #include <vpkedit/ZIP.h>
 
-#include <cstdlib>
+#include <cstring>
 #include <filesystem>
 
 #include <MD5.h>
