@@ -1,13 +1,20 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 project(vpkedit
         DESCRIPTION "A tool to read, preview, and write to VPK files."
-        VERSION "4.0.0.4"
+        VERSION "4.0.0.99"
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 # If the tweak number exists, we're in beta
 if(PROJECT_VERSION_TWEAK STREQUAL "")
+    # Proper release version
     set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION}" CACHE STRING "" FORCE)
+elseif(PROJECT_VERSION_TWEAK MATCHES "^99+$")
+    # Release candidate, number of 9s controls the RC number
+    string(LENGTH ${PROJECT_VERSION_TWEAK} PROJECT_VERSION_TWEAK_LENGTH)
+    math(EXPR PROJECT_VERSION_TWEAK_LENGTH "${PROJECT_VERSION_TWEAK_LENGTH} - 1" OUTPUT_FORMAT DECIMAL)
+    set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-rc.${PROJECT_VERSION_TWEAK_LENGTH}" CACHE STRING "" FORCE)
 else()
+    # Beta version
     set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-beta.${PROJECT_VERSION_TWEAK}" CACHE STRING "" FORCE)
 endif()
 set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
