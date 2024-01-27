@@ -108,10 +108,10 @@ elseif(UNIX)
             RENAME "${PROJECT_NAME}.xml")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon-128.png"
             DESTINATION "/usr/share/icons/hicolor/128x128/mimetypes/"
-            RENAME "application-x-vpk.png")
+            RENAME "application-x-vpkedit.png")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon-512.png"
             DESTINATION "/usr/share/icons/hicolor/512x512/mimetypes/"
-            RENAME "application-x-vpk.png")
+            RENAME "application-x-vpkedit.png")
 endif()
 
 # CPack stuff
@@ -137,8 +137,15 @@ if(WIN32)
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
     set(HELP_QUOTE "\"") # CMake is shit
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+            WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit' '' 'Browse BSP'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
             WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'Valve Pack File'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
@@ -147,6 +154,7 @@ if(WIN32)
             System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
         ")
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+            DeleteRegKey HKCR '.bsp'
             DeleteRegKey HKCR '.vpk'
             DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
         ")
