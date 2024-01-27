@@ -984,17 +984,26 @@ bool Window::loadPackFile(const QString& path) {
 	}
     this->freezeActions(true);
 
+	auto recentPaths = Options::get<QStringList>(STR_OPEN_RECENT);
+
 	QString fixedPath = QDir(path).absolutePath();
 	fixedPath.replace('\\', '/');
+
     this->packFile = PackFile::open(fixedPath.toStdString());
 	if (!this->packFile) {
+		// Remove from recent paths if it's there
+		if (recentPaths.contains(fixedPath)) {
+			recentPaths.removeAt(recentPaths.indexOf(fixedPath));
+			Options::set(STR_OPEN_RECENT, recentPaths);
+			this->rebuildOpenRecentMenu(recentPaths);
+		}
+
         QMessageBox::critical(this, tr("Error"), tr("Unable to load this file. Please ensure that a game or another application is not using the file."));
 		this->freezeActions(false);
         return false;
     }
 
 	// Add VPK to recent paths
-	auto recentPaths = Options::get<QStringList>(STR_OPEN_RECENT);
 	if (!recentPaths.contains(fixedPath)) {
 		recentPaths.push_front(fixedPath);
 		if (recentPaths.size() > 10) {
