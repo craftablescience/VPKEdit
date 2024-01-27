@@ -5,21 +5,30 @@
 #include <tuple>
 
 #include <QDialog>
+#include <vpkedit/Options.h>
+#include <vpkedit/PackFileType.h>
 
 class QCheckBox;
 class QLineEdit;
 class QSpinBox;
 
 class EntryOptionsDialog : public QDialog {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath = QString(), bool isVPK = true, bool prefilledUseArchiveVPK = false, std::uint32_t prefilledPreloadBytes = 0, QWidget* parent = nullptr);
+	explicit EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath = QString(), vpkedit::PackFileType type = vpkedit::PackFileType::GENERIC, vpkedit::EntryOptions options = {}, QWidget* parent = nullptr);
 
-    static std::optional<std::tuple<QString, bool, std::uint32_t>> getEntryOptions(bool edit, bool isDir, const QString& prefilledPath = QString(), bool isVPK = true, bool prefilledUseArchiveVPK = false, std::uint32_t prefilledPreloadBytes = 0, QWidget* parent = nullptr);
+	[[nodiscard]] vpkedit::EntryOptions getEntryOptions() const;
+
+	static std::optional<std::tuple<QString, vpkedit::EntryOptions>> getEntryOptions(bool edit, bool isDir, const QString& prefilledPath = QString(), vpkedit::PackFileType type = vpkedit::PackFileType::GENERIC, vpkedit::EntryOptions options = {}, QWidget* parent = nullptr);
 
 private:
-    QLineEdit* path;
-    QCheckBox* useArchiveVPK;
-    QSpinBox* preloadBytes;
+	QLineEdit* path;
+
+	// VPK
+	QCheckBox* useArchiveVPK;
+	QSpinBox* preloadBytes;
+
+	// ZIP/BSP
+	QCheckBox* useCompression;
 };
