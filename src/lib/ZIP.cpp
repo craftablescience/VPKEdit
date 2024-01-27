@@ -15,6 +15,8 @@
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
+const std::string ZIP::TEMP_ZIP_PATH = (std::filesystem::temp_directory_path() / "tmp.zip").string();
+
 ZIP::ZIP(const std::string& fullFilePath_, PackFileOptions options_)
 		: PackFile(fullFilePath_, options_) {
 	this->type = PackFileType::ZIP;
@@ -33,7 +35,7 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 	auto* zip = new ZIP{path, options};
 	auto packFile = std::unique_ptr<PackFile>(zip);
 
-	if (!zip->openZIPAtCurrentPath()) {
+	if (!zip->openZIP(zip->fullFilePath)) {
 		return nullptr;
 	}
 
@@ -133,8 +135,17 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 
 bool ZIP::bake(const std::string& outputFolder_, const Callback& callback) {
 	// Use temp folder so we can read from the current ZIP
-	const auto writeZipPath = (std::filesystem::temp_directory_path() / "tmp.zip").string();
+	if (!this->bakeTempZip(ZIP::TEMP_ZIP_PATH, callback)) {
+		return false;
+	}
 
+	// Close our ZIP and reopen it
+	this->closeZIP();
+	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, this->fullFilePath);
+	return this->openZIP(this->fullFilePath);
+}
+
+bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback) {
 	void* writeStreamHandle = mz_stream_os_create();
 	if (mz_stream_os_open(writeStreamHandle, writeZipPath.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
 		return false;
@@ -204,15 +215,12 @@ bool ZIP::bake(const std::string& outputFolder_, const Callback& callback) {
 	}
 	mz_stream_os_delete(&writeStreamHandle);
 
-	// Close our ZIP and reopen it
-	this->closeZIP();
-	std::filesystem::rename(writeZipPath, this->fullFilePath);
-	return this->openZIPAtCurrentPath();
+	return true;
 }
 
-bool ZIP::openZIPAtCurrentPath() {
+bool ZIP::openZIP(std::string_view path) {
 	this->streamHandle = mz_stream_os_create();
-	if (mz_stream_os_open(this->streamHandle, this->fullFilePath.c_str(), MZ_OPEN_MODE_READ) != MZ_OK) {
+	if (mz_stream_os_open(this->streamHandle, path.data(), MZ_OPEN_MODE_READ) != MZ_OK) {
 		return false;
 	}
 	this->streamOpen = true;
