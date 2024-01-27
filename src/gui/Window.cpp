@@ -30,7 +30,8 @@
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
-#include "dialogs/VPKPropertiesDialog.h"
+#include "dialogs/NewVPKOptionsDialog.h"
+#include "dialogs/PackFileOptionsDialog.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -243,12 +244,15 @@ Window::Window(QWidget* parent)
     debugMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
-    debugMenu->addAction("New VPK Dialog", [this] {
-        (void) VPKPropertiesDialog::getVPKProperties(false, 2, true, this);
+    debugMenu->addAction("New VPK Options Dialog", [this] {
+        (void) NewVPKOptionsDialog::getNewVPKOptions({}, false, this);
     });
-    debugMenu->addAction("Set VPK Version Dialog", [this] {
-        (void) VPKPropertiesDialog::getVPKProperties(true, 2, true, this);
+    debugMenu->addAction("PackFile Options Dialog [VPK]", [this] {
+        (void) PackFileOptionsDialog::getPackFileOptions(PackFileType::VPK, {}, this);
     });
+	debugMenu->addAction("PackFile Options Dialog [ZIP/BSP]", [this] {
+		(void) PackFileOptionsDialog::getPackFileOptions(PackFileType::ZIP, {}, this);
+	});
 #endif
 
     // Call after the menu is created, it controls the visibility of the save button
@@ -317,11 +321,11 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-	auto vpkOptions = VPKPropertiesDialog::getVPKProperties(false, 2, false, this);
+	auto vpkOptions = NewVPKOptionsDialog::getNewVPKOptions({}, false, this);
 	if (!vpkOptions) {
 		return;
 	}
-	auto [version, singleFile] = *vpkOptions;
+	auto [options, singleFile] = *vpkOptions;
 
     auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, tr("Use This Folder"), startPath) : "";
     if (fromDirectory && dirPath.isEmpty()) {
@@ -350,8 +354,8 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	    auto* worker = new CreateVPKFromDirWorker();
 	    worker->moveToThread(this->createVPKFromDirWorkerThread);
 		// Cringe compiler moment in the lambda capture list
-	    QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, version_=version] {
-		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, { .vpk_version = version_ });
+	    QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, options_=options] {
+		    worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, options_);
 	    });
 	    QObject::connect(worker, &CreateVPKFromDirWorker::taskFinished, this, [this, vpkPath] {
 		    // Kill thread
@@ -366,7 +370,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	    });
 	    this->createVPKFromDirWorkerThread->start();
     } else {
-        (void) VPK::createEmpty(vpkPath.toStdString(), { .vpk_version = version });
+        (void) VPK::createEmpty(vpkPath.toStdString(), options);
 	    this->loadPackFile(vpkPath);
     }
 }
@@ -472,13 +476,15 @@ void Window::checkForNewUpdate() const {
 }
 
 void Window::setProperties() {
-	auto* properVPKPointer = dynamic_cast<VPK*>(this->packFile.get());
-    auto vpkOptions = VPKPropertiesDialog::getVPKProperties(true, properVPKPointer->getVersion(), false, this);
-    if (!vpkOptions) {
+    auto options = PackFileOptionsDialog::getPackFileOptions(this->packFile->getType(), this->packFile->getOptions(), this);
+    if (!options) {
         return;
     }
-    auto [version, singleFile] = *vpkOptions;
-    properVPKPointer->setVersion(version);
+
+	if (this->packFile->getType() == PackFileType::VPK) {
+		auto* properVPKPointer = dynamic_cast<VPK*>(this->packFile.get());
+		properVPKPointer->setVersion(options->vpk_version);
+	}
 
 	this->resetStatusBar();
 

@@ -33,7 +33,6 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 	this->useArchiveVPK = nullptr;
 	this->preloadBytes = nullptr;
 	this->useCompression = nullptr;
-
 	if (advancedFileProps) {
 		if (type == PackFileType::VPK) {
 			auto* useArchiveVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
