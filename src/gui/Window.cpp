@@ -216,18 +216,30 @@ Window::Window(QWidget* parent)
 #ifdef QT_DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
-    debugMenu->addAction("New Entry Dialog (File)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(false, false, "test", true, true, 0, this);
+    debugMenu->addAction("New Entry Dialog (File) [VPK]", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("New Entry Dialog (Dir)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(false, true, "test", true, true, 0, this);
+    debugMenu->addAction("New Entry Dialog (Dir) [VPK]", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("Edit Entry Dialog (File)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(true, false, "test", true, true, 0, this);
+    debugMenu->addAction("Edit Entry Dialog (File) [VPK]", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("Edit Entry Dialog (Dir)", [this] {
-        (void) EntryOptionsDialog::getEntryOptions(true, true, "test", true, true, 0, this);
+    debugMenu->addAction("Edit Entry Dialog (Dir) [VPK]", [this] {
+        (void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::VPK, {}, this);
     });
+	debugMenu->addAction("New Entry Dialog (File) [ZIP/BSP]", [this] {
+		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::ZIP, {}, this);
+	});
+	debugMenu->addAction("New Entry Dialog (Dir) [ZIP/BSP]", [this] {
+		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::ZIP, {}, this);
+	});
+	debugMenu->addAction("Edit Entry Dialog (File) [ZIP/BSP]", [this] {
+		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::ZIP, {}, this);
+	});
+	debugMenu->addAction("Edit Entry Dialog (Dir) [ZIP/BSP]", [this] {
+		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::ZIP, {}, this);
+	});
     debugMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
@@ -526,21 +538,19 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
     prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
 
 	QString entryPath = prefilledPath.toLower();
-	bool useArchiveVPK = false;
-	std::uint32_t preloadBytes = 0;
+	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, this->packFile->getType() == PackFileType::VPK, false, 0, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, this->packFile->getType(), {}, this);
 		if (!newEntryOptions) {
 			return;
 		}
 		entryPath = std::get<0>(*newEntryOptions);
-		useArchiveVPK = std::get<1>(*newEntryOptions);
-		preloadBytes = std::get<2>(*newEntryOptions);
+		options = std::get<1>(*newEntryOptions);
 	}
 
 	this->packFile->removeEntry(entryPath.toStdString());
-	this->packFile->addEntry(entryPath.toStdString(), filepath.toStdString(), { .vpk_saveToDirectory = !useArchiveVPK, .vpk_preloadBytes = preloadBytes });
+	this->packFile->addEntry(entryPath.toStdString(), filepath.toStdString(), options);
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(*this->packFile, entryPath);
 	this->markModified(true);
@@ -562,17 +572,15 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     prefilledPath += std::filesystem::path(dirpath.toStdString()).filename().string().c_str();
 
 	QString parentEntryPath = prefilledPath.toLower();
-	bool useArchiveVPK = false;
-	std::uint32_t preloadBytes = 0;
+	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, this->packFile->getType() == PackFileType::VPK, false, 0, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, this->packFile->getType(), {}, this);
 		if (!newEntryOptions) {
 			return;
 		}
 		parentEntryPath = std::get<0>(*newEntryOptions);
-		useArchiveVPK = std::get<1>(*newEntryOptions);
-		preloadBytes = std::get<2>(*newEntryOptions);
+		options = std::get<1>(*newEntryOptions);
 	}
 
     QDirIterator it(dirpath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
@@ -580,10 +588,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
         QString subEntryPathFS = it.next().toLower();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
 	    this->packFile->removeEntry(subEntryPath.toStdString());
-        this->packFile->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), {
-			.vpk_saveToDirectory = !useArchiveVPK,
-			.vpk_preloadBytes = preloadBytes,
-		});
+        this->packFile->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), options);
         this->entryTree->addEntry(subEntryPath);
         this->fileViewer->addEntry(*this->packFile, subEntryPath);
     }
@@ -622,20 +627,17 @@ void Window::editFile(const QString& oldPath) {
     }
 
     // Get new properties
-    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType() == PackFileType::VPK, entry->vpk_archiveIndex != VPK_DIR_INDEX, static_cast<unsigned int>(entry->vpk_preloadedData.size()), this);
+    const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType(), {}, this);
     if (!options) {
         return;
     }
-    const auto [newPath, useArchiveDir, preloadedBytes] = *options;
+    const auto [newPath, entryOptions] = *options;
 
     // Remove file
     this->requestEntryRemoval(oldPath);
 
     // Add new file with the same info and data at the new path
-    this->packFile->addEntry(newPath.toStdString(), std::move(data.value()), {
-		.vpk_saveToDirectory = !useArchiveDir,
-		.vpk_preloadBytes = preloadedBytes,
-	});
+    this->packFile->addEntry(newPath.toStdString(), std::move(data.value()), entryOptions);
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
 	this->markModified(true);
