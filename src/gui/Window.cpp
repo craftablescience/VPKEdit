@@ -859,7 +859,7 @@ void Window::extractAll(QString saveDir) {
         return;
     }
     saveDir += '/';
-    saveDir += this->packFile->getFilename().c_str();
+    saveDir += this->packFile->getFilestem().c_str();
 
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }

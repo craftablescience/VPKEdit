@@ -48,7 +48,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		.vpk_preferredChunkSize = preferredChunkSize,
 		.vpk_generateMD5Entries = generateMD5Entries,
 	});
-	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << ".vpk\"" << std::endl;
+	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << std::endl;
 }
 
 } // namespace
