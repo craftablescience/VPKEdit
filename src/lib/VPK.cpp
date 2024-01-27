@@ -612,6 +612,7 @@ void VPK::setVersion(std::uint32_t version) {
         return;
     }
     this->header1.version = version;
+	this->options.vpk_version = version;
 
     // Clearing these isn't necessary, but might as well
     this->header2 = Header2{};
