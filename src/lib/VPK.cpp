@@ -112,7 +112,7 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
 	auto* vpk = new VPK{path, options};
     auto packFile = std::unique_ptr<PackFile>(vpk);
 
-    vpk->reader.seek_input(0);
+    vpk->reader.seekInput(0);
     vpk->reader.read(vpk->header1);
     if (vpk->header1.signature != VPK_ID) {
         // File is not a VPK
@@ -181,7 +181,7 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
                 }
 
                 if (preloadedDataSize > 0) {
-                    entry.vpk_preloadedData = vpk->reader.read_bytes(preloadedDataSize);
+                    entry.vpk_preloadedData = vpk->reader.readBytes(preloadedDataSize);
                     entry.length += preloadedDataSize;
                 }
 
@@ -206,7 +206,7 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
         return packFile;
 
     // Skip over file data, if any
-    vpk->reader.seek_input(vpk->header2.fileDataSectionSize, std::ios_base::cur);
+    vpk->reader.seekInput(vpk->header2.fileDataSectionSize, std::ios_base::cur);
 
     if (vpk->header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
         return nullptr;
@@ -220,9 +220,9 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
 	    // This should always be 48
         return packFile;
 
-	vpk->footer2.treeChecksum = vpk->reader.read_bytes<16>();
-	vpk->footer2.md5EntriesChecksum = vpk->reader.read_bytes<16>();
-	vpk->footer2.wholeFileChecksum = vpk->reader.read_bytes<16>();
+	vpk->footer2.treeChecksum = vpk->reader.readBytes<16>();
+	vpk->footer2.md5EntriesChecksum = vpk->reader.readBytes<16>();
+	vpk->footer2.wholeFileChecksum = vpk->reader.readBytes<16>();
 
     if (!vpk->header2.signatureSectionSize) {
         return packFile;
@@ -234,8 +234,8 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
         return packFile;
     }
 
-    vpk->footer2.publicKey = vpk->reader.read_bytes(publicKeySize);
-    vpk->footer2.signature = vpk->reader.read_bytes(vpk->reader.read<std::int32_t>());
+    vpk->footer2.publicKey = vpk->reader.readBytes(publicKeySize);
+    vpk->footer2.signature = vpk->reader.readBytes(vpk->reader.read<std::int32_t>());
 
     return packFile;
 }
@@ -274,8 +274,8 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
         if (!stream) {
             return std::nullopt;
         }
-        stream.seek_input(entry.vpk_offset);
-        auto bytes = stream.read_bytes(entry.length - entry.vpk_preloadedData.size());
+        stream.seekInput(entry.vpk_offset);
+        auto bytes = stream.readBytes(entry.length - entry.vpk_preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.vpk_preloadedData.size()));
     } else {
 		// Stored in this directory VPK
@@ -283,8 +283,8 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
         if (!stream) {
             return std::nullopt;
         }
-        stream.seek_input(this->getHeaderLength() + this->header1.treeSize + entry.vpk_offset);
-        auto bytes = stream.read_bytes(entry.length - entry.vpk_preloadedData.size());
+        stream.seekInput(this->getHeaderLength() + this->header1.treeSize + entry.vpk_offset);
+        auto bytes = stream.readBytes(entry.length - entry.vpk_preloadedData.size());
         std::copy(bytes.begin(), bytes.end(), output.begin() + static_cast<long long>(entry.vpk_preloadedData.size()));
     }
 
@@ -430,8 +430,8 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
     // Dummy header
-    outDir.seek_input(0);
-    outDir.seek_output(0);
+    outDir.seekInput(0);
+    outDir.seekOutput(0);
     outDir.write(&this->header1);
     if (this->header1.version == 2) {
         outDir.write(&this->header2);
@@ -465,7 +465,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 						entry->vpk_offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
 
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
-                        stream.write_unsafe(entryData.data(), entryData.size());
+                        stream.write(entryData.data(), entryData.size());
                     } else {
                         entry->vpk_offset = dirVPKEntryData.size();
                         dirVPKEntryData.insert(dirVPKEntryData.end(), entryData.data(), entryData.data() + entryData.size());
@@ -482,7 +482,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
                 outDir.write(VPK_ENTRY_TERM);
 
                 if (!entry->vpk_preloadedData.empty()) {
-                    outDir.write_bytes(entry->vpk_preloadedData);
+                    outDir.writeBytes(entry->vpk_preloadedData);
                 }
 
 				if (callback) {
@@ -497,7 +497,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 
     // Put files copied from the dir archive back
     if (!dirVPKEntryData.empty()) {
-        outDir.write_bytes(dirVPKEntryData);
+        outDir.writeBytes(dirVPKEntryData);
     }
 
     // Merge unbaked into baked entries
@@ -513,7 +513,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     this->unbakedEntries.clear();
 
     // Calculate Header1
-    this->header1.treeSize = outDir.tell_output() - dirVPKEntryData.size() - this->getHeaderLength();
+    this->header1.treeSize = outDir.tellOutput() - dirVPKEntryData.size() - this->getHeaderLength();
 
     // VPK v2 stuff
     if (this->header1.version != 1) {
@@ -551,8 +551,8 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
             wholeFileChecksumMD5.update(reinterpret_cast<const std::byte*>(&this->header2), sizeof(Header2));
         }
         {
-            outDir.seek_input(sizeof(Header1) + sizeof(Header2));
-            std::vector<std::byte> treeData = outDir.read_bytes(this->header1.treeSize);
+            outDir.seekInput(sizeof(Header1) + sizeof(Header2));
+            std::vector<std::byte> treeData = outDir.readBytes(this->header1.treeSize);
             wholeFileChecksumMD5.update(treeData.data(), treeData.size());
             this->footer2.treeChecksum = md5(treeData);
         }
@@ -573,7 +573,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     }
 
     // Write new headers
-    outDir.seek_output(0);
+    outDir.seekOutput(0);
     outDir.write(&this->header1);
 
     // v2 adds the MD5 hashes and file signature
@@ -584,11 +584,11 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     outDir.write(&this->header2);
 
     // Add MD5 hashes
-    outDir.seek_output(sizeof(Header1) + sizeof(Header2) + this->header1.treeSize + dirVPKEntryData.size());
-    outDir.write_unsafe(this->md5Entries.data(), this->md5Entries.size());
-    outDir.write_bytes(this->footer2.treeChecksum);
-    outDir.write_bytes(this->footer2.md5EntriesChecksum);
-    outDir.write_bytes(this->footer2.wholeFileChecksum);
+    outDir.seekOutput(sizeof(Header1) + sizeof(Header2) + this->header1.treeSize + dirVPKEntryData.size());
+    outDir.write(this->md5Entries.data(), this->md5Entries.size());
+    outDir.writeBytes(this->footer2.treeChecksum);
+    outDir.writeBytes(this->footer2.md5EntriesChecksum);
+    outDir.writeBytes(this->footer2.wholeFileChecksum);
 
     // The signature section is not present
     return true;
