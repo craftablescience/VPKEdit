@@ -1003,17 +1003,18 @@ bool Window::loadPackFile(const QString& path) {
         return false;
     }
 
-	// Add VPK to recent paths
-	if (!recentPaths.contains(fixedPath)) {
-		recentPaths.push_front(fixedPath);
+	// Add to recent paths
+	QString loadedPath{this->packFile->getFilepath().data()};
+	if (!recentPaths.contains(loadedPath)) {
+		recentPaths.push_front(loadedPath);
 		if (recentPaths.size() > 10) {
 			recentPaths.pop_back();
 		}
 		Options::set(STR_OPEN_RECENT, recentPaths);
 		this->rebuildOpenRecentMenu(recentPaths);
-	} else if (auto pathIndex = recentPaths.indexOf(fixedPath); pathIndex > 0) {
+	} else if (auto pathIndex = recentPaths.indexOf(loadedPath); pathIndex > 0) {
 		recentPaths.remove(pathIndex);
-		recentPaths.push_front(fixedPath);
+		recentPaths.push_front(loadedPath);
 		Options::set(STR_OPEN_RECENT, recentPaths);
 		this->rebuildOpenRecentMenu(recentPaths);
 	}
