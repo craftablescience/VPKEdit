@@ -40,7 +40,7 @@ NewVPKOptionsDialog::NewVPKOptionsDialog(PackFileOptions options, bool singleFil
 		this->preferredChunkSize = new QSpinBox(this);
 		this->preferredChunkSize->setMinimum(1); // 1mb
 		this->preferredChunkSize->setMaximum(4000); // 4gb
-		this->preferredChunkSize->setValue(static_cast<int>(options.vpk_preferredChunkSize));
+		this->preferredChunkSize->setValue(static_cast<int>(options.vpk_preferredChunkSize / 1024 / 1024));
 		layout->addRow(preferredChunkSizeLabel, this->preferredChunkSize);
 
 		auto* generateMD5EntriesLabel = new QLabel(tr("Generate per-file MD5 entries:"), this);
@@ -65,7 +65,7 @@ NewVPKOptionsDialog::NewVPKOptionsDialog(PackFileOptions options, bool singleFil
 PackFileOptions NewVPKOptionsDialog::getPackFileOptions() const {
 	return {
 		.vpk_version = static_cast<std::uint32_t>(this->version->currentIndex() + 1), // VPK v1, v2
-		.vpk_preferredChunkSize = this->preferredChunkSize ? this->preferredChunkSize->value() : VPK_DEFAULT_CHUNK_SIZE,
+		.vpk_preferredChunkSize = this->preferredChunkSize ? this->preferredChunkSize->value() * 1024 * 1024 : VPK_DEFAULT_CHUNK_SIZE,
 		.vpk_generateMD5Entries = this->generateMD5Entries && this->version->currentIndex() > 0 && this->generateMD5Entries->isChecked(),
 	};
 }
