@@ -79,6 +79,8 @@ public:
 protected:
     VPK(const std::string& fullFilePath_, PackFileOptions options_);
 
+	[[nodiscard]] static std::unique_ptr<PackFile> openInternal(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
+
 	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 	[[nodiscard]] std::uint32_t getHeaderLength() const;
@@ -95,14 +97,8 @@ protected:
     std::vector<MD5Entry> md5Entries;
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vpk", [](const std::string& path, PackFileOptions options, const Callback& callback) {
-		auto vpk = VPK::open(path, options, callback);
-		if (!vpk && path.length() > 8) {
-			// If it just tried to load a numbered archive, let's try to load the directory VPK
-			vpk = VPK::open(path.substr(0, path.length() - 8) + "_dir.vpk", options, callback);
-		}
-		return vpk;
-	});
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vpk", &VPK::open);
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vmap_c", &VPK::open);
 };
 
 } // namespace vpkedit
