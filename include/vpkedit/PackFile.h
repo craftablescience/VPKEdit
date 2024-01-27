@@ -9,15 +9,9 @@
 
 #include "Entry.h"
 #include "Options.h"
+#include "PackFileType.h"
 
 namespace vpkedit {
-
-enum class PackFileType {
-	GENERIC,
-	VPK,
-	BSP,
-	ZIP,
-};
 
 class PackFile {
 public:
