@@ -98,7 +98,6 @@ protected:
 
 private:
 	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vpk", &VPK::open);
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vmap_c", &VPK::open);
 };
 
 } // namespace vpkedit
