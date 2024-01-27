@@ -116,5 +116,9 @@ protected:
 
 } // namespace vpkedit
 
+#define VPKEDIT_HELPER_CONCAT_INNER(a, b) a ## b
+#define VPKEDIT_HELPER_CONCAT(a, b) VPKEDIT_HELPER_CONCAT_INNER(a, b)
+#define VPKEDIT_HELPER_UNIQUE_NAME(base) VPKEDIT_HELPER_CONCAT(base, __LINE__)
+
 #define VPKEDIT_REGISTER_PACKFILE_EXTENSION(extension, function) \
-	static inline auto packFileTypeFactoryFunction ## __LINE__ = PackFile::registerExtensionForTypeFactory(extension, function)
+	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileTypeFactoryFunction) = PackFile::registerExtensionForTypeFactory(extension, function)
