@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <utility>
 #include <tuple>
 
@@ -12,7 +13,7 @@ constexpr std::uint32_t VPK_ID = 0x55aa1234;
 constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
 constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 
-class VPK final : public PackFile {
+class VPK : public PackFile {
 #pragma pack(push, 1)
     struct Header1 {
         std::uint32_t signature;
@@ -63,11 +64,11 @@ public:
     /// Open a directory VPK file
     [[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
-    [[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const final;
+    [[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
-    bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) final;
+    bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
-	[[nodiscard]] std::string getTruncatedFilestem() const final;
+	[[nodiscard]] std::string getTruncatedFilestem() const override;
 
     /// Returns 1 for v1, 2 for v2
     [[nodiscard]] std::uint32_t getVersion() const;
@@ -78,7 +79,9 @@ public:
 protected:
     VPK(const std::string& fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
+	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+
+	[[nodiscard]] std::uint32_t getHeaderLength() const;
 
 	detail::FileStream reader;
 
@@ -92,8 +95,6 @@ protected:
     std::vector<MD5Entry> md5Entries;
 
 private:
-	[[nodiscard]] std::uint32_t getHeaderLength() const;
-
 	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".vpk", [](const std::string& path, PackFileOptions options, const Callback& callback) {
 		auto vpk = VPK::open(path, options, callback);
 		if (!vpk && path.length() > 8) {
