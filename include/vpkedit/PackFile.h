@@ -31,6 +31,9 @@ public:
 	/// Get the file type of the pack file
 	[[nodiscard]] PackFileType getType() const;
 
+	/// Get the current options of the pack file
+	[[nodiscard]] PackFileOptions getOptions() const;
+
 	/// Try to find an entry given the file path
 	[[nodiscard]] std::optional<Entry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
 

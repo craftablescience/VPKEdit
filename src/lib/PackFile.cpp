@@ -28,6 +28,10 @@ PackFileType PackFile::getType() const {
 	return this->type;
 }
 
+PackFileOptions PackFile::getOptions() const {
+	return this->options;
+}
+
 std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool includeUnbaked) const {
 	auto filename = filename_;
 	::normalizeSlashes(filename);
