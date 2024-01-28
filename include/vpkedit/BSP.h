@@ -10,7 +10,7 @@ namespace vpkedit {
 
 constexpr std::int32_t BSP_ID = 'V' + ('B' << 8) + ('S' << 16) + ('P' << 24);
 constexpr std::int32_t BSP_LUMP_COUNT = 64;
-constexpr std::int32_t BSP_LUMP_PACK_INDEX = 40;
+constexpr std::int32_t BSP_LUMP_PAKFILE_INDEX = 40;
 
 class BSP : public ZIP {
 #pragma pack(push, 1)
@@ -45,6 +45,9 @@ public:
 
 protected:
 	BSP(const std::string& fullFilePath_, PackFileOptions options_);
+
+	/// If the lump is too big where it is, shift it to the end of the file, otherwise its fine
+	void moveLumpToWritableSpace(int lumpToMove, int newSize);
 
 	static const std::string BSP_TEMP_ZIP_PATH;
 

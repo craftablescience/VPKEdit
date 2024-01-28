@@ -42,7 +42,7 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 	bsp->reader.read(bsp->header.lumps);
 	bsp->reader.read(bsp->header.mapRevision);
 
-	if (bsp->header.lumps[BSP_LUMP_PACK_INDEX].offset == 0 || bsp->header.lumps[BSP_LUMP_PACK_INDEX].length == 0) {
+	if (bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset == 0 || bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length == 0) {
 		// No paklump, create an empty zip
 		void* writeStreamHandle = mz_stream_os_create();
 		if (mz_stream_os_open(writeStreamHandle, BSP::BSP_TEMP_ZIP_PATH.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
@@ -62,8 +62,8 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		mz_stream_os_delete(&writeStreamHandle);
 	} else {
 		// Extract the paklump to a temp dir
-		bsp->reader.seekInput(bsp->header.lumps[BSP_LUMP_PACK_INDEX].offset);
-		auto binData = bsp->reader.readBytes(bsp->header.lumps[BSP_LUMP_PACK_INDEX].length);
+		bsp->reader.seekInput(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
+		auto binData = bsp->reader.readBytes(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length);
 
 		FileStream writer{BSP::BSP_TEMP_ZIP_PATH, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 		writer.writeBytes(binData);
@@ -118,10 +118,33 @@ bool BSP::bake(const std::string& outputFolder_, const Callback& callback) {
 		return false;
 	}
 
+	// Write the pakfile lump
+	{
+		auto binData = ::readFileData(ZIP::TEMP_ZIP_PATH);
+		this->moveLumpToWritableSpace(BSP_LUMP_PAKFILE_INDEX, static_cast<int>(binData.size()));
+
+		FileStream writer{this->fullFilePath, FILESTREAM_OPT_WRITE};
+		writer.write(this->header.signature);
+		writer.write(this->header.version);
+		writer.write(this->header.lumps);
+		writer.write(this->header.mapRevision);
+		writer.seekOutput(this->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
+		writer.writeBytes(binData);
+	}
+
+	// Close our ZIP and reopen it
+	this->closeZIP();
+	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, BSP::BSP_TEMP_ZIP_PATH);
+	return this->openZIP(BSP::BSP_TEMP_ZIP_PATH);
+}
+
+void BSP::moveLumpToWritableSpace(int lumpToMove, int newSize) {
+	this->header.lumps[lumpToMove].length = newSize;
+
 	// If the zip is at the end of the file we just overwrite it, otherwise we have to shift some lumps over
 	std::vector<int> lumpsAfterPaklumpIndices;
 	for (int i = 0; i < this->header.lumps.size(); i++) {
-		if (this->header.lumps[i].offset > this->header.lumps[BSP_LUMP_PACK_INDEX].offset) {
+		if (this->header.lumps[i].offset > this->header.lumps[lumpToMove].offset) {
 			lumpsAfterPaklumpIndices.push_back(i);
 		}
 	}
@@ -140,7 +163,7 @@ bool BSP::bake(const std::string& outputFolder_, const Callback& callback) {
 		// Get where to move it
 		int lastLumpBeforePaklumpOffset = 0, lastLumpBeforePaklumpLength = 0;
 		for (const Lump& lump : this->header.lumps) {
-			if (lump.offset < this->header.lumps[BSP_LUMP_PACK_INDEX].offset && lump.offset > lastLumpBeforePaklumpOffset) {
+			if (lump.offset < this->header.lumps[lumpToMove].offset && lump.offset > lastLumpBeforePaklumpOffset) {
 				lastLumpBeforePaklumpOffset = lump.offset;
 				lastLumpBeforePaklumpLength = lump.length;
 			}
@@ -155,27 +178,8 @@ bool BSP::bake(const std::string& outputFolder_, const Callback& callback) {
 
 		// Fix the offsets
 		for (int lumpIndex : lumpsAfterPaklumpIndices) {
-			this->header.lumps[lumpIndex].offset -= this->header.lumps[BSP_LUMP_PACK_INDEX].length;
+			this->header.lumps[lumpIndex].offset -= newSize;
 		}
-		this->header.lumps[BSP_LUMP_PACK_INDEX].offset = lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength + static_cast<int>(lumpsData.size());
+		this->header.lumps[lumpToMove].offset = lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength + static_cast<int>(lumpsData.size());
 	}
-
-	// Write the pakfile lump
-	{
-		auto binData = ::readFileData(ZIP::TEMP_ZIP_PATH);
-		this->header.lumps[BSP_LUMP_PACK_INDEX].length = static_cast<int>(binData.size());
-
-		FileStream writer{this->fullFilePath, FILESTREAM_OPT_WRITE};
-		writer.write(this->header.signature);
-		writer.write(this->header.version);
-		writer.write(this->header.lumps);
-		writer.write(this->header.mapRevision);
-		writer.seekOutput(this->header.lumps[BSP_LUMP_PACK_INDEX].offset);
-		writer.writeBytes(binData);
-	}
-
-	// Close our ZIP and reopen it
-	this->closeZIP();
-	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, BSP::BSP_TEMP_ZIP_PATH);
-	return this->openZIP(BSP::BSP_TEMP_ZIP_PATH);
 }
