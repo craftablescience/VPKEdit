@@ -51,5 +51,5 @@ See [the open issues on this repository marked as an enhancement](https://github
 ## Backend
 
 This tool is powered by an open-source pack file editing library, libvpkedit. This library's code is stored in this same repository,
-written in C++17 and also under the MIT license. Its code was initially based off of [ValvePak](https://github.com/SteamDatabase/ValvePak)
+written in C++20 and also under the MIT license. Its code was initially based off of [ValvePak](https://github.com/SteamDatabase/ValvePak)
 and the Valve Developer Wiki (see [the credits](https://github.com/craftablescience/VPKEdit/blob/main/CREDITS.md) for more information).
