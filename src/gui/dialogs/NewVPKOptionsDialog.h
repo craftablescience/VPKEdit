@@ -14,11 +14,11 @@ class NewVPKOptionsDialog : public QDialog {
     Q_OBJECT;
 
 public:
-    explicit NewVPKOptionsDialog(vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
+    explicit NewVPKOptionsDialog(bool fromDirectory, vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
 
 	[[nodiscard]] vpkedit::PackFileOptions getPackFileOptions() const;
 
-    static std::optional<std::tuple<vpkedit::PackFileOptions, bool>> getNewVPKOptions(vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
+    static std::optional<std::tuple<vpkedit::PackFileOptions, bool>> getNewVPKOptions(bool fromDirectory, vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
 
 private:
     QComboBox* version;

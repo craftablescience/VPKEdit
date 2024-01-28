@@ -217,40 +217,45 @@ Window::Window(QWidget* parent)
 #ifdef QT_DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu("&Debug");
-    debugMenu->addAction("New Entry Dialog (File) [VPK]", [this] {
+
+	auto* debugDialogsMenu = debugMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), "&Dialogs");
+    debugDialogsMenu->addAction("New Entry Dialog (File) [VPK]", [this] {
         (void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("New Entry Dialog (Dir) [VPK]", [this] {
+    debugDialogsMenu->addAction("New Entry Dialog (Dir) [VPK]", [this] {
         (void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("Edit Entry Dialog (File) [VPK]", [this] {
+    debugDialogsMenu->addAction("Edit Entry Dialog (File) [VPK]", [this] {
         (void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::VPK, {}, this);
     });
-    debugMenu->addAction("Edit Entry Dialog (Dir) [VPK]", [this] {
+    debugDialogsMenu->addAction("Edit Entry Dialog (Dir) [VPK]", [this] {
         (void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::VPK, {}, this);
     });
-	debugMenu->addAction("New Entry Dialog (File) [ZIP/BSP]", [this] {
+	debugDialogsMenu->addAction("New Entry Dialog (File) [ZIP/BSP]", [this] {
 		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::ZIP, {}, this);
 	});
-	debugMenu->addAction("New Entry Dialog (Dir) [ZIP/BSP]", [this] {
+	debugDialogsMenu->addAction("New Entry Dialog (Dir) [ZIP/BSP]", [this] {
 		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::ZIP, {}, this);
 	});
-	debugMenu->addAction("Edit Entry Dialog (File) [ZIP/BSP]", [this] {
+	debugDialogsMenu->addAction("Edit Entry Dialog (File) [ZIP/BSP]", [this] {
 		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::ZIP, {}, this);
 	});
-	debugMenu->addAction("Edit Entry Dialog (Dir) [ZIP/BSP]", [this] {
+	debugDialogsMenu->addAction("Edit Entry Dialog (Dir) [ZIP/BSP]", [this] {
 		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::ZIP, {}, this);
 	});
-    debugMenu->addAction("New Update Dialog", [this] {
+    debugDialogsMenu->addAction("New Update Dialog", [this] {
         NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
     });
-    debugMenu->addAction("New VPK Options Dialog", [this] {
-        (void) NewVPKOptionsDialog::getNewVPKOptions({}, false, this);
+    debugDialogsMenu->addAction("Create Empty VPK Options Dialog", [this] {
+        (void) NewVPKOptionsDialog::getNewVPKOptions(false, {}, false, this);
     });
-    debugMenu->addAction("PackFile Options Dialog [VPK]", [this] {
+	debugDialogsMenu->addAction("Create VPK From Folder Options Dialog", [this] {
+		(void) NewVPKOptionsDialog::getNewVPKOptions(true, {}, false, this);
+	});
+    debugDialogsMenu->addAction("PackFile Options Dialog [VPK]", [this] {
         (void) PackFileOptionsDialog::getPackFileOptions(PackFileType::VPK, {}, this);
     });
-	debugMenu->addAction("PackFile Options Dialog [ZIP/BSP]", [this] {
+	debugDialogsMenu->addAction("PackFile Options Dialog [ZIP/BSP]", [this] {
 		(void) PackFileOptionsDialog::getPackFileOptions(PackFileType::ZIP, {}, this);
 	});
 #endif
@@ -321,7 +326,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-	auto vpkOptions = NewVPKOptionsDialog::getNewVPKOptions({}, false, this);
+	auto vpkOptions = NewVPKOptionsDialog::getNewVPKOptions(fromDirectory, {}, false, this);
 	if (!vpkOptions) {
 		return;
 	}

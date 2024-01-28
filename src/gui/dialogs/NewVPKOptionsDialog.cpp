@@ -12,7 +12,7 @@
 
 using namespace vpkedit;
 
-NewVPKOptionsDialog::NewVPKOptionsDialog(PackFileOptions options, bool singleFile, QWidget* parent)
+NewVPKOptionsDialog::NewVPKOptionsDialog(bool fromDirectory, PackFileOptions options, bool singleFile, QWidget* parent)
         : QDialog(parent) {
 	const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
@@ -28,10 +28,13 @@ NewVPKOptionsDialog::NewVPKOptionsDialog(PackFileOptions options, bool singleFil
     this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
     layout->addRow(versionLabel, this->version);
 
-	auto* singleFileLabel = new QLabel(tr("Save to single file:\nBreaks the VPK if its size will be >= 4gb!"), this);
-	this->singleFile = new QCheckBox(this);
-	this->singleFile->setChecked(singleFile);
-	layout->addRow(singleFileLabel, this->singleFile);
+	this->singleFile = nullptr;
+	if (fromDirectory) {
+		auto* singleFileLabel = new QLabel(tr("Save to single file:\nBreaks the VPK if its size will be >= 4gb!"), this);
+		this->singleFile = new QCheckBox(this);
+		this->singleFile->setChecked(singleFile);
+		layout->addRow(singleFileLabel, this->singleFile);
+	}
 
 	this->preferredChunkSize = nullptr;
 	this->generateMD5Entries = nullptr;
@@ -70,8 +73,8 @@ PackFileOptions NewVPKOptionsDialog::getPackFileOptions() const {
 	};
 }
 
-std::optional<std::tuple<PackFileOptions, bool>> NewVPKOptionsDialog::getNewVPKOptions(PackFileOptions options, bool singleFile, QWidget* parent) {
-    auto* dialog = new NewVPKOptionsDialog(options, singleFile, parent);
+std::optional<std::tuple<PackFileOptions, bool>> NewVPKOptionsDialog::getNewVPKOptions(bool fromDirectory, PackFileOptions options, bool singleFile, QWidget* parent) {
+    auto* dialog = new NewVPKOptionsDialog(fromDirectory, options, singleFile, parent);
     int ret = dialog->exec();
 	dialog->deleteLater();
     if (ret != QDialog::Accepted) {
