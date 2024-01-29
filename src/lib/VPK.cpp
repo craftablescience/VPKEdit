@@ -493,16 +493,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     }
 
     // Merge unbaked into baked entries
-    for (auto& [tDir, tUnbakedEntriesAndData] : this->unbakedEntries) {
-        for (Entry& tUnbakedEntry : tUnbakedEntriesAndData) {
-            if (!this->entries.contains(tDir)) {
-                this->entries[tDir] = {};
-            }
-            tUnbakedEntry.unbaked = false;
-            this->entries.at(tDir).push_back(tUnbakedEntry);
-        }
-    }
-    this->unbakedEntries.clear();
+	this->mergeUnbakedEntries();
 
     // Calculate Header1
     this->header1.treeSize = outDir.tellOutput() - dirVPKEntryData.size() - this->getHeaderLength();

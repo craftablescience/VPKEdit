@@ -95,6 +95,8 @@ protected:
 
 	[[nodiscard]] std::string getBakeOutputDir(const std::string& outputDir) const;
 
+	void mergeUnbakedEntries();
+
 	void setFullFilePath(const std::string& outputDir);
 
 	[[nodiscard]] static Entry createNewEntry();

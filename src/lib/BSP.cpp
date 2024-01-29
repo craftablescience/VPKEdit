@@ -121,6 +121,7 @@ bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
 	if (!this->bakeTempZip(ZIP::TEMP_ZIP_PATH, callback)) {
 		return false;
 	}
+	this->mergeUnbakedEntries();
 
 	// Write the pakfile lump
 	{

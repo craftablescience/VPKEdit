@@ -142,6 +142,7 @@ bool ZIP::bake(const std::string& outputDir_, const Callback& callback) {
 	if (!this->bakeTempZip(ZIP::TEMP_ZIP_PATH, callback)) {
 		return false;
 	}
+	this->mergeUnbakedEntries();
 
 	// Close our ZIP and reopen it
 	this->closeZIP();

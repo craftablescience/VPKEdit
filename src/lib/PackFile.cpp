@@ -215,6 +215,25 @@ std::string PackFile::getBakeOutputDir(const std::string& outputDir) const {
 	return out;
 }
 
+void PackFile::mergeUnbakedEntries() {
+	for (auto& [dir, unbakedEntriesAndData] : this->unbakedEntries) {
+		for (Entry& unbakedEntry : unbakedEntriesAndData) {
+			if (!this->entries.contains(dir)) {
+				this->entries[dir] = {};
+			}
+
+			unbakedEntry.unbaked = false;
+
+			// Clear any data that might be stored in it
+			unbakedEntry.unbakedUsingByteBuffer = false;
+			unbakedEntry.unbakedData = "";
+
+			this->entries.at(dir).push_back(unbakedEntry);
+		}
+	}
+	this->unbakedEntries.clear();
+}
+
 void PackFile::setFullFilePath(const std::string& outputDir) {
 	// Assumes PackFile::getBakeOutputDir is the input for outputDir
 	this->fullFilePath = outputDir + '/' + this->getFilename();
