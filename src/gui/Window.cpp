@@ -1045,7 +1045,7 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 		return;
 	}
 	for (int i = 0; i < paths.size(); i++) {
-		this->openRecentMenu->addAction(("&%1 \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
+		this->openRecentMenu->addAction(("&%1: \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
 			this->loadPackFile(path);
 		});
 	}
