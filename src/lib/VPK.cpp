@@ -341,7 +341,11 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	return this->unbakedEntries.at(dir).back();
 }
 
-bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
+bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
+	// Get the proper file output folder
+	std::string outputDir = this->getBakeOutputDir(outputDir_);
+	std::string outputPath = outputDir + '/' + this->getFilename();
+
     // Reconstruct data so we're not looping over it a ton of times
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Entry*>>> temp;
 
@@ -395,48 +399,27 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
         }
     }
 
-    // Get the file output paths
-    std::string outputFilename = std::filesystem::path(this->fullFilePath).filename().string();
-    std::string outputFolder;
-    if (!outputFolder_.empty()) {
-        outputFolder = outputFolder_;
-        if (outputFolder.at(outputFolder.length() - 1) == '/' || outputFolder.at(outputFolder.length() - 1) == '\\') {
-            outputFolder.pop_back();
-        }
-        this->fullFilePath = outputFolder + '/' + outputFilename;
-    } else {
-        outputFolder = this->fullFilePath;
-        ::normalizeSlashes(outputFolder);
-        auto lastSlash = outputFolder.rfind('/');
-        if (lastSlash != std::string::npos) {
-            outputFolder = this->getTruncatedFilepath().substr(0, lastSlash);
-        } else {
-			outputFolder = "./";
-		}
-    }
-
 	// Helper
 	const auto getArchiveFilename = [](const std::string& filename_, int archiveIndex) {
 		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + ".vpk";
 	};
 
     // Copy external binary blobs to the new dir
-    auto dirVPKFilePath = outputFolder + '/' + outputFilename;
-    if (!outputFolder_.empty()) {
+    if (!outputDir.empty()) {
         for (int archiveIndex = 0; archiveIndex < this->numArchives; archiveIndex++) {
 			auto from = getArchiveFilename(this->getTruncatedFilepath(), archiveIndex);
 	        if (!std::filesystem::exists(from)) {
 		        continue;
 	        }
-	        std::string dest = getArchiveFilename(outputFolder + '/' + this->getTruncatedFilestem(), archiveIndex);
+	        std::string dest = getArchiveFilename(outputDir + '/' + this->getTruncatedFilestem(), archiveIndex);
 			if (from == dest) {
 				continue;
 			}
-			std::filesystem::copy(from, dest, std::filesystem::copy_options::overwrite_existing);
+			std::filesystem::copy_file(from, dest, std::filesystem::copy_options::overwrite_existing);
         }
     }
 
-    FileStream outDir{dirVPKFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+    FileStream outDir{outputPath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
     // Dummy header
     outDir.seekInput(0);
@@ -470,7 +453,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
                         entry->vpk_archiveIndex = VPK_DIR_INDEX;
                         entry->vpk_offset = dirVPKEntryData.size();
                     } else if (entry->vpk_archiveIndex != VPK_DIR_INDEX) {
-						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(dirVPKFilePath), entry->vpk_archiveIndex);
+						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath), entry->vpk_archiveIndex);
 						entry->vpk_offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
 
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
@@ -587,6 +570,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
 
     // v2 adds the MD5 hashes and file signature
     if (this->header1.version < 2) {
+	    PackFile::setFullFilePath(outputDir);
         return true;
     }
 
@@ -600,6 +584,7 @@ bool VPK::bake(const std::string& outputFolder_, const Callback& callback) {
     outDir.writeBytes(this->footer2.wholeFileChecksum);
 
     // The signature section is not present
+	PackFile::setFullFilePath(outputDir);
     return true;
 }
 

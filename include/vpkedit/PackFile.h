@@ -56,7 +56,7 @@ public:
 	bool removeEntry(const std::string& filename_);
 
 	/// If output folder is unspecified, it will overwrite the original
-	virtual bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) = 0;
+	virtual bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) = 0;
 
 	/// Get entries saved to disk
 	[[nodiscard]] const std::unordered_map<std::string, std::vector<Entry>>& getBakedEntries() const;
@@ -92,6 +92,10 @@ protected:
 	PackFile(std::string fullFilePath_, PackFileOptions options_);
 
 	virtual Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
+
+	[[nodiscard]] std::string getBakeOutputDir(const std::string& outputDir) const;
+
+	void setFullFilePath(const std::string& outputDir);
 
 	[[nodiscard]] static Entry createNewEntry();
 

@@ -196,6 +196,30 @@ std::vector<std::string> PackFile::getSupportedFileTypes() {
 	return out;
 }
 
+std::string PackFile::getBakeOutputDir(const std::string& outputDir) const {
+	std::string out = outputDir;
+	if (!out.empty()) {
+		::normalizeSlashes(out);
+		if (out.at(out.length() - 1) == '/') {
+			out.pop_back();
+		}
+	} else {
+		out = this->fullFilePath;
+		auto lastSlash = out.rfind('/');
+		if (lastSlash != std::string::npos) {
+			out = this->getFilepath().substr(0, lastSlash);
+		} else {
+			out = ".";
+		}
+	}
+	return out;
+}
+
+void PackFile::setFullFilePath(const std::string& outputDir) {
+	// Assumes PackFile::getBakeOutputDir is the input for outputDir
+	this->fullFilePath = outputDir + '/' + this->getFilename();
+}
+
 Entry PackFile::createNewEntry() {
 	return {};
 }
