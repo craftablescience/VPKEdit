@@ -112,7 +112,11 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 	return packFile;
 }
 
-bool BSP::bake(const std::string& outputFolder_, const Callback& callback) {
+bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
+	// Get the proper file output folder
+	std::string outputDir = this->getBakeOutputDir(outputDir_);
+	std::string outputPath = outputDir + '/' + this->getFilename();
+
 	// Use temp folder so we can read from the current ZIP
 	if (!this->bakeTempZip(ZIP::TEMP_ZIP_PATH, callback)) {
 		return false;
@@ -132,10 +136,19 @@ bool BSP::bake(const std::string& outputFolder_, const Callback& callback) {
 		writer.writeBytes(binData);
 	}
 
+	// If the output path is different, copy the entire BSP there
+	if (outputPath != this->fullFilePath) {
+		std::filesystem::copy_file(this->fullFilePath, outputPath, std::filesystem::copy_options::overwrite_existing);
+	}
+
 	// Close our ZIP and reopen it
 	this->closeZIP();
 	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, BSP::BSP_TEMP_ZIP_PATH);
-	return this->openZIP(BSP::BSP_TEMP_ZIP_PATH);
+	if (!this->openZIP(BSP::BSP_TEMP_ZIP_PATH)) {
+		return false;
+	}
+	PackFile::setFullFilePath(outputDir);
+	return true;
 }
 
 void BSP::moveLumpToWritableSpace(int lumpToMove, int newSize) {

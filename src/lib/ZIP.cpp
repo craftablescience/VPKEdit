@@ -133,7 +133,11 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	return this->unbakedEntries.at(dir).back();
 }
 
-bool ZIP::bake(const std::string& outputFolder_, const Callback& callback) {
+bool ZIP::bake(const std::string& outputDir_, const Callback& callback) {
+	// Get the proper file output folder
+	std::string outputDir = this->getBakeOutputDir(outputDir_);
+	std::string outputPath = outputDir + '/' + this->getFilename();
+
 	// Use temp folder so we can read from the current ZIP
 	if (!this->bakeTempZip(ZIP::TEMP_ZIP_PATH, callback)) {
 		return false;
@@ -141,8 +145,12 @@ bool ZIP::bake(const std::string& outputFolder_, const Callback& callback) {
 
 	// Close our ZIP and reopen it
 	this->closeZIP();
-	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, this->fullFilePath);
-	return this->openZIP(this->fullFilePath);
+	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, outputPath);
+	if (!this->openZIP(outputPath)) {
+		return false;
+	}
+	PackFile::setFullFilePath(outputDir);
+	return true;
 }
 
 bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback) {

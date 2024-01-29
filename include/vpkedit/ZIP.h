@@ -15,7 +15,7 @@ public:
 
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
-	bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
+	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
 protected:
 	ZIP(const std::string& fullFilePath_, PackFileOptions options_);

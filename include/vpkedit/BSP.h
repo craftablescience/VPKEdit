@@ -41,7 +41,7 @@ public:
 	/// Open a BSP file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
-	bool bake(const std::string& outputFolder_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
+	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
 protected:
 	BSP(const std::string& fullFilePath_, PackFileOptions options_);
