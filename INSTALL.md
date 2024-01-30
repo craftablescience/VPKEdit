@@ -51,7 +51,7 @@ There are two ways of *installing* VPKEdit specific to the following distros:
 ###### Automatic:
 
 1. Visit https://craftablescience.info/ppa/ and follow the instructions.
-2. VPKEdit should now be installable and upgradable from `apt`.
+2. VPKEdit should now be installable and upgradable from `apt` (the package name being `vpkedit`).
 
 ###### Manual:
 
