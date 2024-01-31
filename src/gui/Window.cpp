@@ -244,7 +244,7 @@ Window::Window(QWidget* parent)
 		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::ZIP, {}, this);
 	});
     debugDialogsMenu->addAction("New Update Dialog", [this] {
-        NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", this);
+        NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", "sample description", this);
     });
     debugDialogsMenu->addAction("Create Empty VPK Options Dialog", [this] {
         (void) NewVPKOptionsDialog::getNewVPKOptions(false, {}, false, this);
@@ -526,11 +526,16 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
 	}
 	auto versionName = release["name"].toString();
 
+	if (!release.contains("body") || !release["body"].isString()) {
+		return parseFailure();
+	}
+	auto details = release["body"].toString();
+
 	if (versionTag == QString("v") + PROJECT_VERSION.data()) {
 		QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
 		return;
 	}
-	NewUpdateDialog::getNewUpdatePrompt(url, versionName, this);
+	NewUpdateDialog::getNewUpdatePrompt(url, versionName, details, this);
 }
 
 void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
