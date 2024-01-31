@@ -8,8 +8,9 @@ on:
     # nothing here
 
 env:
-  BUILD_DIR: ${{github.workspace}}/build
-  QT_VERSION: '6.6.1'
+  BUILD_DIR: '${{github.workspace}}/build'
+  QT_VERSION_VPKEDIT: '6.6.1'
+  QT_VERSION_STRATASOURCE: '6.5.3'
   QT_MODULES: 'qtimageformats'
 
 jobs:
@@ -17,6 +18,8 @@ jobs:
     strategy:
       matrix:
         build_type: [Debug, Release]
+        compiler: [msvc]
+        target: [VPKEdit, StrataSource]
     runs-on: windows-latest
     defaults:
       run:
@@ -33,41 +36,62 @@ jobs:
           arch: x64
           spectre: true
 
-      - name: Install Qt
+      - name: Install Qt [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION}}
+          version: ${{env.QT_VERSION_VPKEDIT}}
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
-          dir: ${{github.workspace}}/qt
+          dir: '${{github.workspace}}/qt'
           modules: ${{env.QT_MODULES}}
           cache: true
 
-      - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/msvc2019_64"
+      - name: Install Qt [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: ${{env.QT_VERSION_STRATASOURCE}}
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          dir: '${{github.workspace}}/qt'
+          modules: ${{env.QT_MODULES}}
+          cache: true
+
+      - name: Configure CMake [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64"
+
+      - name: Configure CMake [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64"
 
       - name: Build
-        working-directory: ${{env.BUILD_DIR}}
+        working-directory: '${{env.BUILD_DIR}}'
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
 
-      - name: Upload Standalone CLI
+      - name: Upload Standalone CLI [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Windows-Standalone-CLI-msvc-${{matrix.build_type}}
+          name: ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpkeditcli.exe
           retention-days: 7
 
-      - name: Upload Standalone GUI
+      - name: Upload Standalone GUI [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Windows-Standalone-GUI-msvc-${{matrix.build_type}}
+          name: ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -79,14 +103,27 @@ jobs:
             ${{env.BUILD_DIR}}/tls/*.dll
           retention-days: 7
 
-      - name: Create Installer
+      - name: Upload Standalone CLI/GUI [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/vtflib.dll
+          retention-days: 7
+
+      - name: Create Installer [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
         run: cpack
 
-      - name: Upload Installer
+      - name: Upload Installer [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Windows-Installer-msvc-${{matrix.build_type}}
+          name: ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
@@ -97,6 +134,7 @@ jobs:
       matrix:
         build_type: [Debug, Release]
         compiler: [gcc, clang]
+        target: [VPKEdit, StrataSource]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout Repository
@@ -107,37 +145,56 @@ jobs:
       - name: Install Necessary Packages
         run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
 
-      - name: Install GCC
-        if: ${{ matrix.compiler == 'gcc' }}
+      - name: Install GCC [compiler:gcc]
+        if: ${{matrix.compiler == 'gcc'}}
         uses: egor-tensin/setup-gcc@v1
         with:
           version: 11
           platform: x64
 
-      - name: Install Clang
-        if: ${{ matrix.compiler == 'clang' }}
+      - name: Install Clang [compiler:clang]
+        if: ${{matrix.compiler == 'clang'}}
         uses: egor-tensin/setup-clang@v1
         with:
           version: 15
           platform: x64
-      
-      - name: Install Qt
+
+      - name: Install Qt [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION}}
+          version: ${{env.QT_VERSION_VPKEDIT}}
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
-          dir: ${{github.workspace}}/qt
+          dir: '${{github.workspace}}/qt'
           modules: ${{env.QT_MODULES}}
           cache: true
 
-      - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64"
+      - name: Install Qt [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: ${{env.QT_VERSION_STRATASOURCE}}
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          dir: '${{github.workspace}}/qt'
+          modules: ${{env.QT_MODULES}}
+          cache: true
+
+      - name: Configure CMake [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64"
+
+      - name: Configure CMake [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64"
 
       - name: Build
-        working-directory: ${{env.BUILD_DIR}}
+        working-directory: '${{env.BUILD_DIR}}'
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
@@ -156,22 +213,22 @@ jobs:
             chrpath -r '$ORIGIN/..' "$f"
           done
 
-      - name: Upload Standalone CLI
-        if: ${{ matrix.compiler == 'gcc' }}
+      - name: Upload Standalone CLI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpkeditcli
           retention-days: 7
 
-      - name: Upload Standalone GUI
-        if: ${{ matrix.compiler == 'gcc' }}
+      - name: Upload Standalone GUI [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -189,15 +246,27 @@ jobs:
             ${{env.BUILD_DIR}}/xcbglintegrations/*.so*
           retention-days: 7
 
-      - name: Create Installer
+      - name: Upload Standalone CLI/GUI [compiler:gcc][target:StrataSource]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli
+            ${{env.BUILD_DIR}}/vpkedit
+            ${{env.BUILD_DIR}}/vtflib.so*
+          retention-days: 7
+
+      - name: Create Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
         run: cpack
 
-      - name: Upload Installer
-        if: ${{ matrix.compiler == 'gcc' }}
+      - name: Upload Installer [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: VPKEdit-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
+          name: ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7
