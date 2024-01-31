@@ -46,3 +46,7 @@ target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5 MINIZIP::minizip)
 target_include_directories(
         lib${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+if(VPKEDIT_BUILD_FOR_STRATA_SOURCE)
+    target_compile_definitions(lib${PROJECT_NAME} PUBLIC -DVPKEDIT_BUILD_FOR_STRATA_SOURCE)
+endif()

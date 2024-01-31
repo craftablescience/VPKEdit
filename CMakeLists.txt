@@ -25,6 +25,7 @@ option(VPKEDIT_BUILD_CLI "Build VPKEdit CLI application" ON)
 option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_TESTS "Run library tests" OFF)
+option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
 
 # libvpkedit
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/_lib.cmake")

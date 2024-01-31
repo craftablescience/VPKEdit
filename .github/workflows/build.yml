@@ -68,7 +68,7 @@ jobs:
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
 
       - name: Build
         working-directory: '${{env.BUILD_DIR}}'
@@ -191,7 +191,7 @@ jobs:
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
 
       - name: Build
         working-directory: '${{env.BUILD_DIR}}'
