@@ -55,7 +55,7 @@ jobs:
           cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
 
       - name: Upload Standalone CLI
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Windows-Standalone-CLI-msvc-${{matrix.build_type}}
           path: |
@@ -65,7 +65,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Standalone GUI
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Windows-Standalone-GUI-msvc-${{matrix.build_type}}
           path: |
@@ -84,7 +84,7 @@ jobs:
         run: cpack
 
       - name: Upload Installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Windows-Installer-msvc-${{matrix.build_type}}
           path: |
@@ -158,7 +158,7 @@ jobs:
 
       - name: Upload Standalone CLI
         if: ${{ matrix.compiler == 'gcc' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
@@ -169,7 +169,7 @@ jobs:
 
       - name: Upload Standalone GUI
         if: ${{ matrix.compiler == 'gcc' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
@@ -195,7 +195,7 @@ jobs:
 
       - name: Upload Installer
         if: ${{ matrix.compiler == 'gcc' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VPKEdit-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
