@@ -17,6 +17,9 @@ struct PackFileOptions {
 	/// if this value is false, filenames will be treated as case-insensitive.
 	bool allowUppercaseLettersInFilenames = false;
 
+	/// GMA - Write CRCs for files and the overall GMA file when baking
+	bool gma_writeCRCs = true;
+
 	/// VPK - Version (ignored when opening an existing VPK)
 	std::uint32_t vpk_version = 2;
 
