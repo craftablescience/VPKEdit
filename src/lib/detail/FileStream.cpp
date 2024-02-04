@@ -16,9 +16,11 @@ FileStream::FileStream(const std::string& filepath, int options) {
 		openMode |= std::ios::out;
 	}
 	if (options & FILESTREAM_OPT_APPEND) {
+		openMode |= std::ios::out;
 		openMode |= std::ios::app;
 	}
 	if (options & FILESTREAM_OPT_TRUNCATE) {
+		openMode |= std::ios::out;
 		openMode |= std::ios::trunc;
 	}
 	this->streamFile.open(filepath, openMode);

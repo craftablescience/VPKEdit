@@ -19,15 +19,17 @@ public:
 	/// Path to this entry (e.g. "materials/cable.vmt")
 	std::string path;
 	/// Length in bytes (in formats with compression, this is the uncompressed length)
-	std::uint32_t length = 0;
+	std::uint64_t length = 0;
 	/// If the format supports compression, this is the compressed length
 	/// If compression is not supported, this will remain 0
-	std::uint32_t compressedLength = 0;
+	std::uint64_t compressedLength = 0;
+	/// CRC32 checksum - 0 if unused
+	std::uint32_t crc32 = 0;
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
-	/// VPK, ZIP/BSP - CRC32 checksum
-	std::uint32_t crc32 = 0;
+	/// GMA - Offset in the GMA
+	std::uint64_t gma_offset = 0;
 
 	/// VPK - Which VPK this entry is in
 	std::uint16_t vpk_archiveIndex = 0;

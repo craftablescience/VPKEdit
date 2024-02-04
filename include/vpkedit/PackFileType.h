@@ -3,9 +3,10 @@
 namespace vpkedit {
 
 enum class PackFileType {
-	GENERIC,
-	VPK,
+	UNKNOWN,
 	BSP,
+	GMA,
+	VPK,
 	ZIP,
 };
 

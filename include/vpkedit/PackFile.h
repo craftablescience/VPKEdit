@@ -107,7 +107,7 @@ protected:
 
 	std::string fullFilePath;
 
-	PackFileType type = PackFileType::GENERIC;
+	PackFileType type = PackFileType::UNKNOWN;
 	PackFileOptions options;
 
 	std::unordered_map<std::string, std::vector<Entry>> entries;

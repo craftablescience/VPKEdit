@@ -26,6 +26,7 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/BSP.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Entry.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/GMA.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Options.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/PackFile.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
@@ -37,6 +38,7 @@ add_library(
         "${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/BSP.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/GMA.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/VPK.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ZIP.cpp")
