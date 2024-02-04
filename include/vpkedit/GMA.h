@@ -10,7 +10,6 @@ namespace vpkedit {
 constexpr std::int32_t GMA_ID = 'G' + ('M' << 8) + ('A' << 16) + ('D' << 24);
 
 class GMA : public PackFile {
-#pragma pack(push, 1)
 	struct Header {
 		std::uint32_t signature;
 		std::uint8_t version;
@@ -22,7 +21,6 @@ class GMA : public PackFile {
 		std::string addonAuthor;
 		std::int32_t addonVersion;
 	};
-#pragma pack(pop)
 
 public:
 	/// Open a GMA file
