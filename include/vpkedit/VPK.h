@@ -1,10 +1,9 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
-#include <utility>
 #include <tuple>
 
-#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/PackFile.h>
 
 namespace vpkedit {
@@ -84,8 +83,6 @@ protected:
 	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 	[[nodiscard]] std::uint32_t getHeaderLength() const;
-
-	detail::FileStream reader;
 
 	int numArchives = -1;
 	std::uint32_t currentlyFilledChunkSize = 0;

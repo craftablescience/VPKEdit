@@ -4,6 +4,7 @@
 
 #include <MD5.h>
 #include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 
 using namespace vpkedit;
@@ -35,8 +36,7 @@ std::string padArchiveIndex(int num) {
 } // namespace
 
 VPK::VPK(const std::string& fullFilePath_, PackFileOptions options_)
-        : PackFile(fullFilePath_, options_)
-		, reader(fullFilePath_) {
+        : PackFile(fullFilePath_, options_) {
 	this->type = PackFileType::VPK;
 }
 
@@ -121,8 +121,9 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 	auto* vpk = new VPK{path, options};
     auto packFile = std::unique_ptr<PackFile>(vpk);
 
-    vpk->reader.seekInput(0);
-    vpk->reader.read(vpk->header1);
+	FileStream reader{vpk->fullFilePath};
+    reader.seekInput(0);
+    reader.read(vpk->header1);
     if (vpk->header1.signature != VPK_ID) {
         // File is not a VPK
         return nullptr;
@@ -130,7 +131,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 	// Might as well
 	vpk->options.vpk_version = vpk->header1.version;
     if (vpk->header1.version == 2) {
-        vpk->reader.read(vpk->header2);
+        reader.read(vpk->header2);
     } else if (vpk->header1.version != 1) {
         // Apex Legends, Titanfall, etc. are not supported
         return nullptr;
@@ -139,14 +140,14 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
     // Extensions
     while (true) {
         std::string extension;
-        vpk->reader.read(extension);
+        reader.read(extension);
         if (extension.empty())
             break;
 
         // Directories
         while (true) {
             std::string directory;
-            vpk->reader.read(directory);
+            reader.read(directory);
             if (directory.empty())
                 break;
 
@@ -163,7 +164,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
             // Files
             while (true) {
                 std::string entryName;
-                vpk->reader.read(entryName);
+                reader.read(entryName);
                 if (entryName.empty())
                     break;
 
@@ -178,19 +179,19 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
                     entry.path += extension;
                 }
 
-                vpk->reader.read(entry.crc32);
-                auto preloadedDataSize = vpk->reader.read<std::uint16_t>();
-                vpk->reader.read(entry.vpk_archiveIndex);
-                vpk->reader.read(entry.vpk_offset);
-                vpk->reader.read(entry.length);
+                reader.read(entry.crc32);
+                auto preloadedDataSize = reader.read<std::uint16_t>();
+                reader.read(entry.vpk_archiveIndex);
+                reader.read(entry.vpk_offset);
+	            entry.length = reader.read<std::uint32_t>();
 
-                if (vpk->reader.read<std::uint16_t>() != VPK_ENTRY_TERM) {
+                if (reader.read<std::uint16_t>() != VPK_ENTRY_TERM) {
                     // Invalid terminator!
                     return nullptr;
                 }
 
                 if (preloadedDataSize > 0) {
-                    entry.vpk_preloadedData = vpk->reader.readBytes(preloadedDataSize);
+                    entry.vpk_preloadedData = reader.readBytes(preloadedDataSize);
                     entry.length += preloadedDataSize;
                 }
 
@@ -215,7 +216,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
         return packFile;
 
     // Skip over file data, if any
-    vpk->reader.seekInput(vpk->header2.fileDataSectionSize, std::ios_base::cur);
+    reader.seekInput(vpk->header2.fileDataSectionSize, std::ios_base::cur);
 
     if (vpk->header2.archiveMD5SectionSize % sizeof(MD5Entry) != 0)
         return nullptr;
@@ -223,28 +224,28 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
     vpk->md5Entries.clear();
     unsigned int entryNum = vpk->header2.archiveMD5SectionSize / sizeof(MD5Entry);
     for (unsigned int i = 0; i < entryNum; i++)
-        vpk->md5Entries.push_back(vpk->reader.read<MD5Entry>());
+        vpk->md5Entries.push_back(reader.read<MD5Entry>());
 
     if (vpk->header2.otherMD5SectionSize != 48)
 	    // This should always be 48
         return packFile;
 
-	vpk->footer2.treeChecksum = vpk->reader.readBytes<16>();
-	vpk->footer2.md5EntriesChecksum = vpk->reader.readBytes<16>();
-	vpk->footer2.wholeFileChecksum = vpk->reader.readBytes<16>();
+	vpk->footer2.treeChecksum = reader.readBytes<16>();
+	vpk->footer2.md5EntriesChecksum = reader.readBytes<16>();
+	vpk->footer2.wholeFileChecksum = reader.readBytes<16>();
 
     if (!vpk->header2.signatureSectionSize) {
         return packFile;
     }
 
-    auto publicKeySize = vpk->reader.read<std::int32_t>();
+    auto publicKeySize = reader.read<std::int32_t>();
     if (vpk->header2.signatureSectionSize == 20 && publicKeySize == VPK_ID) {
         // CS2 beta VPK, ignore it
         return packFile;
     }
 
-    vpk->footer2.publicKey = vpk->reader.readBytes(publicKeySize);
-    vpk->footer2.signature = vpk->reader.readBytes(vpk->reader.read<std::int32_t>());
+    vpk->footer2.publicKey = reader.readBytes(publicKeySize);
+    vpk->footer2.signature = reader.readBytes(reader.read<std::int32_t>());
 
     return packFile;
 }
@@ -311,7 +312,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	entry.crc32 = ::computeCRC(buffer);
 	entry.length = buffer.size();
 
-	// Offset and archive index might be reset when the VPK is baked
+	// Offset will be reset when it's baked
 	entry.vpk_offset = 0;
 	entry.vpk_archiveIndex = options_.vpk_saveToDirectory ? VPK_DIR_INDEX : this->numArchives;
 
@@ -432,11 +433,9 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     // File tree data
     for (auto& [ext, tDirs] : temp) {
         outDir.write(ext);
-        outDir.write('\0');
 
         for (auto& [dir, tEntries] : tDirs) {
             outDir.write(!dir.empty() ? dir : " ");
-            outDir.write('\0');
 
             for (auto* entry : tEntries) {
                 // Calculate entry offset if it's unbaked and upload the data
@@ -465,12 +464,11 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
                 }
 
                 outDir.write(entry->getStem());
-                outDir.write('\0');
                 outDir.write(entry->crc32);
                 outDir.write(static_cast<std::uint16_t>(entry->vpk_preloadedData.size()));
                 outDir.write(entry->vpk_archiveIndex);
                 outDir.write(entry->vpk_offset);
-                outDir.write(entry->length - static_cast<std::uint32_t>(entry->vpk_preloadedData.size()));
+                outDir.write(static_cast<std::uint32_t>(entry->length - entry->vpk_preloadedData.size()));
                 outDir.write(VPK_ENTRY_TERM);
 
                 if (!entry->vpk_preloadedData.empty()) {

@@ -90,8 +90,11 @@ public:
 		this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T) * len);
 	}
 
-	void write(const std::string& obj) {
+	void write(const std::string& obj, bool includeTerminator = true) {
 		this->streamFile.write(obj.data(), static_cast<std::streamsize>(obj.size()));
+		if (includeTerminator) {
+			this->write('\0');
+		}
 	}
 
 	void flush();
