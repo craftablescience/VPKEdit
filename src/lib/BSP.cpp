@@ -39,7 +39,12 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		return nullptr;
 	}
 	reader.read(bsp->header.version);
-	reader.read(bsp->header.lumps);
+	for (auto& lump : bsp->header.lumps) {
+		reader.read(lump.offset);
+		reader.read(lump.length);
+		reader.read(lump.version);
+		reader.read(lump.fourCC);
+	}
 	reader.read(bsp->header.mapRevision);
 
 	if (bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset == 0 || bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length == 0) {
@@ -134,7 +139,12 @@ bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
 		FileStream writer{this->fullFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
 		writer.write(this->header.signature);
 		writer.write(this->header.version);
-		writer.write(this->header.lumps);
+		for (const auto& lump : this->header.lumps) {
+			writer.write(lump.offset);
+			writer.write(lump.length);
+			writer.write(lump.version);
+			writer.write(lump.fourCC);
+		}
 		writer.write(this->header.mapRevision);
 		writer.seekOutput(this->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
 		writer.writeBytes(binData);
