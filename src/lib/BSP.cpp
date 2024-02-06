@@ -1,25 +1,23 @@
 #include <vpkedit/BSP.h>
 
-#include <cstring>
 #include <filesystem>
 
-#include <MD5.h>
 #include <mz.h>
 #include <mz_strm.h>
 #include <mz_strm_os.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
 #include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
-const std::string BSP::BSP_TEMP_ZIP_PATH = (std::filesystem::temp_directory_path() / "tmp_bsp_paklump.zip").string();
+const std::string BSP::TEMP_ZIP_PATH = (std::filesystem::temp_directory_path() / "tmp_bsp_paklump.zip").string();
 
 BSP::BSP(const std::string& fullFilePath_, PackFileOptions options_)
-		: ZIP(fullFilePath_, options_)
-		, reader(fullFilePath_) {
+		: ZIP(fullFilePath_, options_) {
 	this->type = PackFileType::BSP;
 }
 
@@ -32,20 +30,22 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 	auto* bsp = new BSP{path, options};
 	auto packFile = std::unique_ptr<PackFile>(bsp);
 
-	bsp->reader.seekInput(0);
-	bsp->reader.read(bsp->header.signature);
+	FileStream reader{bsp->fullFilePath};
+	reader.seekInput(0);
+
+	reader.read(bsp->header.signature);
 	if (bsp->header.signature != BSP_ID) {
 		// File is not a BSP
 		return nullptr;
 	}
-	bsp->reader.read(bsp->header.version);
-	bsp->reader.read(bsp->header.lumps);
-	bsp->reader.read(bsp->header.mapRevision);
+	reader.read(bsp->header.version);
+	reader.read(bsp->header.lumps);
+	reader.read(bsp->header.mapRevision);
 
 	if (bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset == 0 || bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length == 0) {
 		// No paklump, create an empty zip
 		void* writeStreamHandle = mz_stream_os_create();
-		if (mz_stream_os_open(writeStreamHandle, BSP::BSP_TEMP_ZIP_PATH.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
+		if (mz_stream_os_open(writeStreamHandle, BSP::TEMP_ZIP_PATH.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
 			return nullptr;
 		}
 		void* writeZipHandle = mz_zip_writer_create();
@@ -62,14 +62,14 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		mz_stream_os_delete(&writeStreamHandle);
 	} else {
 		// Extract the paklump to a temp dir
-		bsp->reader.seekInput(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
-		auto binData = bsp->reader.readBytes(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length);
+		reader.seekInput(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
+		auto binData = reader.readBytes(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length);
 
-		FileStream writer{BSP::BSP_TEMP_ZIP_PATH, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+		FileStream writer{BSP::TEMP_ZIP_PATH, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 		writer.writeBytes(binData);
 	}
 
-	if (!bsp->openZIP(BSP::BSP_TEMP_ZIP_PATH)) {
+	if (!bsp->openZIP(BSP::TEMP_ZIP_PATH)) {
 		return nullptr;
 	}
 
@@ -123,12 +123,15 @@ bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
 	}
 	this->mergeUnbakedEntries();
 
+	// Close the ZIP
+	this->closeZIP();
+
 	// Write the pakfile lump
 	{
 		auto binData = ::readFileData(ZIP::TEMP_ZIP_PATH);
 		this->moveLumpToWritableSpace(BSP_LUMP_PAKFILE_INDEX, static_cast<int>(binData.size()));
 
-		FileStream writer{this->fullFilePath, FILESTREAM_OPT_WRITE};
+		FileStream writer{this->fullFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
 		writer.write(this->header.signature);
 		writer.write(this->header.version);
 		writer.write(this->header.lumps);
@@ -142,10 +145,9 @@ bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
 		std::filesystem::copy_file(this->fullFilePath, outputPath, std::filesystem::copy_options::overwrite_existing);
 	}
 
-	// Close our ZIP and reopen it
-	this->closeZIP();
-	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, BSP::BSP_TEMP_ZIP_PATH);
-	if (!this->openZIP(BSP::BSP_TEMP_ZIP_PATH)) {
+	// Rename and reopen the ZIP
+	std::filesystem::rename(ZIP::TEMP_ZIP_PATH, BSP::TEMP_ZIP_PATH);
+	if (!this->openZIP(BSP::TEMP_ZIP_PATH)) {
 		return false;
 	}
 	PackFile::setFullFilePath(outputDir);

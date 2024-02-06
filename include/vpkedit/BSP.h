@@ -3,7 +3,6 @@
 #include <array>
 #include <cstdint>
 
-#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/ZIP.h>
 
 namespace vpkedit {
@@ -49,11 +48,9 @@ protected:
 	/// If the lump is too big where it is, shift it to the end of the file, otherwise its fine
 	void moveLumpToWritableSpace(int lumpToMove, int newSize);
 
-	static const std::string BSP_TEMP_ZIP_PATH;
+	static const std::string TEMP_ZIP_PATH;
 
 	Header header{};
-
-	detail::FileStream reader;
 
 private:
 	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".bsp", &BSP::open);

@@ -3,7 +3,6 @@
 #include <cstring>
 #include <filesystem>
 
-#include <MD5.h>
 #include <mz.h>
 #include <mz_strm.h>
 #include <mz_strm_os.h>
@@ -122,7 +121,7 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 
 	entry.path = filename;
 	entry.length = buffer.size();
-	entry.compressedLength = buffer.size();
+	entry.compressedLength = 0;
 	entry.crc32 = ::computeCRC(buffer);
 	entry.zip_compressionMethod = options_.zip_compressionMethod;
 
@@ -174,10 +173,11 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 
 			mz_zip_file fileInfo;
 			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
+			fileInfo.flag = MZ_ZIP_FLAG_DATA_DESCRIPTOR;
 			fileInfo.filename = entry.path.c_str();
 			fileInfo.filename_size = entry.path.length();
-			fileInfo.uncompressed_size = entry.length;
-			fileInfo.compressed_size = entry.compressedLength;
+			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
+			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
 			fileInfo.compression_method = entry.zip_compressionMethod;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
@@ -200,8 +200,8 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
 			fileInfo.filename = entry.path.c_str();
 			fileInfo.filename_size = entry.path.length();
-			fileInfo.uncompressed_size = entry.length;
-			fileInfo.compressed_size = entry.compressedLength;
+			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
+			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
 			fileInfo.compression_method = entry.zip_compressionMethod;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
