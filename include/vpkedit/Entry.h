@@ -23,7 +23,7 @@ public:
 	/// Offset, format-specific meaning - may be unused
 	std::uint64_t offset = 0;
 	/// If the format supports compression, this is the compressed length
-	/// If compression is not supported, this will remain 0
+	/// If compression is not supported or unused, this will remain 0
 	std::uint64_t compressedLength = 0;
 	/// CRC32 checksum - 0 if unused
 	std::uint32_t crc32 = 0;

@@ -14,13 +14,13 @@ namespace {
 
 std::string removeVPKAndOrDirSuffix(const std::string& path) {
 	std::string filename = path;
-	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == ".vpk") {
+	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == VPK_EXTENSION) {
 		filename = filename.substr(0, filename.length() - 4);
 	}
 
 	// This indicates it's a dir VPK, but some people ignore this convention...
 	// It should fail later if it's not a proper dir VPK
-	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == "_dir") {
+	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == VPK_DIR_SUFFIX) {
 		filename = filename.substr(0, filename.length() - 4);
 	}
 
@@ -104,7 +104,9 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
 	auto vpk = VPK::openInternal(path, options, callback);
 	if (!vpk && path.length() > 8) {
 		// If it just tried to load a numbered archive, let's try to load the directory VPK
-		vpk = VPK::openInternal(path.substr(0, path.length() - 8) + "_dir" + std::filesystem::path(path).extension().string(), options, callback);
+		if (auto dirPath = path.substr(0, path.length() - 8) + VPK_DIR_SUFFIX.data() + std::filesystem::path(path).extension().string(); std::filesystem::exists(dirPath)) {
+			vpk = VPK::openInternal(dirPath, options, callback);
+		}
 	}
 	return vpk;
 }
@@ -277,7 +279,7 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
 		return std::nullopt;
     } else if (entry.vpk_archiveIndex != VPK_DIR_INDEX) {
 		// Stored in a numbered archive
-        FileStream stream{this->getTruncatedFilepath() + '_' + ::padArchiveIndex(entry.vpk_archiveIndex) + ".vpk"};
+        FileStream stream{this->getTruncatedFilepath() + '_' + ::padArchiveIndex(entry.vpk_archiveIndex) + VPK_EXTENSION.data()};
         if (!stream) {
             return std::nullopt;
         }
@@ -399,7 +401,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 
 	// Helper
 	const auto getArchiveFilename = [](const std::string& filename_, int archiveIndex) {
-		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + ".vpk";
+		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + VPK_EXTENSION.data();
 	};
 
     // Copy external binary blobs to the new dir
@@ -577,7 +579,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 std::string VPK::getTruncatedFilestem() const {
 	std::string filestem = this->getFilestem();
 	// This indicates it's a dir VPK, but some people ignore this convention...
-	if (filestem.length() >= 4 && filestem.substr(filestem.length() - 4) == "_dir") {
+	if (filestem.length() >= 4 && filestem.substr(filestem.length() - 4) == VPK_DIR_SUFFIX) {
 		filestem = filestem.substr(0, filestem.length() - 4);
 	}
 	return filestem;

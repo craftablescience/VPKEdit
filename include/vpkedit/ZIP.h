@@ -6,6 +6,8 @@
 
 namespace vpkedit {
 
+constexpr std::string_view ZIP_EXTENSION = ".zip";
+
 class ZIP : public PackFile {
 public:
 	~ZIP() override;
@@ -37,7 +39,7 @@ protected:
 	bool zipOpen = false;
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".zip", &ZIP::open);
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(ZIP_EXTENSION, &ZIP::open);
 };
 
 } // namespace vpkedit

@@ -7,6 +7,8 @@
 
 namespace vpkedit {
 
+constexpr std::string_view GCF_EXTENSION = ".gcf";
+
 class GCF : public PackFileReadOnly {
 public:
 	struct Header {
@@ -113,7 +115,7 @@ protected:
 	DataBlockHeader datablockheader{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".gcf", &GCF::open);
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(GCF_EXTENSION, &GCF::open);
 };
 
 } // namespace vpkedit

@@ -10,6 +10,7 @@ namespace vpkedit {
 constexpr std::int32_t BSP_ID = 'V' + ('B' << 8) + ('S' << 16) + ('P' << 24);
 constexpr std::int32_t BSP_LUMP_COUNT = 64;
 constexpr std::int32_t BSP_LUMP_PAKFILE_INDEX = 40;
+constexpr std::string_view BSP_EXTENSION = ".bsp";
 
 class BSP : public ZIP {
 #pragma pack(push, 1)
@@ -53,7 +54,7 @@ protected:
 	Header header{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".bsp", &BSP::open);
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(BSP_EXTENSION, &BSP::open);
 };
 
 } // namespace vpkedit

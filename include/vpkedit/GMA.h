@@ -7,6 +7,7 @@
 namespace vpkedit {
 
 constexpr std::int32_t GMA_ID = 'G' + ('M' << 8) + ('A' << 16) + ('D' << 24);
+constexpr std::string_view GMA_EXTENSION = ".gma";
 
 class GMA : public PackFile {
 	struct Header {
@@ -37,7 +38,7 @@ protected:
 	Header header{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(".gma", &GMA::open);
+	VPKEDIT_REGISTER_PACKFILE_EXTENSION(GMA_EXTENSION, &GMA::open);
 };
 
 } // namespace vpkedit
