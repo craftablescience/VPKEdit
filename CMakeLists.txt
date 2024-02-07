@@ -24,6 +24,7 @@ set(CMAKE_CXX_STANDARD 20)
 option(VPKEDIT_BUILD_CLI "Build VPKEdit CLI application" ON)
 option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
+option(VPKEDIT_BUILD_EXAMPLE "Build library examples" OFF)
 option(VPKEDIT_BUILD_TESTS "Run library tests" OFF)
 option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
 
@@ -43,6 +44,11 @@ endif()
 # Installer
 if(VPKEDIT_BUILD_GUI AND VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
+endif()
+
+# vpkeditexample
+if (VPKEDIT_BUILD_EXAMPLE)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/example/_example.cmake")
 endif()
 
 # vpkedittest
