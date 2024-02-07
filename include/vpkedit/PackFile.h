@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -119,7 +120,7 @@ protected:
 
 	static std::unordered_map<std::string, FactoryFunction>& getExtensionRegistry();
 
-	static const FactoryFunction& registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory);
+	static const FactoryFunction& registerExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory);
 };
 
 class PackFileReadOnly : public PackFile {

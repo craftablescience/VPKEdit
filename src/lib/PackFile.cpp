@@ -263,8 +263,8 @@ std::unordered_map<std::string, PackFile::FactoryFunction>& PackFile::getExtensi
 	return extensionRegistry;
 }
 
-const PackFile::FactoryFunction& PackFile::registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory) {
-	PackFile::getExtensionRegistry()[extension] = factory;
+const PackFile::FactoryFunction& PackFile::registerExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory) {
+	PackFile::getExtensionRegistry()[std::string{extension}] = factory;
 	return factory;
 }
 
