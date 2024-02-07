@@ -65,7 +65,7 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		reader.seekInput(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].offset);
 		auto binData = reader.readBytes(bsp->header.lumps[BSP_LUMP_PAKFILE_INDEX].length);
 
-		FileStream writer{BSP::TEMP_ZIP_PATH, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+		FileStream writer{BSP::TEMP_ZIP_PATH, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 		writer.writeBytes(binData);
 	}
 
@@ -132,6 +132,8 @@ bool BSP::bake(const std::string& outputDir_, const Callback& callback) {
 		this->moveLumpToWritableSpace(BSP_LUMP_PAKFILE_INDEX, static_cast<int>(binData.size()));
 
 		FileStream writer{this->fullFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
+		writer.seekOutput(0);
+
 		writer.write(this->header.signature);
 		writer.write(this->header.version);
 		writer.write(this->header.lumps);
@@ -164,38 +166,40 @@ void BSP::moveLumpToWritableSpace(int lumpToMove, int newSize) {
 			lumpsAfterPaklumpIndices.push_back(i);
 		}
 	}
-	if (!lumpsAfterPaklumpIndices.empty()) {
-		// Get the exact area to move
-		int moveOffsetStart = INT_MAX, moveOffsetEnd = 0;
-		for (int lumpIndex : lumpsAfterPaklumpIndices) {
-			if (this->header.lumps[lumpIndex].offset < moveOffsetStart) {
-				moveOffsetStart = this->header.lumps[lumpIndex].offset;
-			}
-			if (auto offsetAndLength = this->header.lumps[lumpIndex].offset + this->header.lumps[lumpIndex].length; offsetAndLength > moveOffsetEnd) {
-				moveOffsetEnd = offsetAndLength;
-			}
-		}
-
-		// Get where to move it
-		int lastLumpBeforePaklumpOffset = 0, lastLumpBeforePaklumpLength = 0;
-		for (const Lump& lump : this->header.lumps) {
-			if (lump.offset < this->header.lumps[lumpToMove].offset && lump.offset > lastLumpBeforePaklumpOffset) {
-				lastLumpBeforePaklumpOffset = lump.offset;
-				lastLumpBeforePaklumpLength = lump.length;
-			}
-		}
-
-		// Move all the lumps after paklump back
-		FileStream bsp{this->fullFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
-		bsp.seekInput(moveOffsetStart);
-		auto lumpsData = bsp.readBytes(moveOffsetEnd - moveOffsetStart);
-		bsp.seekOutput(lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength);
-		bsp.writeBytes(lumpsData);
-
-		// Fix the offsets
-		for (int lumpIndex : lumpsAfterPaklumpIndices) {
-			this->header.lumps[lumpIndex].offset -= newSize;
-		}
-		this->header.lumps[lumpToMove].offset = lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength + static_cast<int>(lumpsData.size());
+	if (lumpsAfterPaklumpIndices.empty()) {
+		return;
 	}
+
+	// Get the exact area to move
+	int moveOffsetStart = INT_MAX, moveOffsetEnd = 0;
+	for (int lumpIndex : lumpsAfterPaklumpIndices) {
+		if (this->header.lumps[lumpIndex].offset < moveOffsetStart) {
+			moveOffsetStart = this->header.lumps[lumpIndex].offset;
+		}
+		if (auto offsetAndLength = this->header.lumps[lumpIndex].offset + this->header.lumps[lumpIndex].length; offsetAndLength > moveOffsetEnd) {
+			moveOffsetEnd = offsetAndLength;
+		}
+	}
+
+	// Get where to move it
+	int lastLumpBeforePaklumpOffset = 0, lastLumpBeforePaklumpLength = 0;
+	for (const Lump& lump : this->header.lumps) {
+		if (lump.offset < this->header.lumps[lumpToMove].offset && lump.offset > lastLumpBeforePaklumpOffset) {
+			lastLumpBeforePaklumpOffset = lump.offset;
+			lastLumpBeforePaklumpLength = lump.length;
+		}
+	}
+
+	// Move all the lumps after paklump back
+	FileStream bsp{this->fullFilePath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
+	bsp.seekInput(moveOffsetStart);
+	auto lumpsData = bsp.readBytes(moveOffsetEnd - moveOffsetStart);
+	bsp.seekOutput(lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength);
+	bsp.writeBytes(lumpsData);
+
+	// Fix the offsets
+	for (int lumpIndex : lumpsAfterPaklumpIndices) {
+		this->header.lumps[lumpIndex].offset -= newSize;
+	}
+	this->header.lumps[lumpToMove].offset = lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength + static_cast<int>(lumpsData.size());
 }
