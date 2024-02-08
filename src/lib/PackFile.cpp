@@ -41,14 +41,6 @@ std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool incl
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
-	if (!dir.empty()) {
-		if (dir.length() > 1 && dir.substr(0, 1) == "/") {
-			dir = dir.substr(1);
-		}
-		if (dir.length() > 2 && dir.substr(dir.length() - 1) == "/") {
-			dir = dir.substr(0, dir.length() - 2);
-		}
-	}
 	if (this->entries.contains(dir)) {
 		for (const Entry& entry : this->entries.at(dir)) {
 			if (entry.path == filename) {
@@ -201,9 +193,6 @@ std::string PackFile::getBakeOutputDir(const std::string& outputDir) const {
 	std::string out = outputDir;
 	if (!out.empty()) {
 		::normalizeSlashes(out);
-		if (out.at(out.length() - 1) == '/') {
-			out.pop_back();
-		}
 	} else {
 		out = this->fullFilePath;
 		auto lastSlash = out.rfind('/');

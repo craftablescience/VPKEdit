@@ -14,6 +14,12 @@ void detail::toLowerCase(std::string& input) {
 
 void detail::normalizeSlashes(std::string& path) {
 	std::replace(path.begin(), path.end(), '\\', '/');
+	if (path.starts_with('/')) {
+		path = path.substr(1);
+	}
+	if (path.ends_with('/')) {
+		path.pop_back();
+	}
 }
 
 std::pair<std::string, std::string> detail::splitFilenameAndParentDir(const std::string& filename) {

@@ -89,9 +89,6 @@ std::unique_ptr<PackFile> VPK::createFromDirectoryProcedural(const std::string& 
 		if (entryPath.empty()) {
 			continue;
 		}
-		while (entryPath.at(0) == '/') {
-			entryPath = entryPath.substr(1);
-		}
 		if (creationCallback) {
 			auto [saveToDir, preloadBytes] = creationCallback(entryPath);
 			vpk->addEntry(entryPath, file.path().string(), { .vpk_saveToDirectory = saveToDir, .vpk_preloadBytes = preloadBytes });
