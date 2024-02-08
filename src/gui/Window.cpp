@@ -20,6 +20,7 @@
 #include <QProgressBar>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QStringDecoder>
 #include <QStyleFactory>
 #include <QThread>
 #include <sapp/FilesystemSearchProvider.h>
@@ -753,11 +754,17 @@ std::optional<QString> Window::readTextEntry(const QString& path) const {
     if (!entry) {
         return std::nullopt;
     }
-    auto textData = this->packFile->readEntryText(*entry);
-    if (!textData) {
+    auto binData = this->packFile->readEntry(*entry);
+    if (!binData) {
         return std::nullopt;
     }
-    return QString(textData->c_str());
+	QByteArrayView textBuffer{reinterpret_cast<const char*>(binData->data()), static_cast<qsizetype>(binData->size())};
+	auto potentialEncoding = QStringConverter::encodingForData(textBuffer);
+	if (!potentialEncoding) {
+		return {textBuffer.toByteArray()};
+	}
+	QStringDecoder utf8Converter{*potentialEncoding};
+    return utf8Converter(textBuffer);
 }
 
 void Window::selectEntryInEntryTree(const QString& path) const {
