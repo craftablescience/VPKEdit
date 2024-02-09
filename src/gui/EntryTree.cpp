@@ -354,6 +354,7 @@ void EntryTree::keyPressEvent(QKeyEvent* event) {
 			this->removeEntry(item);
 		}
 	}
+	QTreeWidget::keyPressEvent(event);
 }
 
 QString EntryTree::getItemPath(QTreeWidgetItem* item) const {

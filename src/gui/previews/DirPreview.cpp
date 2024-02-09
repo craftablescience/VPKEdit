@@ -242,6 +242,7 @@ void DirPreview::keyPressEvent(QKeyEvent* event) {
 		}
 		this->window->requestEntryRemoval(this->getItemPath(this->selectedItems().at(0)));
 	}
+	QTableWidget::keyPressEvent(event);
 }
 
 void DirPreview::addRowForFile(const PackFile& packFile, const QString& path, bool isVPK) {
