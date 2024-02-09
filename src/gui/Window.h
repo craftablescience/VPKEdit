@@ -41,6 +41,8 @@ public:
 
 	void checkForNewUpdate() const;
 
+	bool isReadOnly() const;
+
     void setProperties();
 
     void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
@@ -130,6 +132,8 @@ private:
     bool modified;
 
     void freezeActions(bool freeze, bool freezeCreationActions = true) const;
+
+	void freezeModifyActions(bool readOnly) const;
 
     bool loadPackFile(const QString& path);
 

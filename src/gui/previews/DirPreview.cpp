@@ -47,6 +47,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(false, this);
     QObject::connect(this, &QTableWidget::customContextMenuRequested, this, [=, this](const QPoint& pos) {
+	    contextMenuData.setReadOnly(this->window->isReadOnly());
         if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (this->item(selectedItem->row(), DirPreviewColumn::TYPE)->text() == DIR_TYPE_NAME) {
