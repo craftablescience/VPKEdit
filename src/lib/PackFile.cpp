@@ -6,6 +6,7 @@
 
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/BSP.h>
+#include <vpkedit/GCF.h>
 #include <vpkedit/GMA.h>
 #include <vpkedit/VPK.h>
 #include <vpkedit/ZIP.h>
