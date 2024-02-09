@@ -20,6 +20,8 @@ public:
 	std::string path;
 	/// Length in bytes (in formats with compression, this is the uncompressed length)
 	std::uint64_t length = 0;
+	/// Offset, format-specific meaning - may be unused
+	std::uint64_t offset = 0;
 	/// If the format supports compression, this is the compressed length
 	/// If compression is not supported, this will remain 0
 	std::uint64_t compressedLength = 0;
@@ -28,13 +30,8 @@ public:
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
-	/// GMA - Offset in the GMA
-	std::uint64_t gma_offset = 0;
-
 	/// VPK - Which VPK this entry is in
 	std::uint16_t vpk_archiveIndex = 0;
-	/// VPK - Offset in the VPK
-	std::uint32_t vpk_offset = 0;
 	/// VPK - Preloaded data
 	std::vector<std::byte> vpk_preloadedData;
 

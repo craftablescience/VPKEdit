@@ -59,7 +59,7 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 	// At this point we've reached the file data section, calculate the offsets and then add the entries
 	std::size_t offset = reader.tellInput();
 	for (auto& entry : entries) {
-		entry.gma_offset = offset;
+		entry.offset = offset;
 		offset += entry.length;
 	}
 	for (const auto& entry : entries) {
@@ -104,7 +104,7 @@ std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 	if (!stream) {
 		return std::nullopt;
 	}
-	stream.seekInput(entry.gma_offset);
+	stream.seekInput(entry.offset);
 	return stream.readBytes(entry.length);
 }
 
@@ -122,7 +122,7 @@ Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	}
 
 	// Offset will be reset when it's baked
-	entry.gma_offset = 0;
+	entry.offset = 0;
 
 	if (!this->unbakedEntries.contains(dir)) {
 		this->unbakedEntries[dir] = {};
@@ -192,7 +192,7 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 		// Fix offsets
 		std::size_t offset = stream.tellOutput();
 		for (auto* entry : entriesToBake) {
-			entry->gma_offset = offset;
+			entry->offset = offset;
 			offset += entry->length;
 		}
 
