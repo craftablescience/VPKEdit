@@ -168,6 +168,16 @@ public:
 		}
 	}
 
+	void write(const std::string& obj, std::size_t n) {
+		for (int i = 0; i < n; i++) {
+			if (i < obj.size()) {
+				this->write(obj[i]);
+			} else {
+				this->write('\0');
+			}
+		}
+	}
+
 	void flush();
 
 protected:
