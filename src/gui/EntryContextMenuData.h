@@ -32,6 +32,23 @@ struct EntryContextMenuData {
         }
     }
 
+	void setReadOnly(bool readOnly) const {
+		this->editFileAction->setDisabled(readOnly);
+		this->removeFileAction->setDisabled(readOnly);
+
+		this->addFileToDirAction->setDisabled(readOnly);
+		this->addDirToDirAction->setDisabled(readOnly);
+		this->renameDirAction->setDisabled(readOnly);
+		this->removeDirAction->setDisabled(readOnly);
+
+		if (this->addFileToRootAction) {
+			this->addFileToRootAction->setDisabled(readOnly);
+		}
+		if (this->addDirToRootAction) {
+			this->addDirToRootAction->setDisabled(readOnly);
+		}
+	}
+
     QMenu* contextMenuFile = nullptr;
     QAction* extractFileAction = nullptr;
     QAction* editFileAction = nullptr;

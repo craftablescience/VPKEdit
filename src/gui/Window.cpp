@@ -481,6 +481,10 @@ void Window::checkForNewUpdate() const {
 	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases/latest")));
 }
 
+bool Window::isReadOnly() const {
+	return !this->packFile || this->packFile->isReadOnly();
+}
+
 void Window::setProperties() {
     auto options = PackFileOptionsDialog::getPackFileOptions(this->packFile->getType(), this->packFile->getOptions(), this);
     if (!options) {
@@ -882,6 +886,10 @@ void Window::extractAll(QString saveDir) {
 }
 
 void Window::markModified(bool modified_) {
+	if (this->isReadOnly()) {
+		return;
+	}
+
     this->modified = modified_;
 
     if (this->modified) {
@@ -995,6 +1003,16 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->fileViewer->setDisabled(freeze);
 }
 
+void Window::freezeModifyActions(bool readOnly) const {
+	if (readOnly) {
+		this->saveAction->setDisabled(readOnly);
+		this->saveAsAction->setDisabled(readOnly);
+		this->addFileAction->setDisabled(readOnly);
+		this->addDirAction->setDisabled(readOnly);
+		this->setPropertiesAction->setDisabled(readOnly);
+	}
+}
+
 bool Window::loadPackFile(const QString& path) {
     if (!this->clearContents()) {
 		return false;
@@ -1042,6 +1060,7 @@ bool Window::loadPackFile(const QString& path) {
 
 	this->entryTree->loadPackFile(*this->packFile, this->statusProgressBar, [this, path] {
 		this->freezeActions(false);
+		this->freezeModifyActions(this->isReadOnly());
 
 		this->resetStatusBar();
 	});
