@@ -43,6 +43,8 @@ public:
 	/// Try to read the entry's data to a string
 	[[nodiscard]] std::optional<std::string> readEntryText(const Entry& entry) const;
 
+	[[nodiscard]] virtual bool isReadOnly() const;
+
 	/// Add a new entry from a file path - the first parameter is the path in the PackFile, the second is the path on disk
 	void addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_);
 
@@ -118,6 +120,18 @@ protected:
 	static std::unordered_map<std::string, FactoryFunction>& getExtensionRegistry();
 
 	static const FactoryFunction& registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory);
+};
+
+class PackFileReadOnly : public PackFile {
+public:
+	[[nodiscard]] virtual bool isReadOnly() const;
+
+protected:
+	PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_);
+
+	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+
+	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 };
 
 } // namespace vpkedit
