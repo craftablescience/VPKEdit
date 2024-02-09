@@ -138,23 +138,19 @@ if(WIN32)
     set(HELP_QUOTE "\"") # CMake is shit
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
             WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit' '' 'Browse BSP'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+            WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit' '' 'Browse VPK'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\edit\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
             System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
         ")
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
             DeleteRegKey HKCR '.bsp'
+            DeleteRegKey HKCR '.gcf'
+            DeleteRegKey HKCR '.gma'
             DeleteRegKey HKCR '.vpk'
             DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
         ")
