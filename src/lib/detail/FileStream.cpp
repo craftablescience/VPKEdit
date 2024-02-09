@@ -32,11 +32,11 @@ FileStream::operator bool() const {
 }
 
 void FileStream::seekInput(std::size_t offset, std::ios::seekdir offsetFrom) {
-	this->streamFile.seekg(static_cast<long>(offset), offsetFrom);
+	this->streamFile.seekg(static_cast<std::streamsize>(offset), offsetFrom);
 }
 
 void FileStream::seekOutput(std::size_t offset, std::ios::seekdir offsetFrom) {
-	this->streamFile.seekp(static_cast<long>(offset), offsetFrom);
+	this->streamFile.seekp(static_cast<std::streamsize>(offset), offsetFrom);
 }
 
 std::size_t FileStream::tellInput() {
