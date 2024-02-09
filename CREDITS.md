@@ -1,4 +1,5 @@
 ## Contributors
+- [bt](https://github.com/caatge): GCF file format parser
 - [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, VPK file association for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Nbc66](https://github.com/Nbc66): added some extra info to the install guide
