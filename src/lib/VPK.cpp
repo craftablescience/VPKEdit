@@ -453,7 +453,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 						entry->vpk_offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
 
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
-                        stream.write(entryData.data(), entryData.size());
+                        stream.writeBytes(entryData);
                     } else {
                         entry->vpk_offset = dirVPKEntryData.size();
                         dirVPKEntryData.insert(dirVPKEntryData.end(), entryData.data(), entryData.data() + entryData.size());
@@ -564,7 +564,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 
     // Add MD5 hashes
     outDir.seekOutput(sizeof(Header1) + sizeof(Header2) + this->header1.treeSize + dirVPKEntryData.size());
-    outDir.write(this->md5Entries.data(), this->md5Entries.size());
+    outDir.write(this->md5Entries);
     outDir.writeBytes(this->footer2.treeChecksum);
     outDir.writeBytes(this->footer2.md5EntriesChecksum);
     outDir.writeBytes(this->footer2.wholeFileChecksum);

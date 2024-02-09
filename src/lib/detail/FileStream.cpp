@@ -31,26 +31,38 @@ FileStream::operator bool() const {
 	return static_cast<bool>(this->streamFile);
 }
 
-void FileStream::seekInput(std::uint64_t offset, std::ios::seekdir offsetFrom) {
+void FileStream::seekInput(std::size_t offset, std::ios::seekdir offsetFrom) {
 	this->streamFile.seekg(static_cast<long>(offset), offsetFrom);
 }
 
-std::uint64_t FileStream::tellInput() {
-	return this->streamFile.tellg();
-}
-
-void FileStream::seekOutput(std::uint64_t offset, std::ios::seekdir offsetFrom) {
+void FileStream::seekOutput(std::size_t offset, std::ios::seekdir offsetFrom) {
 	this->streamFile.seekp(static_cast<long>(offset), offsetFrom);
 }
 
-std::uint64_t FileStream::tellOutput() {
+std::size_t FileStream::tellInput() {
+	return this->streamFile.tellg();
+}
+
+std::size_t FileStream::tellOutput() {
 	return this->streamFile.tellp();
 }
 
-std::vector<std::byte> FileStream::readBytes(std::uint64_t length) {
+std::vector<std::byte> FileStream::readBytes(std::size_t length) {
 	std::vector<std::byte> out;
 	out.resize(length);
 	this->streamFile.read(reinterpret_cast<char*>(out.data()), static_cast<std::streamsize>(length));
+	return out;
+}
+
+std::string FileStream::readString() {
+	std::string out;
+	this->read(out);
+	return out;
+}
+
+std::string FileStream::readString(std::size_t n, bool stopOnNullTerminator) {
+	std::string out;
+	this->read(out, n, stopOnNullTerminator);
 	return out;
 }
 

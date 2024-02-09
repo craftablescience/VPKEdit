@@ -31,22 +31,29 @@ public:
 
 	explicit operator bool() const;
 
-	void seekInput(std::uint64_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
+	void seekInput(std::size_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
 
-	[[nodiscard]] std::uint64_t tellInput();
+	void seekOutput(std::size_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
 
-	void seekOutput(std::uint64_t offset, std::ios::seekdir offsetFrom = std::ios::beg);
-
-	[[nodiscard]] std::uint64_t tellOutput();
-
-	template<std::uint64_t L>
-	[[nodiscard]] std::array<std::byte, L> readBytes() {
-		std::array<std::byte, L> out;
-		this->streamFile.read(reinterpret_cast<char*>(out.data()), L);
-		return out;
+	template<PODType T = std::byte>
+	void skipInput(std::size_t n = 1) {
+		if (!n) {
+			return;
+		}
+		this->seekInput(sizeof(T) * n, std::ios::cur);
 	}
 
-	[[nodiscard]] std::vector<std::byte> readBytes(std::uint64_t length);
+	template<PODType T = std::byte>
+	void skipOutput(std::size_t n = 1) {
+		if (!n) {
+			return;
+		}
+		this->seekOutput(sizeof(T) * n, std::ios::cur);
+	}
+
+	[[nodiscard]] std::size_t tellInput();
+
+	[[nodiscard]] std::size_t tellOutput();
 
 	template<PODType T>
 	[[nodiscard]] T read() {
@@ -55,12 +62,50 @@ public:
 		return obj;
 	}
 
+	template<std::size_t L>
+	[[nodiscard]] std::array<std::byte, L> readBytes() {
+		std::array<std::byte, L> out;
+		this->streamFile.read(reinterpret_cast<char*>(out.data()), L);
+		return out;
+	}
+
+	[[nodiscard]] std::vector<std::byte> readBytes(std::size_t length);
+
+	[[nodiscard]] std::string readString();
+
+	[[nodiscard]] std::string readString(std::size_t n, bool stopOnNullTerminator = true);
+
 	template<PODType T>
 	void read(T& obj) {
 		this->streamFile.read(reinterpret_cast<char*>(&obj), sizeof(T));
 	}
 
+	template<PODType T, std::size_t N>
+	void read(T(&obj)[N]) {
+		this->streamFile.read(reinterpret_cast<char*>(&obj[0]), sizeof(T) * N);
+	}
+
+	template<typename T, std::size_t N>
+	void read(std::array<T, N>& obj) {
+		for (int i = 0; i < N; i++) {
+			obj[i] = this->read<T>();
+		}
+	}
+
+	template<typename T>
+	void read(std::vector<T>& obj, std::size_t n) {
+		obj.clear();
+		if (!n) {
+			return;
+		}
+		obj.reserve(n);
+		for (int i = 0; i < n; i++) {
+			obj.push_back(this->read<T>());
+		}
+	}
+
 	void read(std::string& obj) {
+		obj.clear();
 		char temp = this->read<char>();
 		while (temp != '\0') {
 			obj += temp;
@@ -68,26 +113,52 @@ public:
 		}
 	}
 
-	template<std::uint64_t L>
+	void read(std::string& obj, std::size_t n, bool stopOnNullTerminator = true) {
+		obj.clear();
+		if (!n) {
+			return;
+		}
+		obj.reserve(n);
+		for (int i = 0; i < n; i++) {
+			char temp = this->read<char>();
+			if (temp == '\0' && stopOnNullTerminator) {
+				// Read the required number of characters and exit
+				this->skipInput<char>(n - i - 1);
+				break;
+			}
+			obj += temp;
+		}
+	}
+
+	template<PODType T>
+	void write(T obj) {
+		this->streamFile.write(reinterpret_cast<const char*>(&obj), sizeof(T));
+	}
+
+	template<std::size_t L>
 	void writeBytes(const std::array<std::byte, L> obj) {
 		this->streamFile.write(reinterpret_cast<const char*>(obj.data()), L);
 	}
 
 	void writeBytes(const std::vector<std::byte>& buffer);
 
-	template<PODType T>
-	void write(T obj) {
-		this->write(&obj);
+	template<PODType T, std::size_t N>
+	void write(T(&obj)[N]) {
+		this->streamFile.write(reinterpret_cast<const char*>(&obj[0]), sizeof(T) * N);
 	}
 
-	template<PODType T>
-	void write(T* obj) {
-		this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T));
+	template<typename T, std::size_t N>
+	void write(const std::array<T, N>& obj) {
+		for (int i = 0; i < N; i++) {
+			this->write(obj[i]);
+		}
 	}
 
-	template<PODType T>
-	void write(T* obj, std::size_t len) {
-		this->streamFile.write(reinterpret_cast<const char*>(obj), sizeof(T) * len);
+	template<typename T>
+	void write(const std::vector<T>& obj) {
+		for (T item : obj) {
+			this->write(item);
+		}
 	}
 
 	void write(const std::string& obj, bool includeTerminator = true) {

@@ -4,6 +4,7 @@
 #include <filesystem>
 
 #include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 
 using namespace vpkedit;

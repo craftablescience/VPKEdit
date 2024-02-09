@@ -2,7 +2,6 @@
 
 #include <cstdint>
 
-#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/PackFile.h>
 
 namespace vpkedit {
