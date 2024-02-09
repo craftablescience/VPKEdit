@@ -72,7 +72,15 @@ std::optional<std::string> PackFile::readEntryText(const Entry& entry) const {
 	return out;
 }
 
+bool PackFile::isReadOnly() const {
+	return false;
+}
+
 void PackFile::addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_) {
+	if (this->isReadOnly()) {
+		return;
+	}
+
 	auto buffer = ::readFileData(pathToFile, 0);
 
 	Entry entry{};
@@ -85,6 +93,10 @@ void PackFile::addEntry(const std::string& filename_, const std::string& pathToF
 }
 
 void PackFile::addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options_) {
+	if (this->isReadOnly()) {
+		return;
+	}
+
 	Entry entry{};
 	entry.unbaked = true;
 	entry.unbakedUsingByteBuffer = true;
@@ -101,6 +113,10 @@ void PackFile::addEntry(const std::string& filename_, const std::byte* buffer, s
 }
 
 bool PackFile::removeEntry(const std::string& filename_) {
+	if (this->isReadOnly()) {
+		return false;
+	}
+
 	auto filename = filename_;
 	if (!this->options.allowUppercaseLettersInFilenames) {
 		::toLowerCase(filename);
@@ -249,4 +265,19 @@ std::unordered_map<std::string, PackFile::FactoryFunction>& PackFile::getExtensi
 const PackFile::FactoryFunction& PackFile::registerExtensionForTypeFactory(const std::string& extension, const FactoryFunction& factory) {
 	PackFile::getExtensionRegistry()[extension] = factory;
 	return factory;
+}
+
+PackFileReadOnly::PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_)
+		: PackFile(std::move(fullFilePath_), options_) {}
+
+bool PackFileReadOnly::isReadOnly() const {
+	return true;
+}
+
+Entry& PackFileReadOnly::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	return entry; // Stubbed
+}
+
+bool PackFileReadOnly::bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) {
+	return false; // Stubbed
 }
