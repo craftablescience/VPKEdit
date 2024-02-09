@@ -2,9 +2,11 @@
 .idea/
 .vs/
 .vscode/
+CMakeSettings.json
 
 # Project exclude paths
 cmake-build-*/
+out/
 
 # Generated
 generated/
