@@ -23,7 +23,7 @@
 #include <QStringDecoder>
 #include <QStyleFactory>
 #include <QThread>
-#include <sapp/FilesystemSearchProvider.h>
+#include <sapp/SteamAppPathProvider.h>
 #include <vpkedit/Version.h>
 #include <vpkedit/VPK.h>
 
@@ -63,7 +63,7 @@ Window::Window(QWidget* parent)
 	});
 
 	this->openRelativeToMenu = nullptr;
-	if (CFileSystemSearchProvider provider; provider.Available()) {
+	if (SteamAppPathProvider provider; provider.Available()) {
 		QList<std::tuple<QString, QString, QDir>> sourceGames;
 		auto installedSteamAppCount = provider.GetNumInstalledApps();
 		std::unique_ptr<uint32_t[]> steamAppIDs(provider.GetInstalledAppsEX());
@@ -72,13 +72,13 @@ Window::Window(QWidget* parent)
 			if (!(provider.BIsSourceGame(steamAppIDs[i]) || provider.BIsSource2Game(steamAppIDs[i])))
 				continue;
 
-			std::unique_ptr<CFileSystemSearchProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
-			auto relativeDirectoryPath = QDir(QString(steamGameInfo->library) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir);
+			std::unique_ptr<SteamAppPathProvider::Game> steamGameInfo(provider.GetAppInstallDirEX(steamAppIDs[i]));
+			auto relativeDirectoryPath = QDir(QString(steamGameInfo->library.c_str()) + QDir::separator() + "common" + QDir::separator() + steamGameInfo->installDir.c_str());
 
 			// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
-			QString gameName(steamGameInfo->gameName);
+			QString gameName(steamGameInfo->gameName.c_str());
 			gameName.replace("&", "&&");
-			sourceGames.emplace_back(gameName, steamGameInfo->icon, relativeDirectoryPath);
+			sourceGames.emplace_back(gameName, steamGameInfo->icon.c_str(), relativeDirectoryPath);
 		}
 		if (!sourceGames.empty()) {
 			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
