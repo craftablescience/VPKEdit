@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <tuple>
+#include <deque>
 
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
@@ -200,39 +201,51 @@ std::optional<std::vector<std::byte>> GCF::readEntry(const Entry& entry) const {
 
 	std::vector<std::byte> filedata;
 	if (entry.length == 0) {
-		// don't bother
+		// dont bother
 		return filedata;
 	}
-	std::uint32_t dir_index = entry.offset;
-	std::uint32_t datablockindex = 0xffffffff;
 
+	std::uint32_t dir_index = entry.offset;
+	//printf(" extracting file: %s\n", entry.path.c_str());
+
+	std::vector<Block> toread;
 	for (auto& v : this->blockdata) {
 		if (v.dir_index == dir_index) {
-			datablockindex = v.first_data_block_index;
-			break;
+			toread.push_back(v);
 		}
 	}
+	
+	std::sort(toread.begin(), toread.end(), [](Block b1, Block b2) {
+		return (b1.file_data_offset < b2.file_data_offset);
+		}
+	);
 
-	if (datablockindex == 0xffffffff) {
+	if (!toread.size()) {
+		//printf("could not find any directory index for %lu", entry.vpk_offset);
 		return std::nullopt;
 	}
 
-	FileStream stream{this->fullFilePath};
+	FileStream stream{ this->fullFilePath };
 	if (!stream) {
+		//printf("!stream\n");
 		return std::nullopt;
 	}
 
 	uint64_t remaining = entry.length;
-	std::uint32_t currindex = datablockindex;
 
-	while (currindex < this->blockheader.count) {
-		stream.seekInput(this->datablockheader.firstblockoffset + (0x2000 * currindex));
-		std::uint32_t toread = std::min(remaining, static_cast<uint64_t>(0x2000));
-		auto streamvec = stream.readBytes(toread);
-		filedata.insert(filedata.end(), streamvec.begin(), streamvec.end());
-		remaining -= toread;
-		//printf("curidx %lu\n", currindex);
-		currindex = this->fragmap[currindex];
+	for (auto& block : toread) {
+		std::uint32_t currindex = block.first_data_block_index;
+		while (currindex <= this->blockheader.count) {
+			uint64_t curfilepos = static_cast<uint64_t>(this->datablockheader.firstblockoffset) + (static_cast<uint64_t>(0x2000) * static_cast<uint64_t>(currindex));
+			stream.seekInput(curfilepos);
+			//printf("off %lli block %lu toread %lli shouldbe %llu\n", stream.tellInput(), currindex, remaining, curfilepos);
+			std::uint32_t toread = std::min(remaining, static_cast<uint64_t>(0x2000));
+			auto streamvec = stream.readBytes(toread);
+			filedata.insert(filedata.end(), streamvec.begin(), streamvec.end());
+			remaining -= toread;
+			currindex = this->fragmap[currindex];
+			//printf("curridx now: %lu\n", currindex);
+		}
 	}
 
 	return filedata;
