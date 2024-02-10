@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <filesystem>
 #include <tuple>
-#include <deque>
 
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
@@ -53,7 +52,6 @@ std::unique_ptr<PackFile> GCF::open(const std::string& path, PackFileOptions opt
 
 	reader.read(gcf->blockheader);
 	if (gcf->blockheader.count != gcf->header.blockcount) {
-		//hi
 		return nullptr;
 	}
 
@@ -88,10 +86,10 @@ std::unique_ptr<PackFile> GCF::open(const std::string& path, PackFileOptions opt
 	// actually if we want to implement writing later this might be a better idea
 	// if anyone wants to touch this piece of shit format again anyways
 
-	auto blkcount = reader.read<uint32_t>();
-	auto d1 = reader.read<uint32_t>();
-	auto d2 = reader.read<uint32_t>();
-	auto checksum = reader.read<uint32_t>();
+	auto blkcount = reader.read<std::uint32_t>();
+	auto d1 = reader.read<std::uint32_t>();
+	auto d2 = reader.read<std::uint32_t>();
+	auto checksum = reader.read<std::uint32_t>();
 
 	if (blkcount + d1 + d2 != checksum || blkcount != gcf->blockheader.count) {
 		return nullptr;
@@ -106,11 +104,11 @@ std::unique_ptr<PackFile> GCF::open(const std::string& path, PackFileOptions opt
 	// Directory stuff starts here
 
 	//Reading the header
-	uint64_t temp = reader.tellInput();
+	std::uint64_t temp = reader.tellInput();
 	reader.read(gcf->dirheader);
 
-	uint64_t diroffset = reader.tellInput() + (gcf->dirheader.itemcount * 28);
-	uint64_t currentoffset;
+	std::uint64_t diroffset = reader.tellInput() + (gcf->dirheader.itemcount * 28);
+	std::uint64_t currentoffset;
 
 	std::vector<DirectoryEntry2> direntries{};
 
@@ -201,7 +199,7 @@ std::optional<std::vector<std::byte>> GCF::readEntry(const Entry& entry) const {
 
 	std::vector<std::byte> filedata;
 	if (entry.length == 0) {
-		// dont bother
+		// don't bother
 		return filedata;
 	}
 
@@ -209,40 +207,40 @@ std::optional<std::vector<std::byte>> GCF::readEntry(const Entry& entry) const {
 	//printf(" extracting file: %s\n", entry.path.c_str());
 
 	std::vector<Block> toread;
-	for (auto& v : this->blockdata) {
+	for (const auto& v : this->blockdata) {
 		if (v.dir_index == dir_index) {
 			toread.push_back(v);
 		}
 	}
-	
-	std::sort(toread.begin(), toread.end(), [](Block b1, Block b2) {
-		return (b1.file_data_offset < b2.file_data_offset);
+
+	std::sort(toread.begin(), toread.end(), [](Block lhs, Block rhs) {
+		return (lhs.file_data_offset < rhs.file_data_offset);
 		}
 	);
 
-	if (!toread.size()) {
+	if (toread.empty()) {
 		//printf("could not find any directory index for %lu", entry.vpk_offset);
 		return std::nullopt;
 	}
 
-	FileStream stream{ this->fullFilePath };
+	FileStream stream{this->fullFilePath};
 	if (!stream) {
 		//printf("!stream\n");
 		return std::nullopt;
 	}
 
-	uint64_t remaining = entry.length;
+	std::uint64_t remaining = entry.length;
 
-	for (auto& block : toread) {
+	for (const auto& block : toread) {
 		std::uint32_t currindex = block.first_data_block_index;
 		while (currindex <= this->blockheader.count) {
-			uint64_t curfilepos = static_cast<uint64_t>(this->datablockheader.firstblockoffset) + (static_cast<uint64_t>(0x2000) * static_cast<uint64_t>(currindex));
+			std::uint64_t curfilepos = static_cast<std::uint64_t>(this->datablockheader.firstblockoffset) + (static_cast<std::uint64_t>(0x2000) * static_cast<std::uint64_t>(currindex));
 			stream.seekInput(curfilepos);
-			//printf("off %lli block %lu toread %lli shouldbe %llu\n", stream.tellInput(), currindex, remaining, curfilepos);
-			std::uint32_t toread = std::min(remaining, static_cast<uint64_t>(0x2000));
-			auto streamvec = stream.readBytes(toread);
+			//printf("off %lli block %lu toread %lli should be %llu\n", stream.tellInput(), currindex, remaining, curfilepos);
+			std::uint32_t toreadAmt = std::min(remaining, static_cast<std::uint64_t>(0x2000));
+			auto streamvec = stream.readBytes(toreadAmt);
 			filedata.insert(filedata.end(), streamvec.begin(), streamvec.end());
-			remaining -= toread;
+			remaining -= toreadAmt;
 			currindex = this->fragmap[currindex];
 			//printf("curridx now: %lu\n", currindex);
 		}
