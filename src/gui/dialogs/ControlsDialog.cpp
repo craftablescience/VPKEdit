@@ -38,7 +38,7 @@ ControlsDialog::ControlsDialog(QWidget* parent)
 	scroll->setWidget(controlsLabel);
 }
 
-void ControlsDialog::showControlsDialog(QWidget* parent) {
+void ControlsDialog::showDialog(QWidget* parent) {
 	auto* dialog = new ControlsDialog(parent);
 	dialog->exec();
 	dialog->deleteLater();

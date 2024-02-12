@@ -8,5 +8,5 @@ class ControlsDialog : public QDialog {
 public:
 	explicit ControlsDialog(QWidget* parent = nullptr);
 
-	static void showControlsDialog(QWidget* parent = nullptr);
+	static void showDialog(QWidget* parent = nullptr);
 };

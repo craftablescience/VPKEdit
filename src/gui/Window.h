@@ -41,7 +41,7 @@ public:
 
 	void checkForNewUpdate() const;
 
-	bool isReadOnly() const;
+	[[nodiscard]] bool isReadOnly() const;
 
     void setProperties();
 
@@ -64,6 +64,8 @@ public:
     void aboutQt();
 
     void controls();
+
+	void verifyChecksums();
 
     [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
@@ -121,6 +123,7 @@ private:
     QAction* addFileAction;
     QAction* addDirAction;
     QAction* setPropertiesAction;
+	QMenu*   toolsGeneralMenu;
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 

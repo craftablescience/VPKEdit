@@ -33,6 +33,7 @@
 #include "dialogs/NewUpdateDialog.h"
 #include "dialogs/NewVPKOptionsDialog.h"
 #include "dialogs/PackFileOptionsDialog.h"
+#include "dialogs/VerifyChecksumsDialog.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -214,6 +215,15 @@ Window::Window(QWidget* parent)
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogListView), tr("Controls"), Qt::Key_F2, [this] {
 		this->controls();
 	});
+
+	// Tools menu
+	auto* toolsMenu = this->menuBar()->addMenu(tr("&Tools"));
+
+	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&General"));
+	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Verify Checksums"), [this] {
+		this->verifyChecksums();
+	});
+	this->toolsGeneralMenu->setDisabled(true);
 
 #ifdef QT_DEBUG
     // Debug menu
@@ -742,7 +752,11 @@ void Window::aboutQt() {
 }
 
 void Window::controls() {
-	ControlsDialog::showControlsDialog(this);
+	ControlsDialog::showDialog(this);
+}
+
+void Window::verifyChecksums() {
+	VerifyChecksumsDialog::showDialog(*this->packFile, this);
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
@@ -997,6 +1011,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->addFileAction->setDisabled(freeze);
     this->addDirAction->setDisabled(freeze);
     this->setPropertiesAction->setDisabled(freeze);
+	this->toolsGeneralMenu->setDisabled(freeze);
 
     this->searchBar->setDisabled(freeze);
     this->entryTree->setDisabled(freeze);
@@ -1098,7 +1113,7 @@ void Window::writeEntryToFile(const QString& path, const Entry& entry) {
         QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
         return;
     }
-    auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), entry.length);
+    auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), static_cast<std::streamsize>(entry.length));
     if (bytesWritten != entry.length) {
         QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
     }

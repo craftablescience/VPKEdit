@@ -65,6 +65,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/NewVPKOptionsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/PackFileOptionsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/PackFileOptionsDialog.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.h"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/formats/VTFDecoder.h"
         "${CMAKE_CURRENT_LIST_DIR}/formats/VTFDecoder.cpp"
