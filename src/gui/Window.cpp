@@ -1152,6 +1152,17 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
             continue;
         }
 
+#ifdef _WIN32
+		// Remove bad characters from the filepath
+		dir.replace('<', "_LT_");
+		dir.replace('>', "_GT_");
+		dir.replace(':', "_COLON_");
+		dir.replace('"', "_QUOT_");
+		dir.replace('|', "_BAR_");
+		dir.replace('?', "_QMARK_");
+		dir.replace('*', "_AST_");
+#endif
+
         QDir qDir;
         if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
             QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
@@ -1159,7 +1170,42 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
         }
 
         for (const auto& entry : entries) {
-            auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
+			std::string filename{entry.getFilename()};
+#ifdef _WIN32
+	        {
+				std::filesystem::path path{filename};
+		        auto extension = path.extension().string();
+		        QString stem = path.stem().string().c_str();
+				stem = stem.toUpper();
+
+		        // Replace bad filenames
+		        if (stem == "CON") {
+			        filename = "_CON_" + extension;
+		        } else if (stem == "PRN") {
+			        filename = "_PRN_" + extension;
+		        } else if (stem == "AUX") {
+			        filename = "_AUX_" + extension;
+		        } else if (stem == "NUL") {
+			        filename = "_NUL_" + extension;
+		        } else if (stem.startsWith("COM") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
+			        filename = "_COM";
+					filename += stem[3].toLatin1();
+					filename += '_';
+					filename += extension;
+		        } else if (stem.startsWith("LPT") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
+			        filename = "_LPT";
+					filename += stem[3].toLatin1();
+					filename += '_';
+					filename += extension;
+		        }
+
+		        // Files cannot end with a period - weird
+		        if (extension == ".") {
+			        filename.pop_back();
+		        }
+	        }
+#endif
+            auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + filename.c_str();
             window->writeEntryToFile(filePath, entry);
             emit progressUpdated(++currentEntry);
         }
