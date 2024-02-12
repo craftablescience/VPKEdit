@@ -15,6 +15,7 @@ constexpr std::string_view VPK_DIR_SUFFIX = "_dir";
 constexpr std::string_view VPK_EXTENSION = ".vpk";
 
 class VPK : public PackFile {
+protected:
 #pragma pack(push, 1)
     struct Header1 {
         std::uint32_t signature;

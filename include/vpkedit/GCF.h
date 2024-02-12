@@ -10,7 +10,8 @@ namespace vpkedit {
 constexpr std::string_view GCF_EXTENSION = ".gcf";
 
 class GCF : public PackFileReadOnly {
-public:
+protected:
+#pragma pack(push, 1)
 	struct Header {
 		std::uint32_t dummy1;
 		std::uint32_t dummy2;
@@ -98,9 +99,25 @@ public:
 		std::uint32_t checksum;
 	};
 
+	struct ChecksumMapHeader {
+		std::uint32_t dummy1;
+		std::uint32_t dummy2;
+		std::uint32_t item_count;
+		std::uint32_t checksum_count;
+	};
+
+	struct ChecksumMapEntry {
+		std::uint32_t count;
+		std::uint32_t firstindex;
+	};
+#pragma pack(pop)
+
+public:
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
+
+	[[nodiscard]] virtual std::vector<std::string> verifyEntryChecksums() const override;
 
 protected:
 	GCF(const std::string& fullFilePath_, PackFileOptions options_);
@@ -110,9 +127,11 @@ protected:
 	std::vector<Block> blockdata{};
 	std::vector<std::uint32_t> fragmap{};
 	DirectoryHeader dirheader{};
-	//std::vector<DirectoryEntry2> direntries {};
-	std::vector<DirectoryMapEntry> dirmap_entries;
+	//std::vector<DirectoryEntry2> direntries{};
+	std::vector<DirectoryMapEntry> dirmap_entries{};
 	DataBlockHeader datablockheader{};
+	std::vector<ChecksumMapEntry> chksum_map{};
+	std::vector<std::uint32_t> checksums{};
 
 private:
 	VPKEDIT_REGISTER_PACKFILE_EXTENSION(GCF_EXTENSION, &GCF::open);
