@@ -122,7 +122,7 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	entry.path = filename;
 	entry.length = buffer.size();
 	entry.compressedLength = 0;
-	entry.crc32 = ::computeCRC(buffer);
+	entry.crc32 = ::computeCRC32(buffer);
 	entry.zip_compressionMethod = options_.zip_compressionMethod;
 
 	if (!this->unbakedEntries.contains(dir)) {

@@ -308,7 +308,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
-	entry.crc32 = ::computeCRC(buffer);
+	entry.crc32 = ::computeCRC32(buffer);
 	entry.length = buffer.size();
 
 	// Offset will be reset when it's baked

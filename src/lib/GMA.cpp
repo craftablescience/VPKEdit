@@ -118,7 +118,7 @@ Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	entry.path = filename;
 	entry.length = buffer.size();
 	if (this->options.gma_writeCRCs) {
-		entry.crc32 = ::computeCRC(buffer);
+		entry.crc32 = ::computeCRC32(buffer);
 	}
 
 	// Offset will be reset when it's baked
@@ -206,7 +206,7 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 		auto fileSize = std::filesystem::file_size(outputPath);
 		FileStream stream{outputPath};
 		stream.seekInput(0);
-		crc = ::computeCRC(stream.readBytes(fileSize));
+		crc = ::computeCRC32(stream.readBytes(fileSize));
 	}
 	{
 		FileStream stream{outputPath, FILESTREAM_OPT_APPEND};
