@@ -23,7 +23,8 @@ configure_file(
 add_library(
         lib${PROJECT_NAME}
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Adler32.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC32.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/BSP.h"
@@ -36,7 +37,8 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/VPK.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/ZIP.h"
 
-        "${CMAKE_CURRENT_LIST_DIR}/detail/CRC.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/detail/Adler32.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/detail/CRC32.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/detail/FileStream.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/BSP.cpp"

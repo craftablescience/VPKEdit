@@ -25,7 +25,8 @@ public:
 	/// If the format supports compression, this is the compressed length
 	/// If compression is not supported or unused, this will remain 0
 	std::uint64_t compressedLength = 0;
-	/// CRC32 checksum - 0 if unused
+	/// CRC32 checksum - 0 if unused.
+	/// Note that for GCF, this is actually an index into a checksum array and NOT a checksum
 	std::uint32_t crc32 = 0;
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;

@@ -4,91 +4,13 @@
 #include <filesystem>
 #include <tuple>
 
+#include <vpkedit/detail/Adler32.h>
+#include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
-#include <vpkedit/detail/CRC.h>
 
 using namespace vpkedit;
 using namespace vpkedit::detail;
-
-constexpr std::uint32_t BASE = 65521u;    /* largest prime smaller than 65536 */
-constexpr std::size_t NMAX = 5552u;
-
-#define DO1(buf,i)  {adler += (buf)[i]; sum2 += adler;}
-#define DO2(buf,i)  DO1(buf,i); DO1(buf,i+1);
-#define DO4(buf,i)  DO2(buf,i); DO2(buf,i+2);
-#define DO8(buf,i)  DO4(buf,i); DO4(buf,i+4);
-#define DO16(buf)   DO8(buf,0); DO8(buf,8);
-
-#define MOD(a) a %= BASE
-#define MOD28(a) a %= BASE
-#define MOD63(a) a %= BASE
-
-std::uint32_t adler32(std::uint32_t adler, const unsigned char* buf, std::size_t len) {
-	std::uint32_t sum2;
-	std::uint32_t n;
-
-	/* split Adler-32 into component sums */
-	sum2 = (adler >> 16) & 0xffff;
-	adler &= 0xffff;
-
-	/* in case user likes doing a byte at a time, keep it fast */
-	if (len == 1) {
-		adler += buf[0];
-		if (adler >= BASE)
-			adler -= BASE;
-		sum2 += adler;
-		if (sum2 >= BASE)
-			sum2 -= BASE;
-		return adler | (sum2 << 16);
-	}
-
-	/* initial Adler-32 value (deferred check for len == 1 speed) */
-	if (!buf)
-		return 1L;
-
-	/* in case short lengths are provided, keep it somewhat fast */
-	if (len < 16) {
-		while (len--) {
-			adler += *buf++;
-			sum2 += adler;
-		}
-		if (adler >= BASE)
-			adler -= BASE;
-		MOD28(sum2);            /* only added so many BASE's */
-		return adler | (sum2 << 16);
-	}
-
-	/* do length NMAX blocks -- requires just one modulo operation */
-	while (len >= NMAX) {
-		len -= NMAX;
-		n = NMAX / 16;          /* NMAX is divisible by 16 */
-		do {
-			DO16(buf);          /* 16 sums unrolled */
-			buf += 16;
-		} while (--n);
-		MOD(adler);
-		MOD(sum2);
-	}
-
-	/* do remaining bytes (less than NMAX, still just one modulo) */
-	if (len) {                  /* avoid modulos if none remaining */
-		while (len >= 16) {
-			len -= 16;
-			DO16(buf);
-			buf += 16;
-		}
-		while (len--) {
-			adler += *buf++;
-			sum2 += adler;
-		}
-		MOD(adler);
-		MOD(sum2);
-	}
-
-	/* return recombined sums */
-	return adler | (sum2 << 16);
-}
 
 GCF::GCF(const std::string& fullFilePath_, PackFileOptions options_)
 		: PackFileReadOnly(fullFilePath_, options_) {
@@ -369,8 +291,8 @@ std::vector<std::string> GCF::verifyEntryChecksums() const {
 			for (int i = 0; i < count; i++) {
 				std::uint32_t csum = this->checksums[checksumstart + i];
 				std::size_t toread = std::min(static_cast<std::size_t>(0x8000), tocheck);
-				const auto* data = reinterpret_cast<const unsigned char*>(bytes->data()) + (i * 0x8000);
-				std::uint32_t checksum = ::computeCRC(reinterpret_cast<const std::byte*>(data), toread) ^ ::adler32(0, data, toread);
+				const auto* data = bytes->data() + (i * 0x8000);
+				std::uint32_t checksum = ::computeCRC(data, toread) ^ ::computeAdler32(data, toread);
 				if (checksum != csum) {
 					bad.push_back(entry.path);
 				}

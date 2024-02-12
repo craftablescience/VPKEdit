@@ -7,7 +7,7 @@
 #include <mz_strm_os.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
-#include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 

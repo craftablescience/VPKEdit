@@ -3,7 +3,7 @@
 #include <cstring>
 #include <filesystem>
 
-#include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 

@@ -1,4 +1,4 @@
-#include <vpkedit/detail/CRC.h>
+#include <vpkedit/detail/CRC32.h>
 
 using namespace vpkedit;
 
