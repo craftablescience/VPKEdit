@@ -125,14 +125,14 @@ protected:
 
 class PackFileReadOnly : public PackFile {
 public:
-	[[nodiscard]] virtual bool isReadOnly() const;
+	[[nodiscard]] bool isReadOnly() const final;
 
 protected:
 	PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
 
-	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
+	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) final;
 };
 
 } // namespace vpkedit
