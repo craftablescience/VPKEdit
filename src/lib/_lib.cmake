@@ -11,7 +11,7 @@ set(MZ_PKCRYPT          OFF CACHE INTERNAL "")
 set(MZ_WZAES            OFF CACHE INTERNAL "")
 set(MZ_OPENSSL          OFF CACHE INTERNAL "")
 set(MZ_FETCH_LIBS       ON  CACHE INTERNAL "")
-set(MZ_FORCE_FETCH_LIBS OFF CACHE INTERNAL "")
+set(MZ_FORCE_FETCH_LIBS ON  CACHE INTERNAL "")
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/minizip-ng")
 
 # Configure version header
