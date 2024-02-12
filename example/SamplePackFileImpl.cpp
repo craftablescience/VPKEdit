@@ -78,6 +78,14 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 	return packFile;
 }
 
+std::vector<std::string> EXAMPLE::verifyEntryChecksums() const {
+	return {};
+}
+
+bool EXAMPLE::verifyFileChecksum() const {
+	return true;
+}
+
 std::optional<std::vector<std::byte>> EXAMPLE::readEntry(const Entry& entry) const {
 	// Include this code verbatim - will likely be moved to a utility method soon
 	if (entry.unbaked) {

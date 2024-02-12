@@ -35,6 +35,14 @@ public:
 	/// Get the current options of the pack file
 	[[nodiscard]] PackFileOptions getOptions() const;
 
+	/// Verify the checksums of each file, if a file fails the check its filename will be added to the vector.
+	/// If there is no checksum ability in the format, it will return an empty vector
+	[[nodiscard]] virtual std::vector<std::string> verifyEntryChecksums() const;
+
+	/// Verify the checksum of the entire file, returns true on success
+	/// Will return true if there is no checksum ability in the format
+	[[nodiscard]] virtual bool verifyFileChecksum() const;
+
 	/// Try to find an entry given the file path
 	[[nodiscard]] std::optional<Entry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
 

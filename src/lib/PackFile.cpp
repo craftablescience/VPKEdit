@@ -34,6 +34,14 @@ PackFileOptions PackFile::getOptions() const {
 	return this->options;
 }
 
+std::vector<std::string> PackFile::verifyEntryChecksums() const {
+	return {};
+}
+
+bool PackFile::verifyFileChecksum() const {
+	return true;
+}
+
 std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool includeUnbaked) const {
 	auto filename = filename_;
 	::normalizeSlashes(filename);
