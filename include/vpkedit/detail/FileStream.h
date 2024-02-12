@@ -132,6 +132,7 @@ public:
 
 	template<PODType T>
 	void write(T obj) {
+		static_assert(!std::is_pointer_v<T>, "Trying to write a pointer!");
 		this->streamFile.write(reinterpret_cast<const char*>(&obj), sizeof(T));
 	}
 

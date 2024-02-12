@@ -48,7 +48,7 @@ std::unique_ptr<PackFile> VPK::createEmpty(const std::string& path, PackFileOpti
         header1.signature = VPK_ID;
         header1.version = options.vpk_version;
         header1.treeSize = 1;
-        stream.write(&header1);
+        stream.write(header1);
 
         if (options.vpk_version != 1) {
             Header2 header2{};
@@ -56,7 +56,7 @@ std::unique_ptr<PackFile> VPK::createEmpty(const std::string& path, PackFileOpti
             header2.archiveMD5SectionSize = 0;
             header2.otherMD5SectionSize = 0;
             header2.signatureSectionSize = 0;
-            stream.write(&header2);
+            stream.write(header2);
         }
 
 		stream.write('\0');
@@ -420,13 +420,13 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     }
 
     FileStream outDir{outputPath, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
-
-    // Dummy header
     outDir.seekInput(0);
     outDir.seekOutput(0);
-    outDir.write(&this->header1);
+
+	// Dummy header
+    outDir.write(this->header1);
     if (this->header1.version == 2) {
-        outDir.write(&this->header2);
+        outDir.write(this->header2);
     }
 
     // File tree data
@@ -554,7 +554,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 
     // Write new headers
     outDir.seekOutput(0);
-    outDir.write(&this->header1);
+    outDir.write(this->header1);
 
     // v2 adds the MD5 hashes and file signature
     if (this->header1.version < 2) {
@@ -562,7 +562,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
         return true;
     }
 
-    outDir.write(&this->header2);
+    outDir.write(this->header2);
 
     // Add MD5 hashes
     outDir.seekOutput(sizeof(Header1) + sizeof(Header2) + this->header1.treeSize + dirVPKEntryData.size());
