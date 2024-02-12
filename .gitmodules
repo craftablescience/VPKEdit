@@ -10,9 +10,9 @@
 [submodule "src/gui/thirdparty/speedykeyv"]
 	path = src/gui/thirdparty/speedykeyv
 	url = https://github.com/ozxybox/SpeedyKeyV
-[submodule "src/gui/thirdparty/studiomodelpp"]
-	path = src/gui/thirdparty/studiomodelpp
-	url = https://github.com/craftablescience/studiomodelpp
+[submodule "src/gui/thirdparty/sourcepp"]
+	path = src/gui/thirdparty/sourcepp
+	url = https://github.com/craftablescience/sourcepp
 [submodule "src/lib/thirdparty/minizip-ng"]
 	path = src/lib/thirdparty/minizip-ng
 	url = https://github.com/zlib-ng/minizip-ng

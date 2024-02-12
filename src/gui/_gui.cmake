@@ -12,8 +12,8 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
-# studiomodelpp
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/studiomodelpp")
+# sourcepp (various parsing libraries)
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/sourcepp")
 
 # SpeedyKeyV (for SAPP)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/speedykeyv")
@@ -110,7 +110,7 @@ add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 # Final Qt setup
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
-target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/sapp/include"
