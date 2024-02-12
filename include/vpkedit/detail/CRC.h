@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -44,5 +45,7 @@ constexpr std::array<unsigned int, 256> CRC_TABLE = {
 };
 
 std::uint32_t computeCRC(const std::vector<std::byte>& buffer);
+
+std::uint32_t computeCRC(const std::byte* buffer, std::size_t len);
 
 } // namespace vpkedit::detail
