@@ -10,6 +10,7 @@ struct EntryContextMenuData {
         this->extractFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract File..."));
         this->contextMenuFile->addSeparator();
         this->editFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move File..."));
+	    this->copyFilePathAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
         this->contextMenuFile->addSeparator();
         this->removeFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove File"));
 
@@ -20,6 +21,7 @@ struct EntryContextMenuData {
         this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
         this->contextMenuDir->addSeparator();
         this->renameDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move Folder..."));
+	    this->copyDirPathAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
         this->contextMenuDir->addSeparator();
         this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
 
@@ -52,6 +54,7 @@ struct EntryContextMenuData {
     QMenu* contextMenuFile = nullptr;
     QAction* extractFileAction = nullptr;
     QAction* editFileAction = nullptr;
+	QAction* copyFilePathAction = nullptr;
     QAction* removeFileAction = nullptr;
 
     QMenu* contextMenuDir = nullptr;
@@ -59,6 +62,7 @@ struct EntryContextMenuData {
     QAction* addFileToDirAction = nullptr;
     QAction* addDirToDirAction = nullptr;
     QAction* renameDirAction = nullptr;
+	QAction* copyDirPathAction = nullptr;
     QAction* removeDirAction = nullptr;
 
     QMenu* contextMenuAll = nullptr;

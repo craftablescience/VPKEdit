@@ -1,5 +1,7 @@
 #include "DirPreview.h"
 
+#include <QClipboard>
+#include <QGuiApplication>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMessageBox>
@@ -63,6 +65,8 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                     this->window->addDir(false, path);
                 } else if (selectedDirAction == contextMenuData.renameDirAction) {
                     this->window->renameDir(path);
+                } else if (selectedDirAction == contextMenuData.copyDirPathAction) {
+	                QGuiApplication::clipboard()->setText(path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->window->requestEntryRemoval(path);
                     this->removeDir(path);
@@ -76,6 +80,8 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
                     this->window->extractFile(path);
                 } else if (selectedFileAction == contextMenuData.editFileAction) {
                     this->window->editFile(path);
+                } else if (selectedFileAction == contextMenuData.copyFilePathAction) {
+	                QGuiApplication::clipboard()->setText(path);
                 } else if (selectedFileAction == contextMenuData.removeFileAction) {
                     this->window->requestEntryRemoval(path);
                 }

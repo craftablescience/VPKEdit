@@ -1,7 +1,9 @@
 #include "EntryTree.h"
 
 #include <QApplication>
+#include <QClipboard>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QMimeDatabase>
@@ -130,6 +132,8 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                     this->window->addDir(false, path);
                 } else if (selectedDirAction == contextMenuData.renameDirAction) {
                     this->window->renameDir(path);
+                } else if (selectedDirAction == contextMenuData.copyDirPathAction) {
+	                QGuiApplication::clipboard()->setText(path);
                 } else if (selectedDirAction == contextMenuData.removeDirAction) {
                     this->removeEntry(selectedItem);
                 }
@@ -142,6 +146,8 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
                     this->window->extractFile(path);
                 } else if (selectedFileAction == contextMenuData.editFileAction) {
                     this->window->editFile(path);
+                } else if (selectedFileAction == contextMenuData.copyFilePathAction) {
+	                QGuiApplication::clipboard()->setText(path);
                 } else if (selectedFileAction == contextMenuData.removeFileAction) {
                     this->removeEntry(selectedItem);
                 }
