@@ -18,8 +18,6 @@
 #include <VTFLib.h>
 
 #include "../FileViewer.h"
-#include "info/FileLoadErrorPreview.h"
-#include "info/InvalidMDLErrorPreview.h"
 
 using namespace std::literals;
 using namespace studiomodelpp;
@@ -480,15 +478,14 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		vtxEntry = packFile.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
-		this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("Unable to find all the required files the model is composed of!"));
-		this->fileViewer->showPreview<InvalidMDLErrorPreview>();
+		this->fileViewer->showInfoPreview({":/error.png"}, tr("Unable to find all the required files the model is composed of!"));
 		return;
 	}
 	auto mdlData = packFile.readEntry(*mdlEntry);
 	auto vvdData = packFile.readEntry(*vvdEntry);
 	auto vtxData = packFile.readEntry(*vtxEntry);
 	if (!mdlData || !vvdData || !vtxData) {
-		this->fileViewer->showPreview<FileLoadErrorPreview>();
+		this->fileViewer->showFileLoadErrorPreview();
 		return;
 	}
 
@@ -497,8 +494,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
 								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
     if (!opened) {
-	    this->fileViewer->getPreview<InvalidMDLErrorPreview>()->setErrorMessage(tr("This model is invalid, it cannot be previewed!"));
-	    this->fileViewer->showPreview<InvalidMDLErrorPreview>();
+	    this->fileViewer->showInfoPreview({":/error.png"}, tr("This model is invalid, it cannot be previewed!"));
         return;
     }
 

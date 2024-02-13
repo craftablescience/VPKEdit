@@ -7,11 +7,9 @@
 #include <QToolButton>
 
 #include "previews/DirPreview.h"
-#include "previews/info/EmptyPreview.h"
-#include "previews/info/FileLoadErrorPreview.h"
-#include "previews/info/InvalidMDLErrorPreview.h"
-#include "previews/info/NoAvailablePreview.h"
+#include "previews/EmptyPreview.h"
 #include "previews/ImagePreview.h"
+#include "previews/InfoPreview.h"
 #include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
@@ -183,17 +181,11 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* emptyPreview = newPreview<EmptyPreview>(this);
     layout->addWidget(emptyPreview);
 
-    auto* fileLoadErrorPreview = newPreview<FileLoadErrorPreview>(this);
-    layout->addWidget(fileLoadErrorPreview);
-
     auto* imagePreview = newPreview<ImagePreview>(this);
     layout->addWidget(imagePreview);
 
-	auto* invalidMDLErrorPreview = newPreview<InvalidMDLErrorPreview>(this);
-	layout->addWidget(invalidMDLErrorPreview);
-
-	auto* noAvailablePreview = newPreview<NoAvailablePreview>(this);
-	layout->addWidget(noAvailablePreview);
+	auto* infoPreview = newPreview<InfoPreview>(this);
+    layout->addWidget(infoPreview);
 
 	auto* mdlPreview = newPreview<MDLPreview>(this, this);
 	layout->addWidget(mdlPreview);
@@ -227,7 +219,7 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 	    // Image
 	    auto binary = this->window->readBinaryEntry(path);
 	    if (!binary) {
-		    this->showPreview<FileLoadErrorPreview>();
+		    this->showFileLoadErrorPreview();
 		    return;
 	    }
 	    this->showPreview<ImagePreview>();
@@ -236,7 +228,7 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 		// MDL (model)
 	    auto binary = this->window->readBinaryEntry(path);
 	    if (!binary) {
-		    this->showPreview<FileLoadErrorPreview>();
+		    this->showFileLoadErrorPreview();
 		    return;
 	    }
 	    this->showPreview<MDLPreview>();
@@ -245,7 +237,7 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
         // VTF (texture)
         auto binary = this->window->readBinaryEntry(path);
         if (!binary) {
-            this->showPreview<FileLoadErrorPreview>();
+	        this->showFileLoadErrorPreview();
             return;
         }
 	    this->showPreview<VTFPreview>();
@@ -254,13 +246,13 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
         // Text
         auto text = this->window->readTextEntry(path);
         if (!text) {
-            this->showPreview<FileLoadErrorPreview>();
+            this->showFileLoadErrorPreview();
             return;
         }
 	    this->showPreview<TextPreview>();
         this->getPreview<TextPreview>()->setText(*text, extension);
     } else {
-		this->showPreview<NoAvailablePreview>();
+		this->showInfoPreview({":/warning.png"}, tr("No available preview."));
 	}
 }
 
@@ -307,4 +299,17 @@ const QString& FileViewer::getDirPreviewCurrentPath() {
 void FileViewer::clearContents(bool resetHistory) {
 	this->navbar->clearContents(resetHistory);
     this->showPreview<EmptyPreview>();
+}
+
+void FileViewer::showInfoPreview(const QPixmap& icon, const QString& text) {
+	for (const auto [index, widget] : this->previews) {
+		widget->hide();
+	}
+	auto* infoPreview = dynamic_cast<InfoPreview*>(this->previews.at(std::type_index(typeid(InfoPreview))));
+	infoPreview->show();
+	infoPreview->setData(icon, text);
+}
+
+void FileViewer::showFileLoadErrorPreview() {
+	this->showInfoPreview({":/error.png"}, tr("Failed to read file contents!\nPlease ensure that a game or another application is not using the file."));
 }
