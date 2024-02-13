@@ -57,6 +57,7 @@ public:
 
 	template<PODType T>
 	[[nodiscard]] T read() {
+		static_assert(!std::is_pointer_v<T>, "Trying to read a pointer!");
 		T obj{};
 		this->read(obj);
 		return obj;
