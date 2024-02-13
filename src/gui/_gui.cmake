@@ -68,9 +68,6 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.cpp"
 
-        "${CMAKE_CURRENT_LIST_DIR}/formats/VTFDecoder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/formats/VTFDecoder.cpp"
-
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
@@ -87,6 +84,9 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/previews/VTFPreview.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/res/res.qrc"
+
+        "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.h"
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.cpp"
