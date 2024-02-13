@@ -7,7 +7,7 @@
 #include <QWidget>
 #include <VTFLib.h>
 
-#include "../formats/VTFDecoder.h"
+#include "../utility/VTFDecoder.h"
 
 class QCheckBox;
 class QSlider;

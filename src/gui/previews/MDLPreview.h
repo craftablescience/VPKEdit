@@ -11,7 +11,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 
-#include "../formats/VTFDecoder.h"
+#include "../utility/VTFDecoder.h"
 
 namespace vpkedit {
 
