@@ -37,6 +37,7 @@
 #include "dialogs/NewVPKOptionsDialog.h"
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
+#include "utility/DragWatcher.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -276,6 +277,9 @@ Window::Window(QWidget* parent)
 
     // Call after the menu is created, it controls the visibility of the save button
     this->markModified(false);
+
+	// Drag watcher (for dragging files out)
+	this->dragWatcher = new DragWatcher(this);
 
     // Split content into two resizeable panes
     auto* splitter = new QSplitter(Qt::Horizontal, this);

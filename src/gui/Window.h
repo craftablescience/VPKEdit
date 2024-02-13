@@ -16,6 +16,7 @@ class QProgressBar;
 class QSettings;
 class QThread;
 
+class DragWatcher;
 class EntryTree;
 class FileViewer;
 
@@ -124,6 +125,8 @@ private:
     QAction* addDirAction;
     QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
+
+	DragWatcher* dragWatcher;
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 

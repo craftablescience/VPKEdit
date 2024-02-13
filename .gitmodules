@@ -19,3 +19,6 @@
 [submodule "src/gui/thirdparty/miniaudio"]
 	path = src/gui/thirdparty/miniaudio
 	url = https://github.com/mackron/miniaudio
+[submodule "src/gui/thirdparty/efsw"]
+	path = src/gui/thirdparty/efsw
+	url = https://github.com/SpartanJ/efsw
