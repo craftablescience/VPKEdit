@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QToolButton>
 
+#include "previews/AudioPreview.h"
 #include "previews/DirPreview.h"
 #include "previews/EmptyPreview.h"
 #include "previews/ImagePreview.h"
@@ -175,6 +176,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
+	auto* audioPreview = newPreview<AudioPreview>(this);
+	layout->addWidget(audioPreview);
+
     auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
 
@@ -215,7 +219,16 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
     this->clearContents(false);
 	this->navbar->setPath(path);
 
-    if (ImagePreview::EXTENSIONS.contains(extension)) {
+	if (AudioPreview::EXTENSIONS.contains(extension)) {
+		// Audio
+		auto binary = this->window->readBinaryEntry(path);
+		if (!binary) {
+			this->showFileLoadErrorPreview();
+			return;
+		}
+		this->showPreview<AudioPreview>();
+		this->getPreview<AudioPreview>()->setData(*binary);
+	} else if (ImagePreview::EXTENSIONS.contains(extension)) {
 	    // Image
 	    auto binary = this->window->readBinaryEntry(path);
 	    if (!binary) {

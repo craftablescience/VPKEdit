@@ -16,3 +16,6 @@
 [submodule "src/lib/thirdparty/minizip-ng"]
 	path = src/lib/thirdparty/minizip-ng
 	url = https://github.com/zlib-ng/minizip-ng
+[submodule "src/gui/thirdparty/miniaudio"]
+	path = src/gui/thirdparty/miniaudio
+	url = https://github.com/mackron/miniaudio

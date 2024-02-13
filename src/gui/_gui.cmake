@@ -68,6 +68,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.h"
+        "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
@@ -85,6 +87,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/res/res.qrc"
 
+        "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.cpp"
 
@@ -103,9 +107,10 @@ add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 # Final Qt setup
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
-target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/sapp/include"
         "${QT_INCLUDE}"
         "${QT_INCLUDE}/QtCore"
