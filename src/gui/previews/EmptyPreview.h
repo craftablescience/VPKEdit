@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AbstractInfoPreview.h"
+#include "InfoPreview.h"
 
-class EmptyPreview : public AbstractInfoPreview {
+class EmptyPreview : public InfoPreview {
     Q_OBJECT;
 
 public:

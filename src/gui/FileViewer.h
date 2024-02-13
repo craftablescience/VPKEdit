@@ -100,6 +100,10 @@ public:
 		this->previews.at(std::type_index(typeid(T)))->show();
 	}
 
+	void showInfoPreview(const QPixmap& icon, const QString& text);
+
+	void showFileLoadErrorPreview();
+
 	template<typename T>
 	void hidePreview() const {
 		this->previews.at(std::type_index(typeid(T)))->hide();
