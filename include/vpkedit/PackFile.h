@@ -14,12 +14,13 @@
 
 namespace vpkedit {
 
-// Shared extensions
-constexpr std::string_view EXECUTABLE_EXTENSION0 = ".exe";
-constexpr std::string_view EXECUTABLE_EXTENSION1 = ".bin";
-constexpr std::string_view EXECUTABLE_EXTENSION2 = ".x86";
-constexpr std::string_view EXECUTABLE_EXTENSION3 = ".x64";
-constexpr std::string_view EXECUTABLE_EXTENSION4 = ".x86_64";
+// Executable extensions - mostly just for Godot exports
+constexpr std::string_view EXECUTABLE_EXTENSION0 = ".exe";    // - Windows
+constexpr std::string_view EXECUTABLE_EXTENSION2 = ".elf";    // - Linux (Generic)
+constexpr std::string_view EXECUTABLE_EXTENSION1 = ".bin";    // |- Godot 3 and below (and Generic)
+constexpr std::string_view EXECUTABLE_EXTENSION3 = ".x86";    // |- Godot 4 (32-bit)
+constexpr std::string_view EXECUTABLE_EXTENSION4 = ".x86_32"; // |- Godot 4 (32-bit)
+constexpr std::string_view EXECUTABLE_EXTENSION5 = ".x86_64"; // |- Godot 4 (64-bit)
 
 class PackFile {
 public:
@@ -164,4 +165,5 @@ protected:
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable1TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION1, function); \
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable2TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION2, function); \
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable3TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION3, function); \
-	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable4TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION4, function)
+	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable4TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION4, function); \
+	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable5TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION5, function)
