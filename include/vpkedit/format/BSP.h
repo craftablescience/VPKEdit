@@ -3,11 +3,11 @@
 #include <array>
 #include <cstdint>
 
-#include <vpkedit/ZIP.h>
+#include "ZIP.h"
 
 namespace vpkedit {
 
-constexpr std::int32_t BSP_ID = 'V' + ('B' << 8) + ('S' << 16) + ('P' << 24);
+constexpr std::int32_t BSP_SIGNATURE = 'V' + ('B' << 8) + ('S' << 16) + ('P' << 24);
 constexpr std::int32_t BSP_LUMP_COUNT = 64;
 constexpr std::int32_t BSP_LUMP_PAKFILE_INDEX = 40;
 constexpr std::string_view BSP_EXTENSION = ".bsp";

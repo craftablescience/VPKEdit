@@ -5,9 +5,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMessageBox>
-
-#include <vpkedit/PackFile.h>
-#include <vpkedit/VPK.h>
+#include <vpkedit/format/VPK.h>
 
 #include "../EntryContextMenuData.h"
 #include "../FileViewer.h"

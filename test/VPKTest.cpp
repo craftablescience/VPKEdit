@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <vpkedit/VPK.h>
+#include <vpkedit/format/VPK.h>
 
 #include <fstream>
 #include <string_view>

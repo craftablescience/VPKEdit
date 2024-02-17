@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <vpkedit/PackFile.h>
+#include "../PackFile.h"
 
 namespace vpkedit {
 
@@ -117,7 +117,7 @@ public:
 
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
-	[[nodiscard]] virtual std::vector<std::string> verifyEntryChecksums() const override;
+	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
 
 protected:
 	GCF(const std::string& fullFilePath_, PackFileOptions options_);

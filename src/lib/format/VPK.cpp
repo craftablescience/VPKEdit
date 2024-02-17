@@ -1,8 +1,9 @@
-#include <vpkedit/VPK.h>
+#include <vpkedit/format/VPK.h>
 
 #include <filesystem>
 
 #include <MD5.h>
+
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
@@ -45,7 +46,7 @@ std::unique_ptr<PackFile> VPK::createEmpty(const std::string& path, PackFileOpti
         FileStream stream{path, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 
         Header1 header1{};
-        header1.signature = VPK_ID;
+        header1.signature = VPK_SIGNATURE;
         header1.version = options.vpk_version;
         header1.treeSize = 1;
         stream.write(header1);
@@ -123,7 +124,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 	FileStream reader{vpk->fullFilePath};
     reader.seekInput(0);
     reader.read(vpk->header1);
-    if (vpk->header1.signature != VPK_ID) {
+    if (vpk->header1.signature != VPK_SIGNATURE) {
         // File is not a VPK
         return nullptr;
     }
@@ -179,7 +180,8 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
                 }
 
                 reader.read(entry.crc32);
-                auto preloadedDataSize = reader.read<std::uint16_t>();
+                std::uint16_t preloadedDataSize = 0;
+				reader.read(preloadedDataSize);
                 reader.read(entry.vpk_archiveIndex);
                 entry.offset = reader.read<std::uint32_t>();
 	            entry.length = reader.read<std::uint32_t>();
@@ -237,8 +239,9 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
         return packFile;
     }
 
-    auto publicKeySize = reader.read<std::int32_t>();
-    if (vpk->header2.signatureSectionSize == 20 && publicKeySize == VPK_ID) {
+    std::int32_t publicKeySize = 0;
+	reader.read(publicKeySize);
+    if (vpk->header2.signatureSectionSize == 20 && publicKeySize == VPK_SIGNATURE) {
         // CS2 beta VPK, ignore it
         return packFile;
     }

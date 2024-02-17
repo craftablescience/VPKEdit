@@ -2,14 +2,15 @@
 
 #include <cstdint>
 
-#include <vpkedit/PackFile.h>
+#include "../PackFile.h"
 
 namespace vpkedit {
 
-constexpr std::int32_t GMA_ID = 'G' + ('M' << 8) + ('A' << 16) + ('D' << 24);
+constexpr std::int32_t GMA_SIGNATURE = 'G' + ('M' << 8) + ('A' << 16) + ('D' << 24);
 constexpr std::string_view GMA_EXTENSION = ".gma";
 
 class GMA : public PackFile {
+protected:
 	struct Header {
 		std::uint32_t signature;
 		std::uint8_t version;
