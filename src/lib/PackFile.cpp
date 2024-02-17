@@ -20,8 +20,13 @@ PackFile::PackFile(std::string fullFilePath_, PackFileOptions options_)
 
 std::unique_ptr<PackFile> PackFile::open(const std::string& path, PackFileOptions options, const Callback& callback) {
 	auto extension = std::filesystem::path(path).extension().string();
-	if (PackFile::getExtensionRegistry().contains(extension)) {
-		return PackFile::getExtensionRegistry()[extension](path, options, callback);
+	const auto& registry = PackFile::getOpenExtensionRegistry();
+	if (registry.contains(extension)) {
+		for (const auto& func : registry.at(extension)) {
+			if (auto packFile = func(path, options, callback)) {
+				return packFile;
+			}
+		}
 	}
 	return nullptr;
 }
@@ -208,7 +213,7 @@ std::string PackFile::getTruncatedFilestem() const {
 
 std::vector<std::string> PackFile::getSupportedFileTypes() {
 	std::vector<std::string> out;
-	for (const auto& [extension, factoryFunction] : PackFile::getExtensionRegistry()) {
+	for (const auto& [extension, factoryFunctions] : PackFile::getOpenExtensionRegistry()) {
 		out.push_back(extension);
 	}
 	return out;
@@ -266,13 +271,18 @@ bool PackFile::isEntryUnbakedUsingByteBuffer(const Entry& entry) {
 	return entry.unbakedUsingByteBuffer;
 }
 
-std::unordered_map<std::string, PackFile::FactoryFunction>& PackFile::getExtensionRegistry() {
-	static std::unordered_map<std::string, PackFile::FactoryFunction> extensionRegistry;
+std::unordered_map<std::string, std::vector<PackFile::FactoryFunction>>& PackFile::getOpenExtensionRegistry() {
+	static std::unordered_map<std::string, std::vector<PackFile::FactoryFunction>> extensionRegistry;
 	return extensionRegistry;
 }
 
-const PackFile::FactoryFunction& PackFile::registerExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory) {
-	PackFile::getExtensionRegistry()[std::string{extension}] = factory;
+const PackFile::FactoryFunction& PackFile::registerOpenExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory) {
+	std::string extensionStr{extension};
+	auto& registry = PackFile::getOpenExtensionRegistry();
+	if (!registry.contains(extensionStr)) {
+		registry[extensionStr] = {};
+	}
+	registry[extensionStr].push_back(factory);
 	return factory;
 }
 

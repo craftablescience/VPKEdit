@@ -97,7 +97,7 @@ protected:
     std::vector<MD5Entry> md5Entries;
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(VPK_EXTENSION, &VPK::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(VPK_EXTENSION, &VPK::open);
 };
 
 } // namespace vpkedit

@@ -39,7 +39,7 @@ protected:
 	Header header{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(GMA_EXTENSION, &GMA::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(GMA_EXTENSION, &GMA::open);
 };
 
 } // namespace vpkedit
