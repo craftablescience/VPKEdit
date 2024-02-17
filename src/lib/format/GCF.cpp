@@ -204,6 +204,33 @@ std::unique_ptr<PackFile> GCF::open(const std::string& path, PackFileOptions opt
 	return packFile;
 }
 
+std::vector<std::string> GCF::verifyEntryChecksums() const {
+	std::vector<std::string> bad;
+	for (const auto& entryList : this->entries) {
+		for (const auto& entry : entryList.second) {
+			auto bytes = this->readEntry(entry);
+			if (!bytes || bytes->empty()) {
+				continue;
+			}
+			std::size_t tocheck = bytes->size();
+			std::uint32_t idx = entry.crc32;
+			std::uint32_t count = this->chksum_map[idx].count;
+			std::uint32_t checksumstart = this->chksum_map[idx].firstindex;
+			for (int i = 0; i < count; i++) {
+				std::uint32_t csum = this->checksums[checksumstart + i];
+				std::size_t toread = std::min(static_cast<std::size_t>(0x8000), tocheck);
+				const auto* data = bytes->data() + (i * 0x8000);
+				std::uint32_t checksum = ::computeCRC32(data, toread) ^ ::computeAdler32(data, toread);
+				if (checksum != csum) {
+					bad.push_back(entry.path);
+				}
+				tocheck -= toread;
+			}
+		}
+	}
+	return bad;
+}
+
 std::optional<std::vector<std::byte>> GCF::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
 		// Get the stored data
@@ -276,29 +303,7 @@ std::optional<std::vector<std::byte>> GCF::readEntry(const Entry& entry) const {
 	return filedata;
 }
 
-std::vector<std::string> GCF::verifyEntryChecksums() const {
-	std::vector<std::string> bad;
-	for (const auto& entryList : this->entries) {
-		for (const auto& entry : entryList.second) {
-			auto bytes = this->readEntry(entry);
-			if (!bytes || bytes->empty()) {
-				continue;
-			}
-			std::size_t tocheck = bytes->size();
-			std::uint32_t idx = entry.crc32;
-			std::uint32_t count = this->chksum_map[idx].count;
-			std::uint32_t checksumstart = this->chksum_map[idx].firstindex;
-			for (int i = 0; i < count; i++) {
-				std::uint32_t csum = this->checksums[checksumstart + i];
-				std::size_t toread = std::min(static_cast<std::size_t>(0x8000), tocheck);
-				const auto* data = bytes->data() + (i * 0x8000);
-				std::uint32_t checksum = ::computeCRC32(data, toread) ^ ::computeAdler32(data, toread);
-				if (checksum != csum) {
-					bad.push_back(entry.path);
-				}
-				tocheck -= toread;
-			}
-		}
-	}
-	return bad;
+std::vector<Attribute> GCF::getSupportedEntryAttributes() const {
+	using enum Attribute;
+	return {LENGTH};
 }

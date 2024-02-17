@@ -212,6 +212,10 @@ std::string PackFile::getTruncatedFilestem() const {
 	return this->getFilestem();
 }
 
+std::vector<Attribute> PackFile::getSupportedEntryAttributes() const {
+	return {};
+}
+
 std::vector<std::string> PackFile::getSupportedFileTypes() {
 	std::vector<std::string> out;
 	for (const auto& [extension, factoryFunctions] : PackFile::getOpenExtensionRegistry()) {

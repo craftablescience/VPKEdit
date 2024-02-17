@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Attribute.h"
 #include "Entry.h"
 #include "Options.h"
 #include "PackFileType.h"
@@ -103,6 +104,10 @@ public:
 
 	/// /home/user/pak01_dir.vpk -> pak01
 	[[nodiscard]] virtual std::string getTruncatedFilestem() const;
+
+	/// Returns a list of supported entry attributes
+	/// Mostly for GUI programs that show entries and their metadata in a table ;)
+	[[nodiscard]] virtual std::vector<Attribute> getSupportedEntryAttributes() const;
 
 	/// Returns a list of supported extensions, e.g. {".vpk", ".bsp"}
 	static std::vector<std::string> getSupportedFileTypes();
