@@ -90,10 +90,10 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 			::toLowerCase(entry.path);
 		}
 
+		entry.flags = fileInfo->compression_method;
 		entry.length = fileInfo->uncompressed_size;
 		entry.compressedLength = fileInfo->compressed_size;
 		entry.crc32 = fileInfo->crc;
-		entry.zip_compressionMethod = fileInfo->compression_method;
 
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);

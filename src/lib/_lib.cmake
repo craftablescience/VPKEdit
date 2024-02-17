@@ -34,6 +34,7 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/BSP.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GCF.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GMA.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/PCK.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/VPK.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/ZIP.h"
 
@@ -51,6 +52,7 @@ add_library(
 		"${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/GCF.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/GMA.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/PCK.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/VPK.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/ZIP.cpp"
 

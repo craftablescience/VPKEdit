@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -18,6 +19,8 @@ class Entry {
 public:
 	/// Path to this entry (e.g. "materials/cable.vmt")
 	std::string path;
+	/// Format-specific flags (PCK: File flags, ZIP/BSP: Compression type)
+	std::uint32_t flags = 0;
 	/// Length in bytes (in formats with compression, this is the uncompressed length)
 	std::uint64_t length = 0;
 	/// Offset, format-specific meaning - may be unused
@@ -31,13 +34,13 @@ public:
 	/// Used to check if entry is saved to disk
 	bool unbaked = false;
 
+	/// PCK - Each file has a 16-byte MD5 hash
+	std::array<std::byte, 16> pck_md5{};
+
 	/// VPK - Which VPK this entry is in
 	std::uint16_t vpk_archiveIndex = 0;
 	/// VPK - Preloaded data
 	std::vector<std::byte> vpk_preloadedData;
-
-	/// ZIP/BSP - Compression type
-	std::uint16_t zip_compressionMethod = MZ_COMPRESS_METHOD_STORE;
 
 	/// Returns the parent directory's path (e.g. "materials/cable.vmt" -> "materials")
 	[[nodiscard]] std::string getParentPath() const;

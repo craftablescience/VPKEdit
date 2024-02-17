@@ -180,8 +180,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
                 }
 
                 reader.read(entry.crc32);
-                std::uint16_t preloadedDataSize = 0;
-				reader.read(preloadedDataSize);
+                auto preloadedDataSize = reader.read<std::uint16_t>();
                 reader.read(entry.vpk_archiveIndex);
                 entry.offset = reader.read<std::uint32_t>();
 	            entry.length = reader.read<std::uint32_t>();
@@ -239,8 +238,7 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
         return packFile;
     }
 
-    std::int32_t publicKeySize = 0;
-	reader.read(publicKeySize);
+    auto publicKeySize = reader.read<std::int32_t>();
     if (vpk->header2.signatureSectionSize == 20 && publicKeySize == VPK_SIGNATURE) {
         // CS2 beta VPK, ignore it
         return packFile;

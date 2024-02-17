@@ -7,6 +7,7 @@ enum class PackFileType {
 	BSP,
 	GCF,
 	GMA,
+	PCK,
 	VPK,
 	ZIP,
 };

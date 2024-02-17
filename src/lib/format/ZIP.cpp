@@ -55,10 +55,10 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 			::toLowerCase(entry.path);
 		}
 
+		entry.flags = fileInfo->compression_method;
 		entry.length = fileInfo->uncompressed_size;
 		entry.compressedLength = fileInfo->compressed_size;
 		entry.crc32 = fileInfo->crc;
-		entry.zip_compressionMethod = fileInfo->compression_method;
 
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);
@@ -121,10 +121,10 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
+	entry.flags = options_.zip_compressionMethod;
 	entry.length = buffer.size();
 	entry.compressedLength = 0;
 	entry.crc32 = ::computeCRC32(buffer);
-	entry.zip_compressionMethod = options_.zip_compressionMethod;
 
 	if (!this->unbakedEntries.contains(dir)) {
 		this->unbakedEntries[dir] = {};
@@ -180,7 +180,7 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
 			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = entry.zip_compressionMethod;
+			fileInfo.compression_method = entry.flags;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
 				return false;
 			}
@@ -204,7 +204,7 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
 			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = entry.zip_compressionMethod;
+			fileInfo.compression_method = entry.flags;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
 				return false;
 			}
