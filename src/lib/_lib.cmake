@@ -38,6 +38,7 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/VPK.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/ZIP.h"
 
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Attribute.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Entry.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Options.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/PackFile.h"

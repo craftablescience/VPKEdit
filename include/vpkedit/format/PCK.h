@@ -26,6 +26,8 @@ public:
 
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
+	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
+
 protected:
 	PCK(const std::string& fullFilePath_, PackFileOptions options_);
 

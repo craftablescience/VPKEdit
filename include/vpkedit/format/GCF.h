@@ -115,9 +115,11 @@ protected:
 public:
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
+
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
-	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
+	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
 
 protected:
 	GCF(const std::string& fullFilePath_, PackFileOptions options_);

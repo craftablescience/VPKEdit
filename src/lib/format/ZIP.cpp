@@ -154,6 +154,11 @@ bool ZIP::bake(const std::string& outputDir_, const Callback& callback) {
 	return true;
 }
 
+std::vector<Attribute> ZIP::getSupportedEntryAttributes() const {
+	using enum Attribute;
+	return {LENGTH, CRC32};
+}
+
 bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback) {
 	void* writeStreamHandle = mz_stream_os_create();
 	if (mz_stream_os_open(writeStreamHandle, writeZipPath.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {

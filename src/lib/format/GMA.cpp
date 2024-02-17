@@ -219,3 +219,8 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 	PackFile::setFullFilePath(outputDir);
 	return true;
 }
+
+std::vector<Attribute> GMA::getSupportedEntryAttributes() const {
+	using enum Attribute;
+	return {LENGTH, CRC32};
+}

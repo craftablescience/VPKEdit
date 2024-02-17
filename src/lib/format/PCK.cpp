@@ -134,3 +134,8 @@ std::optional<std::vector<std::byte>> PCK::readEntry(const Entry& entry) const {
 	stream.seekInput(entry.offset);
 	return stream.readBytes(entry.length);
 }
+
+std::vector<Attribute> PCK::getSupportedEntryAttributes() const {
+	using enum Attribute;
+	return {LENGTH, PCK_MD5};
+}

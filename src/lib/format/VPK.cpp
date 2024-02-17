@@ -586,6 +586,11 @@ std::string VPK::getTruncatedFilestem() const {
 	return filestem;
 }
 
+std::vector<Attribute> VPK::getSupportedEntryAttributes() const {
+	using enum Attribute;
+	return {LENGTH, VPK_PRELOADED_DATA_LENGTH, VPK_ARCHIVE_INDEX, CRC32};
+}
+
 std::uint32_t VPK::getVersion() const {
     return this->header1.version;
 }
