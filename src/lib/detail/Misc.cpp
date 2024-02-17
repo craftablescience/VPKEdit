@@ -12,13 +12,15 @@ void detail::toLowerCase(std::string& input) {
 	std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c){ return std::tolower(c); });
 }
 
-void detail::normalizeSlashes(std::string& path) {
+void detail::normalizeSlashes(std::string& path, bool stripSlashes) {
 	std::replace(path.begin(), path.end(), '\\', '/');
-	if (path.starts_with('/')) {
-		path = path.substr(1);
-	}
-	if (path.ends_with('/')) {
-		path.pop_back();
+	if (stripSlashes) {
+		if (path.starts_with('/')) {
+			path = path.substr(1);
+		}
+		if (path.ends_with('/')) {
+			path.pop_back();
+		}
 	}
 }
 

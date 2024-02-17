@@ -227,7 +227,7 @@ std::vector<std::string> PackFile::getSupportedFileTypes() {
 std::string PackFile::getBakeOutputDir(const std::string& outputDir) const {
 	std::string out = outputDir;
 	if (!out.empty()) {
-		::normalizeSlashes(out);
+		::normalizeSlashes(out, false);
 	} else {
 		out = this->fullFilePath;
 		auto lastSlash = out.rfind('/');
