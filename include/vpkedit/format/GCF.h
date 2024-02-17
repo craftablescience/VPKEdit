@@ -134,7 +134,7 @@ protected:
 	std::vector<std::uint32_t> checksums{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(GCF_EXTENSION, &GCF::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(GCF_EXTENSION, &GCF::open);
 };
 
 } // namespace vpkedit

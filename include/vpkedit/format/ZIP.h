@@ -39,7 +39,7 @@ protected:
 	bool zipOpen = false;
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(ZIP_EXTENSION, &ZIP::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(ZIP_EXTENSION, &ZIP::open);
 };
 
 } // namespace vpkedit

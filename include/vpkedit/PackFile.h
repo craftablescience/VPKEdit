@@ -126,9 +126,9 @@ protected:
 
 	using FactoryFunction = std::function<std::unique_ptr<PackFile>(const std::string& path, PackFileOptions options, const Callback& callback)>;
 
-	static std::unordered_map<std::string, FactoryFunction>& getExtensionRegistry();
+	static std::unordered_map<std::string, std::vector<FactoryFunction>>& getOpenExtensionRegistry();
 
-	static const FactoryFunction& registerExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory);
+	static const FactoryFunction& registerOpenExtensionForTypeFactory(std::string_view extension, const FactoryFunction& factory);
 };
 
 class PackFileReadOnly : public PackFile {
@@ -149,5 +149,5 @@ protected:
 #define VPKEDIT_HELPER_CONCAT(a, b) VPKEDIT_HELPER_CONCAT_INNER(a, b)
 #define VPKEDIT_HELPER_UNIQUE_NAME(base) VPKEDIT_HELPER_CONCAT(base, __LINE__)
 
-#define VPKEDIT_REGISTER_PACKFILE_EXTENSION(extension, function) \
-	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileTypeFactoryFunction) = PackFile::registerExtensionForTypeFactory(extension, function)
+#define VPKEDIT_REGISTER_PACKFILE_OPEN(extension, function) \
+	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenTypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(extension, function)

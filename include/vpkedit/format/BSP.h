@@ -54,7 +54,7 @@ protected:
 	Header header{};
 
 private:
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(BSP_EXTENSION, &BSP::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(BSP_EXTENSION, &BSP::open);
 };
 
 } // namespace vpkedit
