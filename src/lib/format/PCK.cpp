@@ -58,6 +58,11 @@ std::unique_ptr<PackFile> PCK::open(const std::string& path, PackFileOptions opt
 		extraEntryContentsOffset = reader.read<std::uint64_t>();
 	}
 
+	if (pck->header.flags & 0x1) {
+		// File directory is encrypted
+		return nullptr;
+	}
+
 	// Reserved
 	reader.skipInput<std::int32_t>(16);
 
@@ -115,7 +120,13 @@ std::optional<std::vector<std::byte>> PCK::readEntry(const Entry& entry) const {
 		}
 		return std::nullopt;
 	}
+
 	// It's baked into the file on disk
+	if (entry.flags & 0x1) {
+		// File is encrypted
+		return std::nullopt;
+	}
+
 	FileStream stream{this->fullFilePath};
 	if (!stream) {
 		return std::nullopt;
