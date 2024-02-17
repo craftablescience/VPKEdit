@@ -35,9 +35,9 @@ protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
 private:
-    void addRowForFile(const vpkedit::PackFile& packFile, const QString& path, bool isVPK);
+    void addRowForFile(const vpkedit::PackFile& packFile, const QString& path);
 
-    void addRowForDir(const QString& name, bool isVPK);
+    void addRowForDir(const QString& name);
 
     QString getItemPath(QTableWidgetItem* item) const;
 
