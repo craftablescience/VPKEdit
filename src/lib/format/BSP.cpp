@@ -1,4 +1,4 @@
-#include <vpkedit/BSP.h>
+#include <vpkedit/format/BSP.h>
 
 #include <filesystem>
 
@@ -7,6 +7,7 @@
 #include <mz_strm_os.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
+
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
@@ -34,7 +35,7 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 	reader.seekInput(0);
 
 	reader.read(bsp->header.signature);
-	if (bsp->header.signature != BSP_ID) {
+	if (bsp->header.signature != BSP_SIGNATURE) {
 		// File is not a BSP
 		return nullptr;
 	}

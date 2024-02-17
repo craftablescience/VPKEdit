@@ -5,11 +5,11 @@
 #include <utility>
 
 #include <vpkedit/detail/Misc.h>
-#include <vpkedit/BSP.h>
-#include <vpkedit/GCF.h>
-#include <vpkedit/GMA.h>
-#include <vpkedit/VPK.h>
-#include <vpkedit/ZIP.h>
+#include <vpkedit/format/BSP.h>
+#include <vpkedit/format/GCF.h>
+#include <vpkedit/format/GMA.h>
+#include <vpkedit/format/VPK.h>
+#include <vpkedit/format/ZIP.h>
 
 using namespace vpkedit;
 using namespace vpkedit::detail;

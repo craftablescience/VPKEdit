@@ -30,27 +30,32 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC32.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/BSP.h"
+
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/BSP.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GCF.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GMA.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/VPK.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/ZIP.h"
+
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Entry.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/GCF.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/GMA.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Options.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/PackFile.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/PackFileType.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/VPK.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/ZIP.h"
 
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Adler32.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/CRC32.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/FileStream.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/BSP.cpp"
+
+		"${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/GCF.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/GMA.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/VPK.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/ZIP.cpp"
+
 		"${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/GCF.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/GMA.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/VPK.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/ZIP.cpp")
+		"${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp")
 
 target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5 MINIZIP::minizip)
 

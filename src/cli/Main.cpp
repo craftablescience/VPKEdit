@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include <argparse/argparse.hpp>
+#include <vpkedit/format/VPK.h>
 #include <vpkedit/Version.h>
-#include <vpkedit/VPK.h>
 
 using namespace std::literals::string_literals;
 using namespace vpkedit;

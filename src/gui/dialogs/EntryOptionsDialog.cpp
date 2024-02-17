@@ -7,8 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-
-#include <vpkedit/VPK.h>
+#include <vpkedit/format/VPK.h>
 
 #include "../config/Options.h"
 

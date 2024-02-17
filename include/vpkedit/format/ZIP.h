@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include <vpkedit/PackFile.h>
+#include "../PackFile.h"
 
 namespace vpkedit {
 

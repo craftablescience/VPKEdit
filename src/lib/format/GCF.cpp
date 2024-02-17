@@ -1,4 +1,4 @@
-#include <vpkedit/GCF.h>
+#include <vpkedit/format/GCF.h>
 
 #include <algorithm>
 #include <filesystem>

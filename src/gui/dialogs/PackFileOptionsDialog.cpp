@@ -4,8 +4,7 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
-
-#include <vpkedit/VPK.h>
+#include <vpkedit/format/VPK.h>
 
 using namespace vpkedit;
 

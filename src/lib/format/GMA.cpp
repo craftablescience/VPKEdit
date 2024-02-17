@@ -1,4 +1,4 @@
-#include <vpkedit/GMA.h>
+#include <vpkedit/format/GMA.h>
 
 #include <cstring>
 #include <filesystem>
@@ -26,8 +26,9 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 
 	FileStream reader{gma->fullFilePath};
 	reader.seekInput(0);
+
 	reader.read(gma->header.signature);
-	if (gma->header.signature != GMA_ID) {
+	if (gma->header.signature != GMA_SIGNATURE) {
 		// File is not a VPK
 		return nullptr;
 	}

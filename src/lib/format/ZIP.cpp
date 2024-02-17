@@ -1,4 +1,4 @@
-#include <vpkedit/ZIP.h>
+#include <vpkedit/format/ZIP.h>
 
 #include <cstring>
 #include <filesystem>
@@ -8,6 +8,7 @@
 #include <mz_strm_os.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
+
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/Misc.h>
 

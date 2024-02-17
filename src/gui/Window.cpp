@@ -24,8 +24,8 @@
 #include <QStyleFactory>
 #include <QThread>
 #include <sapp/SteamAppPathProvider.h>
+#include <vpkedit/format/VPK.h>
 #include <vpkedit/Version.h>
-#include <vpkedit/VPK.h>
 
 #include "config/Options.h"
 #include "dialogs/ControlsDialog.h"
