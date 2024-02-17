@@ -11,6 +11,8 @@
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
+constexpr std::uint32_t VPK_FLAG_REUSING_CHUNK = 0x1;
+
 namespace {
 
 std::string removeVPKAndOrDirSuffix(const std::string& path) {
@@ -312,9 +314,33 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	entry.crc32 = ::computeCRC32(buffer);
 	entry.length = buffer.size();
 
-	// Offset will be reset when it's baked
+	// Offset will be reset when it's baked, assuming we're not replacing an existing chunk (when flags = 1)
+	entry.flags = 0;
 	entry.offset = 0;
 	entry.vpk_archiveIndex = options_.vpk_saveToDirectory ? VPK_DIR_INDEX : this->numArchives;
+	if (!options_.vpk_saveToDirectory && !this->freedChunks.empty()) {
+		std::int64_t bestChunkIndex = -1;
+		std::size_t currentChunkGap = SIZE_MAX;
+		for (std::int64_t i = 0; i < this->freedChunks.size(); i++) {
+			if (
+				(bestChunkIndex < 0 && this->freedChunks[i].length >= entry.length) ||
+				(bestChunkIndex >= 0 && this->freedChunks[i].length >= entry.length && (this->freedChunks[i].length - entry.length) < currentChunkGap)
+			) {
+				bestChunkIndex = i;
+				currentChunkGap = this->freedChunks[i].length - entry.length;
+			}
+		}
+		if (bestChunkIndex >= 0) {
+			entry.flags |= VPK_FLAG_REUSING_CHUNK;
+			entry.offset = this->freedChunks[bestChunkIndex].offset;
+			entry.vpk_archiveIndex = this->freedChunks[bestChunkIndex].archiveIndex;
+			this->freedChunks.erase(this->freedChunks.begin() + bestChunkIndex);
+			if (currentChunkGap < SIZE_MAX && currentChunkGap > 0) {
+				// Add the remaining free space as a free chunk
+				this->freedChunks.emplace_back(entry.offset + entry.length, currentChunkGap, entry.vpk_archiveIndex);
+			}
+		}
+	}
 
 	if (options_.vpk_preloadBytes > 0) {
 		auto clampedPreloadBytes = std::clamp(options_.vpk_preloadBytes, 0u, buffer.size() > VPK_MAX_PRELOAD_BYTES ? VPK_MAX_PRELOAD_BYTES : static_cast<std::uint32_t>(buffer.size()));
@@ -324,7 +350,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	}
 
 	// Now that archive index is calculated for this entry, check if it needs to be incremented
-	if (!options_.vpk_saveToDirectory) {
+	if (!options_.vpk_saveToDirectory && !(entry.flags & VPK_FLAG_REUSING_CHUNK)) {
 		entry.offset = this->currentlyFilledChunkSize;
 		this->currentlyFilledChunkSize += static_cast<int>(buffer.size());
 		if (this->options.vpk_preferredChunkSize) {
@@ -340,6 +366,13 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	}
 	this->unbakedEntries.at(dir).push_back(entry);
 	return this->unbakedEntries.at(dir).back();
+}
+
+bool VPK::removeEntry(const std::string& filename_) {
+	if (auto entry = this->findEntry(filename_); entry && (!entry->unbaked || entry->flags & VPK_FLAG_REUSING_CHUNK)) {
+		this->freedChunks.emplace_back(entry->offset, entry->length, entry->vpk_archiveIndex);
+	}
+	return PackFile::removeEntry(filename_);
 }
 
 bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
@@ -448,19 +481,29 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 					}
 
                     if (entry->length == entry->vpk_preloadedData.size()) {
-                        // Override the archive index, no need for an archive VPK
-                        entry->vpk_archiveIndex = VPK_DIR_INDEX;
-                        entry->offset = dirVPKEntryData.size();
+						// Override the archive index, no need for an archive VPK
+						entry->vpk_archiveIndex = VPK_DIR_INDEX;
+						entry->offset = dirVPKEntryData.size();
+					} else if (entry->vpk_archiveIndex != VPK_DIR_INDEX && (entry->flags & VPK_FLAG_REUSING_CHUNK)) {
+						// The entry is replacing pre-existing data in a VPK archive
+						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath), entry->vpk_archiveIndex);
+                        FileStream stream{archiveFilename, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+						stream.seekOutput(entry->offset);
+                        stream.writeBytes(entryData);
                     } else if (entry->vpk_archiveIndex != VPK_DIR_INDEX) {
+						// The entry is being appended to a newly created VPK archive
 						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath), entry->vpk_archiveIndex);
 						entry->offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
-
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
                         stream.writeBytes(entryData);
                     } else {
+						// The entry will be added to the directory VPK
                         entry->offset = dirVPKEntryData.size();
                         dirVPKEntryData.insert(dirVPKEntryData.end(), entryData.data(), entryData.data() + entryData.size());
                     }
+
+					// Clear flags
+					entry->flags = 0;
                 }
 
                 outDir.write(entry->getStem());

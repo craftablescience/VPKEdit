@@ -50,6 +50,12 @@ protected:
     };
 #pragma pack(pop)
 
+	struct FreedChunk {
+		std::uint64_t offset;
+		std::uint64_t length;
+		std::uint16_t archiveIndex;
+	};
+
 public:
 	// Accepts the full entry path (parent directory + filename), returns saveToDir and preloadBytes
 	using EntryCreationCallback = std::function<std::tuple<bool, std::uint32_t>(const std::string& fullEntryPath)>;
@@ -67,6 +73,8 @@ public:
     [[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
     [[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
+
+	bool removeEntry(const std::string& filename_) override;
 
     bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
@@ -91,6 +99,8 @@ protected:
 
 	int numArchives = -1;
 	std::uint32_t currentlyFilledChunkSize = 0;
+
+	std::vector<FreedChunk> freedChunks;
 
     Header1 header1{}; // Present in all VPK versions
     Header2 header2{}; // Present in VPK v2

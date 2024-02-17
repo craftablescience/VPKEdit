@@ -73,7 +73,7 @@ public:
 	void addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options_);
 
 	/// Remove an entry
-	bool removeEntry(const std::string& filename_);
+	virtual bool removeEntry(const std::string& filename_);
 
 	/// If output folder is unspecified, it will overwrite the original
 	virtual bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) = 0;
