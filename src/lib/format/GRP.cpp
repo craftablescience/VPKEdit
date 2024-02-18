@@ -176,19 +176,6 @@ bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
 		stream.writeBytes(fileData);
 	}
 
-	// CRC of everything that's been written
-	std::uint32_t crc = 0;
-	if (this->options.gma_writeCRCs) {
-		auto fileSize = std::filesystem::file_size(outputPath);
-		FileStream stream{outputPath};
-		stream.seekInput(0);
-		crc = ::computeCRC32(stream.readBytes(fileSize));
-	}
-	{
-		FileStream stream{outputPath, FILESTREAM_OPT_APPEND};
-		stream.write(crc);
-	}
-
 	// Clean up
 	this->mergeUnbakedEntries();
 	PackFile::setFullFilePath(outputDir);
