@@ -12,3 +12,15 @@ endif()
 add_executable(${PROJECT_NAME}cli ${${PROJECT_NAME}cli_SOURCES})
 
 target_link_libraries(${PROJECT_NAME}cli PUBLIC lib${PROJECT_NAME} argparse::argparse)
+
+# Create PDBs in release
+if(WIN32)
+    target_compile_options(
+            ${PROJECT_NAME}cli PRIVATE
+            "$<$<CONFIG:Release>:/Zi>")
+    target_link_options(
+            ${PROJECT_NAME}cli PRIVATE
+            "$<$<CONFIG:Release>:/DEBUG>"
+            "$<$<CONFIG:Release>:/OPT:REF>"
+            "$<$<CONFIG:Release>:/OPT:ICF>")
+endif()

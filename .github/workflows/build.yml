@@ -103,6 +103,16 @@ jobs:
             ${{env.BUILD_DIR}}/tls/*.dll
           retention-days: 7
 
+      - name: Upload Standalone PDBs [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli.pdb
+            ${{env.BUILD_DIR}}/vpkedit.pdb
+          retention-days: 7
+
       - name: Upload Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
