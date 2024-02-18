@@ -51,7 +51,7 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 		Entry entry = createNewEntry();
 		entry.path = fileInfo->filename;
 		::normalizeSlashes(entry.path);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!zip->isCaseSensitive()) {
 			::toLowerCase(entry.path);
 		}
 
@@ -62,7 +62,7 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!zip->isCaseSensitive()) {
 			::toLowerCase(parentDir);
 		}
 		if (!zip->entries.contains(parentDir)) {
@@ -100,7 +100,7 @@ std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 	if (!this->streamOpen || !this->zipOpen) {
 		return std::nullopt;
 	}
-	if (mz_zip_locate_entry(this->zipHandle, entry.path.c_str(), !this->options.allowUppercaseLettersInFilenames) != MZ_OK) {
+	if (mz_zip_locate_entry(this->zipHandle, entry.path.c_str(), !this->isCaseSensitive()) != MZ_OK) {
 		return std::nullopt;
 	}
 	if (mz_zip_entry_read_open(this->zipHandle, 0, nullptr) != MZ_OK) {
@@ -115,7 +115,7 @@ std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 
 Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	auto filename = filename_;
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);

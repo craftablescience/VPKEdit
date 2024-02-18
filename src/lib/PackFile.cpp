@@ -51,7 +51,7 @@ bool PackFile::verifyFileChecksum() const {
 std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool includeUnbaked) const {
 	auto filename = filename_;
 	::normalizeSlashes(filename);
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
@@ -85,10 +85,6 @@ std::optional<std::string> PackFile::readEntryText(const Entry& entry) const {
 		out += static_cast<char>(byte);
 	}
 	return out;
-}
-
-bool PackFile::isReadOnly() const {
-	return false;
 }
 
 void PackFile::addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_) {
@@ -133,7 +129,7 @@ bool PackFile::removeEntry(const std::string& filename_) {
 	}
 
 	auto filename = filename_;
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
@@ -293,10 +289,6 @@ const PackFile::FactoryFunction& PackFile::registerOpenExtensionForTypeFactory(s
 
 PackFileReadOnly::PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_)
 		: PackFile(std::move(fullFilePath_), options_) {}
-
-bool PackFileReadOnly::isReadOnly() const {
-	return true;
-}
 
 Entry& PackFileReadOnly::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	return entry; // Stubbed

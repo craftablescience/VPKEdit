@@ -15,6 +15,10 @@ public:
 	/// Open a ZIP file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
+		return true;
+	}
+
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;

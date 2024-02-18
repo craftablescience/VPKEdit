@@ -30,7 +30,6 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-c")) * 1024 * 1024);
 	auto generateMD5Entries = cli.get<bool>("--gen-md5-entries");
-	auto allowUppercaseLettersInFilenames = cli.get<bool>("--allow-caps");
 
 	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
@@ -43,7 +42,6 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 		return std::make_tuple(saveToDir, preloadBytes);
 	}, {
-		.allowUppercaseLettersInFilenames = allowUppercaseLettersInFilenames,
 		.vpk_version = version,
 		.vpk_preferredChunkSize = preferredChunkSize,
 		.vpk_generateMD5Entries = generateMD5Entries,
@@ -57,7 +55,7 @@ int main(int argc, const char* const* argv) {
 	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION_PRETTY.data(), argparse::default_arguments::help};
 
 	cli.add_epilog("Program details:\n"
-				   "                    /$$                       /$$ /$$   /$$        \n"
+	               "                    /$$                       /$$ /$$   /$$        \n"
 	               "                   | $$                      | $$|__/  | $$        \n"
 	               " /$$    /$$/$$$$$$ | $$   /$$  /$$$$$$   /$$$$$$$ /$$ /$$$$$$      \n"
 	               "|  $$  /$$/$$__  $$| $$  /$$/ /$$__  $$ /$$__  $$| $$|_  $$_/      \n"
@@ -67,7 +65,7 @@ int main(int argc, const char* const* argv) {
 	               "    \\_/  | $$____/ |__/  \\__/ \\_______/ \\_______/|__/   \\____/\n"
 	               "         | $$                                                      \n"
 	               "         | $$             version v"s + PROJECT_VERSION_PRETTY.data() + "\n"
-				   "         |__/                                                      \n"
+	               "         |__/                                                      \n"
 	               "                                                                   \n"
 	               "Created by craftablescience. Contributors and libraries used are   \n"
 	               "listed in CREDITS.md. " + PROJECT_NAME_PRETTY.data() + " is licensed under the MIT License.");
@@ -86,10 +84,10 @@ int main(int argc, const char* const* argv) {
 		.help("The path to the output VPK or directory. If unspecified, will default next to the input.");
 
 	cli.add_argument("-v", "--version")
-	   .help("(Pack) The version of the VPK. Can be 1 or 2.")
-	   .default_value("2")
-	   .choices("1", "2")
-	   .nargs(1);
+		.help("(Pack) The version of the VPK. Can be 1 or 2.")
+		.default_value("2")
+		.choices("1", "2")
+		.nargs(1);
 
 	cli.add_argument("-c", "--chunksize")
 		.help("(Pack) The size of each archive in mb.")
@@ -102,22 +100,17 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("-p", "--preload")
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
-			  "preloaded in the directory VPK. Full file names are also supported here\n"
-			  "(i.e. this would preload any files named README.md or files ending in vmt:\n"
-			  "\"-p README.md vmt\"). It preloads materials by default to match Valve\n"
-			  "behavior.")
+		      "preloaded in the directory VPK. Full file names are also supported here\n"
+		      "(i.e. this would preload any files named README.md or files ending in vmt:\n"
+		      "\"-p README.md vmt\"). It preloads materials by default to match Valve\n"
+		      "behavior.")
 		.default_value(std::vector<std::string>{"vmt"})
 		.remaining();
 
 	cli.add_argument("-s", "--single-file")
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
-			  "Breaks the VPK if its size will be >= 4gb!")
+		      "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
-
-	cli.add_argument("--allow-caps")
-	   .help("(Pack) Allow files to have uppercase letters. If this flag is not present,\n"
-			 "all filenames will be converted to lowercase in the VPK.")
-	   .flag();
 
 	try {
 		cli.parse_args(argc, argv);

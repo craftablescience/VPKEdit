@@ -34,6 +34,11 @@ public:
 	// [OPTIONAL] Verify the entire file's checksum, returns true on success
 	[[nodiscard]] bool verifyFileChecksum() const override;
 
+	// [OPTIONAL] Implement this and return true if your file format is case-sensitive
+	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
+		return PackFile::isCaseSensitive();
+	}
+
 	// Returns the raw data the Entry points to
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
@@ -50,7 +55,7 @@ protected:
 private:
 	// Finally, register the open method with the extension
 	// Remember since C++ is STUPID you need to add this header to PackFile.cpp as well, or this will get optimized away
-	VPKEDIT_REGISTER_PACKFILE_EXTENSION(EXAMPLE_EXTENSION, &EXAMPLE::open);
+	VPKEDIT_REGISTER_PACKFILE_OPEN(EXAMPLE_EXTENSION, &EXAMPLE::open);
 };
 
 } // namespace vpkedit

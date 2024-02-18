@@ -86,7 +86,7 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		Entry entry = createNewEntry();
 		entry.path = fileInfo->filename;
 		::normalizeSlashes(entry.path);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!bsp->isCaseSensitive()) {
 			::toLowerCase(entry.path);
 		}
 
@@ -97,9 +97,10 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!bsp->isCaseSensitive()) {
 			::toLowerCase(parentDir);
 		}
+
 		if (!bsp->entries.contains(parentDir)) {
 			bsp->entries[parentDir] = {};
 		}

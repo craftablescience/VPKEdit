@@ -77,5 +77,5 @@ std::optional<std::tuple<QString, EntryOptions>> EntryOptionsDialog::getEntryOpt
 	if (ret != QDialog::Accepted) {
 		return std::nullopt;
 	}
-	return std::make_tuple(QDir::cleanPath(dialog->path->text().toLower()), dialog->getEntryOptions());
+	return std::make_tuple(QDir::cleanPath(dialog->path->text()), dialog->getEntryOptions());
 }

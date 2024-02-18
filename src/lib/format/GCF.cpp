@@ -130,7 +130,7 @@ std::unique_ptr<PackFile> GCF::open(const std::string& path, PackFileOptions opt
 			}
 			Entry gcfEntry = createNewEntry();
 			::normalizeSlashes(dirname);
-			if (!options.allowUppercaseLettersInFilenames) {
+			if (!gcf->isCaseSensitive()) {
 				::toLowerCase(dirname);
 				::toLowerCase(entry.filename);
 			}

@@ -568,7 +568,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
     }
     prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
 
-	QString entryPath = prefilledPath.toLower();
+	QString entryPath = prefilledPath;
 	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
@@ -578,6 +578,10 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 		}
 		entryPath = std::get<0>(*newEntryOptions);
 		options = std::get<1>(*newEntryOptions);
+	}
+
+	if (!this->packFile->isCaseSensitive()) {
+		entryPath = entryPath.toLower();
 	}
 
 	this->packFile->removeEntry(entryPath.toStdString());
@@ -602,7 +606,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
     }
     prefilledPath += std::filesystem::path(dirpath.toStdString()).filename().string().c_str();
 
-	QString parentEntryPath = prefilledPath.toLower();
+	QString parentEntryPath = prefilledPath;
 	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
@@ -616,8 +620,13 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 
     QDirIterator it(dirpath, QDir::Files | QDir::Readable, QDirIterator::FollowSymlinks | QDirIterator::Subdirectories);
     while (it.hasNext()) {
-        QString subEntryPathFS = it.next().toLower();
+        QString subEntryPathFS = it.next();
         QString subEntryPath = parentEntryPath + subEntryPathFS.sliced(dirpath.length());
+
+		if (!this->packFile->isCaseSensitive()) {
+			subEntryPath = subEntryPath.toLower();
+		}
+
 	    this->packFile->removeEntry(subEntryPath.toStdString());
         this->packFile->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), options);
         this->entryTree->addEntry(subEntryPath);

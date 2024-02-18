@@ -13,10 +13,6 @@ constexpr std::uint32_t VPK_MAX_PRELOAD_BYTES = 1024;
 constexpr std::uint32_t VPK_DEFAULT_CHUNK_SIZE = 200 * 1024 * 1024;
 
 struct PackFileOptions {
-	/// Whether or not to allow uppercase letters in filenames. This affects all functions:
-	/// if this value is false, filenames will be treated as case-insensitive.
-	bool allowUppercaseLettersInFilenames = false;
-
 	/// GMA - Write CRCs for files and the overall GMA file when baking
 	bool gma_writeCRCs = true;
 

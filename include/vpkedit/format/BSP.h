@@ -41,6 +41,10 @@ public:
 	/// Open a BSP file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
+		return false;
+	}
+
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
 protected:

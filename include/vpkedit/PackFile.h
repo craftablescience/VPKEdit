@@ -52,6 +52,10 @@ public:
 	/// Will return true if there is no checksum ability in the format
 	[[nodiscard]] virtual bool verifyFileChecksum() const;
 
+	[[nodiscard]] virtual constexpr bool isCaseSensitive() const noexcept {
+		return false;
+	}
+
 	/// Try to find an entry given the file path
 	[[nodiscard]] std::optional<Entry> findEntry(const std::string& filename_, bool includeUnbaked = true) const;
 
@@ -61,7 +65,9 @@ public:
 	/// Try to read the entry's data to a string
 	[[nodiscard]] std::optional<std::string> readEntryText(const Entry& entry) const;
 
-	[[nodiscard]] virtual bool isReadOnly() const;
+	[[nodiscard]] virtual constexpr bool isReadOnly() const noexcept {
+		return false;
+	}
 
 	/// Add a new entry from a file path - the first parameter is the path in the PackFile, the second is the path on disk
 	void addEntry(const std::string& filename_, const std::string& pathToFile, EntryOptions options_);
@@ -146,7 +152,9 @@ protected:
 
 class PackFileReadOnly : public PackFile {
 public:
-	[[nodiscard]] bool isReadOnly() const final;
+	[[nodiscard]] constexpr bool isReadOnly() const noexcept final {
+		return true;
+	}
 
 protected:
 	PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_);

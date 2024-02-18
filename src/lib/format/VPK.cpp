@@ -305,7 +305,7 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
 
 Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	auto filename = filename_;
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);

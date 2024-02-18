@@ -47,7 +47,7 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 
 		reader.read(entry.path);
 		::normalizeSlashes(entry.path);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!gma->isCaseSensitive()) {
 			::toLowerCase(entry.path);
 		}
 
@@ -66,9 +66,10 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 	for (const auto& entry : entries) {
 		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
 		::normalizeSlashes(parentDir);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!gma->isCaseSensitive()) {
 			::toLowerCase(parentDir);
 		}
+
 		if (!gma->entries.contains(parentDir)) {
 			gma->entries[parentDir] = {};
 		}
@@ -111,7 +112,7 @@ std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 
 Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	auto filename = filename_;
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);

@@ -24,6 +24,10 @@ public:
 	/// Open a PCK file (potentially embedded in an executable)
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
+		return true;
+	}
+
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
 	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;

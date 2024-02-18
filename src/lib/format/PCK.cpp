@@ -75,7 +75,7 @@ std::unique_ptr<PackFile> PCK::open(const std::string& path, PackFileOptions opt
 			entry.path = entry.path.substr(PCK_PATH_PREFIX.length());
 		}
 		::normalizeSlashes(entry.path);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!pck->isCaseSensitive()) {
 			::toLowerCase(entry.path);
 		}
 
