@@ -45,6 +45,16 @@ public:
 	// [WRITE] Save any changes made to the opened file(s)
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
+	// [OPTIONAL] Returns any attributes your file format's entries have (refer to the other file formats for more info)
+	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override {
+		return PackFile::getSupportedEntryAttributes();
+	}
+
+	// [OPTIONAL] Add any custom file info here (refer to the other file formats for how to structure this)
+	[[nodiscard]] explicit operator std::string() const override {
+		return PackFile::operator std::string();
+	}
+
 protected:
 	EXAMPLE(const std::string& fullFilePath_, PackFileOptions options_);
 

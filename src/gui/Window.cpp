@@ -1130,12 +1130,7 @@ void Window::writeEntryToFile(const QString& path, const Entry& entry) {
 }
 
 void Window::resetStatusBar() {
-	if (this->packFile->getType() == PackFileType::VPK) {
-		const auto version = dynamic_cast<VPK*>(this->packFile.get())->getVersion();
-		this->statusText->setText(tr(" Loaded \"%1\" - Version v%2").arg(this->packFile->getFilename().data()).arg(version));
-	} else {
-		this->statusText->setText(tr(" Loaded \"%1\"").arg(this->packFile->getFilename().data()));
-	}
+	this->statusText->setText(tr(" Loaded %1").arg(std::string{*this->packFile}.c_str()));
 	this->statusText->show();
 	this->statusProgressBar->hide();
 }

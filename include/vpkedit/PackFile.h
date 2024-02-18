@@ -115,6 +115,8 @@ public:
 	/// Mostly for GUI programs that show entries and their metadata in a table ;)
 	[[nodiscard]] virtual std::vector<Attribute> getSupportedEntryAttributes() const;
 
+	[[nodiscard]] virtual explicit operator std::string() const;
+
 	/// Returns a list of supported extensions, e.g. {".vpk", ".bsp"}
 	static std::vector<std::string> getSupportedFileTypes();
 
@@ -155,6 +157,8 @@ public:
 	[[nodiscard]] constexpr bool isReadOnly() const noexcept final {
 		return true;
 	}
+
+	[[nodiscard]] explicit operator std::string() const override;
 
 protected:
 	PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_);

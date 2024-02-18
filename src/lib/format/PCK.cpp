@@ -139,3 +139,9 @@ std::vector<Attribute> PCK::getSupportedEntryAttributes() const {
 	using enum Attribute;
 	return {LENGTH, PCK_MD5};
 }
+
+PCK::operator std::string() const {
+	return PackFileReadOnly::operator std::string() +
+		" | Version v" + std::to_string(this->header.packVersion) +
+		" | Godot Version v" + std::to_string(this->header.godotVersionMajor) + '.' + std::to_string(this->header.godotVersionMinor) + '.' + std::to_string(this->header.godotVersionPatch);
+}

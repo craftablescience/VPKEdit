@@ -82,6 +82,8 @@ public:
 
 	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
 
+	[[nodiscard]] explicit operator std::string() const override;
+
     /// Returns 1 for v1, 2 for v2
     [[nodiscard]] std::uint32_t getVersion() const;
 

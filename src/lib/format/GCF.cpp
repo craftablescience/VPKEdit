@@ -307,3 +307,10 @@ std::vector<Attribute> GCF::getSupportedEntryAttributes() const {
 	using enum Attribute;
 	return {LENGTH};
 }
+
+GCF::operator std::string() const {
+	return PackFileReadOnly::operator std::string() +
+		" | Version v" + std::to_string(this->header.gcfversion) +
+		" | AppID " + std::to_string(this->header.appid) +
+		" | App Version v" + std::to_string(this->header.appversion);
+}

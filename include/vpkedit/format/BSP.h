@@ -47,6 +47,8 @@ public:
 
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
+	[[nodiscard]] explicit operator std::string() const override;
+
 protected:
 	BSP(const std::string& fullFilePath_, PackFileOptions options_);
 

@@ -225,3 +225,9 @@ std::vector<Attribute> GMA::getSupportedEntryAttributes() const {
 	using enum Attribute;
 	return {LENGTH, CRC32};
 }
+
+GMA::operator std::string() const {
+	return PackFile::operator std::string() +
+		" | Version v" + std::to_string(this->header.version) +
+		" | Addon Name: \"" + this->header.addonName + "\"";
+}

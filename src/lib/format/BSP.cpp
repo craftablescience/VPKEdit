@@ -205,3 +205,9 @@ void BSP::moveLumpToWritableSpace(int lumpToMove, int newSize) {
 	}
 	this->header.lumps[lumpToMove].offset = lastLumpBeforePaklumpOffset + lastLumpBeforePaklumpLength + static_cast<int>(lumpsData.size());
 }
+
+BSP::operator std::string() const {
+	return PackFile::operator std::string() +
+		" | Version v" + std::to_string(this->header.version) +
+		" | Map Revision " + std::to_string(this->header.mapRevision);
+}

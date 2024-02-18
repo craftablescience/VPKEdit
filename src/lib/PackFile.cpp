@@ -212,6 +212,10 @@ std::vector<Attribute> PackFile::getSupportedEntryAttributes() const {
 	return {};
 }
 
+PackFile::operator std::string() const {
+	return this->getFilename();
+}
+
 std::vector<std::string> PackFile::getSupportedFileTypes() {
 	std::vector<std::string> out;
 	for (const auto& [extension, factoryFunctions] : PackFile::getOpenExtensionRegistry()) {
@@ -289,6 +293,10 @@ const PackFile::FactoryFunction& PackFile::registerOpenExtensionForTypeFactory(s
 
 PackFileReadOnly::PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_)
 		: PackFile(std::move(fullFilePath_), options_) {}
+
+PackFileReadOnly::operator std::string() const {
+	return PackFile::operator std::string() + " (Read-Only)";
+}
 
 Entry& PackFileReadOnly::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	return entry; // Stubbed

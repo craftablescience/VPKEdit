@@ -634,6 +634,11 @@ std::vector<Attribute> VPK::getSupportedEntryAttributes() const {
 	return {LENGTH, VPK_PRELOADED_DATA_LENGTH, VPK_ARCHIVE_INDEX, CRC32};
 }
 
+VPK::operator std::string() const {
+	return PackFile::operator std::string() +
+		" | Version v" + std::to_string(this->header1.version);
+}
+
 std::uint32_t VPK::getVersion() const {
     return this->header1.version;
 }

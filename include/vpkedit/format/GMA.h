@@ -33,6 +33,8 @@ public:
 
 	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
 
+	[[nodiscard]] explicit operator std::string() const override;
+
 protected:
 	GMA(const std::string& fullFilePath_, PackFileOptions options_);
 
