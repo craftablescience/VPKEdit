@@ -1,4 +1,4 @@
-#include <vpkedit/format/GMA.h>
+#include <vpkedit/format/GRP.h>
 
 #include <filesystem>
 
@@ -9,80 +9,68 @@
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
-GMA::GMA(const std::string& fullFilePath_, PackFileOptions options_)
+GRP::GRP(const std::string& fullFilePath_, PackFileOptions options_)
 		: PackFile(fullFilePath_, options_) {
-	this->type = PackFileType::GMA;
+	this->type = PackFileType::GRP;
 }
 
-std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions options, const Callback& callback) {
+std::unique_ptr<PackFile> GRP::open(const std::string& path, PackFileOptions options, const Callback& callback) {
 	if (!std::filesystem::exists(path)) {
 		// File does not exist
 		return nullptr;
 	}
 
-	auto* gma = new GMA{path, options};
-	auto packFile = std::unique_ptr<PackFile>(gma);
+	auto* grp = new GRP{path, options};
+	auto packFile = std::unique_ptr<PackFile>(grp);
 
-	FileStream reader{gma->fullFilePath};
+	FileStream reader{grp->fullFilePath};
 	reader.seekInput(0);
 
-	reader.read(gma->header.signature);
-	if (gma->header.signature != GMA_SIGNATURE) {
-		// File is not a GMA
-		return nullptr;
+	auto signature = reader.readBytes<GRP_SIGNATURE.length()>();
+	for (int i = 0; i < signature.size(); i++) {
+		if (static_cast<unsigned char>(signature[i]) != GRP_SIGNATURE[i]) {
+			// File is not a GRP
+			return nullptr;
+		}
 	}
-	reader.read(gma->header.version);
-	reader.read(gma->header.steamID);
-	reader.read(gma->header.timestamp);
-	reader.read(gma->header.requiredContent);
-	reader.read(gma->header.addonName);
-	reader.read(gma->header.addonDescription);
-	reader.read(gma->header.addonAuthor);
-	reader.read(gma->header.addonVersion);
+
+	auto fileCount = reader.read<std::uint32_t>();
 
 	std::vector<Entry> entries;
-	while (reader.read<std::uint32_t>() > 0) {
+	for (int i = 0; i < fileCount; i++) {
 		Entry entry = createNewEntry();
 
-		reader.read(entry.path);
+		reader.read(entry.path, GRP_FILENAME_MAX_SIZE);
 		::normalizeSlashes(entry.path);
-		if (!gma->isCaseSensitive()) {
+		if (!grp->isCaseSensitive()) {
 			::toLowerCase(entry.path);
 		}
 
-		entry.length = reader.read<std::uint64_t>();
-		reader.read(entry.crc32);
+		entry.length = reader.read<std::uint32_t>();
 
 		entries.push_back(entry);
 	}
 
 	// At this point we've reached the file data section, calculate the offsets and then add the entries
 	std::size_t offset = reader.tellInput();
+	if (!grp->entries.contains("")) {
+		grp->entries[""] = {};
+	}
 	for (auto& entry : entries) {
 		entry.offset = offset;
 		offset += entry.length;
-	}
-	for (const auto& entry : entries) {
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
-		::normalizeSlashes(parentDir);
-		if (!gma->isCaseSensitive()) {
-			::toLowerCase(parentDir);
-		}
 
-		if (!gma->entries.contains(parentDir)) {
-			gma->entries[parentDir] = {};
-		}
-		gma->entries[parentDir].push_back(entry);
+		grp->entries[""].push_back(entry);
 
 		if (callback) {
-			callback(parentDir, entry);
+			callback("", entry);
 		}
 	}
 
 	return packFile;
 }
 
-std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
+std::optional<std::vector<std::byte>> GRP::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
 		// Get the stored data
 		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
@@ -109,30 +97,26 @@ std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 	return stream.readBytes(entry.length);
 }
 
-Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+Entry& GRP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	auto filename = filename_;
 	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
 	entry.length = buffer.size();
-	if (this->options.gma_writeCRCs) {
-		entry.crc32 = ::computeCRC32(buffer);
-	}
 
 	// Offset will be reset when it's baked
 	entry.offset = 0;
 
-	if (!this->unbakedEntries.contains(dir)) {
-		this->unbakedEntries[dir] = {};
+	if (!this->unbakedEntries.contains("")) {
+		this->unbakedEntries[""] = {};
 	}
-	this->unbakedEntries.at(dir).push_back(entry);
-	return this->unbakedEntries.at(dir).back();
+	this->unbakedEntries.at("").push_back(entry);
+	return this->unbakedEntries.at("").back();
 }
 
-bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
+bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
 	// Get the proper file output folder
 	std::string outputDir = this->getBakeOutputDir(outputDir_);
 	std::string outputPath = outputDir + '/' + this->getFilename();
@@ -165,30 +149,21 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 		FileStream stream{outputPath, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 		stream.seekOutput(0);
 
-		// Header
-		stream.write(this->header.signature);
-		stream.write(this->header.version);
-		stream.write(this->header.steamID);
-		stream.write(this->header.timestamp);
-		stream.write(this->header.requiredContent);
-		stream.write(this->header.addonName);
-		stream.write(this->header.addonDescription);
-		stream.write(this->header.addonAuthor);
-		stream.write(this->header.addonVersion);
+		// Signature
+		stream.write(std::string{GRP_SIGNATURE}, false);
+
+		// Number of files
+		stream.write(static_cast<std::uint32_t>(entriesToBake.size()));
 
 		// File tree
-		for (std::uint32_t i = 1; i <= entriesToBake.size(); i++) {
-			stream.write(i);
-			auto* entry = entriesToBake[i - 1];
-			stream.write(entry->path);
-			stream.write(entry->length);
-			stream.write<std::uint32_t>(this->options.gma_writeCRCs ? entry->crc32 : 0);
+		for (auto entry : entriesToBake) {
+			stream.write(entry->path, GRP_FILENAME_MAX_SIZE, false);
+			stream.write(static_cast<std::uint32_t>(entry->length));
 
 			if (callback) {
 				callback(entry->getParentPath(), *entry);
 			}
 		}
-		stream.write(static_cast<std::uint32_t>(0));
 
 		// Fix offsets
 		std::size_t offset = stream.tellOutput();
@@ -220,13 +195,7 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 	return true;
 }
 
-std::vector<Attribute> GMA::getSupportedEntryAttributes() const {
+std::vector<Attribute> GRP::getSupportedEntryAttributes() const {
 	using enum Attribute;
-	return {LENGTH, CRC32};
-}
-
-GMA::operator std::string() const {
-	return PackFile::operator std::string() +
-		" | Version v" + std::to_string(this->header.version) +
-		" | Addon Name: \"" + this->header.addonName + "\"";
+	return {LENGTH};
 }

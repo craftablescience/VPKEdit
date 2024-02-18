@@ -163,15 +163,16 @@ public:
 	}
 
 	void write(const std::string& obj, bool includeTerminator = true) {
-		this->streamFile.write(obj.data(), static_cast<std::streamsize>(obj.size()));
+		this->streamFile.write(obj.data(), static_cast<std::streamsize>(obj.length()));
 		if (includeTerminator) {
 			this->write('\0');
 		}
 	}
 
-	void write(const std::string& obj, std::size_t n) {
+	// Adding the bool to resolve ambiguous overloads without doing a refactor
+	void write(const std::string& obj, std::size_t n, bool /*includeTerminator*/) {
 		for (int i = 0; i < n; i++) {
-			if (i < obj.size()) {
+			if (i < obj.length()) {
 				this->write(obj[i]);
 			} else {
 				this->write('\0');

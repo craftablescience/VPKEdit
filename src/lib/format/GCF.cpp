@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <tuple>
 
 #include <vpkedit/detail/Adler32.h>
 #include <vpkedit/detail/CRC32.h>
