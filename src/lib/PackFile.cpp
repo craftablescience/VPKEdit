@@ -9,6 +9,7 @@
 #include <vpkedit/format/GCF.h>
 #include <vpkedit/format/GMA.h>
 #include <vpkedit/format/GRP.h>
+#include <vpkedit/format/PAK.h>
 #include <vpkedit/format/PCK.h>
 #include <vpkedit/format/VPK.h>
 #include <vpkedit/format/ZIP.h>

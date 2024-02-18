@@ -169,13 +169,12 @@ public:
 		}
 	}
 
-	// Adding the bool to resolve ambiguous overloads without doing a refactor
-	void write(const std::string& obj, std::size_t n, bool /*includeTerminator*/) {
+	void write(const std::string& obj, std::size_t n, bool forceIncludeTerminator) {
 		for (int i = 0; i < n; i++) {
-			if (i < obj.length()) {
-				this->write(obj[i]);
-			} else {
+			if (i >= obj.length() || (i == n - 1 && forceIncludeTerminator)) {
 				this->write('\0');
+			} else {
+				this->write(obj[i]);
 			}
 		}
 	}
