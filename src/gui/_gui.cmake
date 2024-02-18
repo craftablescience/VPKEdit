@@ -125,6 +125,18 @@ if(WIN32 AND MSVC)
             "/ENTRY:mainCRTStartup")
 endif()
 
+# Create PDBs in release
+if(WIN32)
+    target_compile_options(
+            ${PROJECT_NAME} PRIVATE
+            "$<$<CONFIG:Release>:/Zi>")
+    target_link_options(
+            ${PROJECT_NAME} PRIVATE
+            "$<$<CONFIG:Release>:/DEBUG>"
+            "$<$<CONFIG:Release>:/OPT:REF>"
+            "$<$<CONFIG:Release>:/OPT:ICF>")
+endif()
+
 # Copy these next to the executable
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
