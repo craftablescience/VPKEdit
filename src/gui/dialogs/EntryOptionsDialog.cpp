@@ -31,7 +31,6 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 
 	this->useArchiveVPK = nullptr;
 	this->preloadBytes = nullptr;
-	this->useCompression = nullptr;
 	if (advancedFileProps) {
 		if (type == PackFileType::VPK) {
 			auto* useArchiveVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
@@ -46,13 +45,6 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 			this->preloadBytes->setValue(static_cast<int>(options.vpk_preloadBytes));
 			layout->addRow(preloadBytesLabel, this->preloadBytes);
 		}
-
-		if (type == PackFileType::ZIP || type == PackFileType::BSP) {
-			auto* useCompressionLabel = new QLabel(tr("Save %1 file with LZMA compression:").arg(isDir ? "each" : "the"), this);
-			this->useCompression = new QCheckBox(this);
-			this->useCompression->setCheckState(options.zip_compressionMethod == 0 ? Qt::CheckState::Unchecked : Qt::CheckState::Checked);
-			layout->addRow(useCompressionLabel, this->useCompression);
-		}
 	}
 
 	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -66,7 +58,6 @@ EntryOptions EntryOptionsDialog::getEntryOptions() const {
 	return {
 		.vpk_saveToDirectory = this->useArchiveVPK && !this->useArchiveVPK->isChecked(),
 		.vpk_preloadBytes = this->preloadBytes ? static_cast<std::uint32_t>(this->preloadBytes->value()) : 0,
-		.zip_compressionMethod = static_cast<uint16_t>(this->useCompression ? this->useCompression->isChecked() ? MZ_COMPRESS_METHOD_LZMA : MZ_COMPRESS_METHOD_STORE : MZ_COMPRESS_METHOD_STORE),
 	};
 }
 

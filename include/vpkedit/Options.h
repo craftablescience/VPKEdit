@@ -26,6 +26,9 @@ struct PackFileOptions {
 
 	/// VPK - Controls generation of per-file MD5 hashes (only for VPK v2)
 	bool vpk_generateMD5Entries = false;
+
+	/// ZIP/BSP - The compression method. Check the MZ_COMPRESS_METHOD definitions for valid values. Only accepts STORE currently
+	std::uint16_t zip_compressionMethod = MZ_COMPRESS_METHOD_STORE;
 };
 
 struct EntryOptions {
@@ -34,9 +37,6 @@ struct EntryOptions {
 
 	/// VPK - The amount in bytes of the file to preload. Maximum is controlled by VPK_MAX_PRELOAD_BYTES
 	std::uint32_t vpk_preloadBytes = 0;
-
-	/// ZIP/BSP - The compression method. Check the MZ_COMPRESS_METHOD definitions for valid values. Accepts STORE and LZMA
-	std::uint16_t zip_compressionMethod = MZ_COMPRESS_METHOD_STORE;
 };
 
 } // namespace vpkedit

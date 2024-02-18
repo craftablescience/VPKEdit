@@ -5,6 +5,9 @@
 
 #include <mz.h>
 #include <mz_strm.h>
+#ifdef VPKEDIT_ZIP_COMPRESSION
+#include <mz_strm_lzma.h>
+#endif
 #include <mz_strm_os.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
@@ -121,7 +124,6 @@ Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	entry.path = filename;
-	entry.flags = options_.zip_compressionMethod;
 	entry.length = buffer.size();
 	entry.compressedLength = 0;
 	entry.crc32 = ::computeCRC32(buffer);
@@ -159,9 +161,28 @@ std::vector<Attribute> ZIP::getSupportedEntryAttributes() const {
 	return {LENGTH, CRC32};
 }
 
+#ifdef VPKEDIT_ZIP_COMPRESSION
+std::uint16_t ZIP::getCompressionMethod() const {
+	return this->options.zip_compressionMethod;
+}
+
+void ZIP::setCompressionMethod(std::uint16_t compressionMethod) {
+	this->options.zip_compressionMethod = compressionMethod;
+}
+#endif
+
 bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback) {
-	void* writeStreamHandle = mz_stream_os_create();
-	if (mz_stream_os_open(writeStreamHandle, writeZipPath.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
+	void* writeStreamHandle;
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	if (this->options.zip_compressionMethod != MZ_COMPRESS_METHOD_STORE) {
+		writeStreamHandle = mz_stream_lzma_create();
+	} else {
+#endif
+		writeStreamHandle = mz_stream_os_create();
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	}
+#endif
+	if (mz_stream_open(writeStreamHandle, writeZipPath.c_str(), MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE)) {
 		return false;
 	}
 
@@ -169,6 +190,13 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 	if (mz_zip_writer_open(writeZipHandle, writeStreamHandle, 0)) {
 		return false;
 	}
+
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	if (this->options.zip_compressionMethod != MZ_COMPRESS_METHOD_STORE) {
+		mz_zip_writer_set_compress_level(writeZipHandle, MZ_COMPRESS_LEVEL_DEFAULT);
+		mz_zip_writer_set_compress_method(writeZipHandle, MZ_COMPRESS_METHOD_LZMA);
+	}
+#endif
 
 	for (const auto& [entryDir, entries] : this->getBakedEntries()) {
 		for (const Entry& entry : entries) {
@@ -185,7 +213,7 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
 			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = entry.flags;
+			fileInfo.compression_method = this->options.zip_compressionMethod;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
 				return false;
 			}
@@ -209,7 +237,7 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
 			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
 			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = entry.flags;
+			fileInfo.compression_method = this->options.zip_compressionMethod;
 			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
 				return false;
 			}
@@ -225,17 +253,17 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 	}
 	mz_zip_writer_delete(&writeZipHandle);
 
-	if (mz_stream_os_close(writeStreamHandle)) {
+	if (mz_stream_close(writeStreamHandle)) {
 		return false;
 	}
-	mz_stream_os_delete(&writeStreamHandle);
+	mz_stream_delete(&writeStreamHandle);
 
 	return true;
 }
 
 bool ZIP::openZIP(std::string_view path) {
 	this->streamHandle = mz_stream_os_create();
-	if (mz_stream_os_open(this->streamHandle, path.data(), MZ_OPEN_MODE_READ) != MZ_OK) {
+	if (mz_stream_open(this->streamHandle, path.data(), MZ_OPEN_MODE_READ) != MZ_OK) {
 		return false;
 	}
 	this->streamOpen = true;
@@ -255,7 +283,7 @@ void ZIP::closeZIP() {
 		mz_zip_delete(&this->zipHandle);
 	}
 	if (this->streamOpen) {
-		mz_stream_os_close(this->streamHandle);
-		mz_stream_os_delete(&this->streamHandle);
+		mz_stream_close(this->streamHandle);
+		mz_stream_delete(&this->streamHandle);
 	}
 }

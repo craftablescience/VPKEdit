@@ -25,6 +25,9 @@
 #include <QThread>
 #include <sapp/SteamAppPathProvider.h>
 #include <vpkedit/format/VPK.h>
+#ifdef VPKEDIT_ZIP_COMPRESSION
+#include <vpkedit/format/ZIP.h>
+#endif
 #include <vpkedit/Version.h>
 
 #include "config/Options.h"
@@ -501,10 +504,13 @@ void Window::setProperties() {
         return;
     }
 
-	if (this->packFile->getType() == PackFileType::VPK) {
-		auto* properVPKPointer = dynamic_cast<VPK*>(this->packFile.get());
-		properVPKPointer->setVersion(options->vpk_version);
-	}
+	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
+		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
+		vpk.setVersion(options->vpk_version);
+	}/* else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+		auto& zip = dynamic_cast<ZIP&>(*this->packFile);
+		zip.setCompressionMethod(options->zip_compressionMethod);
+	}*/
 
 	this->resetStatusBar();
 

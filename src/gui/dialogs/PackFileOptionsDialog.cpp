@@ -1,5 +1,6 @@
 #include "PackFileOptionsDialog.h"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -17,6 +18,9 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
     auto* layout = new QFormLayout(this);
 
 	this->vpk_version = nullptr;
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	this->zip_useCompression = nullptr;
+#endif
 	if (type == PackFileType::VPK) {
 		auto* versionLabel = new QLabel(tr("Version:"), this);
 		this->vpk_version = new QComboBox(this);
@@ -25,8 +29,15 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
 		this->vpk_version->setCurrentIndex(static_cast<int>(this->options.vpk_version) - 1);
 		layout->addRow(versionLabel, this->vpk_version);
 	}
-
-	if (type == PackFileType::ZIP || type == PackFileType::BSP) {
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+		auto* useCompressionLabel = new QLabel(tr("Use LZMA Compression:"), this);
+		this->zip_useCompression = new QCheckBox(this);
+		this->zip_useCompression->setChecked(this->options.zip_compressionMethod == MZ_COMPRESS_METHOD_LZMA);
+		layout->addRow(useCompressionLabel, this->zip_useCompression);
+	}
+#endif
+	else {
 		auto* nothingLabel = new QLabel(tr("There are no properties available for this file type."), this);
 		layout->addWidget(nothingLabel);
 	}
@@ -40,6 +51,11 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
 
 PackFileOptions PackFileOptionsDialog::getPackFileOptions() {
 	this->options.vpk_version = this->vpk_version ? this->vpk_version->currentIndex() + 1 : 2;
+	this->options.zip_compressionMethod =
+#ifdef VPKEDIT_ZIP_COMPRESSION
+			this->zip_useCompression ? MZ_COMPRESS_METHOD_LZMA :
+#endif
+			MZ_COMPRESS_METHOD_STORE;
 	return this->options;
 }
 

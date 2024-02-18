@@ -28,7 +28,4 @@ private:
 	// VPK
 	QCheckBox* useArchiveVPK;
 	QSpinBox*  preloadBytes;
-
-	// ZIP/BSP
-	QCheckBox* useCompression;
 };

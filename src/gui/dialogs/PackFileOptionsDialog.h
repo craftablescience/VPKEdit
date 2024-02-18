@@ -7,6 +7,7 @@
 #include <vpkedit/Options.h>
 #include <vpkedit/PackFileType.h>
 
+class QCheckBox;
 class QComboBox;
 
 class PackFileOptionsDialog : public QDialog {
@@ -23,4 +24,7 @@ private:
 	vpkedit::PackFileOptions options;
 
 	QComboBox* vpk_version;
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	QCheckBox* zip_useCompression;
+#endif
 };

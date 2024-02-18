@@ -19,7 +19,7 @@ class Entry {
 public:
 	/// Path to this entry (e.g. "materials/cable.vmt")
 	std::string path;
-	/// Format-specific flags (PCK: File flags, ZIP/BSP: Compression type)
+	/// Format-specific flags (PCK: File flags, VPK: Internal parser state)
 	std::uint32_t flags = 0;
 	/// Length in bytes (in formats with compression, this is the uncompressed length)
 	std::uint64_t length = 0;

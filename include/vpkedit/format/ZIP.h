@@ -25,6 +25,12 @@ public:
 
 	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
 
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	[[nodiscard]] std::uint16_t getCompressionMethod() const;
+
+	void setCompressionMethod(std::uint16_t compressionMethod);
+#endif
+
 protected:
 	ZIP(const std::string& fullFilePath_, PackFileOptions options_);
 
