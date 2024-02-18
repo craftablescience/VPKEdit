@@ -337,7 +337,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 			this->freedChunks.erase(this->freedChunks.begin() + bestChunkIndex);
 			if (currentChunkGap < SIZE_MAX && currentChunkGap > 0) {
 				// Add the remaining free space as a free chunk
-				this->freedChunks.emplace_back(entry.offset + entry.length, currentChunkGap, entry.vpk_archiveIndex);
+				this->freedChunks.push_back({entry.offset + entry.length, currentChunkGap, entry.vpk_archiveIndex});
 			}
 		}
 	}
@@ -370,7 +370,7 @@ Entry& VPK::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 
 bool VPK::removeEntry(const std::string& filename_) {
 	if (auto entry = this->findEntry(filename_); entry && (!entry->unbaked || entry->flags & VPK_FLAG_REUSING_CHUNK)) {
-		this->freedChunks.emplace_back(entry->offset, entry->length, entry->vpk_archiveIndex);
+		this->freedChunks.push_back({entry->offset, entry->length, entry->vpk_archiveIndex});
 	}
 	return PackFile::removeEntry(filename_);
 }
