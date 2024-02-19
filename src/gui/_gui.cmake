@@ -50,6 +50,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets LinguistTools)
+
 # Add sources and create executable
 list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/config/Options.h"
@@ -107,8 +109,10 @@ endif()
 
 add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
-# Final Qt setup
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets)
+qt_add_translations(${PROJECT_NAME}
+        TS_FILES "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}.en_us.ts"
+        SOURCES ${${PROJECT_NAME}_SOURCES})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
 target_include_directories(
         ${PROJECT_NAME} PRIVATE

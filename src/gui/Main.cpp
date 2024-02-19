@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QSettings>
 #include <QSurfaceFormat>
+#include <QTranslator>
 
 #include <vpkedit/Version.h>
 
@@ -18,6 +19,11 @@ int main(int argc, char** argv) {
 	QSurfaceFormat::setDefaultFormat(format);
 
     QApplication app(argc, argv);
+
+	QTranslator translator;
+	if (translator.load(QLocale(), PROJECT_NAME.data(), ".", ":/i18n")) {
+		QCoreApplication::installTranslator(&translator);
+	}
 
     QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
     QCoreApplication::setApplicationName(PROJECT_NAME.data());
