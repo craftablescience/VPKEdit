@@ -4,13 +4,13 @@
 
 namespace vpkedit {
 
-constexpr std::string_view PROJECT_NAME           = "@PROJECT_NAME@";
-constexpr std::string_view PROJECT_NAME_PRETTY    = "@PROJECT_NAME_PRETTY@";
-constexpr std::string_view PROJECT_VERSION        = "@PROJECT_VERSION@";
-constexpr std::string_view PROJECT_VERSION_PRETTY = "@PROJECT_VERSION_PRETTY@";
-constexpr std::string_view PROJECT_HOMEPAGE       = "@PROJECT_HOMEPAGE_URL@";
-constexpr std::string_view PROJECT_HOMEPAGE_API   = "@PROJECT_HOMEPAGE_URL_API@";
-constexpr std::string_view ORGANIZATION_NAME      = "@PROJECT_ORGANIZATION_NAME@";
-constexpr std::string_view PROJECT_TITLE          = "@PROJECT_NAME_PRETTY@ v@PROJECT_VERSION_PRETTY@";
+constexpr std::string_view PROJECT_NAME           = "${PROJECT_NAME}";
+constexpr std::string_view PROJECT_NAME_PRETTY    = "${PROJECT_NAME_PRETTY}";
+constexpr std::string_view PROJECT_VERSION        = "${PROJECT_VERSION}";
+constexpr std::string_view PROJECT_VERSION_PRETTY = "${PROJECT_VERSION_PRETTY}";
+constexpr std::string_view PROJECT_HOMEPAGE       = "${PROJECT_HOMEPAGE_URL}";
+constexpr std::string_view PROJECT_HOMEPAGE_API   = "${PROJECT_HOMEPAGE_URL_API}";
+constexpr std::string_view ORGANIZATION_NAME      = "${PROJECT_ORGANIZATION_NAME}";
+constexpr std::string_view PROJECT_TITLE          = "${PROJECT_NAME_PRETTY} v${PROJECT_VERSION_PRETTY}";
 
 } // namespace vpkedit

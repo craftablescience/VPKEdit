@@ -21,6 +21,7 @@ set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 set(CMAKE_CXX_STANDARD 20)
 
+option(VPKEDIT_BUILD_LIBC "Build VPKEdit C wrapper library" OFF)
 option(VPKEDIT_BUILD_CLI "Build VPKEdit CLI application" ON)
 option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
@@ -30,6 +31,11 @@ option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI
 
 # libvpkedit
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/_lib.cmake")
+
+# libvpkeditc
+if(VPKEDIT_BUILD_LIBC)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/src/libc/_libc.cmake")
+endif()
 
 # vpkeditcli
 if(VPKEDIT_BUILD_CLI)
@@ -46,12 +52,12 @@ if(VPKEDIT_BUILD_GUI AND VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
 endif()
 
-# vpkeditexample
+# vpkedit_example
 if (VPKEDIT_BUILD_EXAMPLE)
     include("${CMAKE_CURRENT_SOURCE_DIR}/example/_example.cmake")
 endif()
 
-# vpkedittest
+# vpkedit_test
 if(VPKEDIT_BUILD_TESTS)
     include("${CMAKE_CURRENT_SOURCE_DIR}/test/_test.cmake")
 endif()

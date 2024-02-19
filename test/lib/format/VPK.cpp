@@ -26,7 +26,7 @@ TEST(VPK, read) {
     for (const auto& [directory, files] : vpk->getBakedEntries()) {
         for (const auto& file : files) {
             // Terminal explosion
-            std::cout << directory << '/' << file.filename << '\n';
+            std::cout << file.path << '\n';
         }
     }
 }
@@ -42,7 +42,7 @@ TEST(VPK, readContents) {
     ASSERT_EQ(cableVMT->length, 46);
 
     std::string_view expectedContents = "SplineRope\r\n{\r\n$basetexture \"cable\\black\"\r\n}\r\n";
-    auto actualContents = vpk->readTextEntry(*cableVMT);
+    auto actualContents = vpk->readEntryText(*cableVMT);
     ASSERT_TRUE(actualContents);
     ASSERT_STREQ(actualContents->c_str(), expectedContents.data());
 }

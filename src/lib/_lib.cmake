@@ -20,11 +20,10 @@ endif()
 # Configure version header
 configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h.in"
-		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h"
-		@ONLY)
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h")
 
 add_library(
-		lib${PROJECT_NAME}
+		lib${PROJECT_NAME} STATIC
 
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Adler32.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC32.h"

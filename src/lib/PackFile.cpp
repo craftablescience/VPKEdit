@@ -121,8 +121,10 @@ void PackFile::addEntry(const std::string& filename_, std::vector<std::byte>&& b
 
 void PackFile::addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options_) {
 	std::vector<std::byte> data;
-	data.resize(bufferLen);
-	std::memcpy(data.data(), buffer, bufferLen);
+	if (buffer && bufferLen > 0) {
+		data.resize(bufferLen);
+		std::memcpy(data.data(), buffer, bufferLen);
+	}
 	this->addEntry(filename_, std::move(data), options_);
 }
 

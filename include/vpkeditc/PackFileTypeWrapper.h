@@ -1,0 +1,21 @@
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {
+	VPKEDIT_PACK_FILE_TYPE_UNKNOWN,
+	VPKEDIT_PACK_FILE_TYPE_BSP,
+	VPKEDIT_PACK_FILE_TYPE_GCF,
+	VPKEDIT_PACK_FILE_TYPE_GMA,
+	VPKEDIT_PACK_FILE_TYPE_GRP,
+	VPKEDIT_PACK_FILE_TYPE_PAK,
+	VPKEDIT_PACK_FILE_TYPE_PCK,
+	VPKEDIT_PACK_FILE_TYPE_VPK,
+	VPKEDIT_PACK_FILE_TYPE_ZIP,
+} VPKEdit_PackFileTypeWrapper_e;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif

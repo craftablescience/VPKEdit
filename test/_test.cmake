@@ -6,14 +6,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 
-add_executable(${PROJECT_NAME}test
-        "${CMAKE_CURRENT_LIST_DIR}/VPKTest.cpp")
+list(APPEND ${PROJECT_NAME}_test_SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/lib/format/VPK.cpp")
 
-target_link_libraries(${PROJECT_NAME}test PUBLIC lib${PROJECT_NAME} gtest_main)
+add_executable(${PROJECT_NAME}_test ${${PROJECT_NAME}_test_SOURCES})
 
-target_include_directories(
-        ${PROJECT_NAME}test PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(${PROJECT_NAME}_test PUBLIC lib${PROJECT_NAME} gtest_main)
+if(VPKEDIT_BUILD_LIBC)
+    target_link_libraries(${PROJECT_NAME}_test PUBLIC lib${PROJECT_NAME}c)
+endif()
+
+target_include_directories(${PROJECT_NAME}_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}test)
+gtest_discover_tests(${PROJECT_NAME}_test)
