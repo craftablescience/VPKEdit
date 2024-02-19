@@ -34,9 +34,9 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 		{"", "megamind.txt"},
 	};
 	for (auto& [dir, name] : samplePaths) {
-		// The path needs to be normalized, and respect the option to allow uppercase letters
+		// The path needs to be normalized, and respect case sensitivity
 		::normalizeSlashes(dir);
-		if (!options.allowUppercaseLettersInFilenames) {
+		if (!example->isCaseSensitive()) {
 			::toLowerCase(dir);
 			::toLowerCase(name);
 		}
@@ -114,7 +114,7 @@ std::optional<std::vector<std::byte>> EXAMPLE::readEntry(const Entry& entry) con
 Entry& EXAMPLE::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	// Include this verbatim
 	auto filename = filename_;
-	if (!this->options.allowUppercaseLettersInFilenames) {
+	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
 	}
 	auto [dir, name] = ::splitFilenameAndParentDir(filename);
