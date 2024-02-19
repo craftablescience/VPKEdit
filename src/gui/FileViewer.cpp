@@ -265,7 +265,7 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 	    this->showPreview<TextPreview>();
         this->getPreview<TextPreview>()->setText(*text, extension);
     } else {
-		this->showInfoPreview({":/warning.png"}, tr("No available preview."));
+		this->showInfoPreview({":/icons/warning.png"}, tr("No available preview."));
 	}
 }
 
@@ -324,5 +324,5 @@ void FileViewer::showInfoPreview(const QPixmap& icon, const QString& text) {
 }
 
 void FileViewer::showFileLoadErrorPreview() {
-	this->showInfoPreview({":/error.png"}, tr("Failed to read file contents!\nPlease ensure that a game or another application is not using the file."));
+	this->showInfoPreview({":/icons/warning.png"}, tr("Failed to read file contents!\nPlease ensure that a game or another application is not using the file."));
 }

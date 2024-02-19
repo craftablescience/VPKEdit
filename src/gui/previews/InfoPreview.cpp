@@ -20,7 +20,7 @@ InfoPreview::InfoPreview(const QPixmap& icon, const QString& text, QWidget* pare
 }
 
 InfoPreview::InfoPreview(QWidget *parent)
-		: InfoPreview({":/error.png"}, "") {}
+		: InfoPreview({":/icons/warning.png"}, "") {}
 
 void InfoPreview::setData(const QPixmap& icon, const QString& text) {
 	this->image->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio));

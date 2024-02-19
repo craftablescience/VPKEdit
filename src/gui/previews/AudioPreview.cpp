@@ -127,7 +127,7 @@ AudioPreview::~AudioPreview() {
 void AudioPreview::setData(const std::vector<std::byte>& data) {
 	this->persistentAudioData = data;
 	if (auto err = AudioPlayer::initAudio(this->persistentAudioData.data(), this->persistentAudioData.size()); !err.empty()) {
-		this->fileViewer->showInfoPreview({":/error.png"}, err.data());
+		this->fileViewer->showInfoPreview({":/icons/warning.png"}, err.data());
 	} else {
 		this->setPlaying(true);
 	}

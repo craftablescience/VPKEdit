@@ -3,10 +3,12 @@
         <file alias="CONTROLS.md">../../../CONTROLS.md</file>
         <file alias="CREDITS.md">../../../CREDITS.md</file>
 
-        <file>icons/shaded_textured.png</file>
-        <file>icons/shaded_untextured.png</file>
-        <file>icons/unshaded_textured.png</file>
-        <file>icons/wireframe.png</file>
+        <file>icons/error.png</file>
+        <file>icons/model_shaded_textured.png</file>
+        <file>icons/model_shaded_untextured.png</file>
+        <file>icons/model_unshaded_textured.png</file>
+        <file>icons/model_wireframe.png</file>
+        <file>icons/warning.png</file>
 
         <file>shaders/mdl.vert</file>
         <file>shaders/mdl_shaded_textured.frag</file>
@@ -17,8 +19,6 @@
         <file>textures/checkerboard.png</file>
         <file>textures/default_matcap.png</file>
 
-        <file>error.png</file>
         <file alias="icon.png">icon-fullres.png</file>
-        <file>warning.png</file>
     </qresource>
 </RCC>

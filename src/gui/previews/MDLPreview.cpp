@@ -478,7 +478,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		vtxEntry = packFile.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
-		this->fileViewer->showInfoPreview({":/error.png"}, tr("Unable to find all the required files the model is composed of!"));
+		this->fileViewer->showInfoPreview({":/icons/error.png"}, tr("Unable to find all the required files the model is composed of!"));
 		return;
 	}
 	auto mdlData = packFile.readEntry(*mdlEntry);
@@ -494,7 +494,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
 								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
     if (!opened) {
-	    this->fileViewer->showInfoPreview({":/error.png"}, tr("This model is invalid, it cannot be previewed!"));
+	    this->fileViewer->showInfoPreview({":/icons/error.png"}, tr("This model is invalid, it cannot be previewed!"));
         return;
     }
 
@@ -613,10 +613,10 @@ void MDLPreview::setShadingMode(MDLShadingMode mode) const {
 	this->backfaceCulling->setDisabled(mode == MDLShadingMode::WIREFRAME);
 
 	const QList<std::tuple<QToolButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
-			{&this->shadingModeWireframe, ":/icons/wireframe.png", MDLShadingMode::WIREFRAME},
-			{&this->shadingModeShadedUntextured, ":/icons/shaded_untextured.png", MDLShadingMode::SHADED_UNTEXTURED},
-			{&this->shadingModeUnshadedTextured, ":/icons/unshaded_textured.png", MDLShadingMode::UNSHADED_TEXTURED},
-			{&this->shadingModeShadedTextured, ":/icons/shaded_textured.png", MDLShadingMode::SHADED_TEXTURED},
+			{&this->shadingModeWireframe, ":/icons/model_wireframe.png", MDLShadingMode::WIREFRAME},
+			{&this->shadingModeShadedUntextured, ":/icons/model_shaded_untextured.png", MDLShadingMode::SHADED_UNTEXTURED},
+			{&this->shadingModeUnshadedTextured, ":/icons/model_unshaded_textured.png", MDLShadingMode::UNSHADED_TEXTURED},
+			{&this->shadingModeShadedTextured, ":/icons/model_shaded_textured.png", MDLShadingMode::SHADED_TEXTURED},
 	};
 	for (auto& [button, iconPath, buttonMode] : buttonsAndIcons) {
 		QPixmap imagePixmap(iconPath);
