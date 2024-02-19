@@ -110,7 +110,6 @@ endif()
 add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 qt_add_translations(${PROJECT_NAME}
-        TS_FILES "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}.en.ts"
         TS_FILES "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}.ru.ts"
         SOURCES ${${PROJECT_NAME}_SOURCES})
 
