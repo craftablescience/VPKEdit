@@ -3,11 +3,16 @@
         <file alias="CONTROLS.md">../../../CONTROLS.md</file>
         <file alias="CREDITS.md">../../../CREDITS.md</file>
 
+        <file>icons/down.png</file>
         <file>icons/error.png</file>
+        <file>icons/home.png</file>
+        <file>icons/left.png</file>
         <file>icons/model_shaded_textured.png</file>
         <file>icons/model_shaded_untextured.png</file>
         <file>icons/model_unshaded_textured.png</file>
         <file>icons/model_wireframe.png</file>
+        <file>icons/right.png</file>
+        <file>icons/up.png</file>
         <file>icons/warning.png</file>
 
         <file>shaders/mdl.vert</file>

@@ -104,6 +104,9 @@ protected:
 
     void closeEvent(QCloseEvent* event) override;
 
+signals:
+	void themeUpdated();
+
 private:
     QLabel* statusText;
     QProgressBar* statusProgressBar;

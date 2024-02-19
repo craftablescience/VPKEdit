@@ -17,6 +17,7 @@
 #include <vpkedit/PackFile.h>
 #include <VTFLib.h>
 
+#include "../utility/ThemedIcon.h"
 #include "../FileViewer.h"
 
 using namespace std::literals;
@@ -607,9 +608,6 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 }
 
 void MDLPreview::setShadingMode(MDLShadingMode mode) const {
-	QStyleOption opt;
-	opt.initFrom(this);
-
 	this->backfaceCulling->setDisabled(mode == MDLShadingMode::WIREFRAME);
 
 	const QList<std::tuple<QToolButton* const*, QString, MDLShadingMode>> buttonsAndIcons{
@@ -619,12 +617,7 @@ void MDLPreview::setShadingMode(MDLShadingMode mode) const {
 			{&this->shadingModeShadedTextured, ":/icons/model_shaded_textured.png", MDLShadingMode::SHADED_TEXTURED},
 	};
 	for (auto& [button, iconPath, buttonMode] : buttonsAndIcons) {
-		QPixmap imagePixmap(iconPath);
-		auto mask = imagePixmap.createMaskFromColor(Qt::white, Qt::MaskOutColor);
-		imagePixmap.fill(opt.palette.color(buttonMode == mode ? QPalette::ColorRole::Link : QPalette::ColorRole::ButtonText));
-		imagePixmap.setMask(mask);
-
-		(*button)->setIcon({imagePixmap});
+		(*button)->setIcon(ThemedIcon::get(this, iconPath, buttonMode == mode ? QPalette::ColorRole::Link : QPalette::ColorRole::ButtonText));
 		(*button)->setIconSize({SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE});
 	}
 

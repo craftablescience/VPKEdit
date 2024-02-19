@@ -182,9 +182,10 @@ Window::Window(QWidget* parent)
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
     for (const auto& themeName : QStyleFactory::keys()) {
-        auto* action = themeMenu->addAction(themeName, [=] {
+        auto* action = themeMenu->addAction(themeName, [this, themeName] {
             QApplication::setStyle(themeName);
             Options::set(OPT_STYLE, themeName);
+			emit this->themeUpdated();
         });
         action->setCheckable(true);
         if (themeName == Options::get<QString>(OPT_STYLE)) {

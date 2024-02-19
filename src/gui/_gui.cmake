@@ -89,6 +89,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.cpp"
 

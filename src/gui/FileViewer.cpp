@@ -14,6 +14,7 @@
 #include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/VTFPreview.h"
+#include "utility/ThemedIcon.h"
 #include "Window.h"
 
 using namespace vpkedit;
@@ -48,36 +49,45 @@ NavBar::NavBar(Window* window_, QWidget* parent)
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	this->backButton = new QToolButton(this);
-	this->backButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-	auto* backButtonAction = new QAction(u8"🡰", this->backButton);
+	this->backButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	auto* backButtonAction = new QAction(this->backButton);
 	backButtonAction->setShortcut(Qt::ALT | Qt::Key_Left);
 	this->backButton->setDefaultAction(backButtonAction);
 	QObject::connect(this->backButton, &QToolButton::triggered, this, &NavBar::navigateBack);
 	layout->addWidget(this->backButton);
 
 	this->nextButton = new QToolButton(this);
-	this->nextButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-	auto* nextButtonAction = new QAction(u8"🡲", this->nextButton);
+	this->nextButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	auto* nextButtonAction = new QAction(this->nextButton);
 	nextButtonAction->setShortcut(Qt::ALT | Qt::Key_Right);
 	this->nextButton->setDefaultAction(nextButtonAction);
 	QObject::connect(this->nextButton, &QToolButton::triggered, this, &NavBar::navigateNext);
 	layout->addWidget(this->nextButton);
 
 	this->upButton = new QToolButton(this);
-	this->upButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-	auto* upButtonAction = new QAction(u8"🡱", this->upButton);
+	this->upButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	auto* upButtonAction = new QAction(this->upButton);
 	upButtonAction->setShortcuts({Qt::ALT | Qt::Key_Up, Qt::Key_Backspace});
 	this->upButton->setDefaultAction(upButtonAction);
 	QObject::connect(this->upButton, &QToolButton::triggered, this, &NavBar::navigateUp);
 	layout->addWidget(this->upButton);
 
 	this->homeButton = new QToolButton(this);
-	this->homeButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-	auto* homeButtonAction = new QAction("/", this->homeButton);
+	this->homeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	auto* homeButtonAction = new QAction(this->homeButton);
 	homeButtonAction->setShortcut(Qt::Key_Home);
 	this->homeButton->setDefaultAction(homeButtonAction);
 	QObject::connect(this->homeButton, &QToolButton::triggered, this, &NavBar::navigateHome);
 	layout->addWidget(this->homeButton);
+
+	const auto resetButtonIcons = [this, backButtonAction, nextButtonAction, upButtonAction, homeButtonAction] {
+		backButtonAction->setIcon(ThemedIcon::get(this, ":/icons/left.png", QPalette::ColorRole::ButtonText));
+		nextButtonAction->setIcon(ThemedIcon::get(this, ":/icons/right.png", QPalette::ColorRole::ButtonText));
+		upButtonAction->setIcon(ThemedIcon::get(this, ":/icons/up.png", QPalette::ColorRole::ButtonText));
+		homeButtonAction->setIcon(ThemedIcon::get(this, ":/icons/home.png", QPalette::ColorRole::ButtonText));
+	};
+	resetButtonIcons();
+	QObject::connect(window, &Window::themeUpdated, this, resetButtonIcons, Qt::QueuedConnection);
 
 	this->currentPath = new QLineEdit(this);
 	this->currentPath->setPlaceholderText(tr("Navigate..."));
