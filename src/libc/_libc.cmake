@@ -6,7 +6,14 @@ configure_file(
 add_library(
         lib${PROJECT_NAME}c SHARED
 
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/BSPWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GCFWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GMAWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GRPWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PAKWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PCKWrapper.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/VPKWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/ZIPWrapper.h"
 
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/AttributeWrapper.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/EntryWrapper.h"
@@ -16,7 +23,14 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/StringArray.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Version.h"
 
+        "${CMAKE_CURRENT_LIST_DIR}/format/BSPWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GCFWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GMAWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GRPWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/PAKWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/PCKWrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/format/VPKWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/ZIPWrapper.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/API.h"
         "${CMAKE_CURRENT_LIST_DIR}/EntryWrapper.cpp"
