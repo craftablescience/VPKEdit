@@ -328,6 +328,9 @@ Window::Window(QWidget* parent)
 
 	(void) this->clearContents();
 
+	// Update the theme for anything relying on that
+	emit this->themeUpdated();
+
     // Load the pack file if given one through the command-line or double-clicking a file
     // An error here means shut the application down
     const auto& args = QApplication::arguments();

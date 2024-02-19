@@ -5,6 +5,7 @@
 
 #include <QWidget>
 
+class QAction;
 class QLineEdit;
 class QToolButton;
 
@@ -49,10 +50,16 @@ private:
 	QToolButton* nextButton;
 	QToolButton* upButton;
 	QToolButton* homeButton;
+	QAction* backButtonAction;
+	QAction* nextButtonAction;
+	QAction* upButtonAction;
+	QAction* homeButtonAction;
 	QLineEdit* currentPath;
 
 	QList<QString> history;
 	int historyIndex;
+
+	void resetButtonIcons();
 
 	void processPathChanged(const QString& newPath, bool addToHistory = true, bool firePathChanged = true);
 };

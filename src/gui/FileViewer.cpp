@@ -4,6 +4,7 @@
 
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QTimer>
 #include <QToolButton>
 
 #include "previews/AudioPreview.h"
@@ -50,49 +51,42 @@ NavBar::NavBar(Window* window_, QWidget* parent)
 
 	this->backButton = new QToolButton(this);
 	this->backButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	auto* backButtonAction = new QAction(this->backButton);
-	backButtonAction->setShortcut(Qt::ALT | Qt::Key_Left);
-	this->backButton->setDefaultAction(backButtonAction);
+	this->backButtonAction = new QAction(this->backButton);
+	this->backButtonAction->setShortcut(Qt::ALT | Qt::Key_Left);
+	this->backButton->setDefaultAction(this->backButtonAction);
 	QObject::connect(this->backButton, &QToolButton::triggered, this, &NavBar::navigateBack);
 	layout->addWidget(this->backButton);
 
 	this->nextButton = new QToolButton(this);
 	this->nextButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	auto* nextButtonAction = new QAction(this->nextButton);
-	nextButtonAction->setShortcut(Qt::ALT | Qt::Key_Right);
-	this->nextButton->setDefaultAction(nextButtonAction);
+	this->nextButtonAction = new QAction(this->nextButton);
+	this->nextButtonAction->setShortcut(Qt::ALT | Qt::Key_Right);
+	this->nextButton->setDefaultAction(this->nextButtonAction);
 	QObject::connect(this->nextButton, &QToolButton::triggered, this, &NavBar::navigateNext);
 	layout->addWidget(this->nextButton);
 
 	this->upButton = new QToolButton(this);
 	this->upButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	auto* upButtonAction = new QAction(this->upButton);
-	upButtonAction->setShortcuts({Qt::ALT | Qt::Key_Up, Qt::Key_Backspace});
-	this->upButton->setDefaultAction(upButtonAction);
+	this->upButtonAction = new QAction(this->upButton);
+	this->upButtonAction->setShortcuts({Qt::ALT | Qt::Key_Up, Qt::Key_Backspace});
+	this->upButton->setDefaultAction(this->upButtonAction);
 	QObject::connect(this->upButton, &QToolButton::triggered, this, &NavBar::navigateUp);
 	layout->addWidget(this->upButton);
 
 	this->homeButton = new QToolButton(this);
 	this->homeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	auto* homeButtonAction = new QAction(this->homeButton);
-	homeButtonAction->setShortcut(Qt::Key_Home);
-	this->homeButton->setDefaultAction(homeButtonAction);
+	this->homeButtonAction = new QAction(this->homeButton);
+	this->homeButtonAction->setShortcut(Qt::Key_Home);
+	this->homeButton->setDefaultAction(this->homeButtonAction);
 	QObject::connect(this->homeButton, &QToolButton::triggered, this, &NavBar::navigateHome);
 	layout->addWidget(this->homeButton);
-
-	const auto resetButtonIcons = [this, backButtonAction, nextButtonAction, upButtonAction, homeButtonAction] {
-		backButtonAction->setIcon(ThemedIcon::get(this, ":/icons/left.png", QPalette::ColorRole::ButtonText));
-		nextButtonAction->setIcon(ThemedIcon::get(this, ":/icons/right.png", QPalette::ColorRole::ButtonText));
-		upButtonAction->setIcon(ThemedIcon::get(this, ":/icons/up.png", QPalette::ColorRole::ButtonText));
-		homeButtonAction->setIcon(ThemedIcon::get(this, ":/icons/home.png", QPalette::ColorRole::ButtonText));
-	};
-	resetButtonIcons();
-	QObject::connect(window, &Window::themeUpdated, this, resetButtonIcons, Qt::QueuedConnection);
 
 	this->currentPath = new QLineEdit(this);
 	this->currentPath->setPlaceholderText(tr("Navigate..."));
 	QObject::connect(this->currentPath, &QLineEdit::editingFinished, this, &NavBar::navigatePath);
 	layout->addWidget(this->currentPath);
+
+	QObject::connect(this->window, &Window::themeUpdated, this, &NavBar::resetButtonIcons, Qt::QueuedConnection);
 }
 
 void NavBar::setPath(const QString& newPath) {
@@ -138,6 +132,7 @@ void NavBar::navigatePath() {
 }
 
 void NavBar::clearContents(bool resetHistory) {
+	QTimer::singleShot(0, this, &NavBar::resetButtonIcons);
 	this->currentPath->clear();
 
 	if (resetHistory) {
@@ -148,6 +143,13 @@ void NavBar::clearContents(bool resetHistory) {
 		this->backButton->setDisabled(true);
 		this->nextButton->setDisabled(true);
 	}
+}
+
+void NavBar::resetButtonIcons() {
+	this->backButtonAction->setIcon(ThemedIcon::get(this, ":/icons/left.png", QPalette::ColorRole::ButtonText));
+	this->nextButtonAction->setIcon(ThemedIcon::get(this, ":/icons/right.png", QPalette::ColorRole::ButtonText));
+	this->upButtonAction->setIcon(ThemedIcon::get(this, ":/icons/up.png", QPalette::ColorRole::ButtonText));
+	this->homeButtonAction->setIcon(ThemedIcon::get(this, ":/icons/home.png", QPalette::ColorRole::ButtonText));
 }
 
 void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool firePathChanged) {
@@ -168,6 +170,8 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 	this->nextButton->setDisabled(this->historyIndex == this->history.size() - 1);
 	this->upButton->setDisabled(this->history.at(this->historyIndex) == "");
 	this->homeButton->setDisabled(this->history.at(this->historyIndex) == "");
+
+	QTimer::singleShot(0, this, &NavBar::resetButtonIcons);
 
 	if (firePathChanged) {
 		emit this->pathChanged(newPath);
