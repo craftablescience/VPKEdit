@@ -5,6 +5,7 @@ namespace vpkedit {
 enum class PackFileType {
 	UNKNOWN,
 	BSP,
+	FPX,
 	GCF,
 	GMA,
 	GRP,

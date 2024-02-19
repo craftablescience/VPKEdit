@@ -15,15 +15,15 @@ constexpr std::uint32_t VPK_FLAG_REUSING_CHUNK = 0x1;
 
 namespace {
 
-std::string removeVPKAndOrDirSuffix(const std::string& path) {
+std::string removeVPKAndOrDirSuffix(const std::string& path, bool isFPX) {
 	std::string filename = path;
-	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == VPK_EXTENSION) {
+	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == (isFPX ? FPX_EXTENSION : VPK_EXTENSION)) {
 		filename = filename.substr(0, filename.length() - 4);
 	}
 
 	// This indicates it's a dir VPK, but some people ignore this convention...
 	// It should fail later if it's not a proper dir VPK
-	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == VPK_DIR_SUFFIX) {
+	if (filename.length() >= 4 && filename.substr(filename.length() - 4) == (isFPX ? FPX_DIR_SUFFIX : VPK_DIR_SUFFIX)) {
 		filename = filename.substr(0, filename.length() - 4);
 	}
 
@@ -34,6 +34,10 @@ std::string padArchiveIndex(int num) {
 	static constexpr int WIDTH = 3;
     auto numStr = std::to_string(num);
     return std::string(WIDTH - std::min<std::string::size_type>(WIDTH, numStr.length()), '0') + numStr;
+}
+
+bool isFPX(const VPK* vpk) {
+	return vpk->getType() == PackFileType::FPX;
 }
 
 } // namespace
@@ -126,18 +130,23 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 	FileStream reader{vpk->fullFilePath};
     reader.seekInput(0);
     reader.read(vpk->header1);
-    if (vpk->header1.signature != VPK_SIGNATURE) {
-        // File is not a VPK
+    if ((!::isFPX(vpk) && vpk->header1.signature != VPK_SIGNATURE) ||
+		(::isFPX(vpk) && vpk->header1.signature != FPX_SIGNATURE)) {
+        // File is not a VPK or FPX
         return nullptr;
     }
-	// Might as well
+	if (!::isFPX(vpk)) {
+		if (vpk->header1.version == 2) {
+			reader.read(vpk->header2);
+		} else if (vpk->header1.version != 1) {
+			// Apex Legends, Titanfall, etc. are not supported
+			return nullptr;
+		}
+	} else if (vpk->header1.version != 10) {
+		// Only support v10 FPX files
+		return nullptr;
+	}
 	vpk->options.vpk_version = vpk->header1.version;
-    if (vpk->header1.version == 2) {
-        reader.read(vpk->header2);
-    } else if (vpk->header1.version != 1) {
-        // Apex Legends, Titanfall, etc. are not supported
-        return nullptr;
-    }
 
     // Extensions
     while (true) {
@@ -252,6 +261,10 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
     return packFile;
 }
 
+std::vector<std::string> VPK::verifyEntryChecksums() const {
+	return this->verifyEntryChecksumsUsingCRC32();
+}
+
 std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
     std::vector output(entry.length, static_cast<std::byte>(0));
 
@@ -282,7 +295,7 @@ std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
 		return std::nullopt;
     } else if (entry.vpk_archiveIndex != VPK_DIR_INDEX) {
 		// Stored in a numbered archive
-        FileStream stream{this->getTruncatedFilepath() + '_' + ::padArchiveIndex(entry.vpk_archiveIndex) + VPK_EXTENSION.data()};
+        FileStream stream{this->getTruncatedFilepath() + '_' + ::padArchiveIndex(entry.vpk_archiveIndex) + (::isFPX(this) ? FPX_EXTENSION : VPK_EXTENSION).data()};
         if (!stream) {
             return std::nullopt;
         }
@@ -434,8 +447,8 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     }
 
 	// Helper
-	const auto getArchiveFilename = [](const std::string& filename_, int archiveIndex) {
-		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + VPK_EXTENSION.data();
+	const auto getArchiveFilename = [this](const std::string& filename_, int archiveIndex) {
+		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + (::isFPX(this) ? FPX_EXTENSION : VPK_EXTENSION).data();
 	};
 
     // Copy external binary blobs to the new dir
@@ -486,13 +499,13 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 						entry->offset = dirVPKEntryData.size();
 					} else if (entry->vpk_archiveIndex != VPK_DIR_INDEX && (entry->flags & VPK_FLAG_REUSING_CHUNK)) {
 						// The entry is replacing pre-existing data in a VPK archive
-						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath), entry->vpk_archiveIndex);
+						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath, ::isFPX(this)), entry->vpk_archiveIndex);
                         FileStream stream{archiveFilename, FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
 						stream.seekOutput(entry->offset);
                         stream.writeBytes(entryData);
                     } else if (entry->vpk_archiveIndex != VPK_DIR_INDEX) {
 						// The entry is being appended to a newly created VPK archive
-						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath), entry->vpk_archiveIndex);
+						auto archiveFilename = getArchiveFilename(::removeVPKAndOrDirSuffix(outputPath, ::isFPX(this)), entry->vpk_archiveIndex);
 						entry->offset = std::filesystem::exists(archiveFilename) ? std::filesystem::file_size(archiveFilename) : 0;
                         FileStream stream{archiveFilename, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_APPEND | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
                         stream.writeBytes(entryData);
@@ -540,7 +553,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     this->header1.treeSize = outDir.tellOutput() - dirVPKEntryData.size() - this->getHeaderLength();
 
     // VPK v2 stuff
-    if (this->header1.version != 1) {
+    if (this->header1.version == 2) {
         // Calculate hashes for all entries
         this->md5Entries.clear();
 		if (this->options.vpk_generateMD5Entries) {
@@ -601,7 +614,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
     outDir.write(this->header1);
 
     // v2 adds the MD5 hashes and file signature
-    if (this->header1.version < 2) {
+    if (this->header1.version != 2) {
 	    PackFile::setFullFilePath(outputDir);
         return true;
     }
@@ -623,7 +636,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 std::string VPK::getTruncatedFilestem() const {
 	std::string filestem = this->getFilestem();
 	// This indicates it's a dir VPK, but some people ignore this convention...
-	if (filestem.length() >= 4 && filestem.substr(filestem.length() - 4) == VPK_DIR_SUFFIX) {
+	if (filestem.length() >= 4 && filestem.substr(filestem.length() - 4) == (::isFPX(this) ? FPX_DIR_SUFFIX : VPK_DIR_SUFFIX)) {
 		filestem = filestem.substr(0, filestem.length() - 4);
 	}
 	return filestem;
@@ -644,7 +657,7 @@ std::uint32_t VPK::getVersion() const {
 }
 
 void VPK::setVersion(std::uint32_t version) {
-    if (version == this->header1.version) {
+    if (::isFPX(this) || version == this->header1.version) {
         return;
     }
     this->header1.version = version;
@@ -657,8 +670,24 @@ void VPK::setVersion(std::uint32_t version) {
 }
 
 std::uint32_t VPK::getHeaderLength() const {
-	if (this->header1.version < 2) {
+	if (this->header1.version != 2) {
 		return sizeof(Header1);
 	}
 	return sizeof(Header1) + sizeof(Header2);
+}
+
+FPX::FPX(const std::string& fullFilePath_, PackFileOptions options_)
+		: VPK(fullFilePath_, options_) {
+	this->type = PackFileType::FPX;
+}
+
+std::unique_ptr<PackFile> FPX::open(const std::string& path, PackFileOptions options, const Callback& callback) {
+	auto fpx = FPX::openInternal(path, options, callback);
+	if (!fpx && path.length() > 8) {
+		// If it just tried to load a numbered archive, let's try to load the directory FPX
+		if (auto dirPath = path.substr(0, path.length() - 8) + FPX_DIR_SUFFIX.data() + std::filesystem::path(path).extension().string(); std::filesystem::exists(dirPath)) {
+			fpx = FPX::openInternal(dirPath, options, callback);
+		}
+	}
+	return fpx;
 }

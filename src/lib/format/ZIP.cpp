@@ -81,6 +81,10 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 	return packFile;
 }
 
+std::vector<std::string> ZIP::verifyEntryChecksums() const {
+	return this->verifyEntryChecksumsUsingCRC32();
+}
+
 std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
 		// Get the stored data
@@ -286,8 +290,4 @@ void ZIP::closeZIP() {
 		mz_stream_close(this->streamHandle);
 		mz_stream_delete(&this->streamHandle);
 	}
-}
-
-std::vector<std::string> ZIP::verifyEntryChecksums() const {
-	return this->verifyEntryChecksumsUsingCRC32();
 }
