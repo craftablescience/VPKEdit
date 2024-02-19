@@ -224,7 +224,16 @@ Window::Window(QWidget* parent)
     optionStartMaximized->setCheckable(true);
     optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
-    // Help menu
+	// Tools menu
+	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
+
+	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
+	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
+		this->verifyChecksums();
+	});
+	this->toolsGeneralMenu->setDisabled(true);
+
+	// Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), Qt::Key_F1, [this] {
         this->about();
@@ -235,15 +244,6 @@ Window::Window(QWidget* parent)
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogListView), tr("Controls"), Qt::Key_F2, [this] {
 		this->controls();
 	});
-
-	// Tools menu
-	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
-
-	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
-	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
-		this->verifyChecksums();
-	});
-	this->toolsGeneralMenu->setDisabled(true);
 
 #ifdef QT_DEBUG
     // Debug menu
