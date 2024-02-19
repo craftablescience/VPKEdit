@@ -18,13 +18,48 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 	const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
 	this->setModal(true);
-	this->setWindowTitle(tr("%1%2 %3").arg(advancedFileProps ? "(Advanced) " : "", edit ? "Edit" : "New", isDir ? "Folder" : "File"));
+
+	// For the sake of proper translations
+	QString title;
+	if (advancedFileProps) {
+		if (edit) {
+			if (isDir) {
+				title = tr("(Advanced) Edit Folder");
+			} else {
+				title = tr("(Advanced) Edit File");
+			}
+		} else {
+			if (isDir) {
+				title = tr("(Advanced) New Folder");
+			} else {
+				title = tr("(Advanced) New File");
+			}
+		}
+	} else {
+		if (edit) {
+			if (isDir) {
+				title = tr("Edit Folder");
+			} else {
+				title = tr("Edit File");
+			}
+		} else {
+			if (isDir) {
+				title = tr("New Folder");
+			} else {
+				title = tr("New File");
+			}
+		}
+	}
+	this->setWindowTitle(title);
+
 	// This works well enough without messing around with QFontMetrics
 	this->setMinimumWidth(static_cast<int>(130 + (prefilledPath.length() * 8)));
 
 	auto* layout = new QFormLayout(this);
 
-	auto* pathLineEditLabel = new QLabel(tr("The path of the %1:\n(e.g. \"%2\")").arg(isDir ? "folder" : "file", isDir ? "materials/dev" : "materials/cable.vmt"), this);
+	auto* pathLineEditLabel = new QLabel(isDir ?
+			tr("The path of the folder:\n(e.g. \"%1\")").arg("materials/dev") :
+			tr("The path of the folder:\n(e.g. \"%1\")").arg("materials/cable.vmt"), this);
 	this->path = new QLineEdit(this);
 	this->path->setText(prefilledPath);
 	layout->addRow(pathLineEditLabel, this->path);
@@ -33,12 +68,16 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 	this->preloadBytes = nullptr;
 	if (advancedFileProps) {
 		if (type == PackFileType::VPK) {
-			auto* useArchiveVPKLabel = new QLabel(tr("Save %1 file to a new numbered archive\ninstead of the directory VPK:").arg(isDir ? "each" : "the"), this);
+			auto* useArchiveVPKLabel = new QLabel(isDir ?
+					tr("Save each file to a new numbered archive\ninstead of the directory VPK:") :
+					tr("Save the file to a new numbered archive\ninstead of the directory VPK:"), this);
 			this->useArchiveVPK = new QCheckBox(this);
 			this->useArchiveVPK->setCheckState(options.vpk_saveToDirectory ? Qt::CheckState::Unchecked : Qt::CheckState::Checked);
 			layout->addRow(useArchiveVPKLabel, this->useArchiveVPK);
 
-			auto* preloadBytesLabel = new QLabel(tr("Set the bytes of %1 file to preload:\n(From 0 to %2 bytes)").arg(isDir ? "each" : "the").arg(VPK_MAX_PRELOAD_BYTES), this);
+			auto* preloadBytesLabel = new QLabel(isDir ?
+					tr("Set the bytes of each file to preload:\n(From 0 to %1 bytes)").arg(VPK_MAX_PRELOAD_BYTES) :
+					tr("Set the bytes of the file to preload:\n(From 0 to %1 bytes)").arg(VPK_MAX_PRELOAD_BYTES), this);
 			this->preloadBytes = new QSpinBox(this);
 			this->preloadBytes->setMinimum(0);
 			this->preloadBytes->setMaximum(VPK_MAX_PRELOAD_BYTES);

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <cstddef>
-#include <string_view>
+
+#include <QObject>
 
 namespace AudioPlayer {
 
 bool initialized();
 
-std::string_view initAudio(const void* data, std::size_t len);
+QString initAudio(const void* data, std::size_t len);
 
 void pause();
 

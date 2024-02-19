@@ -112,7 +112,7 @@ AudioPreview::AudioPreview(FileViewer* fileViewer_, QWidget* parent)
 			if (AudioPlayer::getPositionInFrames() == AudioPlayer::getLengthInFrames()) {
 				this->setPlaying(false);
 			}
-			this->infoLabel->setText(QString("Sample Rate: %1hz\nChannels: %2").arg(AudioPlayer::getSampleRate()).arg(AudioPlayer::getChannelCount()));
+			this->infoLabel->setText(tr("Sample Rate: %1hz\nChannels: %2").arg(AudioPlayer::getSampleRate()).arg(AudioPlayer::getChannelCount()));
 		} else {
 			this->seekBar->setValue(0);
 		}
@@ -126,8 +126,8 @@ AudioPreview::~AudioPreview() {
 
 void AudioPreview::setData(const std::vector<std::byte>& data) {
 	this->persistentAudioData = data;
-	if (auto err = AudioPlayer::initAudio(this->persistentAudioData.data(), this->persistentAudioData.size()); !err.empty()) {
-		this->fileViewer->showInfoPreview({":/icons/warning.png"}, err.data());
+	if (auto err = AudioPlayer::initAudio(this->persistentAudioData.data(), this->persistentAudioData.size()); !err.isEmpty()) {
+		this->fileViewer->showInfoPreview({":/icons/warning.png"}, err);
 	} else {
 		this->setPlaying(true);
 	}

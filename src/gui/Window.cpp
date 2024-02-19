@@ -56,14 +56,14 @@ Window::Window(QWidget* parent)
 	this->setMinimumSize(900, 500);
 
 	// File menu
-	auto* fileMenu = this->menuBar()->addMenu(tr("&File"));
-    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&Create Empty VPK..."), Qt::CTRL | Qt::Key_N, [this] {
+	auto* fileMenu = this->menuBar()->addMenu(tr("File"));
+    this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create Empty VPK..."), Qt::CTRL | Qt::Key_N, [this] {
 		this->newVPK(false);
 	});
-    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create VPK From &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
+    this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create VPK From Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
 		this->newVPK(true);
 	});
-    this->openAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("&Open..."), Qt::CTRL | Qt::Key_O, [this] {
+    this->openAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open..."), Qt::CTRL | Qt::Key_O, [this] {
 		this->openPackFile();
 	});
 
@@ -90,7 +90,7 @@ Window::Window(QWidget* parent)
 				return std::get<0>(lhs) < std::get<0>(rhs);
 			});
 
-			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &In..."));
+			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
 			for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
 				const auto relativeDirectory = relativeDirectoryPath.path();
 				this->openRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
@@ -100,20 +100,20 @@ Window::Window(QWidget* parent)
 		}
 	}
 
-	this->openRecentMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open &Recent..."));
+	this->openRecentMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open Recent..."));
 	this->rebuildOpenRecentMenu(Options::get<QStringList>(STR_OPEN_RECENT));
 
-	this->saveAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Save"), Qt::CTRL | Qt::Key_S, [this] {
+	this->saveAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"), Qt::CTRL | Qt::Key_S, [this] {
 		this->savePackFile();
 	});
 	this->saveAction->setDisabled(true);
 
-	this->saveAsAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save &As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [this] {
+	this->saveAsAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save As..."), Qt::CTRL | Qt::SHIFT | Qt::Key_S, [this] {
 		this->saveAsPackFile();
 	});
 	this->saveAsAction->setDisabled(true);
 
-	this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("&Close"), Qt::CTRL | Qt::Key_X, [this] {
+	this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), Qt::CTRL | Qt::Key_X, [this] {
 		this->closePackFile();
 	});
 	this->closeFileAction->setDisabled(true);
@@ -125,64 +125,64 @@ Window::Window(QWidget* parent)
 
 	this->checkForNewUpdateNetworkManager = new QNetworkAccessManager(this);
 	QObject::connect(this->checkForNewUpdateNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
-	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For &Updates..."), Qt::CTRL | Qt::Key_U, [this] {
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For Updates..."), Qt::CTRL | Qt::Key_U, [this] {
 		this->checkForNewUpdate();
 	});
 
-	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Exit"), Qt::ALT | Qt::Key_F4, [this] {
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Exit"), Qt::ALT | Qt::Key_F4, [this] {
 		this->close();
 	});
 
     // Edit menu
-    auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
-    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Extract All"), Qt::CTRL | Qt::Key_E, [this] {
+    auto* editMenu = this->menuBar()->addMenu(tr("Edit"));
+    this->extractAllAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract All"), Qt::CTRL | Qt::Key_E, [this] {
         this->extractAll();
     });
     this->extractAllAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("&Add File..."), Qt::CTRL | Qt::Key_A, [this] {
+    this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add File..."), Qt::CTRL | Qt::Key_A, [this] {
         this->addFile(true);
     });
     this->addFileAction->setDisabled(true);
 
-    this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add &Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
+    this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
         this->addDir(true);
     });
     this->addDirAction->setDisabled(true);
 
     editMenu->addSeparator();
-    this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Properties..."), Qt::CTRL | Qt::Key_P, [this] {
+    this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Properties..."), Qt::CTRL | Qt::Key_P, [this] {
 	    this->setProperties();
     });
     this->setPropertiesAction->setDisabled(true);
 
     // Options menu
-    auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
+    auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
 
-    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("&Entry Tree..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("&Expand Folder When Selected"), [this] {
+    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry Tree..."));
+    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Expand Folder When Selected"), [this] {
 		Options::invert(OPT_ENTRY_TREE_AUTO_EXPAND);
         this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
     });
     entryListMenuAutoExpandAction->setCheckable(true);
     entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
 
-	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("&Start Collapsed"), [this] {
+	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start Collapsed"), [this] {
 		Options::invert(OPT_ENTRY_TREE_AUTO_COLLAPSE);
 		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
 	});
 	entryListMenuAutoCollapseAction->setCheckable(true);
 	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
 
-	auto* entryListMenuHideIconsAction = entryListMenu->addAction(tr("&Hide Icons"), [this] {
+	auto* entryListMenuHideIconsAction = entryListMenu->addAction(tr("Hide Icons"), [this] {
 		Options::invert(OPT_ENTRY_TREE_HIDE_ICONS);
 		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 	});
 	entryListMenuHideIconsAction->setCheckable(true);
 	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 
-    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("&Theme..."));
+    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
     auto* themeMenuGroup = new QActionGroup(this);
     themeMenuGroup->setExclusive(true);
     for (const auto& themeName : QStyleFactory::keys()) {
@@ -198,8 +198,8 @@ Window::Window(QWidget* parent)
         themeMenuGroup->addAction(action);
     }
 
-	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&Language..."));
-	auto* forceEnglishAction = languageMenu->addAction(tr("Use &English"), [this] {
+	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Language..."));
+	auto* forceEnglishAction = languageMenu->addAction(tr("Use English"), [this] {
 		static bool shownRestartMessage = false;
 		if (!shownRestartMessage) {
 			QMessageBox::warning(this, tr("Restart Required"), tr("The application must be restarted for these settings to take effect."));
@@ -211,25 +211,25 @@ Window::Window(QWidget* parent)
 	forceEnglishAction->setChecked(Options::get<bool>(OPT_FORCE_ENGLISH));
 
     optionsMenu->addSeparator();
-    auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced File Properties"), [=] {
+    auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [=] {
         Options::invert(OPT_ADVANCED_FILE_PROPS);
     });
     optionAdvancedMode->setCheckable(true);
     optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADVANCED_FILE_PROPS));
 
     optionsMenu->addSeparator();
-    auto* optionStartMaximized = optionsMenu->addAction(tr("&Start Maximized"), [=] {
+    auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [=] {
         Options::invert(OPT_START_MAXIMIZED);
     });
     optionStartMaximized->setCheckable(true);
     optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
     // Help menu
-    auto* helpMenu = this->menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&About"), Qt::Key_F1, [this] {
+    auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), Qt::Key_F1, [this] {
         this->about();
     });
-    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About &Qt"), Qt::ALT | Qt::Key_F1, [this] {
+    helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About Qt"), Qt::ALT | Qt::Key_F1, [this] {
         this->aboutQt();
     });
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogListView), tr("Controls"), Qt::Key_F2, [this] {
@@ -237,19 +237,19 @@ Window::Window(QWidget* parent)
 	});
 
 	// Tools menu
-	auto* toolsMenu = this->menuBar()->addMenu(tr("&Tools"));
+	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
 
-	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("&General"));
-	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("&Verify Checksums"), [this] {
+	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
+	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
 		this->verifyChecksums();
 	});
 	this->toolsGeneralMenu->setDisabled(true);
 
 #ifdef QT_DEBUG
     // Debug menu
-    auto* debugMenu = this->menuBar()->addMenu("&Debug");
+    auto* debugMenu = this->menuBar()->addMenu(tr("Debug"));
 
-	auto* debugDialogsMenu = debugMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), "&Dialogs");
+	auto* debugDialogsMenu = debugMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Dialogs"));
     debugDialogsMenu->addAction("New Entry Dialog (File) [VPK]", [this] {
         (void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::VPK, {}, this);
     });
@@ -304,7 +304,7 @@ Window::Window(QWidget* parent)
     leftPaneLayout->setContentsMargins(4, 4, 0, 0);
 
     this->searchBar = new QLineEdit(leftPane);
-    this->searchBar->setPlaceholderText(QString("Find..."));
+    this->searchBar->setPlaceholderText(tr("Search..."));
     QObject::connect(this->searchBar, &QLineEdit::editingFinished, this, [this] {
         this->entryTree->setSearchQuery(this->searchBar->text());
         this->fileViewer->setSearchQuery(this->searchBar->text());
@@ -527,10 +527,13 @@ void Window::setProperties() {
 	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
 		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
 		vpk.setVersion(options->vpk_version);
-	}/* else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+	}
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
 		auto& zip = dynamic_cast<ZIP&>(*this->packFile);
 		zip.setCompressionMethod(options->zip_compressionMethod);
-	}*/
+	}
+#endif
 
 	this->resetStatusBar();
 
@@ -765,8 +768,9 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 }
 
 void Window::about() {
-    QString creditsText = tr("# %1\n*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n")
-			.arg(PROJECT_TITLE.data());
+    QString creditsText = QString("# %1\n").arg(PROJECT_TITLE.data()) + '*' +
+			tr("Created by %1").arg("[craftablescience](https://github.com/craftablescience)") +
+			"*\n<br/>\n";
     QFile creditsFile(":/CREDITS.md");
     if (creditsFile.open(QIODevice::ReadOnly)) {
         QTextStream in(&creditsFile);
@@ -1131,7 +1135,7 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 		});
 	}
 	this->openRecentMenu->addSeparator();
-	this->openRecentMenu->addAction(tr("&Clear"), [this] {
+	this->openRecentMenu->addAction(tr("Clear"), [this] {
 		Options::set(STR_OPEN_RECENT, QStringList{});
 		this->rebuildOpenRecentMenu({});
 	});
@@ -1156,7 +1160,15 @@ void Window::writeEntryToFile(const QString& path, const Entry& entry) {
 }
 
 void Window::resetStatusBar() {
-	this->statusText->setText(tr(" Loaded %1").arg(std::string{*this->packFile}.c_str()));
+	QString packFileStatus(std::string{*this->packFile}.c_str());
+	packFileStatus
+		.replace("AppID", tr("AppID"))
+		.replace("App Version", tr("App Version"))
+		.replace("Godot Version", tr("Godot Version"))
+		.replace("Version", tr("Version"))
+		.replace("Map Revision", tr("Map Revision"))
+		.replace("Addon Name:", tr("Addon Name:"));
+	this->statusText->setText(' ' + tr("Loaded") + ' ' + packFileStatus);
 	this->statusText->show();
 	this->statusProgressBar->hide();
 }

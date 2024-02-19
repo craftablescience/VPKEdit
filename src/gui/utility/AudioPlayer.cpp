@@ -39,7 +39,7 @@ bool AudioPlayer::initialized() {
 	return g_MiniAudioIsInitialized;
 }
 
-std::string_view AudioPlayer::initAudio(const void* data, std::size_t len) {
+QString AudioPlayer::initAudio(const void* data, std::size_t len) {
 	if (g_MiniAudioIsInitialized) {
 		deinitAudio();
 	}
@@ -47,7 +47,7 @@ std::string_view AudioPlayer::initAudio(const void* data, std::size_t len) {
 	ma_device_config deviceConfig;
 
 	if (ma_decoder_init_memory(data, len, nullptr, &g_MiniAudioDecoder) != MA_SUCCESS) {
-		return "Failed to initialize decoder.";
+		return QObject::tr("Failed to initialize decoder.");
 	}
 
 	deviceConfig = ma_device_config_init(ma_device_type_playback);
@@ -59,7 +59,7 @@ std::string_view AudioPlayer::initAudio(const void* data, std::size_t len) {
 
 	if (ma_device_init(nullptr, &deviceConfig, &g_MiniAudioDevice) != MA_SUCCESS) {
 		ma_decoder_uninit(&g_MiniAudioDecoder);
-		return "Failed to open playback device.";
+		return QObject::tr("Failed to open playback device.");
 	}
 
 	g_MiniAudioIsInitialized = true;

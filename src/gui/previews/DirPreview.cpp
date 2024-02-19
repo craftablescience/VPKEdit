@@ -34,23 +34,23 @@ enum Column : int {
 
 namespace {
 
-std::string_view attributeToString(Attribute attribute) {
+QString attributeToQString(Attribute attribute) {
 	switch (attribute) {
 		using enum Attribute;
 		case LENGTH:
-			return "Size";
+			return QObject::tr("Size");
 		case CRC32:
-			return "CRC32";
+			return QObject::tr("CRC32");
 		case PCK_MD5:
-			return "MD5";
+			return QObject::tr("MD5");
 		case VPK_ARCHIVE_INDEX:
-			return "Archive Index";
+			return QObject::tr("Archive Index");
 		case VPK_PRELOADED_DATA_LENGTH:
-			return "Preloaded Size";
+			return QObject::tr("Preloaded Size");
 		default:
 			break;
 	}
-	return "Unknown";
+	return QObject::tr("Unknown");
 }
 
 void hideUnsupportedAttributes(DirPreview* dirPreview, const PackFile& packFile) {
@@ -60,9 +60,9 @@ void hideUnsupportedAttributes(DirPreview* dirPreview, const PackFile& packFile)
 	}
 
 	// dunno why the fuck this has to be here and not in the ctor but okay then
-	QStringList header{"Name", "Type"};
+	QStringList header{QObject::tr("Name"), QObject::tr("Type")};
 	for (int i = 0; i < static_cast<int>(Attribute::ATTRIBUTE_COUNT); i++) {
-		header.append(::attributeToString(static_cast<Attribute>(i)).data());
+		header.append(::attributeToQString(static_cast<Attribute>(i)));
 	}
 	dirPreview->setHorizontalHeaderLabels(header);
 }
@@ -306,25 +306,25 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	// LENGTH
     QTableWidgetItem* sizeItem;
     if (entry->length < KB_SIZE) {
-        sizeItem = new QTableWidgetItem(QString::number(entry->length) + " bytes");
+        sizeItem = new QTableWidgetItem(QString::number(entry->length) + ' ' + tr("bytes"));
     } else {
         auto size = static_cast<double>(entry->length) / KB_SIZE;
-        QString extension(" kb");
+        QString extension(' ' + tr("kb"));
 
         if (size >= KB_SIZE) {
             size /= KB_SIZE;
-            extension = " mb";
+            extension = ' ' + tr("mb");
         }
         if (size >= KB_SIZE) {
             size /= KB_SIZE;
-            extension = " gb";
+            extension = ' ' + tr("gb");
         }
         sizeItem = new QTableWidgetItem(QString::number(size, 'f', 2) + extension);
     }
     this->setItem(this->rowCount() - 1, Column::LENGTH, sizeItem);
 
 	// PRELOADED DATA LENGTH
-	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->vpk_preloadedData.size()) + " bytes");
+	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->vpk_preloadedData.size()) + ' ' + tr("bytes"));
 	this->setItem(this->rowCount() - 1, Column::VPK_PRELOADED_DATA_LENGTH, preloadedSizeItem);
 
 	// ARCHIVE INDEX
