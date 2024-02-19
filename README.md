@@ -57,9 +57,9 @@ Any contributors will be added to the credits in the form of a text file shipped
 
 ## Backend
 
-This tool is powered by an open-source pack file editing library, libvpkedit. This library's code is stored in this same repository,
+This tool is powered by an open-source pack file editing library, `libvpkedit`. This library's code is stored in this same repository,
 written in C++20 and also under the MIT license. Its code was initially based off of [ValvePak](https://github.com/SteamDatabase/ValvePak)
 and the Valve Developer Wiki (see [the credits](https://github.com/craftablescience/VPKEdit/blob/main/CREDITS.md) for more information).
 
-A C wrapper library is also present in this repository, and its compilation can be enabled in the CMake options. It translates the C++ library
+A C wrapper library, `libvpkeditc`, is also present in this repository, and its compilation can be enabled in the CMake options. It translates the C++ library
 into a C interface with largely minimal to no overhead.
