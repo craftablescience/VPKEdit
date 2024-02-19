@@ -2,6 +2,7 @@
 
 #include <QActionGroup>
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileDialog>
@@ -118,6 +119,9 @@ Window::Window(QWidget* parent)
 	this->closeFileAction->setDisabled(true);
 
 	fileMenu->addSeparator();
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&Donate On Ko-fi..."), [this] {
+		QDesktopServices::openUrl({"https://ko-fi.com/craftablescience"});
+	});
 
 	this->checkForNewUpdateNetworkManager = new QNetworkAccessManager(this);
 	QObject::connect(this->checkForNewUpdateNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
