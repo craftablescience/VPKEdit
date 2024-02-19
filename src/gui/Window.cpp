@@ -194,6 +194,18 @@ Window::Window(QWidget* parent)
         themeMenuGroup->addAction(action);
     }
 
+	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("&Language..."));
+	auto* forceEnglishAction = languageMenu->addAction(tr("Use &English"), [this] {
+		static bool shownRestartMessage = false;
+		if (!shownRestartMessage) {
+			QMessageBox::warning(this, tr("Restart Required"), tr("The application must be restarted for these settings to take effect."));
+			shownRestartMessage = true;
+		}
+		Options::invert(OPT_FORCE_ENGLISH);
+	});
+	forceEnglishAction->setCheckable(true);
+	forceEnglishAction->setChecked(Options::get<bool>(OPT_FORCE_ENGLISH));
+
     optionsMenu->addSeparator();
     auto* optionAdvancedMode = optionsMenu->addAction(tr("&Advanced File Properties"), [=] {
         Options::invert(OPT_ADVANCED_FILE_PROPS);

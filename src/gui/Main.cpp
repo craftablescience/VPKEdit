@@ -20,8 +20,17 @@ int main(int argc, char** argv) {
 
     QApplication app(argc, argv);
 
+	std::unique_ptr<QSettings> options;
+	if (Options::isStandalone()) {
+		auto configPath = QApplication::applicationDirPath() + "/config.ini";
+		options = std::make_unique<QSettings>(configPath, QSettings::Format::IniFormat);
+	} else {
+		options = std::make_unique<QSettings>();
+	}
+	Options::setupOptions(*options);
+
 	QTranslator translator;
-	if (translator.load(QLocale(), PROJECT_NAME.data(), ".", ":/i18n")) {
+	if (!Options::get<bool>(OPT_FORCE_ENGLISH) && translator.load(QLocale(), PROJECT_NAME.data(), ".", ":/i18n")) {
 		QCoreApplication::installTranslator(&translator);
 	}
 
@@ -32,15 +41,6 @@ int main(int argc, char** argv) {
 #if !defined(__APPLE__) && !defined(_WIN32)
     QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
 #endif
-
-    std::unique_ptr<QSettings> options;
-    if (Options::isStandalone()) {
-        auto configPath = QApplication::applicationDirPath() + "/config.ini";
-        options = std::make_unique<QSettings>(configPath, QSettings::Format::IniFormat);
-    } else {
-        options = std::make_unique<QSettings>();
-    }
-    Options::setupOptions(*options);
 
     auto* window = new Window();
     if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
