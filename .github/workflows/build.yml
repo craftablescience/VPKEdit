@@ -14,7 +14,7 @@ env:
   QT_MODULES: 'qtimageformats'
 
 jobs:
-  build-msvc:
+  build-windows:
     strategy:
       matrix:
         build_type: [Debug, Release]
