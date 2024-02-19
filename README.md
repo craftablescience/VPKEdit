@@ -49,8 +49,17 @@ A separate application with no external dependencies (`vpkeditcli`) provides a c
 
 See [the open issues on this repository marked as an enhancement](https://github.com/craftablescience/VPKEdit/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement).
 
+## Contributing
+
+This project accepts a wide range of contributions, mostly code and translations. Code contributions are done through this GitHub repository.
+Translations are open to everyone, only requiring a free POEditor account, and are hosted at https://poeditor.com/join/project/yxR9MLc9X2.
+Any contributors will be added to the credits in the form of a text file shipped with the CLI application and a popup in the GUI application.
+
 ## Backend
 
 This tool is powered by an open-source pack file editing library, libvpkedit. This library's code is stored in this same repository,
 written in C++20 and also under the MIT license. Its code was initially based off of [ValvePak](https://github.com/SteamDatabase/ValvePak)
 and the Valve Developer Wiki (see [the credits](https://github.com/craftablescience/VPKEdit/blob/main/CREDITS.md) for more information).
+
+A C wrapper library is also present in this repository, and its compilation can be enabled in the CMake options. It translates the C++ library
+into a C interface with largely minimal to no overhead.
