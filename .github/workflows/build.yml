@@ -9,7 +9,7 @@ on:
 
 env:
   BUILD_DIR: '${{github.workspace}}/build'
-  QT_VERSION_VPKEDIT: '6.6.1'
+  QT_VERSION_VPKEDIT: '6.6.2'
   QT_VERSION_STRATASOURCE: '6.5.3'
   QT_MODULES: 'qtimageformats'
 
