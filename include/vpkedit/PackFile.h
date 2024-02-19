@@ -123,6 +123,8 @@ public:
 protected:
 	PackFile(std::string fullFilePath_, PackFileOptions options_);
 
+	std::vector<std::string> verifyEntryChecksumsUsingCRC32() const;
+
 	virtual Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
 
 	[[nodiscard]] std::string getBakeOutputDir(const std::string& outputDir) const;

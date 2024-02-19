@@ -287,3 +287,7 @@ void ZIP::closeZIP() {
 		mz_stream_delete(&this->streamHandle);
 	}
 }
+
+std::vector<std::string> ZIP::verifyEntryChecksums() const {
+	return this->verifyEntryChecksumsUsingCRC32();
+}

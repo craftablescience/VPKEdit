@@ -82,6 +82,24 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 	return packFile;
 }
 
+std::vector<std::string> GMA::verifyEntryChecksums() const {
+	return this->verifyEntryChecksumsUsingCRC32();
+}
+
+bool GMA::verifyFileChecksum() const {
+	auto data = ::readFileData(this->fullFilePath);
+	if (data.size() <= 4) {
+		return true;
+	}
+
+	auto checksum = *reinterpret_cast<std::uint32_t*>(data.data() + data.size() - sizeof(std::uint32_t));
+	data.pop_back();
+	data.pop_back();
+	data.pop_back();
+	data.pop_back();
+	return checksum == ::computeCRC32(data);
+}
+
 std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
 		// Get the stored data

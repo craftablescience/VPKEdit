@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <utility>
 
+#include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/format/BSP.h>
 #include <vpkedit/format/GCF.h>
@@ -225,6 +226,31 @@ std::vector<std::string> PackFile::getSupportedFileTypes() {
 	std::vector<std::string> out;
 	for (const auto& [extension, factoryFunctions] : PackFile::getOpenExtensionRegistry()) {
 		out.push_back(extension);
+	}
+	return out;
+}
+
+std::vector<std::string> PackFile::verifyEntryChecksumsUsingCRC32() const {
+	std::vector<std::string> out;
+	for (const auto& [dir, entryList] : this->entries) {
+		for (const auto& entry : entryList) {
+			if (!entry.crc32) {
+				continue;
+			}
+			if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
+				out.push_back(entry.path);
+			}
+		}
+	}
+	for (const auto& [dir, entryList] : this->unbakedEntries) {
+		for (const auto& entry : entryList) {
+			if (!entry.crc32) {
+				continue;
+			}
+			if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
+				out.push_back(entry.path);
+			}
+		}
 	}
 	return out;
 }

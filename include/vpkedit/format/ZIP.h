@@ -15,6 +15,8 @@ public:
 	/// Open a ZIP file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
+
 	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
 		return true;
 	}
