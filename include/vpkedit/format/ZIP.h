@@ -6,6 +6,7 @@
 
 namespace vpkedit {
 
+constexpr std::string_view BMZ_EXTENSION = ".bmz";
 constexpr std::string_view ZIP_EXTENSION = ".zip";
 
 class ZIP : public PackFile {
@@ -53,6 +54,7 @@ protected:
 	bool zipOpen = false;
 
 private:
+	VPKEDIT_REGISTER_PACKFILE_OPEN(BMZ_EXTENSION, &ZIP::open);
 	VPKEDIT_REGISTER_PACKFILE_OPEN(ZIP_EXTENSION, &ZIP::open);
 };
 
