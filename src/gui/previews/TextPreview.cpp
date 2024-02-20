@@ -86,7 +86,7 @@ void TextPreview::setText(const QString& text, const QString& extension) {
     const QStringList keyValuesLikeFormats = {
             ".vmf", ".vmm", ".vmx", ".vmt",                // Assets (1)
             ".vcd", ".fgd", ".qc", ".smd",                 // Assets (2)
-            ".kv", ".kv3", ".res", ".vdf", ".acf",         // KeyValues
+            ".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues
             ".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg", // Valve formats
     };
     if (keyValuesLikeFormats.contains(extension)) {
