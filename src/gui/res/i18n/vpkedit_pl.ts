@@ -288,17 +288,17 @@ Będzie to powodowało błąd jeżeli rozmiar pliku VPK przekroczy 4GB!</transla
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="14"/>
       <source>Overall file checksum matches the expected value.</source>
-      <translation></translation>
+      <translation>Ogólne sumy kontrolne zgadzają się z przewidywaną wartością.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="16"/>
       <source>Overall file checksum does not match the expected value!</source>
-      <translation></translation>
+      <translation>Ogólne sumy kontrolne nie zgadzają się z przewidywaną wartością!</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="21"/>
       <source>All file checksums match their expected values.</source>
-      <translation></translation>
+      <translation>Sumy kontrolne wszystkich plików</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="23"/>
@@ -310,7 +310,8 @@ See below for more information.</source>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="25"/>
       <source>Files that failed to validate:
 </source>
-      <translation></translation>
+      <translation>Pliki, których nie udało się zweryfikować:
+</translation>
     </message>
   </context>
   <context>
@@ -323,27 +324,27 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="396"/>
       <source>Use This Folder</source>
-      <translation></translation>
+      <translation>Użyj tego folderu</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="401"/>
       <source>Save New VPK</source>
-      <translation></translation>
+      <translation>Zapisz nowy plik VPK</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="456"/>
       <source>Open Pack File</source>
-      <translation></translation>
+      <translation>Otwórz </translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="467"/>
       <source>Save to...</source>
-      <translation></translation>
+      <translation>Zapisz do...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="521"/>
       <source>Could not save!</source>
-      <translation></translation>
+      <translation>Błąd zapisywania!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="522"/>

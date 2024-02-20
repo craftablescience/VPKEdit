@@ -376,12 +376,12 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="615"/>
       <source>Open File</source>
-      <translation></translation>
+      <translation>ファイルを開く</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="653"/>
       <source>Open Folder</source>
-      <translation></translation>
+      <translation>フォルダを開く</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="696"/>
@@ -406,7 +406,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="747"/>
       <source>Rename Folder</source>
-      <translation></translation>
+      <translation>フォルダの名前を変更する</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="747"/>
@@ -438,7 +438,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="986"/>
       <source>Save changes?</source>
-      <translation></translation>
+      <translation>変更を保存しますか？</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="987"/>
@@ -453,7 +453,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1155"/>
       <source>No recent files.</source>
-      <translation></translation>
+      <translation>最近のファイルはありません。</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1174"/>
@@ -544,17 +544,17 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="152"/>
       <source>Add File...</source>
-      <translation></translation>
+      <translation>ファイルを追加する...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="157"/>
       <source>Add Folder...</source>
-      <translation></translation>
+      <translation>フォルダを追加する...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="163"/>
       <source>Properties...</source>
-      <translation></translation>
+      <translation>プロパティ...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="169"/>
@@ -579,7 +579,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="233"/>
       <source>Hide Icons</source>
-      <translation></translation>
+      <translation>アイコンを隠す</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="202"/>
@@ -594,7 +594,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="241"/>
       <source>Advanced File Properties</source>
-      <translation></translation>
+      <translation>高度なファイルプロパティ</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="248"/>
