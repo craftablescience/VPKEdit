@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	Options::setupOptions(*options);
 
 	QTranslator translator;
-	if (!Options::get<bool>(OPT_FORCE_ENGLISH) && translator.load(QLocale(), PROJECT_NAME.data(), ".", ":/i18n")) {
+	if (!Options::get<bool>(OPT_FORCE_ENGLISH) && translator.load(QLocale(), PROJECT_NAME.data(), "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translator);
 	}
 
