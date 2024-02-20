@@ -188,9 +188,9 @@ Window::Window(QWidget* parent)
 			languageMenu->addSeparator();
 			continue;
 		}
-		auto* action = languageMenu->addAction(language, [showRestartWarning, locale] {
+		auto* action = languageMenu->addAction(language, [showRestartWarning, locale_=locale] {
 			showRestartWarning();
-			Options::set(OPT_LANGUAGE_OVERRIDE, locale);
+			Options::set(OPT_LANGUAGE_OVERRIDE, locale_);
 		});
 		action->setCheckable(true);
 		if (locale == Options::get<QString>(OPT_LANGUAGE_OVERRIDE)) {
