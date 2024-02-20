@@ -6,6 +6,12 @@
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
 - [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
 
+## Translators
+- Bosnian: Nbc66
+- Dutch: Trico Everfire
+- Italian: Enderzombi102
+- Polish: Enderek
+
 ## Acknowledgements
 - [ValvePak](https://github.com/ValveResourceFormat/ValvePak) - xPaw
 

@@ -111,8 +111,13 @@ add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 qt_add_translations(${PROJECT_NAME}
         TS_FILES
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}.es.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}.ru_RU.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_bs_BA.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_es.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ja.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_it.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_nl.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_pl.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ru_RU.ts"
         SOURCES ${${PROJECT_NAME}_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
