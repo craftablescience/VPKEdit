@@ -1,0 +1,18 @@
+name: Translation Error
+description: Report any translation errors here
+labels: [bug]
+body:
+- type: textarea
+  attributes:
+    label: Describe the Error
+    description: A clear description of what the error is.
+    placeholder: In popup X, word Y is used incorrectly.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Potential Fixes
+    description: What the correct translation would be.
+    placeholder: Replace word Y with word Z.
+  validations:
+    required: true
