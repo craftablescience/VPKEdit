@@ -164,9 +164,10 @@ jobs:
 
       - name: Install Clang [compiler:clang]
         if: ${{matrix.compiler == 'clang'}}
-        uses: KyleMayes/install-llvm-action@v1
+        uses: egor-tensin/setup-clang@v1
         with:
-          version: 17
+          version: 15
+          platform: x64
 
       - name: Install Qt [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -194,21 +195,13 @@ jobs:
           modules: ${{env.QT_MODULES}}
           cache: true
 
-      - name: Configure CMake [compiler:gcc][target:VPKEdit]
-        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
+      - name: Configure CMake [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
         run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64"
 
-      - name: Configure CMake [compiler:clang][target:VPKEdit]
-        if: ${{matrix.compiler == 'clang' && matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64"
-
-      - name: Configure CMake [compiler:gcc][target:StrataSource]
-        if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
+      - name: Configure CMake [target:StrataSource]
+        if: ${{matrix.target == 'StrataSource'}}
         run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
-
-      - name: Configure CMake [compiler:clang][target:StrataSource]
-        if: ${{matrix.compiler == 'clang' && matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
 
       - name: Build
         working-directory: '${{env.BUILD_DIR}}'
