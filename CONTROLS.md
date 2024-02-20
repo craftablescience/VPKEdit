@@ -63,6 +63,12 @@ Notes on mouse controls:
 
 ## Previews
 
+#### Audio Preview
+| Key Combination | Action     |
+|-----------------|------------|
+| `LMB`           | Seek       |
+| `Space`         | Play/Pause |
+
 #### Folder Preview
 | Key Combination      | Action                                           |
 |----------------------|--------------------------------------------------|
