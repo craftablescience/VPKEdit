@@ -562,38 +562,34 @@ See below for more information.</source>
       <translation>オプション</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="171"/>
+      <location filename="../../Window.cpp" line="218"/>
       <source>Entry Tree...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="172"/>
+      <location filename="../../Window.cpp" line="219"/>
       <source>Expand Folder When Selected</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="179"/>
+      <location filename="../../Window.cpp" line="226"/>
       <source>Start Collapsed</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="186"/>
+      <location filename="../../Window.cpp" line="233"/>
       <source>Hide Icons</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="193"/>
+      <location filename="../../Window.cpp" line="202"/>
       <source>Theme...</source>
       <translation>テーマ...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="209"/>
+      <location filename="../../Window.cpp" line="171"/>
       <source>Language...</source>
       <translation>言語...</translation>
-    </message>
-    <message>
-      <source>Use English</source>
-      <translation type="vanished">英語を使う</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="241"/>
@@ -696,47 +692,47 @@ See below for more information.</source>
       <translation>Ko-fiを使って寄付する...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="215"/>
+      <location filename="../../Window.cpp" line="177"/>
       <source>Bosnian</source>
       <translation>ボスニア語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="216"/>
+      <location filename="../../Window.cpp" line="178"/>
       <source>Dutch</source>
       <translation>オランダ語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="217"/>
+      <location filename="../../Window.cpp" line="179"/>
       <source>English</source>
       <translation>英語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="218"/>
+      <location filename="../../Window.cpp" line="180"/>
       <source>Japanese</source>
       <translation>日本語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="219"/>
+      <location filename="../../Window.cpp" line="181"/>
       <source>Italian</source>
       <translation>イタリア語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="220"/>
+      <location filename="../../Window.cpp" line="182"/>
       <source>Polish</source>
       <translation>ポーランド語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="221"/>
+      <location filename="../../Window.cpp" line="183"/>
       <source>Spanish</source>
       <translation>スペイン語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="222"/>
+      <location filename="../../Window.cpp" line="184"/>
       <source>Russian</source>
       <translation>ロシア語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="213"/>
+      <location filename="../../Window.cpp" line="175"/>
       <source>System Language</source>
       <translation>システムの言語</translation>
     </message>

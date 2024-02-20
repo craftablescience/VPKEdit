@@ -168,44 +168,6 @@ Window::Window(QWidget* parent)
     // Options menu
     auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
 
-    auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry Tree..."));
-    auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Expand Folder When Selected"), [this] {
-		Options::invert(OPT_ENTRY_TREE_AUTO_EXPAND);
-        this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
-    });
-    entryListMenuAutoExpandAction->setCheckable(true);
-    entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
-
-	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start Collapsed"), [this] {
-		Options::invert(OPT_ENTRY_TREE_AUTO_COLLAPSE);
-		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
-	});
-	entryListMenuAutoCollapseAction->setCheckable(true);
-	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
-
-	auto* entryListMenuHideIconsAction = entryListMenu->addAction(tr("Hide Icons"), [this] {
-		Options::invert(OPT_ENTRY_TREE_HIDE_ICONS);
-		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
-	});
-	entryListMenuHideIconsAction->setCheckable(true);
-	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
-
-    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
-    auto* themeMenuGroup = new QActionGroup(themeMenu);
-    themeMenuGroup->setExclusive(true);
-    for (const auto& themeName : QStyleFactory::keys()) {
-        auto* action = themeMenu->addAction(themeName, [this, themeName] {
-            QApplication::setStyle(themeName);
-            Options::set(OPT_STYLE, themeName);
-			emit this->themeUpdated();
-        });
-        action->setCheckable(true);
-        if (themeName == Options::get<QString>(OPT_STYLE)) {
-            action->setChecked(true);
-        }
-        themeMenuGroup->addAction(action);
-    }
-
 	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Language..."));
 	auto* languageMenuGroup = new QActionGroup(languageMenu);
 	languageMenuGroup->setExclusive(true);
@@ -236,6 +198,44 @@ Window::Window(QWidget* parent)
 		}
 		languageMenuGroup->addAction(action);
 	}
+
+    auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
+    auto* themeMenuGroup = new QActionGroup(themeMenu);
+    themeMenuGroup->setExclusive(true);
+    for (const auto& themeName : QStyleFactory::keys()) {
+        auto* action = themeMenu->addAction(themeName, [this, themeName] {
+            QApplication::setStyle(themeName);
+            Options::set(OPT_STYLE, themeName);
+			emit this->themeUpdated();
+        });
+        action->setCheckable(true);
+        if (themeName == Options::get<QString>(OPT_STYLE)) {
+            action->setChecked(true);
+        }
+        themeMenuGroup->addAction(action);
+    }
+
+	auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry Tree..."));
+	auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Expand Folder When Selected"), [this] {
+		Options::invert(OPT_ENTRY_TREE_AUTO_EXPAND);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
+	});
+	entryListMenuAutoExpandAction->setCheckable(true);
+	entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
+
+	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start Collapsed"), [this] {
+		Options::invert(OPT_ENTRY_TREE_AUTO_COLLAPSE);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
+	});
+	entryListMenuAutoCollapseAction->setCheckable(true);
+	entryListMenuAutoCollapseAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));
+
+	auto* entryListMenuHideIconsAction = entryListMenu->addAction(tr("Hide Icons"), [this] {
+		Options::invert(OPT_ENTRY_TREE_HIDE_ICONS);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
+	});
+	entryListMenuHideIconsAction->setCheckable(true);
+	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 
     optionsMenu->addSeparator();
     auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [=] {

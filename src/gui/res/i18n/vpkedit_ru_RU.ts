@@ -574,38 +574,34 @@ See below for more information.</source>
       <translation>Опции</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="171"/>
+      <location filename="../../Window.cpp" line="218"/>
       <source>Entry Tree...</source>
       <translation>Входное дерево...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="172"/>
+      <location filename="../../Window.cpp" line="219"/>
       <source>Expand Folder When Selected</source>
       <translation>Развернуть папку при выборе</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="179"/>
+      <location filename="../../Window.cpp" line="226"/>
       <source>Start Collapsed</source>
       <translation>Начало Разрушено</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="186"/>
+      <location filename="../../Window.cpp" line="233"/>
       <source>Hide Icons</source>
       <translation>Скрыть иконки</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="193"/>
+      <location filename="../../Window.cpp" line="202"/>
       <source>Theme...</source>
       <translation>Тема...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="209"/>
+      <location filename="../../Window.cpp" line="171"/>
       <source>Language...</source>
       <translation>Язык...</translation>
-    </message>
-    <message>
-      <source>Use English</source>
-      <translation type="vanished">Используйте английский язык</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="241"/>
@@ -708,47 +704,47 @@ See below for more information.</source>
       <translation>Пожертвовать на Ko-fi...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="215"/>
+      <location filename="../../Window.cpp" line="177"/>
       <source>Bosnian</source>
       <translation>Босния</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="216"/>
+      <location filename="../../Window.cpp" line="178"/>
       <source>Dutch</source>
       <translation>Голландия</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="217"/>
+      <location filename="../../Window.cpp" line="179"/>
       <source>English</source>
       <translation>Английский язык</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="218"/>
+      <location filename="../../Window.cpp" line="180"/>
       <source>Japanese</source>
       <translation>Японский</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="219"/>
+      <location filename="../../Window.cpp" line="181"/>
       <source>Italian</source>
       <translation>Итальянский</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="220"/>
+      <location filename="../../Window.cpp" line="182"/>
       <source>Polish</source>
       <translation>Польша</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="221"/>
+      <location filename="../../Window.cpp" line="183"/>
       <source>Spanish</source>
       <translation>Испанский</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="222"/>
+      <location filename="../../Window.cpp" line="184"/>
       <source>Russian</source>
       <translation>Русский</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="213"/>
+      <location filename="../../Window.cpp" line="175"/>
       <source>System Language</source>
       <translation>Язык системы</translation>
     </message>
