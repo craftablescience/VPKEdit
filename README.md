@@ -3,7 +3,7 @@
   <h1>VPKEdit</h1>
 </div>
 
-VPKEdit is an open source MIT-licensed tool that can extract from, preview the contents of and write to several pack file formats, including VPK, ZIP, and BSP.
+VPKEdit is an open source MIT-licensed tool that can extract from, preview the contents of and write to several pack file formats.
 It also supports creating new VPKs.
 
 <div>
@@ -28,22 +28,36 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 
 ## Features
 
+- Supported file formats:
+
+  | Format | Description                                 | Create | Read | Write |
+  |--------|---------------------------------------------|:------:|:----:|:-----:|
+  | BMZ    | Bonus Map Zip (Source Engine)               |   ❌    |  ✅   |   ✅   |
+  | BSP    | Source 1 Map                                |  N/A   |  ✅   |   ✅   |
+  | FPX    | VPK modification (Tactical Intervention)    |   ❌    |  ✅   |   ✅   |
+  | GCF    | Game Cache File (Pre-SteamPipe Steam games) |   ❌    |  ✅   |   ❌   |
+  | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
+  | GRP    | Game Resource Package (Build Engine)        |   ❌    |  ✅   |   ✅   |
+  | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ❌    |  ✅   |   ❌   |
+  | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ❌   |
+  | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
+  | ZIP    | ZIP file (Uncompressed)                     |   ❌    |  ✅   |   ✅   |
+
+- Preview files contained within the pack file without extracting them:
+  - Text files (any encoding)
+  - KeyValues files (text files with syntax highlighting)
+  - Images
+  - Source 1 Textures
+  - Source 1 Models
 - Create VPKs of any version from scratch or an existing folder
-- Add and remove files and folders from VPKs, basic ZIP files, BSP paklumps
-- Extract files and folders from VPKs, basic ZIP files, BSP paklumps
+- Add and remove files and folders from writable pack files
+- Extract files and folders from readable pack files
 - Switch version of existing VPKs
 - Native Linux compatibility
 
-It can also preview certain file types without needing to extract them:
-- Text files
-- KeyValues files (with basic syntax highlighting)
-- Images
-- Source 1 Textures
-- Source 1 Models
-
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 
-A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface.
+A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface. Currently it can only create VPK files.
 
 ## Planned Features
 
