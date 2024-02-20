@@ -55,6 +55,14 @@ Window::Window(QWidget* parent)
 	this->setWindowIcon(QIcon(":/icon.png"));
 	this->setMinimumSize(900, 500);
 
+	const auto showRestartWarning = [this] {
+		static bool shownRestartMessage = false;
+		if (!shownRestartMessage) {
+			QMessageBox::warning(this, tr("Restart Required"), tr("The application must be restarted for these settings to take effect."));
+			shownRestartMessage = true;
+		}
+	};
+
 	// File menu
 	auto* fileMenu = this->menuBar()->addMenu(tr("File"));
     this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create Empty VPK..."), Qt::CTRL | Qt::Key_N, [this] {
@@ -119,7 +127,7 @@ Window::Window(QWidget* parent)
 	this->closeFileAction->setDisabled(true);
 
 	fileMenu->addSeparator();
-	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Donate On Ko-fi..."), [this] {
+	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Donate On Ko-fi..."), [] {
 		QDesktopServices::openUrl({"https://ko-fi.com/craftablescience"});
 	});
 
@@ -183,7 +191,7 @@ Window::Window(QWidget* parent)
 	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 
     auto* themeMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DesktopIcon), tr("Theme..."));
-    auto* themeMenuGroup = new QActionGroup(this);
+    auto* themeMenuGroup = new QActionGroup(themeMenu);
     themeMenuGroup->setExclusive(true);
     for (const auto& themeName : QStyleFactory::keys()) {
         auto* action = themeMenu->addAction(themeName, [this, themeName] {
@@ -199,16 +207,35 @@ Window::Window(QWidget* parent)
     }
 
 	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Language..."));
-	auto* forceEnglishAction = languageMenu->addAction(tr("Use English"), [this] {
-		static bool shownRestartMessage = false;
-		if (!shownRestartMessage) {
-			QMessageBox::warning(this, tr("Restart Required"), tr("The application must be restarted for these settings to take effect."));
-			shownRestartMessage = true;
+	auto* languageMenuGroup = new QActionGroup(languageMenu);
+	languageMenuGroup->setExclusive(true);
+	const QVector<QPair<QString, QString>> languageToLocaleMapping = {
+			{tr("System Language"), ""},
+			{"", ""}, // Separator
+			{tr("Bosnian"),  "bs_BA"},
+			{tr("Dutch"),    "nl"},
+			{tr("English"),  "en"},
+			{tr("Japanese"), "ja"},
+			{tr("Italian"),  "it"},
+			{tr("Polish"),   "pl"},
+			{tr("Spanish"),  "es"},
+			{tr("Russian"),  "ru_RU"},
+	};
+	for (const auto& [language, locale] : languageToLocaleMapping) {
+		if (language.isEmpty() && locale.isEmpty()) {
+			languageMenu->addSeparator();
+			continue;
 		}
-		Options::invert(OPT_FORCE_ENGLISH);
-	});
-	forceEnglishAction->setCheckable(true);
-	forceEnglishAction->setChecked(Options::get<bool>(OPT_FORCE_ENGLISH));
+		auto* action = languageMenu->addAction(language, [showRestartWarning, locale] {
+			showRestartWarning();
+			Options::set(OPT_LANGUAGE_OVERRIDE, locale);
+		});
+		action->setCheckable(true);
+		if (locale == Options::get<QString>(OPT_LANGUAGE_OVERRIDE)) {
+			action->setChecked(true);
+		}
+		languageMenuGroup->addAction(action);
+	}
 
     optionsMenu->addSeparator();
     auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [=] {

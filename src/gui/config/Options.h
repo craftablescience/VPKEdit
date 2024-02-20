@@ -11,7 +11,7 @@ constexpr std::string_view OPT_ENTRY_TREE_AUTO_COLLAPSE = "entry_list_auto_colla
 constexpr std::string_view OPT_ENTRY_TREE_HIDE_ICONS = "entry_tree_hide_icons";
 constexpr std::string_view OPT_ADVANCED_FILE_PROPS = "adv_mode";
 constexpr std::string_view OPT_START_MAXIMIZED = "start_maximized";
-constexpr std::string_view OPT_FORCE_ENGLISH = "force_english";
+constexpr std::string_view OPT_LANGUAGE_OVERRIDE = "language_override";
 
 // Storage
 constexpr std::string_view STR_OPEN_RECENT = "open_recent";

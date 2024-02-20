@@ -47,8 +47,8 @@ void Options::setupOptions(QSettings& options) {
         options.setValue(OPT_START_MAXIMIZED, false);
     }
 
-	if (!options.contains(OPT_FORCE_ENGLISH)) {
-		options.setValue(OPT_FORCE_ENGLISH, false);
+	if (!options.contains(OPT_LANGUAGE_OVERRIDE)) {
+		options.setValue(OPT_LANGUAGE_OVERRIDE, QString());
 	}
 
 	if (!options.contains(STR_OPEN_RECENT)) {
