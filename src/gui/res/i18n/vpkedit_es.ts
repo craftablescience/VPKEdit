@@ -248,34 +248,49 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
   <context>
     <name>VTFPreview</name>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="146"/>
+      <location filename="../../previews/VTFPreview.cpp" line="211"/>
       <source>Frame</source>
       <translation>Marco</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="159"/>
+      <location filename="../../previews/VTFPreview.cpp" line="224"/>
       <source>Face</source>
       <translation>Cara</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="172"/>
+      <location filename="../../previews/VTFPreview.cpp" line="237"/>
       <source>Mip</source>
       <translation>Mip</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="185"/>
+      <location filename="../../previews/VTFPreview.cpp" line="250"/>
       <source>Alpha</source>
       <translation>Alfa</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="197"/>
+      <location filename="../../previews/VTFPreview.cpp" line="262"/>
       <source>Tile</source>
       <translation>Azulejos</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="209"/>
+      <location filename="../../previews/VTFPreview.cpp" line="274"/>
       <source>Zoom</source>
       <translation>Zoom</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="322"/>
+      <source>Version: %1</source>
+      <translation>Versión: %1</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="324"/>
+      <source>Format: %1</source>
+      <translation>Formato: %1</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="326"/>
+      <source>Compression: %1</source>
+      <translation>Compresión: %1</translation>
     </message>
   </context>
   <context>
@@ -867,6 +882,7 @@ en lugar del directorio VPK:</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="53"/>
+      <location filename="../../previews/VTFPreview.cpp" line="58"/>
       <source>Unknown</source>
       <translation>Desconocido</translation>
     </message>

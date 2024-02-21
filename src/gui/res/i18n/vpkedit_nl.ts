@@ -248,34 +248,49 @@ Bestanden over 4GB maken de VPK ongeldig!</translation>
   <context>
     <name>VTFPreview</name>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="146"/>
+      <location filename="../../previews/VTFPreview.cpp" line="211"/>
       <source>Frame</source>
       <translation>Raam</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="159"/>
+      <location filename="../../previews/VTFPreview.cpp" line="224"/>
       <source>Face</source>
       <translation>Gezicht</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="172"/>
+      <location filename="../../previews/VTFPreview.cpp" line="237"/>
       <source>Mip</source>
       <translation>Mip</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="185"/>
+      <location filename="../../previews/VTFPreview.cpp" line="250"/>
       <source>Alpha</source>
       <translation>Alfa</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="197"/>
+      <location filename="../../previews/VTFPreview.cpp" line="262"/>
       <source>Tile</source>
       <translation>Tegel</translation>
     </message>
     <message>
-      <location filename="../../previews/VTFPreview.cpp" line="209"/>
+      <location filename="../../previews/VTFPreview.cpp" line="274"/>
       <source>Zoom</source>
       <translation>Zoem</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="322"/>
+      <source>Version: %1</source>
+      <translation>Versie: %1</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="324"/>
+      <source>Format: %1</source>
+      <translation>Formaat: %1</translation>
+    </message>
+    <message>
+      <location filename="../../previews/VTFPreview.cpp" line="326"/>
+      <source>Compression: %1</source>
+      <translation>Compressie: %1</translation>
     </message>
   </context>
   <context>
@@ -867,6 +882,7 @@ in plaats van het hoofd VPK archief:</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="53"/>
+      <location filename="../../previews/VTFPreview.cpp" line="58"/>
       <source>Unknown</source>
       <translation>Onbekend</translation>
     </message>
