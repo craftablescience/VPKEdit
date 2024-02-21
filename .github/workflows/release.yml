@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Update WinGet Fork
-        uses: tgymnich/fork-sync@v2
+        uses: tgymnich/fork-sync@v1
         with:
           merge_method: rebase
           token: ${{secrets.WINGET_TOKEN}}
