@@ -52,6 +52,21 @@ void VTFWidget::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
+QString VTFWidget::getVersion() const {
+    return QString::number(this->vtf->GetMajorVersion()) + "." + QString::number(this->vtf->GetMinorVersion());
+}
+
+QString VTFWidget::getFormat() const {
+    return IMAGE_FORMATS[this->vtf->GetFormat()].name;
+}
+
+int VTFWidget::getAuxCompression() const {
+    if(this->vtf->GetMinorVersion() < 6)
+        return -1;
+
+    return this->vtf->GetAuxCompressionLevel();
+}
+
 int VTFWidget::getMaxFrame() const {
     return static_cast<int>(this->vtf->GetFrameCount());
 }
@@ -130,14 +145,17 @@ void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
 
 VTFPreview::VTFPreview(QWidget* parent)
         : QWidget(parent) {
-    auto* layout = new QHBoxLayout(this);
+    auto* mainLayout = new QVBoxLayout(this);
+    auto* previewLayout = new QHBoxLayout();
+
+    mainLayout->addLayout(previewLayout);
 
     this->vtf = new VTFWidget(this);
-    layout->addWidget(this->vtf);
+    previewLayout->addWidget(this->vtf);
 
     auto* controls = new QWidget(this);
     controls->setFixedWidth(115);
-    layout->addWidget(controls);
+    previewLayout->addWidget(controls);
 
     auto* controlsLayout = new QVBoxLayout(controls);
 
@@ -218,6 +236,20 @@ VTFPreview::VTFPreview(QWidget* parent)
     });
     zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
     controlsLayout->addWidget(zoomSliderParent);
+
+    auto* vtfInfo = new QWidget(this);
+    mainLayout->addWidget(vtfInfo);
+
+    auto* vtfInfoLayout = new QHBoxLayout(vtfInfo);
+
+    this->vtfVersionLabel = new QLabel(vtfInfo);
+    vtfInfoLayout->addWidget(vtfVersionLabel);
+
+    this->vtfImageFormatLabel = new QLabel(vtfInfo);
+    vtfInfoLayout->addWidget(vtfImageFormatLabel);
+
+    this->vtfAuxCompressionLabel = new QLabel(vtfInfo);
+    vtfInfoLayout->addWidget(vtfAuxCompressionLabel);
 }
 
 void VTFPreview::setData(const std::vector<std::byte>& data) const {
@@ -241,6 +273,10 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
     this->tileCheckBox->setChecked(false);
 
     this->zoomSlider->setValue(100);
+
+    this->vtfVersionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
+    this->vtfImageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
+    this->vtfAuxCompressionLabel->setText(tr("Aux Compression: %1").arg(this->vtf->getAuxCompression()));
 }
 
 void VTFPreview::wheelEvent(QWheelEvent* event) {
