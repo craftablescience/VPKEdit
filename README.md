@@ -44,6 +44,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | ZIP    | ZIP file (Uncompressed)                     |   ❌    |  ✅   |   ✅   |
 
 - Preview files contained within the pack file without extracting them:
+  - Audio
   - Text files (any encoding)
   - KeyValues files (text files with syntax highlighting)
   - Images
