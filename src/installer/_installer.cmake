@@ -137,9 +137,12 @@ if(WIN32)
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
     set(HELP_QUOTE "\"") # CMake is shit
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+            WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'

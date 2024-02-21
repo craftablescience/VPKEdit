@@ -6,12 +6,18 @@
         <acronym>VPK</acronym>
         <expanded-acronym>VPKEdit Pack File</expanded-acronym>
         <glob-deleteall/>
+        <glob pattern="*.bmz"/>
+        <glob pattern="*.BMZ"/>
         <glob pattern="*.bsp"/>
         <glob pattern="*.BSP"/>
+        <glob pattern="*.fpx"/>
+        <glob pattern="*.FPX"/>
         <glob pattern="*.gcf"/>
         <glob pattern="*.GCF"/>
         <glob pattern="*.gma"/>
         <glob pattern="*.GMA"/>
+        <glob pattern="*.pck"/>
+        <glob pattern="*.PCK"/>
         <glob pattern="*.vpk"/>
         <glob pattern="*.VPK"/>
     </mime-type>
