@@ -20,6 +20,14 @@ int main(int argc, char** argv) {
 
     QApplication app(argc, argv);
 
+    QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
+    QCoreApplication::setApplicationName(PROJECT_NAME.data());
+    QCoreApplication::setApplicationVersion(PROJECT_VERSION.data());
+
+#if !defined(__APPLE__) && !defined(_WIN32)
+    QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
+#endif
+
 	std::unique_ptr<QSettings> options;
 	if (Options::isStandalone()) {
 		auto configPath = QApplication::applicationDirPath() + "/config.ini";
@@ -35,14 +43,6 @@ int main(int argc, char** argv) {
 	if (translator.load(locale, PROJECT_NAME.data(), "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translator);
 	}
-
-    QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
-    QCoreApplication::setApplicationName(PROJECT_NAME.data());
-    QCoreApplication::setApplicationVersion(PROJECT_VERSION.data());
-
-#if !defined(__APPLE__) && !defined(_WIN32)
-    QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
-#endif
 
     auto* window = new Window();
     if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
