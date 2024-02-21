@@ -12,6 +12,56 @@
 
 using namespace VTFLib;
 
+namespace {
+
+QString vtfFormatToString(VTFImageFormat format) {
+	static const QMap<VTFImageFormat, QString> formatToString = {
+			{ IMAGE_FORMAT_RGBA8888, "RGBA8888" },
+			{ IMAGE_FORMAT_ABGR8888, "ABGR8888" },
+			{ IMAGE_FORMAT_RGB888, "RGB888" },
+			{ IMAGE_FORMAT_BGR888, "BGR888" },
+			{ IMAGE_FORMAT_RGB565, "RGB565" },
+			{ IMAGE_FORMAT_I8, "I8" },
+			{ IMAGE_FORMAT_IA88, "IA88" },
+			{ IMAGE_FORMAT_P8, "P8" },
+			{ IMAGE_FORMAT_A8, "A8" },
+			{ IMAGE_FORMAT_RGB888_BLUESCREEN, "RGB888_BLUESCREEN" },
+			{ IMAGE_FORMAT_BGR888_BLUESCREEN, "BGR888_BLUESCREEN" },
+			{ IMAGE_FORMAT_ARGB8888, "ARGB8888" },
+			{ IMAGE_FORMAT_BGRA8888, "BGRA8888" },
+			{ IMAGE_FORMAT_DXT1, "DXT1" },
+			{ IMAGE_FORMAT_DXT3, "DXT3" },
+			{ IMAGE_FORMAT_DXT5, "DXT5" },
+			{ IMAGE_FORMAT_BGRX8888, "BGRX8888" },
+			{ IMAGE_FORMAT_BGR565, "BGR565" },
+			{ IMAGE_FORMAT_BGRX5551, "BGRX5551" },
+			{ IMAGE_FORMAT_BGRA4444, "BGRA4444" },
+			{ IMAGE_FORMAT_DXT1_ONEBITALPHA, "DXT1_ONEBITALPHA" },
+			{ IMAGE_FORMAT_BGRA5551, "BGRA5551" },
+			{ IMAGE_FORMAT_UV88, "UV88" },
+			{ IMAGE_FORMAT_UVWQ8888, "UVWQ8888" },
+			{ IMAGE_FORMAT_RGBA16161616F, "RGBA16161616F" },
+			{ IMAGE_FORMAT_RGBA16161616, "RGBA16161616" },
+			{ IMAGE_FORMAT_UVLX8888, "UVLX8888" },
+			{ IMAGE_FORMAT_R32F, "R32F" },
+			{ IMAGE_FORMAT_RGB323232F, "RGB323232F" },
+			{ IMAGE_FORMAT_RGBA32323232F, "RGBA32323232F" },
+
+			{ IMAGE_FORMAT_NV_NULL, "NV_NULL" },
+
+			{ IMAGE_FORMAT_ATI2N, "ATI2N" },
+			{ IMAGE_FORMAT_ATI1N, "ATI1N" },
+
+			{ IMAGE_FORMAT_BC7, "BC7" },
+	};
+	if (!formatToString.contains(format)) {
+		return QObject::tr("Unknown");
+	}
+	return formatToString[format];
+}
+
+} // namespace
+
 VTFWidget::VTFWidget(QWidget* parent)
         : QWidget(parent)
         , currentFace(1)
@@ -52,21 +102,6 @@ void VTFWidget::setZoom(int zoom_) {
     this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
-QString VTFWidget::getVersion() const {
-    return QString::number(this->vtf->GetMajorVersion()) + "." + QString::number(this->vtf->GetMinorVersion());
-}
-
-QString VTFWidget::getFormat() const {
-    return IMAGE_FORMATS[this->vtf->GetFormat()].name;
-}
-
-int VTFWidget::getAuxCompression() const {
-    if(this->vtf->GetMinorVersion() < 6)
-        return -1;
-
-    return this->vtf->GetAuxCompressionLevel();
-}
-
 int VTFWidget::getMaxFrame() const {
     return static_cast<int>(this->vtf->GetFrameCount());
 }
@@ -93,6 +128,21 @@ bool VTFWidget::getTileEnabled() const {
 
 float VTFWidget::getZoom() const {
     return this->zoom;
+}
+
+QString VTFWidget::getVersion() const {
+	return QString::number(this->vtf->GetMajorVersion()) + "." + QString::number(this->vtf->GetMinorVersion());
+}
+
+QString VTFWidget::getFormat() const {
+	return ::vtfFormatToString(this->vtf->GetFormat());
+}
+
+int VTFWidget::getAuxCompression() const {
+	if (this->vtf->GetMajorVersion() < 7 || this->vtf->GetMinorVersion() < 6) {
+		return -1;
+	}
+	return this->vtf->GetAuxCompressionLevel();
 }
 
 // Taken directly from vtex2, thanks!
@@ -145,17 +195,14 @@ void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
 
 VTFPreview::VTFPreview(QWidget* parent)
         : QWidget(parent) {
-    auto* mainLayout = new QVBoxLayout(this);
-    auto* previewLayout = new QHBoxLayout();
-
-    mainLayout->addLayout(previewLayout);
+    auto* layout = new QHBoxLayout(this);
 
     this->vtf = new VTFWidget(this);
-    previewLayout->addWidget(this->vtf);
+    layout->addWidget(this->vtf);
 
     auto* controls = new QWidget(this);
-    controls->setFixedWidth(115);
-    previewLayout->addWidget(controls);
+	controls->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
+    layout->addWidget(controls);
 
     auto* controlsLayout = new QVBoxLayout(controls);
 
@@ -237,19 +284,17 @@ VTFPreview::VTFPreview(QWidget* parent)
     zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
     controlsLayout->addWidget(zoomSliderParent);
 
-    auto* vtfInfo = new QWidget(this);
-    mainLayout->addWidget(vtfInfo);
+    this->versionLabel = new QLabel(controls);
+	this->versionLabel->setAlignment(Qt::AlignRight);
+    controlsLayout->addWidget(this->versionLabel);
 
-    auto* vtfInfoLayout = new QHBoxLayout(vtfInfo);
+    this->imageFormatLabel = new QLabel(controls);
+	this->imageFormatLabel->setAlignment(Qt::AlignRight);
+    controlsLayout->addWidget(this->imageFormatLabel);
 
-    this->vtfVersionLabel = new QLabel(vtfInfo);
-    vtfInfoLayout->addWidget(vtfVersionLabel);
-
-    this->vtfImageFormatLabel = new QLabel(vtfInfo);
-    vtfInfoLayout->addWidget(vtfImageFormatLabel);
-
-    this->vtfAuxCompressionLabel = new QLabel(vtfInfo);
-    vtfInfoLayout->addWidget(vtfAuxCompressionLabel);
+    this->compressionLevelLabel = new QLabel(controls);
+	this->compressionLevelLabel->setAlignment(Qt::AlignRight);
+    controlsLayout->addWidget(this->compressionLevelLabel);
 }
 
 void VTFPreview::setData(const std::vector<std::byte>& data) const {
@@ -274,9 +319,12 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
 
     this->zoomSlider->setValue(100);
 
-    this->vtfVersionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
-    this->vtfImageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
-    this->vtfAuxCompressionLabel->setText(tr("Aux Compression: %1").arg(this->vtf->getAuxCompression()));
+    this->versionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
+
+    this->imageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
+
+    this->compressionLevelLabel->setText(tr("Compression: %1").arg(this->vtf->getAuxCompression()));
+	this->compressionLevelLabel->setVisible(this->vtf->getAuxCompression() >= 0);
 }
 
 void VTFPreview::wheelEvent(QWheelEvent* event) {
