@@ -64,13 +64,13 @@ jobs:
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
-      - name: Build
+      - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
@@ -138,6 +138,12 @@ jobs:
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
 
+      - name: Build C Wrapper Library [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        run: |
+          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
+          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j%NUMBER_OF_PROCESSORS%
+
 
   build-linux:
     strategy:
@@ -197,13 +203,13 @@ jobs:
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64"
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
-      - name: Build
+      - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
         run: |
           cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
@@ -280,3 +286,9 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7
+
+      - name: Build C Wrapper Library [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        run: |
+          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
+          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j$(nproc)
