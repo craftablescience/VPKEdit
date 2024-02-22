@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 include(CheckIPOSupported)
+include(GNUInstallDirs)
 
 # Create project
 project(vpkedit
@@ -48,6 +49,9 @@ if(PROJECT_IS_TOP_LEVEL)
         check_ipo_supported(RESULT VPKEDIT_USE_LTO_INTERNAL)
     endif()
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${VPKEDIT_USE_LTO_INTERNAL})
+
+    # Set default install directory permissions
+    set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
 # libvpkedit
@@ -68,7 +72,7 @@ if(VPKEDIT_BUILD_GUI)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 endif()
 
-# Installer
+# Installer (GUI only, or CLI+GUI)
 if(VPKEDIT_BUILD_GUI AND VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
 endif()
