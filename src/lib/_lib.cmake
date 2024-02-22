@@ -64,6 +64,8 @@ add_library(
 		"${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp")
 
+set_target_properties(lib${PROJECT_NAME} PROPERTIES PREFIX "")
+
 target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5 MINIZIP::minizip)
 
 target_include_directories(
