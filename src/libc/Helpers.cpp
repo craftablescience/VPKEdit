@@ -1,5 +1,7 @@
 #include "Helpers.hpp"
 
+#include <cstring>
+
 #include <vpkedit/PackFile.h>
 
 using namespace vpkedit;
