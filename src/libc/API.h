@@ -3,9 +3,9 @@
 #if defined(_WIN32) || defined(__CYGWIN__)
 	#define VPKEDIT_EXPORT __declspec(dllexport)
 #elif defined(__GNUC__)
-	#define EXPORT  __attribute__((__visibility__("default")))
+	#define VPKEDIT_EXPORT  __attribute__((__visibility__("default")))
 #else
-	#define EXPORT
+	#define VPKEDIT_EXPORT
 #endif
 
 #ifdef __cplusplus
