@@ -448,13 +448,15 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 
 	// Helper
 	const auto getArchiveFilename = [this](const std::string& filename_, int archiveIndex) {
-		return filename_ + '_' + ::padArchiveIndex(archiveIndex) + (::isFPX(this) ? FPX_EXTENSION : VPK_EXTENSION).data();
+		std::string out{filename_ + '_' + ::padArchiveIndex(archiveIndex) + (::isFPX(this) ? FPX_EXTENSION : VPK_EXTENSION).data()};
+		::normalizeSlashes(out);
+		return out;
 	};
 
     // Copy external binary blobs to the new dir
     if (!outputDir.empty()) {
         for (int archiveIndex = 0; archiveIndex < this->numArchives; archiveIndex++) {
-			auto from = getArchiveFilename(this->getTruncatedFilepath(), archiveIndex);
+			std::string from = getArchiveFilename(this->getTruncatedFilepath(), archiveIndex);
 	        if (!std::filesystem::exists(from)) {
 		        continue;
 	        }
