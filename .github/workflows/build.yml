@@ -140,9 +140,10 @@ jobs:
 
       - name: Build C Wrapper Library [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
+        working-directory: '${{env.BUILD_DIR}}'
         run: |
-          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
-          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j%NUMBER_OF_PROCESSORS%
+          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
+          cmake --build . --config ${{matrix.build_type}} -t libvpkeditc -- -j%NUMBER_OF_PROCESSORS%
 
 
   build-linux:
@@ -289,6 +290,7 @@ jobs:
 
       - name: Build C Wrapper Library [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
+        working-directory: '${{env.BUILD_DIR}}'
         run: |
           cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
-          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t libvpkeditc -- -j$(nproc)
