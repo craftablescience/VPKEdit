@@ -118,12 +118,12 @@ public:
 	[[nodiscard]] virtual explicit operator std::string() const;
 
 	/// Returns a list of supported extensions, e.g. {".vpk", ".bsp"}
-	static std::vector<std::string> getSupportedFileTypes();
+	[[nodiscard]] static std::vector<std::string> getSupportedFileTypes();
 
 protected:
 	PackFile(std::string fullFilePath_, PackFileOptions options_);
 
-	std::vector<std::string> verifyEntryChecksumsUsingCRC32() const;
+	[[nodiscard]] std::vector<std::string> verifyEntryChecksumsUsingCRC32() const;
 
 	virtual Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
 
