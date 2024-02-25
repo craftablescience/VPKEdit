@@ -1,7 +1,6 @@
 # Set up install rules
 if(VPKEDIT_BUILD_CLI)
     install(TARGETS ${PROJECT_NAME}cli
-            CONFIGURATIONS ${CMAKE_BUILD_TYPE}
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
 endif()
@@ -13,7 +12,6 @@ install(FILES
         DESTINATION .)
 
 install(TARGETS ${PROJECT_NAME} vtflib
-        CONFIGURATIONS ${CMAKE_BUILD_TYPE}
         RUNTIME DESTINATION .
         LIBRARY DESTINATION .)
 
