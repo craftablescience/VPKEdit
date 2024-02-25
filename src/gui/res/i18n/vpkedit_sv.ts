@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es">
+<TS version="2.1" language="sv">
   <context>
     <name>ControlsDialog</name>
     <message>
       <location filename="../../dialogs/ControlsDialog.cpp" line="26"/>
       <source>Controls</source>
-      <translation>Controla</translation>
+      <translation>Kontroller</translation>
     </message>
   </context>
   <context>
@@ -14,35 +14,36 @@
     <message>
       <location filename="../../previews/DirPreview.cpp" line="279"/>
       <source>Delete Entry</source>
-      <translation>Borrar entrada</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="279"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <translation>¿Estás seguro de que quieres borrar "%1"?
-(Mantenga pulsada la tecla Mayús para omitir esta ventana emergente).</translation>
+      <extracomment>The original wasn't long enough to make it sound natural so i had to shorten it quite a bit</extracomment>
+      <translation type="unfinished">Säker att du vill ta bort "%1"?
+(Håll Shift för att hoppa över detta.)</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="309"/>
       <location filename="../../previews/DirPreview.cpp" line="327"/>
       <source>bytes</source>
-      <translation>bytes</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="312"/>
       <source>kb</source>
-      <translation>kb</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="316"/>
       <source>mb</source>
-      <translation>mb</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="320"/>
       <source>gb</source>
-      <translation>gb</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -50,14 +51,14 @@
     <message>
       <location filename="../../EntryTree.cpp" line="356"/>
       <source>Delete Entry</source>
-      <translation>Borrar entrada</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../EntryTree.cpp" line="356"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <translation>¿Estás seguro de que quieres borrar "%1"?
-(Mantenga pulsada la tecla Mayús para omitir esta ventana emergente).</translation>
+      <translation>Säker att du vill ta bort "%1"?
+(Håll Shift för att hoppa över detta.)</translation>
     </message>
   </context>
   <context>
@@ -72,7 +73,8 @@
       <location filename="../../Window.cpp" line="1239"/>
       <location filename="../../Window.cpp" line="1292"/>
       <source>Failed to create directory.</source>
-      <translation>Error al crear directorio.</translation>
+      <extracomment>I don't know the Swedish word for directory, the most i could find was "katalog", and that is just not the right word.</extracomment>
+      <translation type="unfinished">Kunde inte skapa directory.</translation>
     </message>
   </context>
   <context>
@@ -80,14 +82,15 @@
     <message>
       <location filename="../../FileViewer.cpp" line="282"/>
       <source>No available preview.</source>
-      <translation>No hay vista previa disponible.</translation>
+      <translation>Ingen preview tillgänglig.</translation>
     </message>
     <message>
       <location filename="../../FileViewer.cpp" line="341"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
-      <translation>No se ha podido leer el contenido del archivo.
-Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplicación.</translation>
+      <extracomment>just seems a bit off, touch this up later.</extracomment>
+      <translation type="unfinished">Kunde inte läsa den här filen!
+Snälla se till att inget annat spel eller program använder filen.</translation>
     </message>
   </context>
   <context>
@@ -95,17 +98,17 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../previews/ImagePreview.cpp" line="91"/>
       <source>Alpha</source>
-      <translation>Alfa</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/ImagePreview.cpp" line="103"/>
       <source>Tile</source>
-      <translation>Azulejos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/ImagePreview.cpp" line="115"/>
       <source>Zoom</source>
-      <translation>Zoom</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -113,22 +116,22 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="404"/>
       <source>Backface Culling</source>
-      <translation>Eliminación de la cara posterior</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="482"/>
       <source>Unable to find all the required files the model is composed of!</source>
-      <translation>No se han podido encontrar todos los archivos necesarios que componen el modelo.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="513"/>
       <source>This model is invalid, it cannot be previewed!</source>
-      <translation>Este modelo no es válido, ¡no se puede previsualizar!</translation>
+      <translation type="unfinished">Den här modelen är felaktig, den kan inte bli preview-ad!</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="490"/>
       <source>One of the following:</source>
-      <translation>Una de las siguientes:</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -141,7 +144,7 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="169"/>
       <source>Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models.</source>
-      <translation>No se puede inicializar el contexto de OpenGL 3.2 Core. Por favor, actualice su ordenador para previsualizar los modelos.</translation>
+      <translation>Kunde inte starta OpenGL 3.2 Core context! Snälla upgradera din dator för at preview-a dessa modeler.</translation>
     </message>
   </context>
   <context>
@@ -149,7 +152,7 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../FileViewer.cpp" line="85"/>
       <source>Navigate...</source>
-      <translation>Navega...</translation>
+      <translation>Navigera...</translation>
     </message>
   </context>
   <context>
@@ -157,7 +160,7 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="11"/>
       <source>New Update Available</source>
-      <translation>Nueva actualización disponible</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="13"/>
@@ -168,13 +171,14 @@ Current version:  v%1
 Latest version:  %2
 
 [Click here to go to the release on GitHub.](%3)</source>
-      <translation>¡Hay una nueva actualización disponible!
+      <extracomment>I'm not entirely sure how to translate the last bit</extracomment>
+      <translation type="unfinished">Det finns en ny version tillgänglig!
 
-Versión actual: v%1
+Nuvarande version: v%1
 
-Última versión: %2
+Senaste version: %2
 
-[Haga clic aquí para ir a la versión en GitHub](%3)</translation>
+[Klicka här för att komma till den nyaste versionen.](%3)</translation>
     </message>
   </context>
   <context>
@@ -182,12 +186,12 @@ Versión actual: v%1
     <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="20"/>
       <source>New VPK Properties</source>
-      <translation>Nuevas propiedades VPK</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="24"/>
       <source>Version:</source>
-      <translation>Versión:</translation>
+      <translation>Version:</translation>
     </message>
     <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="26"/>
@@ -203,18 +207,17 @@ Versión actual: v%1
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="33"/>
       <source>Save to single file:
 Breaks the VPK if its size will be &gt;= 4gb!</source>
-      <translation>Guardar en un solo archivo:
-¡Rompe el VPK si su tamaño será &gt;= 4gb!</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="42"/>
       <source>Preferred chunk size (MB):</source>
-      <translation>Tamaño de trozo preferido (MB):</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="49"/>
       <source>Generate per-file MD5 entries:</source>
-      <translation>Generar entradas MD5 por archivo:</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -222,12 +225,12 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="16"/>
       <source>Properties</source>
-      <translation>Propiedades</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="25"/>
       <source>Version:</source>
-      <translation>Versión:</translation>
+      <translation>Version:</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="27"/>
@@ -242,12 +245,12 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="34"/>
       <source>Use LZMA Compression:</source>
-      <translation>Utiliza la compresión LZMA:</translation>
+      <translation>Använd LZMA Kompressor:</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="41"/>
       <source>There are no properties available for this file type.</source>
-      <translation>No hay propiedades disponibles para este tipo de archivo.</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -255,47 +258,47 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="211"/>
       <source>Frame</source>
-      <translation>Marco</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="224"/>
       <source>Face</source>
-      <translation>Cara</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="237"/>
       <source>Mip</source>
-      <translation>Mip</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="250"/>
       <source>Alpha</source>
-      <translation>Alfa</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="262"/>
       <source>Tile</source>
-      <translation>Azulejos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="274"/>
       <source>Zoom</source>
-      <translation>Zoom</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="322"/>
       <source>Version: %1</source>
-      <translation>Versión: %1</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="324"/>
       <source>Format: %1</source>
-      <translation>Formato: %1</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="326"/>
       <source>Compression: %1</source>
-      <translation>Compresión: %1</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -303,36 +306,34 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="10"/>
       <source>Verify Checksums</source>
-      <translation>Verificar sumas de comprobación</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="14"/>
       <source>Overall file checksum matches the expected value.</source>
-      <translation>La suma de comprobación global del archivo coincide con el valor esperado.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="16"/>
       <source>Overall file checksum does not match the expected value!</source>
-      <translation>La suma de comprobación total del archivo no coincide con el valor esperado.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="21"/>
       <source>All file checksums match their expected values.</source>
-      <translation>Todas las sumas de comprobación de los archivos coinciden con los valores esperados.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="23"/>
       <source>Some file checksums do not match their expected values!
 See below for more information.</source>
-      <translation>Algunas sumas de comprobación de archivos no coinciden con los valores esperados.
-Más información a continuación.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="25"/>
       <source>Files that failed to validate:
 </source>
-      <translation>Ficheros no validados:
-</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -340,37 +341,37 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="273"/>
       <source>Controls</source>
-      <translation>Controla</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="398"/>
       <source>Use This Folder</source>
-      <translation>Utilice esta carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="403"/>
       <source>Save New VPK</source>
-      <translation>Guardar Nuevo VPK</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="458"/>
       <source>Open Pack File</source>
-      <translation>Abrir archivo Pack</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="469"/>
       <source>Save to...</source>
-      <translation>Guardar en...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="523"/>
       <source>Could not save!</source>
-      <translation>No se ha podido salvar.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="524"/>
       <source>An error occurred while saving changes to the VPK. Check that you have permissions to write to the file.</source>
-      <translation>Se ha producido un error al guardar los cambios en el VPK. Compruebe que tiene permisos para escribir en el archivo.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="574"/>
@@ -383,400 +384,400 @@ Más información a continuación.</translation>
       <location filename="../../Window.cpp" line="1181"/>
       <location filename="../../Window.cpp" line="1186"/>
       <source>Error</source>
-      <translation>Error</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="574"/>
       <source>Error occurred checking for updates!</source>
-      <translation>Se ha producido un error al buscar actualizaciones.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="578"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
-      <translation>Se ha recuperado una respuesta JSON no válida buscando actualizaciones.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="608"/>
       <source>No New Updates</source>
-      <translation>No hay nuevas actualizaciones</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="608"/>
       <source>You are using the latest version of the software.</source>
-      <translation>Está utilizando la última versión del software.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="617"/>
       <source>Open File</source>
-      <translation>Abrir archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="655"/>
       <source>Open Folder</source>
-      <translation>Abrir carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="698"/>
       <source>Error Removing File</source>
-      <translation>Error al eliminar el archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="698"/>
       <source>There was an error removing the file at "%1"!</source>
-      <translation>Se ha producido un error al eliminar el archivo en "%1".</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="718"/>
       <source>Unable to edit file at "%1": could not find file!</source>
-      <translation>No se puede editar el archivo en "%1": ¡no se encuentra el archivo!</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="723"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
-      <translation>No se puede editar el archivo en "%1": ¡no se han podido leer los datos del archivo!</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="749"/>
       <source>Rename Folder</source>
-      <translation>Cambiar nombre de carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="749"/>
       <source>The new path:</source>
-      <translation>El nuevo camino:</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="267"/>
       <location filename="../../Window.cpp" line="811"/>
       <source>About</source>
-      <translation>Acerca de</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="879"/>
       <source>Failed to find file at "%1".</source>
-      <translation>No se pudo encontrar el archivo en "%1".</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="892"/>
       <source>Extract as...</source>
-      <translation>Extraer como...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="949"/>
       <location filename="../../Window.cpp" line="959"/>
       <source>Extract to...</source>
-      <translation>Extraer a...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="988"/>
       <source>Save changes?</source>
-      <translation>¿Guardar cambios?</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="989"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
-      <translation>Este archivo tiene cambios sin guardar. ¿Le gustaría guardar estos cambios primero?</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1119"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
-      <translation>No se ha podido cargar este archivo. Asegúrate de que el archivo no esté siendo utilizado por un juego u otra aplicación.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1157"/>
       <source>No recent files.</source>
-      <translation>No hay archivos recientes.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1176"/>
       <source>Failed to read data for "%1". Please ensure that a game or another application is not using the file.</source>
-      <translation>No se han podido leer los datos de "%1". Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplicación.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1181"/>
       <location filename="../../Window.cpp" line="1186"/>
       <source>Failed to write to file at "%1".</source>
-      <translation>Error al escribir en el archivo "%1".</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="61"/>
       <source>Restart Required</source>
-      <translation>Reinicio Necesario</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="61"/>
       <source>The application must be restarted for these settings to take effect.</source>
-      <translation>La aplicación debe reiniciarse para que estos ajustes surtan efecto.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="67"/>
       <source>File</source>
-      <translation>Archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="68"/>
       <source>Create Empty VPK...</source>
-      <translation>Crear VPK vacío...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="71"/>
       <source>Create VPK From Folder...</source>
-      <translation>Crear VPK desde carpeta...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="74"/>
       <source>Open...</source>
-      <translation>Abre...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="101"/>
       <source>Open In...</source>
-      <translation>Abrir en...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="111"/>
       <source>Open Recent...</source>
-      <translation>Abrir reciente...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="114"/>
       <source>Save</source>
-      <translation>Ahorro</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="119"/>
       <source>Save As...</source>
-      <translation>Guardar como...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="124"/>
       <source>Close</source>
-      <translation>Cerrar</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="136"/>
       <source>Check For Updates...</source>
-      <translation>Compruebe las actualizaciones...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="140"/>
       <source>Exit</source>
-      <translation>Salir</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="145"/>
       <source>Edit</source>
-      <translation>Editar</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="146"/>
       <source>Extract All</source>
-      <translation>Extraer todo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="152"/>
       <source>Add File...</source>
-      <translation>Añadir archivo...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="157"/>
       <source>Add Folder...</source>
-      <translation>Añadir carpeta...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="163"/>
       <source>Properties...</source>
-      <translation>Propiedades...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="169"/>
       <source>Options</source>
-      <translation>Opciones</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="220"/>
       <source>Entry Tree...</source>
-      <translation>Árbol de Entrada...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="221"/>
       <source>Expand Folder When Selected</source>
-      <translation>Expandir carpeta al seleccionarla</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="228"/>
       <source>Start Collapsed</source>
-      <translation>Inicio Colapsado</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="235"/>
       <source>Hide Icons</source>
-      <translation>Ocultar iconos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="204"/>
       <source>Theme...</source>
-      <translation>Tema...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="171"/>
       <source>Language...</source>
-      <translation>Idioma...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="243"/>
       <source>Advanced File Properties</source>
-      <translation>Propiedades avanzadas de archivos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="250"/>
       <source>Start Maximized</source>
-      <translation>Inicio maximizado</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="266"/>
       <source>Help</source>
-      <translation>Ayuda</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="270"/>
       <source>About Qt</source>
-      <translation>Acerca de Qt</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="257"/>
       <source>Tools</source>
-      <translation>Herramientas</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="259"/>
       <source>General</source>
-      <translation>General</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="260"/>
       <source>Verify Checksums</source>
-      <translation>Verificar sumas de comprobación</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="279"/>
       <source>Debug</source>
-      <translation>Depurar</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="281"/>
       <source>Dialogs</source>
-      <translation>Diálogos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="336"/>
       <source>Search...</source>
-      <translation>Busca...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1167"/>
       <source>Clear</source>
-      <translation>Claro</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1194"/>
       <source>AppID</source>
-      <translation>AppID</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1195"/>
       <source>App Version</source>
-      <translation>Versión App</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1196"/>
       <source>Godot Version</source>
-      <translation>Versión Godot</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1197"/>
       <source>Version</source>
-      <translation>Versión</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1198"/>
       <source>Map Revision</source>
-      <translation>Revisión del mapa</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1199"/>
       <source>Addon Name:</source>
-      <translation>Nombre del addon:</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1200"/>
       <source>Loaded</source>
-      <translation>Cargado</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="801"/>
       <source>Created by %1</source>
-      <translation>Creado por %1</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="130"/>
       <source>Donate On Ko-fi...</source>
-      <translation>Donar en Ko-fi...</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="177"/>
       <source>Bosnian</source>
-      <translation>Bosnia</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="179"/>
       <source>Dutch</source>
-      <translation>Holandés</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="180"/>
       <source>English</source>
-      <translation>Inglés</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="181"/>
       <source>Japanese</source>
-      <translation>Japonés</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="182"/>
       <source>Italian</source>
-      <translation>Italiano</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="183"/>
       <source>Polish</source>
-      <translation>Polaco</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="184"/>
       <source>Spanish</source>
-      <translation>Español</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="186"/>
       <source>Russian</source>
-      <translation>Ruso</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="175"/>
       <source>System Language</source>
-      <translation>Idioma del sistema</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="178"/>
       <source>Chinese (Simplified)</source>
-      <translation>Chino (simplificado)</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="185"/>
       <source>Swedish</source>
-      <translation>Sueco</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -785,8 +786,7 @@ Más información a continuación.</translation>
       <location filename="../../previews/AudioPreview.cpp" line="115"/>
       <source>Sample Rate: %1hz
 Channels: %2</source>
-      <translation>Frecuencia de muestreo: %1hz
-Canales: %2</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -794,78 +794,73 @@ Canales: %2</translation>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="27"/>
       <source>(Advanced) Edit Folder</source>
-      <translation>(Avanzado) Editar carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="29"/>
       <source>(Advanced) Edit File</source>
-      <translation>(Avanzado) Editar archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="33"/>
       <source>(Advanced) New Folder</source>
-      <translation>(Avanzado) Nueva carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="35"/>
       <source>(Advanced) New File</source>
-      <translation>(Avanzado) Nuevo archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="41"/>
       <source>Edit Folder</source>
-      <translation>Editar carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="43"/>
       <source>Edit File</source>
-      <translation>Editar archivo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="47"/>
       <source>New Folder</source>
-      <translation>Nueva carpeta</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="49"/>
       <source>New File</source>
-      <translation>Archivo nuevo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="61"/>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="62"/>
       <source>The path of the folder:
 (e.g. "%1")</source>
-      <translation>La ruta de la carpeta:
-(por ejemplo, "%1")</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="72"/>
       <source>Save each file to a new numbered archive
 instead of the directory VPK:</source>
-      <translation>Guarde cada archivo en un nuevo archivo numerado
-en lugar del directorio VPK:</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="73"/>
       <source>Save the file to a new numbered archive
 instead of the directory VPK:</source>
-      <translation>Guarde el archivo en un nuevo archivo numerado
-en lugar del directorio VPK:</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="79"/>
       <source>Set the bytes of each file to preload:
 (From 0 to %1 bytes)</source>
-      <translation>Establece los bytes de cada archivo a precargar:
-(De 0 a %1 bytes)</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="80"/>
       <source>Set the bytes of the file to preload:
 (From 0 to %1 bytes)</source>
-      <translation>Establece los bytes del archivo a precargar:
-(De 0 a %1 bytes)</translation>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -873,53 +868,53 @@ en lugar del directorio VPK:</translation>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="41"/>
       <source>Size</source>
-      <translation>Talla</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="43"/>
       <source>CRC32</source>
-      <translation>CRC32</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="45"/>
       <source>MD5</source>
-      <translation>MD5</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="47"/>
       <source>Archive Index</source>
-      <translation>Índice de archivos</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="49"/>
       <source>Preloaded Size</source>
-      <translation>Tamaño precargado</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="53"/>
       <location filename="../../previews/VTFPreview.cpp" line="58"/>
       <source>Unknown</source>
-      <translation>Desconocido</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="63"/>
       <source>Name</source>
-      <translation>Nombre</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="63"/>
       <source>Type</source>
-      <translation>Tipo</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../utility/AudioPlayer.cpp" line="50"/>
       <source>Failed to initialize decoder.</source>
-      <translation>Fallo al inicializar el decodificador.</translation>
+      <translation></translation>
     </message>
     <message>
       <location filename="../../utility/AudioPlayer.cpp" line="62"/>
       <source>Failed to open playback device.</source>
-      <translation>Error al abrir el dispositivo de reproducción.</translation>
+      <translation></translation>
     </message>
   </context>
 </TS>

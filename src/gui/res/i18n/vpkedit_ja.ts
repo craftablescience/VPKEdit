@@ -61,14 +61,14 @@
   <context>
     <name>ExtractPackFileWorker</name>
     <message>
-      <location filename="../../Window.cpp" line="1237"/>
-      <location filename="../../Window.cpp" line="1290"/>
+      <location filename="../../Window.cpp" line="1239"/>
+      <location filename="../../Window.cpp" line="1292"/>
       <source>Error</source>
       <translation>エラー</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1237"/>
-      <location filename="../../Window.cpp" line="1290"/>
+      <location filename="../../Window.cpp" line="1239"/>
+      <location filename="../../Window.cpp" line="1292"/>
       <source>Failed to create directory.</source>
       <translation>ディレクトリの作成に失敗しました。</translation>
     </message>
@@ -118,8 +118,13 @@ Please ensure that a game or another application is not using the file.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../previews/MDLPreview.cpp" line="498"/>
+      <location filename="../../previews/MDLPreview.cpp" line="513"/>
       <source>This model is invalid, it cannot be previewed!</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../previews/MDLPreview.cpp" line="490"/>
+      <source>One of the following:</source>
       <translation></translation>
     </message>
   </context>
@@ -227,7 +232,7 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="34"/>
       <source>Use LZMA Compression:</source>
-      <translation></translation>
+      <translation>LZMA圧縮を使用する：</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="41"/>
@@ -270,7 +275,7 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="322"/>
       <source>Version: %1</source>
-      <translation></translation>
+      <translation>バージョン：%1</translation>
     </message>
     <message>
       <location filename="../../previews/VTFPreview.cpp" line="324"/>
@@ -321,163 +326,163 @@ See below for more information.</source>
   <context>
     <name>Window</name>
     <message>
-      <location filename="../../Window.cpp" line="271"/>
+      <location filename="../../Window.cpp" line="273"/>
       <source>Controls</source>
       <translation>コントロールズ</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="396"/>
+      <location filename="../../Window.cpp" line="398"/>
       <source>Use This Folder</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="401"/>
+      <location filename="../../Window.cpp" line="403"/>
       <source>Save New VPK</source>
       <translation>新しいVPKを保存</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="456"/>
+      <location filename="../../Window.cpp" line="458"/>
       <source>Open Pack File</source>
       <translation>ファイルを開く</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="467"/>
+      <location filename="../../Window.cpp" line="469"/>
       <source>Save to...</source>
       <translation>保存先は...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="521"/>
+      <location filename="../../Window.cpp" line="523"/>
       <source>Could not save!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="522"/>
+      <location filename="../../Window.cpp" line="524"/>
       <source>An error occurred while saving changes to the VPK. Check that you have permissions to write to the file.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="572"/>
-      <location filename="../../Window.cpp" line="576"/>
-      <location filename="../../Window.cpp" line="716"/>
-      <location filename="../../Window.cpp" line="721"/>
-      <location filename="../../Window.cpp" line="877"/>
-      <location filename="../../Window.cpp" line="1117"/>
-      <location filename="../../Window.cpp" line="1174"/>
-      <location filename="../../Window.cpp" line="1179"/>
-      <location filename="../../Window.cpp" line="1184"/>
+      <location filename="../../Window.cpp" line="574"/>
+      <location filename="../../Window.cpp" line="578"/>
+      <location filename="../../Window.cpp" line="718"/>
+      <location filename="../../Window.cpp" line="723"/>
+      <location filename="../../Window.cpp" line="879"/>
+      <location filename="../../Window.cpp" line="1119"/>
+      <location filename="../../Window.cpp" line="1176"/>
+      <location filename="../../Window.cpp" line="1181"/>
+      <location filename="../../Window.cpp" line="1186"/>
       <source>Error</source>
       <translation>エラー</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="572"/>
+      <location filename="../../Window.cpp" line="574"/>
       <source>Error occurred checking for updates!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="576"/>
+      <location filename="../../Window.cpp" line="578"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="606"/>
+      <location filename="../../Window.cpp" line="608"/>
       <source>No New Updates</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="606"/>
+      <location filename="../../Window.cpp" line="608"/>
       <source>You are using the latest version of the software.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="615"/>
+      <location filename="../../Window.cpp" line="617"/>
       <source>Open File</source>
       <translation>ファイルを開く</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="653"/>
+      <location filename="../../Window.cpp" line="655"/>
       <source>Open Folder</source>
       <translation>フォルダを開く</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="696"/>
+      <location filename="../../Window.cpp" line="698"/>
       <source>Error Removing File</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="696"/>
+      <location filename="../../Window.cpp" line="698"/>
       <source>There was an error removing the file at "%1"!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="716"/>
+      <location filename="../../Window.cpp" line="718"/>
       <source>Unable to edit file at "%1": could not find file!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="721"/>
+      <location filename="../../Window.cpp" line="723"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="747"/>
+      <location filename="../../Window.cpp" line="749"/>
       <source>Rename Folder</source>
       <translation>フォルダの名前を変更する</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="747"/>
+      <location filename="../../Window.cpp" line="749"/>
       <source>The new path:</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="265"/>
-      <location filename="../../Window.cpp" line="809"/>
+      <location filename="../../Window.cpp" line="267"/>
+      <location filename="../../Window.cpp" line="811"/>
       <source>About</source>
       <translation>アプリについて</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="877"/>
+      <location filename="../../Window.cpp" line="879"/>
       <source>Failed to find file at "%1".</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="890"/>
+      <location filename="../../Window.cpp" line="892"/>
       <source>Extract as...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="947"/>
-      <location filename="../../Window.cpp" line="957"/>
+      <location filename="../../Window.cpp" line="949"/>
+      <location filename="../../Window.cpp" line="959"/>
       <source>Extract to...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="986"/>
+      <location filename="../../Window.cpp" line="988"/>
       <source>Save changes?</source>
       <translation>変更を保存しますか？</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="987"/>
+      <location filename="../../Window.cpp" line="989"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1117"/>
+      <location filename="../../Window.cpp" line="1119"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1155"/>
+      <location filename="../../Window.cpp" line="1157"/>
       <source>No recent files.</source>
       <translation>最近のファイルはありません。</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1174"/>
+      <location filename="../../Window.cpp" line="1176"/>
       <source>Failed to read data for "%1". Please ensure that a game or another application is not using the file.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1179"/>
-      <location filename="../../Window.cpp" line="1184"/>
+      <location filename="../../Window.cpp" line="1181"/>
+      <location filename="../../Window.cpp" line="1186"/>
       <source>Failed to write to file at "%1".</source>
       <translation></translation>
     </message>
@@ -577,27 +582,27 @@ See below for more information.</source>
       <translation>オプション</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="218"/>
+      <location filename="../../Window.cpp" line="220"/>
       <source>Entry Tree...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="219"/>
+      <location filename="../../Window.cpp" line="221"/>
       <source>Expand Folder When Selected</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="226"/>
+      <location filename="../../Window.cpp" line="228"/>
       <source>Start Collapsed</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="233"/>
+      <location filename="../../Window.cpp" line="235"/>
       <source>Hide Icons</source>
       <translation>アイコンを隠す</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="202"/>
+      <location filename="../../Window.cpp" line="204"/>
       <source>Theme...</source>
       <translation>テーマ...</translation>
     </message>
@@ -607,97 +612,97 @@ See below for more information.</source>
       <translation>言語...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="241"/>
+      <location filename="../../Window.cpp" line="243"/>
       <source>Advanced File Properties</source>
       <translation>高度なファイルプロパティ</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="248"/>
+      <location filename="../../Window.cpp" line="250"/>
       <source>Start Maximized</source>
       <translation>スタート時にウィンドウを最大にする</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="264"/>
+      <location filename="../../Window.cpp" line="266"/>
       <source>Help</source>
       <translation>ヘルプ</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="268"/>
+      <location filename="../../Window.cpp" line="270"/>
       <source>About Qt</source>
       <translation>Qtについて</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="255"/>
+      <location filename="../../Window.cpp" line="257"/>
       <source>Tools</source>
       <translation>ツール</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="257"/>
+      <location filename="../../Window.cpp" line="259"/>
       <source>General</source>
       <translation>一般</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="258"/>
+      <location filename="../../Window.cpp" line="260"/>
       <source>Verify Checksums</source>
       <translation>チェックサムを検証する</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="277"/>
+      <location filename="../../Window.cpp" line="279"/>
       <source>Debug</source>
       <translation>デバッグ</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="279"/>
+      <location filename="../../Window.cpp" line="281"/>
       <source>Dialogs</source>
       <translation>ダイアログ</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="334"/>
+      <location filename="../../Window.cpp" line="336"/>
       <source>Search...</source>
       <translation>検索...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1165"/>
+      <location filename="../../Window.cpp" line="1167"/>
       <source>Clear</source>
       <translation>クリアー</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1192"/>
+      <location filename="../../Window.cpp" line="1194"/>
       <source>AppID</source>
       <translation>アプリのID</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1193"/>
+      <location filename="../../Window.cpp" line="1195"/>
       <source>App Version</source>
       <translation>アプリのバージョン</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1194"/>
+      <location filename="../../Window.cpp" line="1196"/>
       <source>Godot Version</source>
       <translation>Godotのバージョン</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1195"/>
+      <location filename="../../Window.cpp" line="1197"/>
       <source>Version</source>
       <translation>バージョン</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1196"/>
+      <location filename="../../Window.cpp" line="1198"/>
       <source>Map Revision</source>
       <translation>レベルのバージョン</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1197"/>
+      <location filename="../../Window.cpp" line="1199"/>
       <source>Addon Name:</source>
       <translation>アドオンの名前：</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1198"/>
+      <location filename="../../Window.cpp" line="1200"/>
       <source>Loaded</source>
       <translation>ロードされた</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="799"/>
+      <location filename="../../Window.cpp" line="801"/>
       <source>Created by %1</source>
       <translation>作成者：%1</translation>
     </message>
@@ -712,37 +717,37 @@ See below for more information.</source>
       <translation>ボスニア語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="178"/>
+      <location filename="../../Window.cpp" line="179"/>
       <source>Dutch</source>
       <translation>オランダ語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="179"/>
+      <location filename="../../Window.cpp" line="180"/>
       <source>English</source>
       <translation>英語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="180"/>
+      <location filename="../../Window.cpp" line="181"/>
       <source>Japanese</source>
       <translation>日本語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="181"/>
+      <location filename="../../Window.cpp" line="182"/>
       <source>Italian</source>
       <translation>イタリア語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="182"/>
+      <location filename="../../Window.cpp" line="183"/>
       <source>Polish</source>
       <translation>ポーランド語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="183"/>
+      <location filename="../../Window.cpp" line="184"/>
       <source>Spanish</source>
       <translation>スペイン語</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="184"/>
+      <location filename="../../Window.cpp" line="186"/>
       <source>Russian</source>
       <translation>ロシア語</translation>
     </message>
@@ -750,6 +755,16 @@ See below for more information.</source>
       <location filename="../../Window.cpp" line="175"/>
       <source>System Language</source>
       <translation>システムの言語</translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="178"/>
+      <source>Chinese (Simplified)</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="185"/>
+      <source>Swedish</source>
+      <translation></translation>
     </message>
   </context>
   <context>
