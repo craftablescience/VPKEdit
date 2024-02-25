@@ -109,66 +109,68 @@ elseif(UNIX)
             RENAME "application-x-vpkedit.png")
 endif()
 
-if(VPKEDIT_BUILD_CLI AND VPKEDIT_BUILD_GUI)
-    # CPack stuff
-    set(CPACK_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
-    set(CPACK_PACKAGE_VENDOR ${PROJECT_ORGANIZATION_NAME})
-    set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
-    set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CPACK_PACKAGE_DESCRIPTION})
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-    set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-    set(CPACK_MONOLITHIC_INSTALL ON)
-    set(CPACK_PACKAGE_EXECUTABLES ${PROJECT_NAME} ${PROJECT_NAME_PRETTY})
-    if(WIN32)
-        set(CPACK_GENERATOR "NSIS")
-        set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-        set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-        set(CPACK_NSIS_DISPLAY_NAME ${PROJECT_NAME_PRETTY})
-        set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
-        set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon.ico")
-        set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
-        set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
-        set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
-        set(HELP_QUOTE "\"") # CMake is shit
-        set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-                WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
-                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
-                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
-                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
-                WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
-                System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
-            ")
-        set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-                DeleteRegStr HKCR '.bmz'
-                DeleteRegKey HKCR '.bsp'
-                DeleteRegKey HKCR '.fpx'
-                DeleteRegKey HKCR '.gcf'
-                DeleteRegKey HKCR '.gma'
-                DeleteRegKey HKCR '.pck'
-                DeleteRegKey HKCR '.vpk'
-                DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
-            ")
-    else()
-        set(CPACK_GENERATOR "DEB")
-        set(CPACK_STRIP_FILES ON)
-        set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
-        set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${PROJECT_NAME}")
+# CPack stuff
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
+set(CPACK_PACKAGE_VENDOR ${PROJECT_ORGANIZATION_NAME})
+set(CPACK_PACKAGE_CONTACT "lauralewisdev@gmail.com")
+set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CPACK_PACKAGE_DESCRIPTION})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_MONOLITHIC_INSTALL ON)
+set(CPACK_PACKAGE_EXECUTABLES ${PROJECT_NAME} ${PROJECT_NAME_PRETTY})
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+    set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    set(CPACK_NSIS_DISPLAY_NAME ${PROJECT_NAME_PRETTY})
+    set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
+    set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon.ico")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
+    set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
+    set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
+    set(HELP_QUOTE "\"") # CMake is shit
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+            WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
+            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
+            System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
+        ")
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+            DeleteRegKey HKCR '.bmz'
+            DeleteRegKey HKCR '.bsp'
+            DeleteRegKey HKCR '.fpx'
+            DeleteRegKey HKCR '.gcf'
+            DeleteRegKey HKCR '.gma'
+            DeleteRegKey HKCR '.pck'
+            DeleteRegKey HKCR '.vpk'
+            DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
+        ")
+else()
+    set(CPACK_GENERATOR "DEB")
+    set(CPACK_STRIP_FILES ON)
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${PROJECT_NAME}")
 
-        # Add symlinks so it can be ran from anywhere
+    # Add symlinks so it can be ran from anywhere
+    if(VPKEDIT_BUILD_CLI)
         install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli)")
-        install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME})")
         install(FILES
                 "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli"
-                "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}"
                 DESTINATION "/usr/bin")
     endif()
-    include(CPack)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME})")
+    install(FILES
+            "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}"
+            DESTINATION "/usr/bin")
 endif()
+include(CPack)
