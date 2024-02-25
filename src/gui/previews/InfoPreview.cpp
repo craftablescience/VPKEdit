@@ -15,12 +15,12 @@ InfoPreview::InfoPreview(const QPixmap& icon, const QString& text, QWidget* pare
 
 	this->error = new QLabel(this);
 	this->error->setText(text);
-	this->error->setAlignment(Qt::AlignHCenter);
+	this->error->setTextFormat(Qt::MarkdownText);
 	layout->addWidget(this->error, 0, Qt::AlignHCenter | Qt::AlignTop);
 }
 
-InfoPreview::InfoPreview(QWidget *parent)
-		: InfoPreview({":/icons/warning.png"}, "") {}
+InfoPreview::InfoPreview(QWidget* parent)
+		: InfoPreview({":/icons/warning.png"}, "", parent) {}
 
 void InfoPreview::setData(const QPixmap& icon, const QString& text) {
 	this->image->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio));

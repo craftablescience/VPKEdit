@@ -479,7 +479,22 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		vtxEntry = packFile.findEntry(basePath.toStdString() + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
-		this->fileViewer->showInfoPreview({":/icons/error.png"}, tr("Unable to find all the required files the model is composed of!"));
+		QString error{tr("Unable to find all the required files the model is composed of!") + '\n'};
+		if (!mdlEntry) {
+			error += "\n- " + basePath + ".mdl";
+		}
+		if (!vvdEntry) {
+			error += "\n- " + basePath + ".vvd";
+		}
+		if (!vtxEntry) {
+			error += "\n- " + tr("One of the following:") +
+					 "\n  - " + basePath + ".vtx" +
+					 "\n  - " + basePath + ".dx90.vtx" +
+					 "\n  - " + basePath + ".dx80.vtx" +
+					 "\n  - " + basePath + ".sw.vtx";
+		}
+
+		this->fileViewer->showInfoPreview({":/icons/error.png"}, error);
 		return;
 	}
 	auto mdlData = packFile.readEntry(*mdlEntry);
