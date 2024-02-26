@@ -95,15 +95,29 @@ void NavBar::setPath(const QString& newPath) {
 }
 
 void NavBar::navigateBack() {
-	if (this->historyIndex > 0) {
+	auto oldIndex = this->historyIndex;
+	do {
+		if (this->historyIndex == 0) {
+			return;
+		}
 		this->historyIndex--;
+	} while (!this->window->hasEntry(this->history.at(this->historyIndex)));
+
+	if (oldIndex != this->historyIndex) {
 		this->processPathChanged(this->history.at(this->historyIndex), false);
 	}
 }
 
 void NavBar::navigateNext() {
-	if (this->historyIndex < this->history.size() - 1) {
+	auto oldIndex = this->historyIndex;
+	do {
+		if (this->historyIndex == this->history.size() - 1) {
+			return;
+		}
 		this->historyIndex++;
+	} while (!this->window->hasEntry(this->history.at(this->historyIndex)));
+
+	if (oldIndex != this->historyIndex) {
 		this->processPathChanged(this->history.at(this->historyIndex), false);
 	}
 }
