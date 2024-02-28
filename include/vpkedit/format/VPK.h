@@ -116,23 +116,4 @@ private:
 	VPKEDIT_REGISTER_PACKFILE_OPEN(VPK_EXTENSION, &VPK::open);
 };
 
-constexpr std::uint32_t FPX_SIGNATURE = 0x33ff4132;
-constexpr std::string_view FPX_DIR_SUFFIX = "_fdr";
-constexpr std::string_view FPX_EXTENSION = ".fpx";
-
-class FPX : public VPK {
-public:
-	/// Open a directory VPK file
-	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
-
-protected:
-	FPX(const std::string& fullFilePath_, PackFileOptions options_);
-
-private:
-	using VPK::getVersion;
-	using VPK::setVersion;
-
-	VPKEDIT_REGISTER_PACKFILE_OPEN(FPX_EXTENSION, &FPX::open);
-};
-
 } // namespace vpkedit

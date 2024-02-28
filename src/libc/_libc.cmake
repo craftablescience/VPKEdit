@@ -7,6 +7,7 @@ add_library(
         lib${PROJECT_NAME}c SHARED
 
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/BSPWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/FPXWrapper.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GCFWrapper.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GMAWrapper.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GRPWrapper.h"
@@ -24,6 +25,7 @@ add_library(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Version.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/format/BSPWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/FPXWrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/format/GCFWrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/format/GMAWrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/format/GRPWrapper.cpp"

@@ -7,6 +7,7 @@
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
+#include <vpkedit/format/FPX.h>
 
 using namespace vpkedit;
 using namespace vpkedit::detail;
@@ -131,20 +132,14 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 	FileStream reader{vpk->fullFilePath};
     reader.seekInput(0);
     reader.read(vpk->header1);
-    if ((!::isFPX(vpk) && vpk->header1.signature != VPK_SIGNATURE) ||
-		(::isFPX(vpk) && vpk->header1.signature != FPX_SIGNATURE)) {
-        // File is not a VPK or FPX
+    if (vpk->header1.signature != VPK_SIGNATURE) {
+        // File is not a VPK
         return nullptr;
     }
-	if (!::isFPX(vpk)) {
-		if (vpk->header1.version == 2) {
-			reader.read(vpk->header2);
-		} else if (vpk->header1.version != 1) {
-			// Apex Legends, Titanfall, etc. are not supported
-			return nullptr;
-		}
-	} else if (vpk->header1.version != 10) {
-		// Only support v10 FPX files
+	if (vpk->header1.version == 2) {
+		reader.read(vpk->header2);
+	} else if (vpk->header1.version != 1) {
+		// Apex Legends, Titanfall, etc. are not supported
 		return nullptr;
 	}
 	vpk->options.vpk_version = vpk->header1.version;
@@ -677,20 +672,4 @@ std::uint32_t VPK::getHeaderLength() const {
 		return sizeof(Header1);
 	}
 	return sizeof(Header1) + sizeof(Header2);
-}
-
-FPX::FPX(const std::string& fullFilePath_, PackFileOptions options_)
-		: VPK(fullFilePath_, options_) {
-	this->type = PackFileType::FPX;
-}
-
-std::unique_ptr<PackFile> FPX::open(const std::string& path, PackFileOptions options, const Callback& callback) {
-	auto fpx = FPX::openInternal(path, options, callback);
-	if (!fpx && path.length() > 8) {
-		// If it just tried to load a numbered archive, let's try to load the directory FPX
-		if (auto dirPath = path.substr(0, path.length() - 8) + FPX_DIR_SUFFIX.data() + std::filesystem::path(path).extension().string(); std::filesystem::exists(dirPath)) {
-			fpx = FPX::openInternal(dirPath, options, callback);
-		}
-	}
-	return fpx;
 }

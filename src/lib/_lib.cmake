@@ -32,6 +32,7 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
 
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/BSP.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/FPX.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GCF.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GMA.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/GRP.h"
@@ -53,6 +54,7 @@ add_library(
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
 
 		"${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/format/FPX.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/GCF.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/GMA.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/GRP.cpp"
