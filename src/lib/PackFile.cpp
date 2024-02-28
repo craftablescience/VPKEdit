@@ -1,5 +1,6 @@
 #include <vpkedit/PackFile.h>
 
+#include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <utility>
@@ -227,6 +228,7 @@ std::vector<std::string> PackFile::getSupportedFileTypes() {
 	for (const auto& [extension, factoryFunctions] : PackFile::getOpenExtensionRegistry()) {
 		out.push_back(extension);
 	}
+	std::sort(out.begin(), out.end());
 	return out;
 }
 
