@@ -11,6 +11,7 @@
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
+// Runtime-only flag that indicates a file is going to be written to an existing archive file
 constexpr std::uint32_t VPK_FLAG_REUSING_CHUNK = 0x1;
 
 namespace {
@@ -449,7 +450,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 	// Helper
 	const auto getArchiveFilename = [this](const std::string& filename_, int archiveIndex) {
 		std::string out{filename_ + '_' + ::padArchiveIndex(archiveIndex) + (::isFPX(this) ? FPX_EXTENSION : VPK_EXTENSION).data()};
-		::normalizeSlashes(out);
+		::normalizeSlashes(out, false);
 		return out;
 	};
 
