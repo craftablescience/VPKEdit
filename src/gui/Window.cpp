@@ -1117,7 +1117,7 @@ bool Window::loadPackFile(const QString& path) {
 		}
 
         QMessageBox::critical(this, tr("Error"), tr("Unable to load this file. Please ensure that a game or another application is not using the file."));
-		this->freezeActions(false);
+		(void) this->clearContents();
         return false;
     }
 
