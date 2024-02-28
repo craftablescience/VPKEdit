@@ -5,7 +5,7 @@ include(GNUInstallDirs)
 # Create project
 project(vpkedit
         DESCRIPTION "A tool to read, preview, and write to VPK files."
-        VERSION "4.1.1"
+        VERSION "4.1.2"
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
