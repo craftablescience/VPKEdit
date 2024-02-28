@@ -10,15 +10,17 @@ platforms:
 
 ###### Automatic:
 
-VPKEdit is on the Windows package registry, meaning you only need to run one command to install or update to the latest version of VPKEdit:
+VPKEdit is on the Windows package registry, so you only need to run one command to install VPKEdit or update to the latest version:
 1. Press `Win + R`
 2. In the popup window, enter `winget install vpkedit` into the prompt and press "Ok".
 
-Note that this will not install the standalone version. If you wish to use that, follow the next section instead.
+> [!WARNING]
+> - The version on WinGet is usually slightly out of date. If you want to make sure you are installing the very latest stable release,
+>   continue to the Manual section.
+> - This will not install the standalone version. If you wish to use that, continue to the Manual section.
 
 ###### Manual:
 
-If you'd prefer not to use WinGet, VPKEdit is relatively easy to install manually.
 1. You will need to install the VS2015-2022 runtime located at https://aka.ms/vs/16/release/vc_redist.x64.exe.
 2. When that is installed, download either the standalone version or the installer version from [the latest
    GitHub release](https://github.com/craftablescience/VPKEdit/releases/latest), under the `Assets` dropdown.
