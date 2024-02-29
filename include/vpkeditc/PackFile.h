@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AttributeWrapper.h"
-#include "EntryWrapper.h"
-#include "OptionsWrapper.h"
-#include "PackFileTypeWrapper.h"
+#include "Attribute.h"
+#include "Entry.h"
+#include "Options.h"
+#include "PackFileType.h"
 #include "StringArray.h"
 
 #ifdef __cplusplus
@@ -18,11 +18,11 @@ typedef void* VPKEdit_PackFileHandle_t;
 
 VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open(const char* path);
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options);
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open_with_options(const char* path, VPKEdit_PackFileOptions_t options);
 
-VPKEDIT_API VPKEdit_PackFileTypeWrapper_e vpkedit_get_type(VPKEdit_PackFileHandle_t handle);
+VPKEDIT_API VPKEdit_PackFileType_e vpkedit_get_type(VPKEdit_PackFileHandle_t handle);
 
-VPKEDIT_API VPKEdit_PackFileOptionsWrapper_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle);
+VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_verify_entry_checksums(VPKEdit_PackFileHandle_t handle);
 

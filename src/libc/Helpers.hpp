@@ -4,8 +4,8 @@
 #include <vector>
 
 #include <vpkedit/Options.h>
-#include <vpkeditc/EntryWrapper.h>
-#include <vpkeditc/PackFileWrapper.h>
+#include <vpkeditc/Entry.h>
+#include <vpkeditc/PackFile.h>
 #include <vpkeditc/StringArray.h>
 
 namespace vpkedit {
@@ -39,6 +39,6 @@ size_t writeVectorToBuffer(const std::vector<std::byte>& vec, unsigned char* buf
 
 VPKEdit_StringArray_t convertStringVector(const std::vector<std::string>& stringVec);
 
-vpkedit::PackFileOptions convertOptionsFromC(VPKEdit_PackFileOptionsWrapper_t options);
+vpkedit::PackFileOptions convertOptionsFromC(VPKEdit_PackFileOptions_t options);
 
-VPKEdit_PackFileOptionsWrapper_t convertOptionsToC(vpkedit::PackFileOptions options);
+VPKEdit_PackFileOptions_t convertOptionsToC(vpkedit::PackFileOptions options);

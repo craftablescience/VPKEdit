@@ -1,4 +1,4 @@
-#include <vpkeditc/format/ZIPWrapper.h>
+#include <vpkeditc/format/ZIP.h>
 
 #include <vpkedit/format/ZIP.h>
 
@@ -16,7 +16,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_zip_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_zip_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_zip_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = ZIP::open(path, ::convertOptionsFromC(options));

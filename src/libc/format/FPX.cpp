@@ -1,4 +1,4 @@
-#include <vpkeditc/format/FPXWrapper.h>
+#include <vpkeditc/format/FPX.h>
 
 #include <vpkedit/format/FPX.h>
 
@@ -16,7 +16,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_fpx_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_fpx_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_fpx_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = FPX::open(path, ::convertOptionsFromC(options));

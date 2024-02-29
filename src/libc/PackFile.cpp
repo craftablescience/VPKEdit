@@ -1,4 +1,4 @@
-#include <vpkeditc/PackFileWrapper.h>
+#include <vpkeditc/PackFile.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -21,7 +21,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = PackFile::open(path, ::convertOptionsFromC(options));
@@ -31,13 +31,13 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_open_with_options(const char* path,
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileTypeWrapper_e vpkedit_get_type(VPKEdit_PackFileHandle_t handle) {
+VPKEDIT_API VPKEdit_PackFileType_e vpkedit_get_type(VPKEdit_PackFileHandle_t handle) {
 	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_PACK_FILE_TYPE_UNKNOWN);
 
-	return static_cast<VPKEdit_PackFileTypeWrapper_e>(::getPackFile(handle)->getType());
+	return static_cast<VPKEdit_PackFileType_e>(::getPackFile(handle)->getType());
 }
 
-VPKEDIT_API VPKEdit_PackFileOptionsWrapper_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle) {
+VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle) {
 	return ::convertOptionsToC(::getPackFile(handle)->getOptions());
 }
 

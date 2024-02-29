@@ -6,43 +6,41 @@ configure_file(
 add_library(
         lib${PROJECT_NAME}c SHARED
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/BSPWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/FPXWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GCFWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GMAWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GRPWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PAKWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PCKWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/VPKWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/ZIPWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/BSP.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/FPX.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GCF.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GMA.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/GRP.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PAK.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/PCK.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/VPK.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/format/ZIP.h"
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/AttributeWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/EntryWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/OptionsWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFileTypeWrapper.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFileWrapper.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/API.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Attribute.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Entry.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Options.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFile.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFileType.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/StringArray.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Version.h"
 
-        "${CMAKE_CURRENT_LIST_DIR}/format/BSPWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/FPXWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/GCFWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/GMAWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/GRPWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/PAKWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/PCKWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/VPKWrapper.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/format/ZIPWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/FPX.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GCF.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GMA.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/GRP.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/PAK.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/PCK.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/VPK.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/format/ZIP.cpp"
 
-        "${CMAKE_CURRENT_LIST_DIR}/API.h"
-        "${CMAKE_CURRENT_LIST_DIR}/EntryWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Helpers.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Helpers.hpp"
-        "${CMAKE_CURRENT_LIST_DIR}/PackFileWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/StringArray.cpp")
 
 set_target_properties(lib${PROJECT_NAME}c PROPERTIES PREFIX "")
 
 target_link_libraries(lib${PROJECT_NAME}c PUBLIC lib${PROJECT_NAME})
-
-target_include_directories(lib${PROJECT_NAME}c PRIVATE "${CMAKE_CURRENT_LIST_DIR}")

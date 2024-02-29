@@ -15,7 +15,7 @@ typedef enum {
 	VPKEDIT_PACK_FILE_TYPE_PCK,
 	VPKEDIT_PACK_FILE_TYPE_VPK,
 	VPKEDIT_PACK_FILE_TYPE_ZIP,
-} VPKEdit_PackFileTypeWrapper_e;
+} VPKEdit_PackFileType_e;
 
 #ifdef __cplusplus
 } // extern "C"

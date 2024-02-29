@@ -12,7 +12,7 @@ typedef struct {
 	uint32_t vpk_preferredChunkSize;
 	bool vpk_generateMD5Entries;
 	uint16_t zip_compressionMethod;
-} VPKEdit_PackFileOptionsWrapper_t;
+} VPKEdit_PackFileOptions_t;
 
 #ifdef __cplusplus
 } // extern "C"

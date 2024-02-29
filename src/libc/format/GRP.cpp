@@ -1,4 +1,4 @@
-#include <vpkeditc/format/GRPWrapper.h>
+#include <vpkeditc/format/GRP.h>
 
 #include <vpkedit/format/GRP.h>
 
@@ -16,7 +16,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_grp_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_grp_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_grp_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = GRP::open(path, ::convertOptionsFromC(options));

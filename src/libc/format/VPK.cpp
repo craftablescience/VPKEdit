@@ -1,4 +1,4 @@
-#include <vpkeditc/format/VPKWrapper.h>
+#include <vpkeditc/format/VPK.h>
 
 #include <vpkedit/format/VPK.h>
 
@@ -16,7 +16,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_empty(const char* path) 
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_empty_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_empty_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = PackFile::open(path, ::convertOptionsFromC(options));
@@ -37,7 +37,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_from_directory(const cha
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_from_directory_with_options(const char* vpkPath, const char* contentPath, bool saveToDir, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_create_from_directory_with_options(const char* vpkPath, const char* contentPath, bool saveToDir, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(vpkPath, nullptr);
 	VPKEDIT_EARLY_RETURN_VALUE(contentPath, nullptr);
 
@@ -58,7 +58,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_vpk_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = VPK::open(path, ::convertOptionsFromC(options));

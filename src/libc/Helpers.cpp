@@ -44,7 +44,7 @@ VPKEdit_StringArray_t convertStringVector(const std::vector<std::string>& string
 	return array;
 }
 
-vpkedit::PackFileOptions convertOptionsFromC(VPKEdit_PackFileOptionsWrapper_t options) {
+vpkedit::PackFileOptions convertOptionsFromC(VPKEdit_PackFileOptions_t options) {
 	return {
 		.gma_writeCRCs = options.gma_writeCRCs,
 		.vpk_version = options.vpk_version,
@@ -54,7 +54,7 @@ vpkedit::PackFileOptions convertOptionsFromC(VPKEdit_PackFileOptionsWrapper_t op
 	};
 }
 
-VPKEdit_PackFileOptionsWrapper_t convertOptionsToC(vpkedit::PackFileOptions options) {
+VPKEdit_PackFileOptions_t convertOptionsToC(vpkedit::PackFileOptions options) {
 	return {
 		.gma_writeCRCs = options.gma_writeCRCs,
 		.vpk_version = options.vpk_version,

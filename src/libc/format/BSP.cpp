@@ -1,4 +1,4 @@
-#include <vpkeditc/format/BSPWrapper.h>
+#include <vpkeditc/format/BSP.h>
 
 #include <vpkedit/format/BSP.h>
 
@@ -16,7 +16,7 @@ VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_bsp_open(const char* path) {
 	return packFile.release();
 }
 
-VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_bsp_open_with_options(const char* path, VPKEdit_PackFileOptionsWrapper_t options) {
+VPKEDIT_API VPKEdit_PackFileHandle_t vpkedit_bsp_open_with_options(const char* path, VPKEdit_PackFileOptions_t options) {
 	VPKEDIT_EARLY_RETURN_VALUE(path, nullptr);
 
 	auto packFile = BSP::open(path, ::convertOptionsFromC(options));

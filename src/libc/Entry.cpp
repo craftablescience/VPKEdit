@@ -1,4 +1,4 @@
-#include <vpkeditc/EntryWrapper.h>
+#include <vpkeditc/Entry.h>
 
 #include <vpkedit/Entry.h>
 
