@@ -204,7 +204,7 @@ std::string PackFile::getFilename() const {
 
 std::string PackFile::getTruncatedFilename() const {
 	const std::filesystem::path path{this->fullFilePath};
-	return (path.parent_path() / this->getTruncatedFilestem()).string() + path.extension().string();
+	return this->getTruncatedFilestem() + path.extension().string();
 }
 
 std::string PackFile::getFilestem() const {
