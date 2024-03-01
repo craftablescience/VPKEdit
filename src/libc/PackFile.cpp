@@ -235,7 +235,7 @@ VPKEDIT_API size_t vpkedit_get_supported_entry_attributes(VPKEdit_PackFileHandle
 			buffer[i] = VPKEDIT_ATTRIBUTE_NONE;
 		}
 	}
-	return std::max(attrs.size(), bufferLen);
+	return std::min(attrs.size(), bufferLen);
 }
 
 VPKEDIT_API size_t vpkedit_to_string(VPKEdit_PackFileHandle_t handle, char* buffer, size_t bufferLen) {
