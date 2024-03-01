@@ -5,16 +5,16 @@ namespace libvpkedit
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern String vpkedit_string_new(ulong size);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_string_free(String* str);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern StringArray vpkedit_string_array_new(ulong size);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_string_array_free(StringArray* array);
     }
 

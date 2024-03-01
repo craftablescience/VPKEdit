@@ -4,10 +4,10 @@ namespace libvpkedit.Format
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_fpx_open([MarshalAs(UnmanagedType.LPStr)] string path);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_fpx_open_with_options([MarshalAs(UnmanagedType.LPStr)] string path, PackFileOptions options);
     }
 

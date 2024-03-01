@@ -7,88 +7,88 @@ namespace libvpkedit
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_open([MarshalAs(UnmanagedType.LPStr)] string path);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_open_with_options([MarshalAs(UnmanagedType.LPStr)] string path, PackFileOptions options);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern PackFileType vpkedit_get_type(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern PackFileOptions vpkedit_get_options(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern StringArray vpkedit_verify_entry_checksums(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_verify_file_checksum(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_is_case_sensitive(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_find_entry(void* handle, [MarshalAs(UnmanagedType.LPStr)] string filename, byte includeUnbaked);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern Buffer vpkedit_read_entry(void* handle, void* entry);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern String vpkedit_read_entry_text(void* handle, void* entry);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_is_read_only(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_add_entry_from_file(void* handle, [MarshalAs(UnmanagedType.LPStr)] string filename, [MarshalAs(UnmanagedType.LPStr)] string pathToFile);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_add_entry_from_mem(void* handle, [MarshalAs(UnmanagedType.LPStr)] string filename, byte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_remove_entry(void* handle, [MarshalAs(UnmanagedType.LPStr)] string filename);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_bake(void* handle, [MarshalAs(UnmanagedType.LPStr)] string outputDir);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern EntryHandleArray vpkedit_get_baked_entries(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern EntryHandleArray vpkedit_get_unbaked_entries(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_entry_count(void* handle, byte includeUnbaked);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_filepath(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_truncated_filepath(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_filename(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_truncated_filename(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_filestem(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_truncated_filestem(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_supported_entry_attributes(void* handle, Attribute* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_to_string(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_close(void** handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern StringArray vpkedit_get_supported_file_types();
     }
 

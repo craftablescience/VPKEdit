@@ -7,25 +7,25 @@ namespace libvpkedit
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_path(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_parent_path(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_filename(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_stem(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_extension(void* handle, sbyte* buffer, ulong bufferLen);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_entry_free(void** handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_entry_array_free(EntryHandleArray* array);
     }
 
