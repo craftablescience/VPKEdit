@@ -64,7 +64,7 @@ public:
     [[nodiscard]] static std::unique_ptr<PackFile> createEmpty(const std::string& path, PackFileOptions options = {});
 
     /// Create a new directory VPK file from a directory, the contents of the directory will be present in the root VPK directory. (See above comment)
-    [[nodiscard]] static std::unique_ptr<PackFile> createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = true, PackFileOptions options = {}, const Callback& bakeCallback = nullptr);
+    [[nodiscard]] static std::unique_ptr<PackFile> createFromDirectory(const std::string& vpkPath, const std::string& contentPath, bool saveToDir = false, PackFileOptions options = {}, const Callback& bakeCallback = nullptr);
 
 	/// Create a new directory VPK file from a directory, the contents of the directory will be present in the root VPK directory. Each entry's properties is determined by a callback. (See above comment)
 	[[nodiscard]] static std::unique_ptr<PackFile> createFromDirectoryProcedural(const std::string& vpkPath, const std::string& contentPath, const EntryCreationCallback& creationCallback, PackFileOptions options = {}, const Callback& bakeCallback = nullptr);
