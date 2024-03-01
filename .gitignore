@@ -18,3 +18,4 @@ out/
 generated/
 include/vpkedit/Version.h
 include/vpkeditc/Version.h
+src/libcs/libvpkedit/libvpkedit.csproj
