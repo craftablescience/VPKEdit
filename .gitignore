@@ -5,8 +5,14 @@
 CMakeSettings.json
 
 # Project exclude paths
+build/
 cmake-build-*/
 out/
+
+# CSharp
+/src/libcs/**/bin
+/src/libcs/**/obj
+/src/libcs/**/TestResults
 
 # Generated
 generated/
