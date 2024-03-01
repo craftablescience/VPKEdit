@@ -13,9 +13,11 @@
 	#include <cstddef>
 	#include <cstdint>
 	using std::size_t;
+	using std::int64_t;
 	using std::uint64_t;
 	using std::uint32_t;
 	using std::uint16_t;
+	using std::uint8_t;
 #else
 	#define VPKEDIT_API VPKEDIT_EXPORT
 	#include <stddef.h>

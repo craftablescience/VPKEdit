@@ -58,7 +58,7 @@ VPKEDIT_API void vpkedit_entry_array_free(VPKEdit_EntryHandleArray_t* array) {
 
 	if (array->data) {
 		for (size_t i = 0; i < array->size; i++) {
-			if (auto& entry = array->data[i]) {
+			if (auto*& entry = array->data[i]) {
 				vpkedit_entry_free(&entry);
 			}
 		}

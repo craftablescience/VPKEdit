@@ -6,7 +6,7 @@
 #include <vpkedit/Options.h>
 #include <vpkeditc/Entry.h>
 #include <vpkeditc/PackFile.h>
-#include <vpkeditc/StringArray.h>
+#include <vpkeditc/String.h>
 
 namespace vpkedit {
 
@@ -36,6 +36,10 @@ vpkedit::Entry* getEntry(VPKEdit_EntryHandle_t handle);
 size_t writeStringToBuffer(std::string_view str, char* buffer, size_t bufferLen);
 
 size_t writeVectorToBuffer(const std::vector<std::byte>& vec, unsigned char* buffer, size_t bufferLen);
+
+VPKEdit_String_t createString(std::string_view str);
+
+VPKEdit_Buffer_t createBuffer(const std::vector<std::byte>& vec);
 
 VPKEdit_StringArray_t convertStringVector(const std::vector<std::string>& stringVec);
 

@@ -34,8 +34,20 @@ size_t writeVectorToBuffer(const std::vector<std::byte>& vec, unsigned char* buf
 	return vec.size();
 }
 
+VPKEdit_String_t createString(std::string_view str) {
+	auto newStr = vpkedit_string_new(str.size());
+	std::memcpy(newStr.data, str.data(), str.size());
+	return newStr;
+}
+
+VPKEdit_Buffer_t createBuffer(const std::vector<std::byte>& vec) {
+	auto buf = vpkedit_buffer_new(vec.size());
+	std::memcpy(buf.data, vec.data(), vec.size());
+	return buf;
+}
+
 VPKEdit_StringArray_t convertStringVector(const std::vector<std::string>& stringVec) {
-	auto array = vpkedit_new_string_array(stringVec.size());
+	auto array = vpkedit_string_array_new(stringVec.size());
 	for (size_t i = 0; i < stringVec.size(); i++) {
 		array.data[i] = static_cast<char*>(std::malloc(sizeof(char) * (stringVec[i].length() + 1)));
 		std::memcpy(array.data[i], stringVec[i].c_str(), stringVec[i].length());

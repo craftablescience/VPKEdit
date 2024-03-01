@@ -70,29 +70,24 @@ VPKEDIT_API VPKEdit_EntryHandle_t vpkedit_find_entry(VPKEdit_PackFileHandle_t ha
 	return new Entry(std::move(*entry));
 }
 
-VPKEDIT_API size_t vpkedit_read_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, unsigned char* buffer, size_t bufferLen) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(entry, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(buffer, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(bufferLen, 0);
+VPKEDIT_API VPKEdit_Buffer_t vpkedit_read_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_Buffer_t{.size = -1, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(entry, (VPKEdit_Buffer_t{.size = -1, .data = nullptr}));
 
 	if (auto binary = ::getPackFile(handle)->readEntry(*::getEntry(entry))) {
-		return ::writeVectorToBuffer(*binary, buffer, bufferLen);
+		return ::createBuffer(*binary);
 	}
-	return 0;
+	return {.size = -1, .data = nullptr};
 }
 
-VPKEDIT_API size_t vpkedit_read_entry_text(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, char* buffer, size_t bufferLen) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(entry, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(buffer, 0);
-	VPKEDIT_EARLY_RETURN_VALUE(bufferLen, 0);
+VPKEDIT_API VPKEdit_String_t vpkedit_read_entry_text(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_String_t{.size = -1, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(entry, (VPKEdit_String_t{.size = -1, .data = nullptr}));
 
 	if (auto text = ::getPackFile(handle)->readEntryText(*::getEntry(entry))) {
-		return ::writeStringToBuffer(*text, buffer, bufferLen);
+		return ::createString(*text);
 	}
-	buffer[0] = '\0';
-	return 0;
+	return {.size = -1, .data = nullptr};
 }
 
 VPKEDIT_API bool vpkedit_is_read_only(VPKEdit_PackFileHandle_t handle) {

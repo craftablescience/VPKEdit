@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Attribute.h"
+#include "Buffer.h"
 #include "Entry.h"
 #include "Options.h"
 #include "PackFileType.h"
-#include "StringArray.h"
+#include "String.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,7 @@ VPKEDIT_API VPKEdit_PackFileType_e vpkedit_get_type(VPKEdit_PackFileHandle_t han
 
 VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle);
 
+// REQUIRES MANUAL FREE: vpkedit_string_array_free
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_verify_entry_checksums(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API bool vpkedit_verify_file_checksum(VPKEdit_PackFileHandle_t handle);
@@ -33,9 +35,11 @@ VPKEDIT_API bool vpkedit_is_case_sensitive(VPKEdit_PackFileHandle_t handle);
 // REQUIRES MANUAL FREE: vpkedit_entry_free
 VPKEDIT_API VPKEdit_EntryHandle_t vpkedit_find_entry(VPKEdit_PackFileHandle_t handle, const char* filename, bool includeUnbaked);
 
-VPKEDIT_API size_t vpkedit_read_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, unsigned char* buffer, size_t bufferLen);
+// REQUIRES MANUAL FREE: vpkedit_buffer_free
+VPKEDIT_API VPKEdit_Buffer_t vpkedit_read_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry);
 
-VPKEDIT_API size_t vpkedit_read_entry_text(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, char* buffer, size_t bufferLen);
+// REQUIRES MANUAL FREE: vpkedit_string_free
+VPKEDIT_API VPKEdit_String_t vpkedit_read_entry_text(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry);
 
 VPKEDIT_API bool vpkedit_is_read_only(VPKEdit_PackFileHandle_t handle);
 
@@ -73,4 +77,5 @@ VPKEDIT_API size_t vpkedit_to_string(VPKEdit_PackFileHandle_t handle, char* buff
 
 VPKEDIT_API void vpkedit_close(VPKEdit_PackFileHandle_t* handle);
 
+// REQUIRES MANUAL FREE: vpkedit_string_array_free
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_get_supported_file_types();

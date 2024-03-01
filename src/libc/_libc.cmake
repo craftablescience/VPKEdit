@@ -18,11 +18,12 @@ add_library(
 
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/API.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Attribute.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Buffer.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Entry.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Options.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFile.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/PackFileType.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/StringArray.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/String.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/vpkeditc/Version.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
@@ -35,11 +36,12 @@ add_library(
         "${CMAKE_CURRENT_LIST_DIR}/format/VPK.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/format/ZIP.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/Buffer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Entry.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Helpers.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Helpers.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/StringArray.cpp")
+        "${CMAKE_CURRENT_LIST_DIR}/String.cpp")
 
 set_target_properties(lib${PROJECT_NAME}c PROPERTIES PREFIX "")
 
