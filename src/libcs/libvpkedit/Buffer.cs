@@ -5,10 +5,10 @@ namespace libvpkedit
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern Buffer vpkedit_buffer_new(ulong size);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_buffer_free(Buffer* str);
     }
 

@@ -5,28 +5,28 @@ namespace libvpkedit.Format
 {
     internal unsafe static partial class Extern
     {
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_create_empty([MarshalAs(UnmanagedType.LPStr)] string path);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_create_empty_with_options([MarshalAs(UnmanagedType.LPStr)] string path, PackFileOptions options);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_create_from_directory([MarshalAs(UnmanagedType.LPStr)] string vpkPath, [MarshalAs(UnmanagedType.LPStr)] string contentPath, byte saveToDir);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_create_from_directory_with_options([MarshalAs(UnmanagedType.LPStr)] string vpkPath, [MarshalAs(UnmanagedType.LPStr)] string contentPath, byte saveToDir, PackFileOptions options);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_open([MarshalAs(UnmanagedType.LPStr)] string path);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_open_with_options([MarshalAs(UnmanagedType.LPStr)] string path, PackFileOptions options);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern uint vpkedit_vpk_get_version(void* handle);
 
-        [DllImport("libvpkeditc.dll")]
+        [DllImport("libvpkeditc")]
         public static extern void vpkedit_vpk_set_version(void* handle, uint version);
     }
 
