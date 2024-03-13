@@ -59,12 +59,12 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/_lib.cmake")
 
 # libvpkeditc
 if(VPKEDIT_BUILD_LIBC)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/libc/_libc.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/c/_c.cmake")
 
     # libvpkeditcs
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/libcs/libvpkedit/libvpkedit.csproj.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/libcs/libvpkedit/libvpkedit.csproj")
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/cs/libvpkedit/libvpkedit.csproj.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/cs/libvpkedit/libvpkedit.csproj")
 endif()
 
 # vpkeditcli

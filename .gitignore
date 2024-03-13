@@ -10,12 +10,12 @@ cmake-build-*/
 out/
 
 # CSharp
-/src/libcs/**/bin
-/src/libcs/**/obj
-/src/libcs/**/TestResults
+/src/lib/lang/cs/**/bin
+/src/lib/lang/cs/**/obj
+/src/lib/lang/cs/**/TestResults
 
 # Generated
 generated/
 /include/vpkedit/Version.h
 /include/vpkeditc/Version.h
-/src/libcs/libvpkedit/libvpkedit.csproj
+/src/lib/lang/cs/libvpkedit/libvpkedit.csproj
