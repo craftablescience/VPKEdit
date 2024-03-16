@@ -463,7 +463,7 @@ void Window::openPackFile(const QString& startPath, const QString& filePath) {
 	this->loadPackFile(path);
 }
 
-void Window::savePackFile(bool saveAs) {
+void Window::savePackFile(bool saveAs, bool async) {
 	QString savePath = "";
 	if (saveAs) {
 		savePath = QFileDialog::getExistingDirectory(this, tr("Save to..."));
@@ -486,12 +486,14 @@ void Window::savePackFile(bool saveAs) {
 	this->freezeActions(true);
 
 	// Set up thread
-	this->savePackFileWorkerThread = new QThread(this);
 	auto* worker = new SavePackFileWorker();
-	worker->moveToThread(this->savePackFileWorkerThread);
-	QObject::connect(this->savePackFileWorkerThread, &QThread::started, worker, [this, worker, savePath] {
-		worker->run(this, savePath);
-	});
+	if (async) {
+		this->savePackFileWorkerThread = new QThread(this);
+		worker->moveToThread(this->savePackFileWorkerThread);
+		QObject::connect(this->savePackFileWorkerThread, &QThread::started, worker, [this, worker, savePath] {
+			worker->run(this, savePath);
+		});
+	}
 	QObject::connect(worker, &SavePackFileWorker::progressUpdated, this, [this, progressBarMax](int value) {
 		static bool alreadyShownBusy = false;
 		if (progressBarMax == value) {
@@ -508,12 +510,14 @@ void Window::savePackFile(bool saveAs) {
 			this->statusProgressBar->setValue(value);
 		}
 	});
-	QObject::connect(worker, &SavePackFileWorker::taskFinished, this, [this](bool success) {
+	QObject::connect(worker, &SavePackFileWorker::taskFinished, this, [this, async](bool success) {
 		// Kill thread
-		this->savePackFileWorkerThread->quit();
-		this->savePackFileWorkerThread->wait();
-		delete this->savePackFileWorkerThread;
-		this->savePackFileWorkerThread = nullptr;
+		if (async) {
+			this->savePackFileWorkerThread->quit();
+			this->savePackFileWorkerThread->wait();
+			delete this->savePackFileWorkerThread;
+			this->savePackFileWorkerThread = nullptr;
+		}
 
 		this->freezeActions(false);
 
@@ -526,11 +530,16 @@ void Window::savePackFile(bool saveAs) {
 			this->markModified(false);
 		}
 	});
-	this->savePackFileWorkerThread->start();
+
+	if (async) {
+		this->savePackFileWorkerThread->start();
+	} else {
+		worker->run(this, savePath, false);
+	}
 }
 
-void Window::saveAsPackFile() {
-	this->savePackFile(true);
+void Window::saveAsPackFile(bool async) {
+	this->savePackFile(true, async);
 }
 
 void Window::closePackFile() {
@@ -993,8 +1002,9 @@ bool Window::promptUserToKeepModifications() {
             return true;
         case QMessageBox::Discard:
             return false;
-        case QMessageBox::Ok:this->savePackFile();
-            return false;
+        case QMessageBox::Ok:
+			this->savePackFile(false, false);
+			return false;
         default:
             break;
     }
@@ -1207,10 +1217,17 @@ void CreateVPKFromDirWorker::run(const std::string& vpkPath, const std::string& 
 	emit taskFinished();
 }
 
-void SavePackFileWorker::run(Window* window, const QString& savePath) {
+void SavePackFileWorker::run(Window* window, const QString& savePath, bool async) {
+	std::unique_ptr<QEventLoop> loop;
+	if (!async) {
+		loop = std::make_unique<QEventLoop>();
+	}
 	int currentEntry = 0;
-	bool success = window->packFile->bake(savePath.toStdString(), [this, &currentEntry](const std::string&, const Entry&) {
+	bool success = window->packFile->bake(savePath.toStdString(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
 		emit progressUpdated(++currentEntry);
+		if (loop_) {
+			loop_->processEvents();
+		}
 	});
 	emit taskFinished(success);
 }

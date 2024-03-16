@@ -33,9 +33,9 @@ public:
 
     void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
 
-    void savePackFile(bool saveAs = false);
+    void savePackFile(bool saveAs = false, bool async = true);
 
-    void saveAsPackFile();
+    void saveAsPackFile(bool async = true);
 
     void closePackFile();
 
@@ -170,7 +170,7 @@ class SavePackFileWorker : public QObject {
 public:
 	SavePackFileWorker() = default;
 
-	void run(Window* window, const QString& savePath);
+	void run(Window* window, const QString& savePath, bool async = true);
 
 signals:
 	void progressUpdated(int value);
