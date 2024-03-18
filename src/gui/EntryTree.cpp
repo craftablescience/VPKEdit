@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QCollator>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
@@ -87,7 +88,9 @@ public:
 		if (this->childCount() && !other.childCount()) {
 			return true;
 		}
-		return QTreeWidgetItem::operator<(other);
+		static QCollator col;
+		col.setNumericMode(true);
+		return col.compare(this->text(0), other.text(0)) < 0;
 	}
 };
 
