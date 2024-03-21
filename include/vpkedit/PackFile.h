@@ -93,6 +93,15 @@ public:
 	/// Get the number of entries in the pack file
 	[[nodiscard]] std::size_t getEntryCount(bool includeUnbaked = true) const;
 
+	/// Get the data associated with a virtual entry
+	[[nodiscard]] virtual std::optional<std::vector<std::byte>> readVirtualEntry(const VirtualEntry& entry) const;
+
+	/// Write data to a virtual entry - will fail if the entry is not writable
+	virtual bool overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std::byte>& data);
+
+	/// Get virtual entries contained within the pack file (for example, lumps in a BSP)
+	[[nodiscard]] virtual std::vector<VirtualEntry> getVirtualEntries() const;
+
 	/// /home/user/pak01_dir.vpk
 	[[nodiscard]] std::string_view getFilepath() const;
 
