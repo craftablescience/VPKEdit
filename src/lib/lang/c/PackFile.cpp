@@ -42,7 +42,7 @@ VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle
 }
 
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_verify_entry_checksums(VPKEdit_PackFileHandle_t handle) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_StringArray_t{.size = 0, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_STRING_ARRAY_INVALID);
 
 	return ::convertStringVector(::getPackFile(handle)->verifyEntryChecksums());
 }
@@ -71,23 +71,23 @@ VPKEDIT_API VPKEdit_EntryHandle_t vpkedit_find_entry(VPKEdit_PackFileHandle_t ha
 }
 
 VPKEDIT_API VPKEdit_Buffer_t vpkedit_read_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_Buffer_t{.size = -1, .data = nullptr}));
-	VPKEDIT_EARLY_RETURN_VALUE(entry, (VPKEdit_Buffer_t{.size = -1, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_BUFFER_INVALID);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, VPKEDIT_BUFFER_INVALID);
 
 	if (auto binary = ::getPackFile(handle)->readEntry(*::getEntry(entry))) {
 		return ::createBuffer(*binary);
 	}
-	return {.size = -1, .data = nullptr};
+	return VPKEDIT_BUFFER_INVALID;
 }
 
 VPKEDIT_API VPKEdit_String_t vpkedit_read_entry_text(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_String_t{.size = -1, .data = nullptr}));
-	VPKEDIT_EARLY_RETURN_VALUE(entry, (VPKEdit_String_t{.size = -1, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_STRING_INVALID);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, VPKEDIT_STRING_INVALID);
 
 	if (auto text = ::getPackFile(handle)->readEntryText(*::getEntry(entry))) {
 		return ::createString(*text);
 	}
-	return {.size = -1, .data = nullptr};
+	return VPKEDIT_STRING_INVALID;
 }
 
 VPKEDIT_API bool vpkedit_is_read_only(VPKEdit_PackFileHandle_t handle) {
@@ -104,7 +104,7 @@ VPKEDIT_API void vpkedit_add_entry_from_file(VPKEdit_PackFileHandle_t handle, co
 	::getPackFile(handle)->addEntry(filename, pathToFile, {});
 }
 
-VPKEDIT_API void vpkedit_add_entry_from_mem(VPKEdit_PackFileHandle_t handle, const char* filename, const unsigned char* buffer, uint64_t bufferLen) {
+VPKEDIT_API void vpkedit_add_entry_from_mem(VPKEdit_PackFileHandle_t handle, const char* filename, const unsigned char* buffer, size_t bufferLen) {
 	VPKEDIT_EARLY_RETURN(handle);
 	VPKEDIT_EARLY_RETURN(filename);
 
@@ -126,7 +126,7 @@ VPKEDIT_API bool vpkedit_bake(VPKEdit_PackFileHandle_t handle, const char* outpu
 }
 
 VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFileHandle_t handle) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_EntryHandleArray_t{.size = 0, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_ENTRY_HANDLE_ARRAY_INVALID);
 
 	std::vector<Entry*> heapEntries;
 	for (const auto& [dir, entries] : ::getPackFile(handle)->getBakedEntries()) {
@@ -136,7 +136,7 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFil
 	}
 
 	VPKEdit_EntryHandleArray_t array;
-	array.size = heapEntries.size();
+	array.size = static_cast<int64_t>(heapEntries.size());
 	array.data = static_cast<VPKEdit_EntryHandle_t*>(std::malloc(sizeof(VPKEdit_EntryHandle_t) * array.size));
 
 	for (size_t i = 0; i < array.size; i++) {
@@ -146,7 +146,7 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFil
 }
 
 VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_unbaked_entries(VPKEdit_PackFileHandle_t handle) {
-	VPKEDIT_EARLY_RETURN_VALUE(handle, (VPKEdit_EntryHandleArray_t{.size = 0, .data = nullptr}));
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_ENTRY_HANDLE_ARRAY_INVALID);
 
 	std::vector<Entry*> heapEntries;
 	for (const auto& [dir, entries] : ::getPackFile(handle)->getUnbakedEntries()) {
@@ -156,7 +156,7 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_unbaked_entries(VPKEdit_PackF
 	}
 
 	VPKEdit_EntryHandleArray_t array;
-	array.size = heapEntries.size();
+	array.size = static_cast<int64_t>(heapEntries.size());
 	array.data = static_cast<VPKEdit_EntryHandle_t*>(std::malloc(sizeof(VPKEdit_EntryHandle_t) * array.size));
 
 	for (size_t i = 0; i < array.size; i++) {
@@ -167,6 +167,49 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_unbaked_entries(VPKEdit_PackF
 
 VPKEDIT_API size_t vpkedit_get_entry_count(VPKEdit_PackFileHandle_t handle, bool includeUnbaked) {
 	return ::getPackFile(handle)->getEntryCount(includeUnbaked);
+}
+
+VPKEDIT_API VPKEdit_Buffer_t vpkedit_read_virtual_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_BUFFER_INVALID);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, VPKEDIT_BUFFER_INVALID);
+
+	if (auto data = ::getPackFile(handle)->readVirtualEntry(*::getVirtualEntry(entry))) {
+		return ::createBuffer(*data);
+	}
+	return VPKEDIT_BUFFER_INVALID;
+}
+
+VPKEDIT_API bool vpkedit_overwrite_virtual_entry_from_file(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry, const char* pathToFile) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, false);
+	VPKEDIT_EARLY_RETURN_VALUE(pathToFile, false);
+
+	return ::getPackFile(handle)->overwriteVirtualEntry(*::getVirtualEntry(entry), pathToFile);
+}
+
+VPKEDIT_API bool vpkedit_overwrite_virtual_entry_from_mem(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry, const unsigned char* buffer, size_t bufferLen) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, false);
+
+	return ::getPackFile(handle)->overwriteVirtualEntry(*::getVirtualEntry(entry), buffer && bufferLen > 0 ? std::vector<std::byte>{reinterpret_cast<const std::byte*>(buffer), reinterpret_cast<const std::byte*>(buffer + bufferLen)} : std::vector<std::byte>{});
+}
+
+VPKEDIT_API VPKEdit_VirtualEntryHandleArray_t vpkedit_get_virtual_entries(VPKEdit_PackFileHandle_t handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_VIRTUAL_ENTRY_HANDLE_ARRAY_INVALID);
+
+	std::vector<VirtualEntry*> heapEntries;
+	for (const auto& entry : ::getPackFile(handle)->getVirtualEntries()) {
+		heapEntries.push_back(new VirtualEntry{entry});
+	}
+
+	VPKEdit_VirtualEntryHandleArray_t array;
+	array.size = static_cast<int64_t>(heapEntries.size());
+	array.data = static_cast<VPKEdit_VirtualEntryHandle_t*>(std::malloc(sizeof(VPKEdit_VirtualEntryHandle_t) * array.size));
+
+	for (size_t i = 0; i < array.size; i++) {
+		array.data[i] = heapEntries[i];
+	}
+	return array;
 }
 
 VPKEDIT_API size_t vpkedit_get_filepath(VPKEdit_PackFileHandle_t handle, char* buffer, size_t bufferLen) {

@@ -11,6 +11,8 @@ typedef struct {
 	uint8_t* data;
 } VPKEdit_Buffer_t;
 
+#define VPKEDIT_BUFFER_INVALID (VPKEdit_Buffer_t{.size = -1, .data = NULL})
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

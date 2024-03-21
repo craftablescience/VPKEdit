@@ -14,6 +14,10 @@ Entry* getEntry(VPKEdit_EntryHandle_t handle) {
 	return static_cast<Entry*>(handle);
 }
 
+VirtualEntry* getVirtualEntry(VPKEdit_VirtualEntryHandle_t handle) {
+	return static_cast<VirtualEntry*>(handle);
+}
+
 size_t writeStringToBuffer(std::string_view str, char* buffer, size_t bufferLen) {
 	if (str.length() >= bufferLen) {
 		std::memcpy(buffer, str.data(), bufferLen);

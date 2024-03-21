@@ -45,7 +45,7 @@ VPKEDIT_API bool vpkedit_is_read_only(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API void vpkedit_add_entry_from_file(VPKEdit_PackFileHandle_t handle, const char* filename, const char* pathToFile);
 
-VPKEDIT_API void vpkedit_add_entry_from_mem(VPKEdit_PackFileHandle_t handle, const char* filename, const unsigned char* buffer, uint64_t bufferLen);
+VPKEDIT_API void vpkedit_add_entry_from_mem(VPKEdit_PackFileHandle_t handle, const char* filename, const unsigned char* buffer, size_t bufferLen);
 
 VPKEDIT_API bool vpkedit_remove_entry(VPKEdit_PackFileHandle_t handle, const char* filename);
 
@@ -58,6 +58,15 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFil
 VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_unbaked_entries(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API size_t vpkedit_get_entry_count(VPKEdit_PackFileHandle_t handle, bool includeUnbaked);
+
+VPKEDIT_API VPKEdit_Buffer_t vpkedit_read_virtual_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry);
+
+VPKEDIT_API bool vpkedit_overwrite_virtual_entry_from_file(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry, const char* pathToFile);
+
+VPKEDIT_API bool vpkedit_overwrite_virtual_entry_from_mem(VPKEdit_PackFileHandle_t handle, VPKEdit_VirtualEntryHandle_t entry, const unsigned char* buffer, size_t bufferLen);
+
+// REQUIRES MANUAL FREE: vpkedit_virtual_entry_array_free
+VPKEDIT_API VPKEdit_VirtualEntryHandleArray_t vpkedit_get_virtual_entries(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API size_t vpkedit_get_filepath(VPKEdit_PackFileHandle_t handle, char* buffer, size_t bufferLen);
 

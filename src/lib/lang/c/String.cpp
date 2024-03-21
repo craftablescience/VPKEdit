@@ -26,7 +26,7 @@ VPKEDIT_API void vpkedit_string_free(VPKEdit_String_t* str) {
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_string_array_new(size_t size) {
 	VPKEdit_StringArray_t array;
 	if (size > 0) {
-		array.size = size;
+		array.size = static_cast<int64_t>(size);
 		array.data = static_cast<char**>(std::malloc(sizeof(char*) * size));
 	} else {
 		array.size = 0;
