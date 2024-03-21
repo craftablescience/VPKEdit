@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
-include(CheckIPOSupported)
-include(GNUInstallDirs)
 
 # Create project
 project(vpkedit
@@ -9,6 +7,10 @@ project(vpkedit
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Include CMake libraries
+include(CheckIPOSupported)
+include(GNUInstallDirs)
 
 # Set up variables
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
