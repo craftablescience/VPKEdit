@@ -61,12 +61,6 @@ public:
 
 	void about();
 
-	void aboutQt();
-
-	void controls();
-
-	void verifyChecksums();
-
 	void generateKeyPairFiles(const QString& name = QString());
 
 	void signPackFile(const QString& privateKeyLocation = QString());
@@ -84,6 +78,8 @@ public:
 	[[nodiscard]] bool hasEntry(const QString& path) const;
 
 	void selectSubItemInDir(const QString& path) const;
+
+	void extractVirtualFile(const QString& name, QString savePath = QString());
 
 	void extractFile(const QString& path, QString savePath = QString());
 
