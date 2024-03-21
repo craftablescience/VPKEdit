@@ -100,12 +100,15 @@ public:
 			: QTreeWidgetItem(parent) {}
 
 	bool operator<(const QTreeWidgetItem& other) const override {
+		// Directories should always go above files
 		if (!this->childCount() && other.childCount()) {
 			return false;
 		}
 		if (this->childCount() && !other.childCount()) {
 			return true;
 		}
+
+		// Use QCollator to sort strings with numbers properly
 		static QCollator col;
 		col.setNumericMode(true);
 		return col.compare(this->text(0), other.text(0)) < 0;
@@ -202,6 +205,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 }
 
 void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
+	// Create root item
 	this->root = new EntryItem(this);
 	this->root->setText(0, packFile.getTruncatedFilestem().c_str());
 	if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
