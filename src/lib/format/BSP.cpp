@@ -194,15 +194,11 @@ bool BSP::overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std
 
 std::vector<VirtualEntry> BSP::getVirtualEntries() const {
 	std::vector<VirtualEntry> out;
-	if (this->header.lumps[BSP_LUMP_ENTITY_INDEX].offset > 0 && this->header.lumps[BSP_LUMP_ENTITY_INDEX].length > 0) {
-		out.push_back({BSP_ENTITY_LUMP_NAME.data(), true});
-	}
+	out.push_back({BSP_ENTITY_LUMP_NAME.data(), true});
 	for (int i = 1; i < BSP_LUMP_COUNT; i++) {
-		if (this->header.lumps[i].offset > 0 && this->header.lumps[i].length > 0) {
-			char temp[BSP_LUMP_NAME_FORMAT.length() + 1] = {0};
-			snprintf(temp, sizeof(temp), BSP_LUMP_NAME_FORMAT.data(), i);
-			out.push_back({temp, true});
-		}
+		char temp[BSP_LUMP_NAME_FORMAT.length() + 1] = {0};
+		snprintf(temp, sizeof(temp), BSP_LUMP_NAME_FORMAT.data(), i);
+		out.push_back({temp, true});
 	}
 	return out;
 }
@@ -214,6 +210,9 @@ BSP::operator std::string() const {
 }
 
 std::vector<std::byte> BSP::readLump(int lumpToRead) const {
+	if (this->header.lumps[lumpToRead].length == 0 || this->header.lumps[lumpToRead].offset == 0) {
+		return {};
+	}
 	FileStream reader{this->fullFilePath};
 	reader.seekInput(this->header.lumps[lumpToRead].offset);
 	return reader.readBytes(this->header.lumps[lumpToRead].length);
