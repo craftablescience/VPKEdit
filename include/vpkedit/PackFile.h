@@ -97,6 +97,9 @@ public:
 	[[nodiscard]] virtual std::optional<std::vector<std::byte>> readVirtualEntry(const VirtualEntry& entry) const;
 
 	/// Write data to a virtual entry - will fail if the entry is not writable
+	bool overwriteVirtualEntry(const VirtualEntry& entry, const std::string& pathToFile);
+
+	/// Write data to a virtual entry - will fail if the entry is not writable
 	virtual bool overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std::byte>& data);
 
 	/// Get virtual entries contained within the pack file (for example, lumps in a BSP)
