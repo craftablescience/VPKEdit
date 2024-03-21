@@ -74,6 +74,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.h"
+        "${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/ImagePreview.h"
