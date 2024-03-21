@@ -11,10 +11,14 @@ typedef struct {
 	char* data;
 } VPKEdit_String_t;
 
+#define VPKEDIT_STRING_INVALID (VPKEdit_String_t{.size = -1, .data = NULL})
+
 typedef struct {
-	size_t size;
+	int64_t size;
 	char** data;
 } VPKEdit_StringArray_t;
+
+#define VPKEDIT_STRING_ARRAY_INVALID (VPKEdit_StringArray_t{.size = -1, .data = NULL})
 
 #ifdef __cplusplus
 } // extern "C"

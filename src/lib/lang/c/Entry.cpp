@@ -67,3 +67,39 @@ VPKEDIT_API void vpkedit_entry_array_free(VPKEdit_EntryHandleArray_t* array) {
 	}
 	array->size = 0;
 }
+
+VPKEDIT_API size_t vpkedit_virtual_entry_get_name(VPKEdit_VirtualEntryHandle_t* handle, char* buffer, size_t bufferLen) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, 0);
+	VPKEDIT_EARLY_RETURN_VALUE(buffer, 0);
+	VPKEDIT_EARLY_RETURN_VALUE(bufferLen, 0);
+
+	return ::writeStringToBuffer(::getVirtualEntry(handle)->name, buffer, bufferLen);
+}
+
+VPKEDIT_API bool vpkedit_virtual_entry_is_writable(VPKEdit_VirtualEntryHandle_t* handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+
+	return ::getVirtualEntry(handle)->writable;
+}
+
+VPKEDIT_API void vpkedit_virtual_entry_free(VPKEdit_VirtualEntryHandle_t* handle) {
+	VPKEDIT_EARLY_RETURN(handle);
+
+	delete ::getEntry(*handle);
+	*handle = nullptr;
+}
+
+VPKEDIT_API void vpkedit_virtual_entry_array_free(VPKEdit_VirtualEntryHandleArray_t* array) {
+	VPKEDIT_EARLY_RETURN(array);
+
+	if (array->data) {
+		for (size_t i = 0; i < array->size; i++) {
+			if (auto*& entry = array->data[i]) {
+				vpkedit_virtual_entry_free(&entry);
+			}
+		}
+		std::free(array->data);
+		array->data = nullptr;
+	}
+	array->size = 0;
+}

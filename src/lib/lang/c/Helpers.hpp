@@ -12,6 +12,7 @@ namespace vpkedit {
 
 class Entry;
 class PackFile;
+class VirtualEntry;
 
 } // namespace vpkedit
 
@@ -32,6 +33,8 @@ class PackFile;
 vpkedit::PackFile* getPackFile(VPKEdit_PackFileHandle_t handle);
 
 vpkedit::Entry* getEntry(VPKEdit_EntryHandle_t handle);
+
+vpkedit::VirtualEntry* getVirtualEntry(VPKEdit_VirtualEntryHandle_t handle);
 
 size_t writeStringToBuffer(std::string_view str, char* buffer, size_t bufferLen);
 
