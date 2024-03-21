@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace libvpkedit.test
 {
     [TestClass]
@@ -6,7 +8,7 @@ namespace libvpkedit.test
         [TestMethod]
         public void Open()
         {
-            var vpk = PackFile.Open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Portal\\portal\\portal_pak_dir.vpk");
+            var vpk = PackFile.Open(BasePortalPath + "portal_pak_dir.vpk");
             Assert.IsNotNull(vpk);
             Assert.AreEqual(vpk.Type, PackFileType.VPK);
 
@@ -25,8 +27,8 @@ namespace libvpkedit.test
 
             Assert.AreEqual(vpk.GetEntryCount(), 3509u);
 
-            Assert.AreEqual(vpk.FilePath, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Portal\\portal\\portal_pak_dir.vpk");
-            Assert.AreEqual(vpk.TruncatedFilePath, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Portal\\portal\\portal_pak");
+            Assert.AreEqual(vpk.FilePath, BasePortalPath + "portal_pak_dir.vpk");
+            Assert.AreEqual(vpk.TruncatedFilePath, BasePortalPath + "portal_pak");
             Assert.AreEqual(vpk.FileName, "portal_pak_dir.vpk");
             Assert.AreEqual(vpk.TruncatedFileName, "portal_pak.vpk");
             Assert.AreEqual(vpk.FileStem, "portal_pak_dir");
@@ -43,7 +45,7 @@ namespace libvpkedit.test
         [TestMethod]
         public void VerifyChecksums()
         {
-            var vpk = PackFile.Open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Portal\\portal\\portal_pak_dir.vpk");
+            var vpk = PackFile.Open(BasePortalPath + "portal_pak_dir.vpk");
             Assert.IsNotNull(vpk);
             Assert.AreEqual(vpk.VerifyEntryChecksums().Count(), 0);
             Assert.IsTrue(vpk.VerifyFileChecksum());
@@ -59,9 +61,25 @@ namespace libvpkedit.test
         [TestMethod]
         public void GetVPKVersion()
         {
-            var vpk = Format.VPK.Open("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Portal\\portal\\portal_pak_dir.vpk");
+            var vpk = Format.VPK.Open(BasePortalPath + "portal_pak_dir.vpk");
             Assert.IsNotNull(vpk);
             Assert.AreEqual(vpk.Version, 2u);
+        }
+
+        private static string BasePortalPath
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return @"C:\Program Files (x86)\Steam\steamapps\common\Portal\portal\";
+                }
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    return Environment.GetEnvironmentVariable("HOME") + "/.steam/steam/steamapps/common/Portal/portal/";
+                }
+                throw new FileLoadException("Unable to find Steam install directory!");
+            }
         }
     }
 }
