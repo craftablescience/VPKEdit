@@ -63,8 +63,8 @@ if(VPKEDIT_BUILD_LIBC)
 
     # libvpkeditcs
     configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/cs/libvpkedit/libvpkedit.csproj.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/cs/libvpkedit/libvpkedit.csproj")
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/csharp/libvpkedit/libvpkedit.csproj.in"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/csharp/libvpkedit/libvpkedit.csproj")
 endif()
 
 # vpkeditcli
