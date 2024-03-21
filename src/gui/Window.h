@@ -61,12 +61,6 @@ public:
 
     void about();
 
-    void aboutQt();
-
-    void controls();
-
-	void verifyChecksums();
-
     [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
     [[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
@@ -80,6 +74,8 @@ public:
 	[[nodiscard]] bool hasEntry(const QString& path) const;
 
     void selectSubItemInDir(const QString& path) const;
+
+    void extractVirtualFile(const QString& name, QString savePath = QString());
 
     void extractFile(const QString& path, QString savePath = QString());
 
@@ -127,6 +123,7 @@ private:
     QAction* addDirAction;
     QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
+	QMenu*   toolsBSPMenu;
 
     QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
@@ -150,6 +147,10 @@ private:
     void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
 
 	void resetStatusBar();
+
+	void toolBSPCreateLumpPatchFile() const;
+
+	void toolBSPApplyLumpPatchFile() const;
 };
 
 class CreateVPKFromDirWorker : public QObject {
