@@ -9,6 +9,7 @@ namespace vpkedit {
 
 constexpr std::int32_t BSP_SIGNATURE = 'V' + ('B' << 8) + ('S' << 16) + ('P' << 24);
 constexpr std::int32_t BSP_LUMP_COUNT = 64;
+constexpr std::int32_t BSP_LUMP_ENTITY_INDEX = 0;
 constexpr std::int32_t BSP_LUMP_PAKFILE_INDEX = 40;
 constexpr std::string_view BSP_EXTENSION = ".bsp";
 
@@ -47,10 +48,20 @@ public:
 
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) override;
 
+	[[nodiscard]] std::optional<std::vector<std::byte>> readVirtualEntry(const VirtualEntry& entry) const override;
+
+	bool overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std::byte>& data) override;
+
+	[[nodiscard]] std::vector<VirtualEntry> getVirtualEntries() const override;
+
 	[[nodiscard]] explicit operator std::string() const override;
 
 protected:
 	BSP(const std::string& fullFilePath_, PackFileOptions options_);
+
+	[[nodiscard]] std::vector<std::byte> readLump(int lumpToRead) const;
+
+	void writeLump(int lumpToMove, const std::vector<std::byte>& data);
 
 	/// If the lump is too big where it is, shift it to the end of the file, otherwise its fine
 	void moveLumpToWritableSpace(int lumpToMove, int newSize);
