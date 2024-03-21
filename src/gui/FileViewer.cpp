@@ -9,6 +9,7 @@
 
 #include "previews/AudioPreview.h"
 #include "previews/DirPreview.h"
+#include "previews/DMXPreview.h"
 #include "previews/EmptyPreview.h"
 #include "previews/ImagePreview.h"
 #include "previews/InfoPreview.h"
@@ -210,6 +211,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
     auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
     layout->addWidget(dirPreview);
 
+	auto* dmxPreview = newPreview<DMXPreview>(this);
+	layout->addWidget(dmxPreview);
+
     auto* emptyPreview = newPreview<EmptyPreview>(this);
     layout->addWidget(emptyPreview);
 
@@ -256,6 +260,15 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 		}
 		this->showPreview<AudioPreview>();
 		this->getPreview<AudioPreview>()->setData(*binary);
+	} else if (DMXPreview::EXTENSIONS.contains(extension)) {
+		// DMX
+		auto binary = this->window->readBinaryEntry(path);
+		if (!binary) {
+		    this->showFileLoadErrorPreview();
+		    return;
+	    }
+	    this->showPreview<DMXPreview>();
+	    this->getPreview<DMXPreview>()->setData(*binary);
 	} else if (ImagePreview::EXTENSIONS.contains(extension)) {
 	    // Image
 	    auto binary = this->window->readBinaryEntry(path);
