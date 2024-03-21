@@ -190,6 +190,18 @@ std::size_t PackFile::getEntryCount(bool includeUnbaked) const {
 	return count;
 }
 
+std::optional<std::vector<std::byte>> PackFile::readVirtualEntry(const VirtualEntry& entry) const {
+	return std::nullopt;
+}
+
+bool PackFile::overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std::byte>& data) {
+	return false;
+}
+
+std::vector<VirtualEntry> PackFile::getVirtualEntries() const {
+	return {};
+}
+
 std::string_view PackFile::getFilepath() const {
 	return this->fullFilePath;
 }
