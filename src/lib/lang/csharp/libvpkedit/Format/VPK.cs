@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit.Format
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_create_empty([MarshalAs(UnmanagedType.LPStr)] string path);
@@ -32,18 +32,14 @@ namespace libvpkedit.Format
 
     public class VPK : PackFile
     {
-        private protected unsafe VPK(void* handle) : base(handle) {}
+        private unsafe VPK(void* handle) : base(handle) {}
 
         public static VPK? CreateEmpty(string path)
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_create_empty(path);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_create_empty(path);
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -51,12 +47,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_create_empty_with_options(path, options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_create_empty_with_options(path, options);
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -64,12 +56,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_create_from_directory(vpkPath, contentPath, Convert.ToByte(saveToDir));
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_create_from_directory(vpkPath, contentPath, Convert.ToByte(saveToDir));
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -77,12 +65,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_create_from_directory_with_options(vpkPath, contentPath, Convert.ToByte(saveToDir), options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_create_from_directory_with_options(vpkPath, contentPath, Convert.ToByte(saveToDir), options);
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -90,12 +74,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_open(path);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_open(path);
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -103,12 +83,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_vpk_open_with_options(path, options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new VPK(handle);
+                var handle = Extern.vpkedit_vpk_open_with_options(path, options);
+                return handle == null ? null : new VPK(handle);
             }
         }
 
@@ -118,14 +94,14 @@ namespace libvpkedit.Format
             {
                 unsafe
                 {
-                    return Extern.vpkedit_vpk_get_version(handle);
+                    return Extern.vpkedit_vpk_get_version(Handle);
                 }
             }
             set
             {
                 unsafe
                 {
-                    Extern.vpkedit_vpk_set_version(handle, Math.Clamp(value, 1, 2));
+                    Extern.vpkedit_vpk_set_version(Handle, Math.Clamp(value, 1, 2));
                 }
             }
         }

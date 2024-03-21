@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_entry_get_path(void* handle, sbyte* buffer, ulong bufferLen);
@@ -27,26 +27,45 @@ namespace libvpkedit
 
         [DllImport("libvpkeditc")]
         public static extern void vpkedit_entry_array_free(EntryHandleArray* array);
+
+        [DllImport("libvpkeditc")]
+        public static extern ulong vpkedit_virtual_entry_get_name(void* handle, sbyte* buffer, ulong bufferLen);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_virtual_entry_is_writable(void* handle);
+
+        [DllImport("libvpkeditc")]
+        public static extern void vpkedit_virtual_entry_free(void** handle);
+
+        [DllImport("libvpkeditc")]
+        public static extern void vpkedit_virtual_entry_array_free(VirtualEntryHandleArray* array);
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct EntryHandleArray
     {
-        internal ulong size;
+        internal long size;
+        internal void** data;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct VirtualEntryHandleArray
+    {
+        internal long size;
         internal void** data;
     }
 
     public class Entry
     {
-        unsafe internal Entry(void* handle, bool inArray)
+        internal unsafe Entry(void* handle, bool inArray)
         {
             Handle = handle;
-            this.inArray = inArray;
+            _inArray = inArray;
         }
 
         ~Entry()
         {
-            if (!inArray)
+            if (!_inArray)
             {
                 unsafe
                 {
@@ -62,7 +81,7 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_PATH];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxPath];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
@@ -78,7 +97,7 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_PATH];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxPath];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
@@ -94,7 +113,7 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
@@ -110,7 +129,7 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
@@ -126,7 +145,7 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
@@ -140,21 +159,21 @@ namespace libvpkedit
 
         internal unsafe void* Handle;
 
-        private readonly bool inArray;
+        private readonly bool _inArray;
     }
 
     public class EntryEnumerable : IEnumerable<Entry>
     {
-        internal unsafe EntryEnumerable(EntryHandleArray array)
+        internal EntryEnumerable(EntryHandleArray array)
         {
-            this.array = array;
+            _array = array;
         }
 
         ~EntryEnumerable()
         {
             unsafe
             {
-                fixed (EntryHandleArray* arrayPtr = &array)
+                fixed (EntryHandleArray* arrayPtr = &_array)
                 {
                     Extern.vpkedit_entry_array_free(arrayPtr);
                 }
@@ -165,15 +184,15 @@ namespace libvpkedit
         {
             unsafe
             {
-                return new Entry(array.data[pos], true);
+                return new Entry(_array.data[pos], true);
             }
         }
 
-        IEnumerator<Entry> GetEnumerator()
+        private IEnumerator<Entry> GetEnumerator()
         {
-            for (ulong i = 0; i < array.size; i++)
+            for (long i = 0; i < _array.size; i++)
             {
-                yield return GetEntryAtPosition(i);
+                yield return GetEntryAtPosition((ulong) i);
             }
         }
 
@@ -187,6 +206,107 @@ namespace libvpkedit
             return GetEnumerator();
         }
 
-        internal EntryHandleArray array;
+        private EntryHandleArray _array;
+    }
+
+    public class VirtualEntry
+    {
+        internal unsafe VirtualEntry(void* handle, bool inArray)
+        {
+            Handle = handle;
+            _inArray = inArray;
+        }
+
+        ~VirtualEntry()
+        {
+            if (!_inArray)
+            {
+                unsafe
+                {
+                    fixed (void** handlePtr = &Handle)
+                    {
+                        Extern.vpkedit_virtual_entry_free(handlePtr);
+                    }
+                }
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
+                unsafe
+                {
+                    fixed (sbyte* stringPtr = stringArray)
+                    {
+                        Extern.vpkedit_virtual_entry_get_name(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        return new string(stringPtr);
+                    }
+                }
+            }
+        }
+        
+        public bool Writable
+        {
+            get
+            {
+                unsafe
+                {
+                    return Convert.ToBoolean(Extern.vpkedit_virtual_entry_is_writable(Handle));
+                }
+            }
+        }
+
+        internal unsafe void* Handle;
+
+        private readonly bool _inArray;
+    }
+
+    public class VirtualEntryEnumerable : IEnumerable<VirtualEntry>
+    {
+        internal VirtualEntryEnumerable(VirtualEntryHandleArray array)
+        {
+            _array = array;
+        }
+
+        ~VirtualEntryEnumerable()
+        {
+            unsafe
+            {
+                fixed (VirtualEntryHandleArray* arrayPtr = &_array)
+                {
+                    Extern.vpkedit_virtual_entry_array_free(arrayPtr);
+                }
+            }
+        }
+
+        private VirtualEntry GetVirtualEntryAtPosition(ulong pos)
+        {
+            unsafe
+            {
+                return new VirtualEntry(_array.data[pos], true);
+            }
+        }
+
+        private IEnumerator<VirtualEntry> GetEnumerator()
+        {
+            for (long i = 0; i < _array.size; i++)
+            {
+                yield return GetVirtualEntryAtPosition((ulong) i);
+            }
+        }
+
+        IEnumerator<VirtualEntry> IEnumerable<VirtualEntry>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        private VirtualEntryHandleArray _array;
     }
 }

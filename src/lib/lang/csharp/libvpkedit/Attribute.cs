@@ -1,6 +1,6 @@
 namespace libvpkedit
 {
-    public enum Attribute : int
+    public enum Attribute
     {
         NONE = -1,
         LENGTH = 0,

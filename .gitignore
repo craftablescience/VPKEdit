@@ -13,6 +13,7 @@ out/
 /src/lib/lang/csharp/**/bin
 /src/lib/lang/csharp/**/obj
 /src/lib/lang/csharp/**/TestResults
+/src/lib/lang/csharp/**/*.DotSettings.user
 
 # Generated
 generated/

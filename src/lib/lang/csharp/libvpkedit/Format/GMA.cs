@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit.Format
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern void* vpkedit_gma_open([MarshalAs(UnmanagedType.LPStr)] string path);
@@ -19,12 +19,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_gma_open(path);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new GMA(handle);
+                var handle = Extern.vpkedit_gma_open(path);
+                return handle == null ? null : new GMA(handle);
             }
         }
 
@@ -32,12 +28,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_gma_open_with_options(path, options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new GMA(handle);
+                var handle = Extern.vpkedit_gma_open_with_options(path, options);
+                return handle == null ? null : new GMA(handle);
             }
         }
     }

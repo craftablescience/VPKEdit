@@ -1,6 +1,6 @@
 namespace libvpkedit
 {
-    public enum PackFileType : int
+    public enum PackFileType
     {
         UNKNOWN,
         BSP,
