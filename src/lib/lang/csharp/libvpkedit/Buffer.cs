@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern Buffer vpkedit_buffer_new(ulong size);
@@ -15,11 +15,11 @@ namespace libvpkedit
     [StructLayout(LayoutKind.Sequential)]
     internal struct Buffer
     {
-        public ulong size;
+        public long size;
         public unsafe byte* data;
     }
 
-    internal unsafe static class BufferUtils
+    internal static unsafe class BufferUtils
     {
         public static byte[] ConvertToArrayAndDelete(ref Buffer buffer)
         {

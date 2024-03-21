@@ -2,7 +2,7 @@
 
 namespace libvpkedit.Format
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern void* vpkedit_fpx_open([MarshalAs(UnmanagedType.LPStr)] string path);
@@ -19,12 +19,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_fpx_open(path);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new FPX(handle);
+                var handle = Extern.vpkedit_fpx_open(path);
+                return handle == null ? null : new FPX(handle);
             }
         }
 
@@ -32,12 +28,8 @@ namespace libvpkedit.Format
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_fpx_open_with_options(path, options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new FPX(handle);
+                var handle = Extern.vpkedit_fpx_open_with_options(path, options);
+                return handle == null ? null : new FPX(handle);
             }
         }
     }

@@ -5,14 +5,14 @@ namespace libvpkedit
     [StructLayout(LayoutKind.Sequential)]
     public struct PackFileOptions
     {
-        byte gma_writeCRCs;
+        public byte gma_writeCRCs;
 
-        uint vpk_version;
+        public uint vpk_version;
 
-        uint vpk_preferredChunkSize;
+        public uint vpk_preferredChunkSize;
 
-        byte vpk_generateMD5Entries;
+        public byte vpk_generateMD5Entries;
 
-        ushort zip_compressionMethod;
+        public ushort zip_compressionMethod;
     }
 }

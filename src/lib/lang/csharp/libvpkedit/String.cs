@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern String vpkedit_string_new(ulong size);
@@ -21,18 +21,18 @@ namespace libvpkedit
     [StructLayout(LayoutKind.Sequential)]
     internal struct String
     {
-        public ulong size;
+        public long size;
         public unsafe sbyte* data;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct StringArray
     {
-        public ulong size;
+        public long size;
         public unsafe sbyte** data;
     }
 
-    internal unsafe static class StringUtils
+    internal static unsafe class StringUtils
     {
         public static string ConvertToStringAndDelete(ref String str)
         {
@@ -50,7 +50,7 @@ namespace libvpkedit
         {
             var strings = new List<string>();
 
-            for (ulong i = 0; i < array.size; i++)
+            for (long i = 0; i < array.size; i++)
             {
                 strings.Add(new string(array.data[i]));
             }

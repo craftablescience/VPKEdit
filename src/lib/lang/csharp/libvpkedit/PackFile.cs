@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace libvpkedit
 {
-    internal unsafe static partial class Extern
+    internal static unsafe partial class Extern
     {
         [DllImport("libvpkeditc")]
         public static extern void* vpkedit_open([MarshalAs(UnmanagedType.LPStr)] string path);
@@ -62,6 +62,18 @@ namespace libvpkedit
         public static extern ulong vpkedit_get_entry_count(void* handle, byte includeUnbaked);
 
         [DllImport("libvpkeditc")]
+        public static extern Buffer vpkedit_read_virtual_entry(void* handle, void* entry);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_overwrite_virtual_entry_from_file(void* handle, void* entry, [MarshalAs(UnmanagedType.LPStr)] string pathToFile);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_overwrite_virtual_entry_from_mem(void* handle, void* entry, byte* buffer, ulong bufferLen);
+
+        [DllImport("libvpkeditc")]
+        public static extern VirtualEntryHandleArray vpkedit_get_virtual_entries(void* handle);
+        
+        [DllImport("libvpkeditc")]
         public static extern ulong vpkedit_get_filepath(void* handle, sbyte* buffer, ulong bufferLen);
 
         [DllImport("libvpkeditc")]
@@ -96,14 +108,14 @@ namespace libvpkedit
     {
         private protected unsafe PackFile(void* handle)
         {
-            this.handle = handle;
+            Handle = handle;
         }
 
         ~PackFile()
         {
             unsafe
             {
-                fixed (void** handlePtr = &handle)
+                fixed (void** handlePtr = &Handle)
                 {
                     Extern.vpkedit_close(handlePtr);
                 }
@@ -114,12 +126,8 @@ namespace libvpkedit
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_open(path);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new PackFile(handle);
+                var handle = Extern.vpkedit_open(path);
+                return handle == null ? null : new PackFile(handle);
             }
         }
 
@@ -127,29 +135,22 @@ namespace libvpkedit
         {
             unsafe
             {
-                void* handle = Extern.vpkedit_open_with_options(path, options);
-                if (handle == null)
-                {
-                    return null;
-                }
-                return new PackFile(handle);
+                var handle = Extern.vpkedit_open_with_options(path, options);
+                return handle == null ? null : new PackFile(handle);
             }
         }
 
         public static List<string> GetSupportedFileTypes()
         {
-            unsafe
-            {
-                var stringArray = Extern.vpkedit_get_supported_file_types();
-                return StringUtils.ConvertToListAndDelete(ref stringArray);
-            }
+            var stringArray = Extern.vpkedit_get_supported_file_types();
+            return StringUtils.ConvertToListAndDelete(ref stringArray);
         }
 
-        public List<string> VerifyEntryChecksums()
+        public IEnumerable<string> VerifyEntryChecksums()
         {
             unsafe
             {
-                var stringArray = Extern.vpkedit_verify_entry_checksums(handle);
+                var stringArray = Extern.vpkedit_verify_entry_checksums(Handle);
                 return StringUtils.ConvertToListAndDelete(ref stringArray);
             }
         }
@@ -158,7 +159,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                return Convert.ToBoolean(Extern.vpkedit_verify_file_checksum(handle));
+                return Convert.ToBoolean(Extern.vpkedit_verify_file_checksum(Handle));
             }
         }
 
@@ -166,12 +167,8 @@ namespace libvpkedit
         {
             unsafe
             {
-                void* entry = Extern.vpkedit_find_entry(handle, filename, Convert.ToByte(includeUnbaked));
-                if (entry == null)
-                {
-                    return null;
-                }
-                return new Entry(entry, false);
+                var entry = Extern.vpkedit_find_entry(Handle, filename, Convert.ToByte(includeUnbaked));
+                return entry == null ? null : new Entry(entry, false);
             }
         }
 
@@ -179,12 +176,8 @@ namespace libvpkedit
         {
             unsafe
             {
-                var buffer = Extern.vpkedit_read_entry(handle, entry.Handle);
-                if (buffer.size < 0)
-                {
-                    return null;
-                }
-                return BufferUtils.ConvertToArrayAndDelete(ref buffer);
+                var buffer = Extern.vpkedit_read_entry(Handle, entry.Handle);
+                return buffer.size < 0 ? null : BufferUtils.ConvertToArrayAndDelete(ref buffer);
             }
         }
 
@@ -192,12 +185,8 @@ namespace libvpkedit
         {
             unsafe
             {
-                var str = Extern.vpkedit_read_entry_text(handle, entry.Handle);
-                if (str.size < 0)
-                {
-                    return null;
-                }
-                return StringUtils.ConvertToStringAndDelete(ref str);
+                var str = Extern.vpkedit_read_entry_text(Handle, entry.Handle);
+                return str.size < 0 ? null : StringUtils.ConvertToStringAndDelete(ref str);
             }
         }
 
@@ -205,7 +194,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                Extern.vpkedit_add_entry_from_file(handle, filename, pathToFile);
+                Extern.vpkedit_add_entry_from_file(Handle, filename, pathToFile);
             }
         }
 
@@ -215,7 +204,7 @@ namespace libvpkedit
             {
                 fixed (byte* bufferPtr = buffer)
                 {
-                    Extern.vpkedit_add_entry_from_mem(handle, filename, bufferPtr, (ulong) buffer.LongLength);
+                    Extern.vpkedit_add_entry_from_mem(Handle, filename, bufferPtr, (ulong) buffer.LongLength);
                 }
             }
         }
@@ -227,7 +216,7 @@ namespace libvpkedit
                 var data = buffer.ToArray();
                 fixed (byte* bufferPtr = data)
                 {
-                    Extern.vpkedit_add_entry_from_mem(handle, filename, bufferPtr, (ulong) data.LongLength);
+                    Extern.vpkedit_add_entry_from_mem(Handle, filename, bufferPtr, (ulong) data.LongLength);
                 }
             }
         }
@@ -236,7 +225,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                return Convert.ToBoolean(Extern.vpkedit_remove_entry(handle, filename));
+                return Convert.ToBoolean(Extern.vpkedit_remove_entry(Handle, filename));
             }
         }
 
@@ -244,7 +233,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                return Convert.ToBoolean(Extern.vpkedit_bake(handle, outputDir));
+                return Convert.ToBoolean(Extern.vpkedit_bake(Handle, outputDir));
             }
         }
 
@@ -252,7 +241,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                return new EntryEnumerable(Extern.vpkedit_get_baked_entries(handle));
+                return new EntryEnumerable(Extern.vpkedit_get_baked_entries(Handle));
             }
         }
 
@@ -260,7 +249,7 @@ namespace libvpkedit
         {
             unsafe
             {
-                return new EntryEnumerable(Extern.vpkedit_get_unbaked_entries(handle));
+                return new EntryEnumerable(Extern.vpkedit_get_unbaked_entries(Handle));
             }
         }
 
@@ -268,7 +257,55 @@ namespace libvpkedit
         {
             unsafe
             {
-                return Extern.vpkedit_get_entry_count(handle, Convert.ToByte(includeUnbaked));
+                return Extern.vpkedit_get_entry_count(Handle, Convert.ToByte(includeUnbaked));
+            }
+        }
+
+        public byte[]? ReadVirtualEntry(VirtualEntry entry)
+        {
+            unsafe
+            {
+                var buffer = Extern.vpkedit_read_virtual_entry(Handle, entry.Handle);
+                return buffer.size < 0 ? null : BufferUtils.ConvertToArrayAndDelete(ref buffer);
+            }
+        }
+
+        public void OverwriteVirtualEntry(VirtualEntry entry, string pathToFile)
+        {
+            unsafe
+            {
+                Extern.vpkedit_overwrite_virtual_entry_from_file(Handle, entry.Handle, pathToFile);
+            }
+        }
+
+        public bool OverwriteVirtualEntry(VirtualEntry entry, byte[] buffer)
+        {
+            unsafe
+            {
+                fixed (byte* bufferPtr = buffer)
+                {
+                    return Convert.ToBoolean(Extern.vpkedit_overwrite_virtual_entry_from_mem(Handle, entry.Handle, bufferPtr, (ulong) buffer.LongLength));
+                }
+            }
+        }
+
+        public bool OverwriteVirtualEntry(VirtualEntry entry, IEnumerable<byte> buffer)
+        {
+            unsafe
+            {
+                var data = buffer.ToArray();
+                fixed (byte* dataPtr = data)
+                {
+                    return Convert.ToBoolean(Extern.vpkedit_overwrite_virtual_entry_from_mem(Handle, entry.Handle, dataPtr, (ulong) data.LongLength));
+                }
+            }
+        }
+
+        public VirtualEntryEnumerable GetVirtualEntries()
+        {
+            unsafe
+            {
+                return new VirtualEntryEnumerable(Extern.vpkedit_get_virtual_entries(Handle));
             }
         }
 
@@ -276,8 +313,8 @@ namespace libvpkedit
         {
             unsafe
             {
-                sbyte* stringPtr = stackalloc sbyte[Constants.MAX_PACK_FILE_STRING];
-                Extern.vpkedit_to_string(handle, stringPtr, Convert.ToUInt64(Constants.MAX_PACK_FILE_STRING));
+                var stringPtr = stackalloc sbyte[Constants.MaxPackFileString];
+                Extern.vpkedit_to_string(Handle, stringPtr, Convert.ToUInt64(Constants.MaxPackFileString));
                 return new string(stringPtr);
             }
         }
@@ -288,7 +325,7 @@ namespace libvpkedit
             {
                 unsafe
                 {
-                    return Extern.vpkedit_get_type(handle);
+                    return Extern.vpkedit_get_type(Handle);
                 }
             }
         }
@@ -299,7 +336,7 @@ namespace libvpkedit
             {
                 unsafe
                 {
-                    return Extern.vpkedit_get_options(handle);
+                    return Extern.vpkedit_get_options(Handle);
                 }
             }
         }
@@ -310,7 +347,7 @@ namespace libvpkedit
             {
                 unsafe
                 {
-                    return Convert.ToBoolean(Extern.vpkedit_is_case_sensitive(handle));
+                    return Convert.ToBoolean(Extern.vpkedit_is_case_sensitive(Handle));
                 }
             }
         }
@@ -321,7 +358,7 @@ namespace libvpkedit
             {
                 unsafe
                 {
-                    return Convert.ToBoolean(Extern.vpkedit_is_read_only(handle));
+                    return Convert.ToBoolean(Extern.vpkedit_is_read_only(Handle));
                 }
             }
         }
@@ -330,12 +367,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_PATH];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxPath];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_filepath(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_filepath(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -346,12 +383,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_PATH];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxPath];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_truncated_filepath(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_truncated_filepath(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -362,12 +399,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_filename(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_filename(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -378,12 +415,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_truncated_filename(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_truncated_filename(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -394,12 +431,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_filestem(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_filestem(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -410,12 +447,12 @@ namespace libvpkedit
         {
             get
             {
-                Span<sbyte> stringArray = new sbyte[Constants.MAX_FILENAME];
+                Span<sbyte> stringArray = new sbyte[Constants.MaxFilename];
                 unsafe
                 {
                     fixed (sbyte* stringPtr = stringArray)
                     {
-                        Extern.vpkedit_get_truncated_filestem(handle, stringPtr, Convert.ToUInt64(stringArray.Length));
+                        Extern.vpkedit_get_truncated_filestem(Handle, stringPtr, Convert.ToUInt64(stringArray.Length));
                         return new string(stringPtr);
                     }
                 }
@@ -428,8 +465,8 @@ namespace libvpkedit
             {
                 unsafe
                 {
-                    Attribute* attrArray = stackalloc Attribute[(int) Attribute.COUNT];
-                    var numAttributes = Extern.vpkedit_get_supported_entry_attributes(handle, attrArray, (ulong) Attribute.COUNT);
+                    var attrArray = stackalloc Attribute[(int) Attribute.COUNT];
+                    var numAttributes = Extern.vpkedit_get_supported_entry_attributes(Handle, attrArray, (ulong) Attribute.COUNT);
 
                     var result = new List<Attribute>();
                     for (ulong i = 0; i < numAttributes; i++)
@@ -441,6 +478,6 @@ namespace libvpkedit
             }
         }
 
-        private protected unsafe readonly void* handle;
+        private protected readonly unsafe void* Handle;
     }
 }
