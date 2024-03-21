@@ -194,6 +194,10 @@ std::optional<std::vector<std::byte>> PackFile::readVirtualEntry(const VirtualEn
 	return std::nullopt;
 }
 
+bool PackFile::overwriteVirtualEntry(const VirtualEntry& entry, const std::string& pathToFile) {
+	return this->overwriteVirtualEntry(entry, ::readFileData(pathToFile));
+}
+
 bool PackFile::overwriteVirtualEntry(const VirtualEntry& entry, const std::vector<std::byte>& data) {
 	return false;
 }
