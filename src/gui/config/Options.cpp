@@ -51,6 +51,10 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(OPT_LANGUAGE_OVERRIDE, QString());
 	}
 
+	if (!options.contains(OPT_DISABLE_STARTUP_UPDATE_CHECK)) {
+		options.setValue(OPT_DISABLE_STARTUP_UPDATE_CHECK, false);
+	}
+
 	if (!options.contains(STR_OPEN_RECENT)) {
 		options.setValue(STR_OPEN_RECENT, QStringList{});
 	}
