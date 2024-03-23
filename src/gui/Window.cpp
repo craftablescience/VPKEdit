@@ -254,6 +254,12 @@ Window::Window(QWidget* parent)
     optionStartMaximized->setCheckable(true);
     optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
+	auto* optionDisableStartupCheck = optionsMenu->addAction(tr("Disable Startup Update Check"), [=] {
+        Options::invert(OPT_DISABLE_STARTUP_UPDATE_CHECK);
+    });
+    optionDisableStartupCheck->setCheckable(true);
+    optionDisableStartupCheck->setChecked(Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK));
+
 	// Tools menu
 	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
 
@@ -384,7 +390,9 @@ Window::Window(QWidget* parent)
         exit(1);
     }
 
-	this->checkForNewUpdate(true);
+	if (!Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK)) {
+		this->checkForNewUpdate(true);
+	}
 }
 
 void Window::newVPK(bool fromDirectory, const QString& startPath) {
