@@ -39,7 +39,7 @@ public:
 
     void closePackFile();
 
-	void checkForNewUpdate() const;
+	void checkForNewUpdate(bool hidden = false) const;
 
 	[[nodiscard]] bool isReadOnly() const;
 
@@ -145,7 +145,7 @@ private:
 
 	void rebuildOpenRecentMenu(const QStringList& paths);
 
-    void checkForUpdatesReply(QNetworkReply* reply);
+	void checkForUpdatesReply(QNetworkReply* reply);
 
     void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
 

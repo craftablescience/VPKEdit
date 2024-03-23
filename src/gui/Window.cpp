@@ -133,7 +133,8 @@ Window::Window(QWidget* parent)
 
 	this->checkForNewUpdateNetworkManager = new QNetworkAccessManager(this);
 	QObject::connect(this->checkForNewUpdateNetworkManager, &QNetworkAccessManager::finished, this, &Window::checkForUpdatesReply);
-	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For Updates..."), Qt::CTRL | Qt::Key_U, [this] {
+
+    fileMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("Check For Updates..."), Qt::CTRL | Qt::Key_U, [this] {
 		this->checkForNewUpdate();
 	});
 
@@ -382,6 +383,8 @@ Window::Window(QWidget* parent)
     if ((args.length() > 1 && QFile::exists(args[1])) && !this->loadPackFile(args[1])) {
         exit(1);
     }
+
+	this->checkForNewUpdate(true);
 }
 
 void Window::newVPK(bool fromDirectory, const QString& startPath) {
@@ -548,43 +551,25 @@ void Window::closePackFile() {
     }
 }
 
-void Window::checkForNewUpdate() const {
-	this->checkForNewUpdateNetworkManager->get(QNetworkRequest(QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases/latest")));
-}
-
-bool Window::isReadOnly() const {
-	return !this->packFile || this->packFile->isReadOnly();
-}
-
-void Window::setProperties() {
-    auto options = PackFileOptionsDialog::getPackFileOptions(this->packFile->getType(), this->packFile->getOptions(), this);
-    if (!options) {
-        return;
-    }
-
-	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
-		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
-		vpk.setVersion(options->vpk_version);
-	}
-#ifdef VPKEDIT_ZIP_COMPRESSION
-	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
-		auto& zip = dynamic_cast<ZIP&>(*this->packFile);
-		zip.setCompressionMethod(options->zip_compressionMethod);
-	}
-#endif
-
-	this->resetStatusBar();
-
-    this->markModified(true);
+void Window::checkForNewUpdate(bool hidden) const {
+	QNetworkRequest request{QUrl(QString(PROJECT_HOMEPAGE_API.data()) + "/releases/latest")};
+	request.setAttribute(QNetworkRequest::Attribute::User, QVariant::fromValue(hidden));
+	this->checkForNewUpdateNetworkManager->get(request);
 }
 
 void Window::checkForUpdatesReply(QNetworkReply* reply) {
+	const auto hidden = reply->request().attribute(QNetworkRequest::Attribute::User).toBool();
+
     if (reply->error() != QNetworkReply::NoError) {
-        QMessageBox::critical(this, tr("Error"), tr("Error occurred checking for updates!"));
+		if (!hidden) {
+			QMessageBox::critical(this, tr("Error"), tr("Error occurred checking for updates!"));
+		}
         return;
     }
-    const auto parseFailure = [this] {
-        QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
+    const auto parseFailure = [this, hidden] {
+		if (!hidden) {
+			QMessageBox::critical(this, tr("Error"), tr("Invalid JSON response was retrieved checking for updates!"));
+		}
     };
     QJsonDocument response = QJsonDocument::fromJson(QString(reply->readAll()).toUtf8());
 
@@ -614,10 +599,38 @@ void Window::checkForUpdatesReply(QNetworkReply* reply) {
 	auto details = release["body"].toString();
 
 	if (versionTag == QString("v") + PROJECT_VERSION.data()) {
-		QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
+        if (!hidden) {
+			QMessageBox::information(this, tr("No New Updates"), tr("You are using the latest version of the software."));
+		}
 		return;
 	}
 	NewUpdateDialog::getNewUpdatePrompt(url, versionName, details, this);
+}
+
+bool Window::isReadOnly() const {
+	return !this->packFile || this->packFile->isReadOnly();
+}
+
+void Window::setProperties() {
+    auto options = PackFileOptionsDialog::getPackFileOptions(this->packFile->getType(), this->packFile->getOptions(), this);
+    if (!options) {
+        return;
+    }
+
+	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
+		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
+		vpk.setVersion(options->vpk_version);
+	}
+#ifdef VPKEDIT_ZIP_COMPRESSION
+	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+		auto& zip = dynamic_cast<ZIP&>(*this->packFile);
+		zip.setCompressionMethod(options->zip_compressionMethod);
+	}
+#endif
+
+	this->resetStatusBar();
+
+    this->markModified(true);
 }
 
 void Window::addFile(bool showOptions, const QString& startDir, const QString& filePath) {
