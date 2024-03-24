@@ -20,6 +20,7 @@
   Most of the very early code in the libvpkedit library was indirectly
   based off ValvePak and the Valve Developer Wiki, and the VPK entry CRC
   calculation code was copied directly from ValvePak.
+- Adler32 implementation - Jean-loup Gailly, Mark Adler
 - RSA Data Security, Inc. MD5 Message-Digest Algorithm implementation - Frank Thilo
 - [minizip-ng](https://github.com/zlib-ng/minizip-ng) - Gilles Vollant, Nathan Moinvaziri
 - [Qt](https://www.qt.io) - The Qt Company
@@ -27,4 +28,4 @@
 - [SAPP](https://github.com/Trico-Everfire/SteamAppPathProvider) - Trico Everfire
 - [SpeedyKeyV](https://github.com/ozxybox/SpeedyKeyV) - OzxyBox
 - [argparse](https://github.com/p-ranav/argparse) - P-ranav and contributors
-- Default MatCap texture is from [https://github.com/nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
+- Default MatCap texture is from [nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
