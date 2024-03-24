@@ -109,6 +109,8 @@ public:
 
 	void showInfoPreview(const QPixmap& icon, const QString& text);
 
+	void showGenericErrorPreview(const QString& text);
+
 	void showFileLoadErrorPreview();
 
 	template<typename T>

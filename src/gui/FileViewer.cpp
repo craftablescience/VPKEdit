@@ -351,6 +351,10 @@ void FileViewer::showInfoPreview(const QPixmap& icon, const QString& text) {
 	infoPreview->setData(icon, text);
 }
 
+void FileViewer::showGenericErrorPreview(const QString& text) {
+	this->showInfoPreview({":/icons/error.png"}, text);
+}
+
 void FileViewer::showFileLoadErrorPreview() {
 	this->showInfoPreview({":/icons/warning.png"}, tr("Failed to read file contents!\nPlease ensure that a game or another application is not using the file."));
 }

@@ -494,7 +494,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 					 "\n  - " + basePath + ".sw.vtx";
 		}
 
-		this->fileViewer->showInfoPreview({":/icons/error.png"}, error);
+		this->fileViewer->showGenericErrorPreview(error);
 		return;
 	}
 	auto mdlData = packFile.readEntry(*mdlEntry);
@@ -510,7 +510,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
 								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
     if (!opened) {
-	    this->fileViewer->showInfoPreview({":/icons/error.png"}, tr("This model is invalid, it cannot be previewed!"));
+	    this->fileViewer->showGenericErrorPreview(tr("This model is invalid, it cannot be previewed!"));
         return;
     }
 
