@@ -379,11 +379,16 @@ std::string md5(const std::string &str)
 
 std::array<std::byte, 16> md5(const std::vector<std::byte> &buf)
 {
-    std::array<std::byte, 16> out{};
+    return md5(buf.data(), buf.size());
+}
 
-    MD5 md5;
-    md5.update(reinterpret_cast<const unsigned char*>(buf.data()), buf.size());
-    md5.finalize(reinterpret_cast<unsigned char*>(out.data()));
+std::array<std::byte, 16> md5(const std::byte *buf, size_t len)
+{
+	std::array<std::byte, 16> out{};
 
-    return out;
+	MD5 md5;
+	md5.update(reinterpret_cast<const unsigned char*>(buf), len);
+	md5.finalize(reinterpret_cast<unsigned char*>(out.data()));
+
+	return out;
 }

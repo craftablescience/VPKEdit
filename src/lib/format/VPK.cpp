@@ -6,6 +6,7 @@
 
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
+#include <vpkedit/detail/MD5.h>
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/format/FPX.h>
 
@@ -566,7 +567,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 					md5Entry.archiveIndex = tEntry.vpk_archiveIndex;
 					md5Entry.length = tEntry.length - tEntry.vpk_preloadedData.size();
 					md5Entry.offset = tEntry.offset;
-					md5Entry.checksum = md5(*binData);
+					md5Entry.checksum = ::computeMD5(*binData);
 					this->md5Entries.push_back(md5Entry);
 				}
 			}
@@ -589,7 +590,7 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
             outDir.seekInput(sizeof(Header1) + sizeof(Header2));
             std::vector<std::byte> treeData = outDir.readBytes(this->header1.treeSize);
             wholeFileChecksumMD5.update(treeData.data(), treeData.size());
-            this->footer2.treeChecksum = md5(treeData);
+            this->footer2.treeChecksum = ::computeMD5(treeData);
         }
         if (!dirVPKEntryData.empty()) {
             wholeFileChecksumMD5.update(dirVPKEntryData.data(), dirVPKEntryData.size());

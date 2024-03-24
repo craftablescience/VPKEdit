@@ -29,6 +29,7 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Adler32.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/CRC32.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/MD5.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
 
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/BSP.h"
@@ -51,6 +52,7 @@ add_library(
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Adler32.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/CRC32.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/FileStream.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/detail/MD5.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
 
 		"${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"

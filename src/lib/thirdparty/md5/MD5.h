@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <string>
 #include <sstream>
@@ -63,3 +64,5 @@ private:
 std::string md5(const std::string &str);
 
 std::array<std::byte, 16> md5(const std::vector<std::byte> &buf);
+
+std::array<std::byte, 16> md5(const std::byte *buf, size_t len);
