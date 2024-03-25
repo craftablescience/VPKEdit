@@ -23,8 +23,8 @@ NewVPKOptionsDialog::NewVPKOptionsDialog(bool fromDirectory, PackFileOptions opt
 
     auto* versionLabel = new QLabel(tr("Version:"), this);
     this->version = new QComboBox(this);
-    this->version->addItem(tr("v1"));
-    this->version->addItem(tr("v2"));
+    this->version->addItem("v1");
+    this->version->addItem("v2");
     this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
     layout->addRow(versionLabel, this->version);
 

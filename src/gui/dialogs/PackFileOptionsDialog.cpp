@@ -24,8 +24,8 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
 	if (type == PackFileType::VPK) {
 		auto* versionLabel = new QLabel(tr("Version:"), this);
 		this->vpk_version = new QComboBox(this);
-		this->vpk_version->addItem(tr("v1"));
-		this->vpk_version->addItem(tr("v2"));
+		this->vpk_version->addItem("v1");
+		this->vpk_version->addItem("v2");
 		this->vpk_version->setCurrentIndex(static_cast<int>(this->options.vpk_version) - 1);
 		layout->addRow(versionLabel, this->vpk_version);
 	}
