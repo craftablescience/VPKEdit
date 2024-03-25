@@ -1227,7 +1227,8 @@ void Window::resetStatusBar() {
 		.replace("Godot Version", tr("Godot Version"))
 		.replace("Version", tr("Version"))
 		.replace("Map Revision", tr("Map Revision"))
-		.replace("Addon Name:", tr("Addon Name:"));
+		.replace("Addon Name:", tr("Addon Name:"))
+		.replace("Embedded", tr("Embedded"));
 	this->statusText->setText(' ' + tr("Loaded") + ' ' + packFileStatus);
 	this->statusText->show();
 	this->statusProgressBar->hide();
