@@ -39,7 +39,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
   | GRP    | Game Resource Package (Build Engine)        |   ❌    |  ✅   |   ✅   |
   | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ❌    |  ✅   |   ❌   |
-  | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ❌   |
+  | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ✅   |
   | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
   | ZIP    | ZIP file (Uncompressed)                     |   ❌    |  ✅   |   ✅   |
 
