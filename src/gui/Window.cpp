@@ -1228,7 +1228,8 @@ void Window::resetStatusBar() {
 		.replace("Version", tr("Version"))
 		.replace("Map Revision", tr("Map Revision"))
 		.replace("Addon Name:", tr("Addon Name:"))
-		.replace("Embedded", tr("Embedded"));
+		.replace("Embedded", tr("Embedded"))
+		.replace("Encrypted", tr("Encrypted"));
 	this->statusText->setText(' ' + tr("Loaded") + ' ' + packFileStatus);
 	this->statusText->show();
 	this->statusProgressBar->hide();

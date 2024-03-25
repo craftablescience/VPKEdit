@@ -323,5 +323,8 @@ PCK::operator std::string() const {
 	if (this->startOffset > 0) {
 		out += " | Embedded";
 	}
+	if (this->header.flags & FLAG_ENCRYPTED) {
+		out += " | Encrypted";
+	}
 	return out;
 }
