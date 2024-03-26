@@ -3,7 +3,8 @@
         <file alias="CONTROLS.md">../../../CONTROLS.md</file>
         <file alias="CREDITS.md">../../../CREDITS.md</file>
 
-        <file>icons/down.png</file>
+        <file>icons/discord.png</file>
+		<file>icons/down.png</file>
         <file>icons/error.png</file>
         <file>icons/home.png</file>
         <file>icons/left.png</file>

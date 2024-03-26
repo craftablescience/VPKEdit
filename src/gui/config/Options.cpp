@@ -55,6 +55,10 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(OPT_DISABLE_STARTUP_UPDATE_CHECK, false);
 	}
 
+	if (!options.contains(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
+		options.setValue(OPT_DISCORD_ENABLE_RICH_PRESENCE, true);
+	}
+
 	if (!options.contains(STR_OPEN_RECENT)) {
 		options.setValue(STR_OPEN_RECENT, QStringList{});
 	}
