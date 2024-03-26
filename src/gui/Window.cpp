@@ -38,6 +38,7 @@
 #include "dialogs/NewVPKOptionsDialog.h"
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
+#include "utility/DiscordPresence.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -217,6 +218,28 @@ Window::Window(QWidget* parent)
         }
         themeMenuGroup->addAction(action);
     }
+
+	auto* discordMenu = optionsMenu->addMenu(QIcon{":/icons/discord.png"}, tr("Discord..."));
+	const auto setupDiscordRichPresence = [] {
+		DiscordPresence::init("1222285763459158056");
+		DiscordPresence::setLargeImage("icon");
+		DiscordPresence::setState("Editing an archive file");
+		DiscordPresence::setTopButton({"View on GitHub", std::string{PROJECT_HOMEPAGE}});
+	};
+	auto* discordEnableAction = discordMenu->addAction(tr("Enable Rich Presence"), [setupDiscordRichPresence] {
+		Options::invert(OPT_DISCORD_ENABLE_RICH_PRESENCE);
+		if (Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
+			setupDiscordRichPresence();
+		} else {
+			DiscordPresence::shutdown();
+		}
+	});
+	discordEnableAction->setCheckable(true);
+	discordEnableAction->setChecked(Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE));
+
+	if (Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
+		setupDiscordRichPresence();
+	}
 
 	auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry Tree..."));
 	auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Expand Folder When Selected"), [this] {

@@ -13,6 +13,7 @@ constexpr std::string_view OPT_ADVANCED_FILE_PROPS = "adv_mode";
 constexpr std::string_view OPT_START_MAXIMIZED = "start_maximized";
 constexpr std::string_view OPT_LANGUAGE_OVERRIDE = "language_override";
 constexpr std::string_view OPT_DISABLE_STARTUP_UPDATE_CHECK = "disable_startup_update_check";
+constexpr std::string_view OPT_DISCORD_ENABLE_RICH_PRESENCE = "enable_discord_rich_presence";
 
 // Storage
 constexpr std::string_view STR_OPEN_RECENT = "open_recent";
