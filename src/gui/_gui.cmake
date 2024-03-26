@@ -12,6 +12,9 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
+# discord-rpc
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/discord")
+
 # sourcepp (various parsing libraries)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/sourcepp")
 
@@ -91,6 +94,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
@@ -123,7 +128,7 @@ qt_add_translations(${PROJECT_NAME}
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_zh_CN.ts"
         SOURCES ${${PROJECT_NAME}_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib discord-rpc dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
