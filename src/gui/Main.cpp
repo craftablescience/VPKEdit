@@ -3,11 +3,13 @@
 #include <QApplication>
 #include <QSettings>
 #include <QSurfaceFormat>
+#include <QTimer>
 #include <QTranslator>
 
 #include <vpkedit/Version.h>
 
 #include "config/Options.h"
+#include "utility/DiscordPresence.h"
 #include "Window.h"
 
 using namespace vpkedit;
@@ -50,6 +52,10 @@ int main(int argc, char** argv) {
     } else {
         window->showMaximized();
     }
+
+	auto* discordUpdateTimer = new QTimer(window);
+	QObject::connect(discordUpdateTimer, &QTimer::timeout, window, &DiscordPresence::update);
+	discordUpdateTimer->start(10);
 
     return QApplication::exec();
 }
