@@ -339,17 +339,8 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::CRC32, crc32Item);
 
 	// MD5
-	QString md5;
-	for (auto byte : entry->pck_md5) {
-		for (int i = 128; i >= 1; i /= 2) {
-			if (static_cast<std::uint8_t>(byte) & i) {
-				md5 += '1';
-			} else {
-				md5 += '0';
-			}
-		}
-	}
-	auto* md5Item = new QTableWidgetItem(md5);
+	QByteArray md5{reinterpret_cast<const char*>(entry->pck_md5.data()), static_cast<qsizetype>(entry->pck_md5.size())};
+	auto* md5Item = new QTableWidgetItem(md5.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::PCK_MD5, md5Item);
 }
 
