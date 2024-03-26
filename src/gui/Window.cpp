@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <chrono>
+
 #include <QActionGroup>
 #include <QApplication>
 #include <QDesktopServices>
@@ -222,8 +224,9 @@ Window::Window(QWidget* parent)
 	auto* discordMenu = optionsMenu->addMenu(QIcon{":/icons/discord.png"}, tr("Discord..."));
 	const auto setupDiscordRichPresence = [] {
 		DiscordPresence::init("1222285763459158056");
-		DiscordPresence::setLargeImage("icon");
 		DiscordPresence::setState("Editing an archive file");
+		DiscordPresence::setLargeImage("icon");
+		DiscordPresence::setStartTimestamp(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 		DiscordPresence::setTopButton({"View on GitHub", std::string{PROJECT_HOMEPAGE}});
 	};
 	auto* discordEnableAction = discordMenu->addAction(tr("Enable Rich Presence"), [setupDiscordRichPresence] {
