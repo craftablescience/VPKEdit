@@ -178,16 +178,16 @@ Window::Window(QWidget* parent)
 	const QVector<QPair<QString, QString>> languageToLocaleMapping = {
 			{tr("System Language"), ""},
 			{"", ""}, // Separator
-			{tr("Bosnian"),              "bs_BA"},
-			{tr("Chinese (Simplified)"), "zh_CN"},
-			{tr("Dutch"),                "nl"   },
-			{tr("English"),              "en"   },
-			{tr("Japanese"),             "ja"   },
-			{tr("Italian"),              "it"   },
-			{tr("Polish"),               "pl"   },
-			{tr("Spanish"),              "es"   },
-			{tr("Swedish"),              "sv"   },
-			{tr("Russian"),              "ru_RU"},
+			{u8"Bosanski",		"bs_BA"},
+			{u8"简体中文",		"zh_CN"},
+			{u8"Nederlands",	"nl"},
+			{u8"English",		"en"},
+			{u8"日本語",			"ja"},
+			{u8"Italiano",		"it"},
+			{u8"Polski",		"pl"},
+			{u8"Español",		"es"},
+			{u8"Svenska",		"sv"},
+			{u8"Русский",		"ru_RU"},
 	};
 	for (const auto& [language, locale] : languageToLocaleMapping) {
 		if (language.isEmpty() && locale.isEmpty()) {
@@ -221,7 +221,8 @@ Window::Window(QWidget* parent)
         themeMenuGroup->addAction(action);
     }
 
-	auto* discordMenu = optionsMenu->addMenu(QIcon{":/icons/discord.png"}, tr("Discord..."));
+	// Not translating this menu name, the translation is the same everywhere
+	auto* discordMenu = optionsMenu->addMenu(QIcon{":/icons/discord.png"}, "Discord...");
 	const auto setupDiscordRichPresence = [] {
 		DiscordPresence::init("1222285763459158056");
 		DiscordPresence::setState("Editing an archive file");

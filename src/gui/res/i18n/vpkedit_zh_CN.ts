@@ -48,12 +48,12 @@
   <context>
     <name>EntryTree</name>
     <message>
-      <location filename="../../EntryTree.cpp" line="356"/>
+      <location filename="../../EntryTree.cpp" line="359"/>
       <source>Delete Entry</source>
       <translation>删除条目</translation>
     </message>
     <message>
-      <location filename="../../EntryTree.cpp" line="356"/>
+      <location filename="../../EntryTree.cpp" line="359"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
       <translation>您确定要删除"%1"吗？
@@ -63,14 +63,14 @@
   <context>
     <name>ExtractPackFileWorker</name>
     <message>
-      <location filename="../../Window.cpp" line="1239"/>
-      <location filename="../../Window.cpp" line="1292"/>
+      <location filename="../../Window.cpp" line="1306"/>
+      <location filename="../../Window.cpp" line="1359"/>
       <source>Error</source>
       <translation>错误</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1239"/>
-      <location filename="../../Window.cpp" line="1292"/>
+      <location filename="../../Window.cpp" line="1306"/>
+      <location filename="../../Window.cpp" line="1359"/>
       <source>Failed to create directory.</source>
       <translation>创建目录失败</translation>
     </message>
@@ -78,12 +78,12 @@
   <context>
     <name>FileViewer</name>
     <message>
-      <location filename="../../FileViewer.cpp" line="282"/>
+      <location filename="../../FileViewer.cpp" line="296"/>
       <source>No available preview.</source>
       <translation>无可用预览</translation>
     </message>
     <message>
-      <location filename="../../FileViewer.cpp" line="341"/>
+      <location filename="../../FileViewer.cpp" line="359"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
       <translation>读取文件内容失败！
@@ -190,16 +190,6 @@ Latest version:  %2
       <translation>版本:</translation>
     </message>
     <message>
-      <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="26"/>
-      <source>v1</source>
-      <translation>v1</translation>
-    </message>
-    <message>
-      <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="27"/>
-      <source>v2</source>
-      <translation>v2</translation>
-    </message>
-    <message>
       <location filename="../../dialogs/NewVPKOptionsDialog.cpp" line="33"/>
       <source>Save to single file:
 Breaks the VPK if its size will be &gt;= 4gb!</source>
@@ -228,16 +218,6 @@ Breaks the VPK if its size will be &gt;= 4gb!</source>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="25"/>
       <source>Version:</source>
       <translation>版本:</translation>
-    </message>
-    <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="27"/>
-      <source>v1</source>
-      <translation>v1</translation>
-    </message>
-    <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="28"/>
-      <source>v2</source>
-      <translation>v2</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="34"/>
@@ -338,445 +318,415 @@ See below for more information.</source>
   <context>
     <name>Window</name>
     <message>
-      <location filename="../../Window.cpp" line="273"/>
+      <location filename="../../Window.cpp" line="307"/>
       <source>Controls</source>
       <translation>控制</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="398"/>
+      <location filename="../../Window.cpp" line="436"/>
       <source>Use This Folder</source>
       <translation>使用这个文件夹</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="403"/>
+      <location filename="../../Window.cpp" line="441"/>
       <source>Save New VPK</source>
       <translation>保存新VPK</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="458"/>
+      <location filename="../../Window.cpp" line="496"/>
       <source>Open Pack File</source>
       <translation>打开包文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="469"/>
+      <location filename="../../Window.cpp" line="507"/>
       <source>Save to...</source>
       <translation>保存到...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="523"/>
+      <location filename="../../Window.cpp" line="565"/>
       <source>Could not save!</source>
       <translation>无法保存！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="524"/>
+      <location filename="../../Window.cpp" line="566"/>
       <source>An error occurred while saving changes to the VPK. Check that you have permissions to write to the file.</source>
       <translation>保存对VPK的更改时出错，请检查您是否有权写入文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="574"/>
-      <location filename="../../Window.cpp" line="578"/>
-      <location filename="../../Window.cpp" line="718"/>
-      <location filename="../../Window.cpp" line="723"/>
-      <location filename="../../Window.cpp" line="879"/>
-      <location filename="../../Window.cpp" line="1119"/>
-      <location filename="../../Window.cpp" line="1176"/>
-      <location filename="../../Window.cpp" line="1181"/>
-      <location filename="../../Window.cpp" line="1186"/>
+      <location filename="../../Window.cpp" line="600"/>
+      <location filename="../../Window.cpp" line="606"/>
+      <location filename="../../Window.cpp" line="775"/>
+      <location filename="../../Window.cpp" line="780"/>
+      <location filename="../../Window.cpp" line="936"/>
+      <location filename="../../Window.cpp" line="1177"/>
+      <location filename="../../Window.cpp" line="1234"/>
+      <location filename="../../Window.cpp" line="1239"/>
+      <location filename="../../Window.cpp" line="1244"/>
       <source>Error</source>
       <translation>错误</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="574"/>
+      <location filename="../../Window.cpp" line="600"/>
       <source>Error occurred checking for updates!</source>
       <translation>检查更新时发生错误！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="578"/>
+      <location filename="../../Window.cpp" line="606"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
       <translation>在检查更新时检索到了无效的 JSON 响应！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="608"/>
+      <location filename="../../Window.cpp" line="638"/>
       <source>No New Updates</source>
       <translation>没有新的更新</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="608"/>
+      <location filename="../../Window.cpp" line="638"/>
       <source>You are using the latest version of the software.</source>
       <translation>您使用的是最新版本的软件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="617"/>
+      <location filename="../../Window.cpp" line="674"/>
       <source>Open File</source>
       <translation>打开文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="655"/>
+      <location filename="../../Window.cpp" line="712"/>
       <source>Open Folder</source>
       <translation>打开文件夹</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="698"/>
+      <location filename="../../Window.cpp" line="755"/>
       <source>Error Removing File</source>
       <translation>删除文件出错</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="698"/>
+      <location filename="../../Window.cpp" line="755"/>
       <source>There was an error removing the file at "%1"!</source>
       <translation>删除"%1"处的文件时出现错误！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="718"/>
+      <location filename="../../Window.cpp" line="775"/>
       <source>Unable to edit file at "%1": could not find file!</source>
       <translation>无法编辑"%1"处的文件:找不到文件！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="723"/>
+      <location filename="../../Window.cpp" line="780"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
       <translation>无法编辑"%1"处的文件：无法读取文件数据！</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="749"/>
+      <location filename="../../Window.cpp" line="806"/>
       <source>Rename Folder</source>
       <translation>重命名文件夹</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="749"/>
+      <location filename="../../Window.cpp" line="806"/>
       <source>The new path:</source>
       <translation>新路径</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="267"/>
-      <location filename="../../Window.cpp" line="811"/>
+      <location filename="../../Window.cpp" line="301"/>
+      <location filename="../../Window.cpp" line="868"/>
       <source>About</source>
       <translation>关于</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="879"/>
+      <location filename="../../Window.cpp" line="936"/>
       <source>Failed to find file at "%1".</source>
       <translation>在"%1"处查找文件失败。</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="892"/>
+      <location filename="../../Window.cpp" line="949"/>
       <source>Extract as...</source>
       <translation>提取为...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="949"/>
-      <location filename="../../Window.cpp" line="959"/>
+      <location filename="../../Window.cpp" line="1006"/>
+      <location filename="../../Window.cpp" line="1016"/>
       <source>Extract to...</source>
       <translation>提取到...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="988"/>
+      <location filename="../../Window.cpp" line="1045"/>
       <source>Save changes?</source>
       <translation>保存更改？</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="989"/>
+      <location filename="../../Window.cpp" line="1046"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
       <translation>此文件有未保存的更改！您想先保存这些更改吗？</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1119"/>
+      <location filename="../../Window.cpp" line="1177"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
       <translation>无法加载此文件，请确保游戏或其他应用程序没有使用该文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1157"/>
+      <location filename="../../Window.cpp" line="1215"/>
       <source>No recent files.</source>
       <translation>没有最新文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1176"/>
+      <location filename="../../Window.cpp" line="1234"/>
       <source>Failed to read data for "%1". Please ensure that a game or another application is not using the file.</source>
       <translation>读取"%1"的数据失败，请确保游戏或其他应用程序没有使用该文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1181"/>
-      <location filename="../../Window.cpp" line="1186"/>
+      <location filename="../../Window.cpp" line="1239"/>
+      <location filename="../../Window.cpp" line="1244"/>
       <source>Failed to write to file at "%1".</source>
       <translation>写入"%1"处的文件失败</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="61"/>
+      <location filename="../../Window.cpp" line="64"/>
       <source>Restart Required</source>
       <translation>需要重新启动</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="61"/>
+      <location filename="../../Window.cpp" line="64"/>
       <source>The application must be restarted for these settings to take effect.</source>
       <translation>必须重新启动应用程序才能使这些设置生效</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="67"/>
+      <location filename="../../Window.cpp" line="70"/>
       <source>File</source>
       <translation>文件</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="68"/>
+      <location filename="../../Window.cpp" line="71"/>
       <source>Create Empty VPK...</source>
       <translation>创建空的VPK...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="71"/>
+      <location filename="../../Window.cpp" line="74"/>
       <source>Create VPK From Folder...</source>
       <translation>从文件夹创建 VPK...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="74"/>
+      <location filename="../../Window.cpp" line="77"/>
       <source>Open...</source>
       <translation>打开...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="101"/>
+      <location filename="../../Window.cpp" line="104"/>
       <source>Open In...</source>
       <translation>打开在...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="111"/>
+      <location filename="../../Window.cpp" line="114"/>
       <source>Open Recent...</source>
       <translation>打开最近...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="114"/>
+      <location filename="../../Window.cpp" line="117"/>
       <source>Save</source>
       <translation>保存</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="119"/>
+      <location filename="../../Window.cpp" line="122"/>
       <source>Save As...</source>
       <translation>保存到...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="124"/>
+      <location filename="../../Window.cpp" line="127"/>
       <source>Close</source>
       <translation>关闭</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="136"/>
+      <location filename="../../Window.cpp" line="140"/>
       <source>Check For Updates...</source>
       <translation>检查更新</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="140"/>
+      <location filename="../../Window.cpp" line="144"/>
       <source>Exit</source>
       <translation>退出</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="145"/>
+      <location filename="../../Window.cpp" line="149"/>
       <source>Edit</source>
       <translation>编辑</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="146"/>
+      <location filename="../../Window.cpp" line="150"/>
       <source>Extract All</source>
       <translation>提取所有</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="152"/>
+      <location filename="../../Window.cpp" line="156"/>
       <source>Add File...</source>
       <translation>添加文件...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="157"/>
+      <location filename="../../Window.cpp" line="161"/>
       <source>Add Folder...</source>
       <translation>添加文件夹...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="163"/>
+      <location filename="../../Window.cpp" line="167"/>
       <source>Properties...</source>
       <translation>属性...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="169"/>
+      <location filename="../../Window.cpp" line="173"/>
       <source>Options</source>
       <translation>选项</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="220"/>
+      <location filename="../../Window.cpp" line="248"/>
       <source>Entry Tree...</source>
       <translation>入口树...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="221"/>
+      <location filename="../../Window.cpp" line="249"/>
       <source>Expand Folder When Selected</source>
       <translation>选中时展开文件夹</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="228"/>
+      <location filename="../../Window.cpp" line="256"/>
       <source>Start Collapsed</source>
       <translation>初始折叠</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="235"/>
+      <location filename="../../Window.cpp" line="263"/>
       <source>Hide Icons</source>
       <translation>隐藏图标</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="204"/>
+      <location filename="../../Window.cpp" line="208"/>
       <source>Theme...</source>
       <translation>主题...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="171"/>
+      <location filename="../../Window.cpp" line="175"/>
       <source>Language...</source>
       <translation>语言...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="243"/>
+      <location filename="../../Window.cpp" line="271"/>
       <source>Advanced File Properties</source>
       <translation>高级文件属性</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="250"/>
+      <location filename="../../Window.cpp" line="278"/>
       <source>Start Maximized</source>
       <translation>开始最大化</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="266"/>
+      <location filename="../../Window.cpp" line="300"/>
       <source>Help</source>
       <translation>帮助</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="270"/>
+      <location filename="../../Window.cpp" line="304"/>
       <source>About Qt</source>
       <translation>关于Qt</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="257"/>
+      <location filename="../../Window.cpp" line="291"/>
       <source>Tools</source>
       <translation>工具</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="259"/>
+      <location filename="../../Window.cpp" line="293"/>
       <source>General</source>
       <translation>通用</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="260"/>
+      <location filename="../../Window.cpp" line="294"/>
       <source>Verify Checksums</source>
       <translation>验证校验和</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="279"/>
+      <location filename="../../Window.cpp" line="313"/>
       <source>Debug</source>
       <translation>调试</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="281"/>
+      <location filename="../../Window.cpp" line="315"/>
       <source>Dialogs</source>
       <translation>大话框</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="336"/>
+      <location filename="../../Window.cpp" line="370"/>
       <source>Search...</source>
       <translation>搜索...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1167"/>
+      <location filename="../../Window.cpp" line="1225"/>
       <source>Clear</source>
       <translation>清除</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1194"/>
+      <location filename="../../Window.cpp" line="1252"/>
       <source>AppID</source>
       <translation>AppID</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1195"/>
+      <location filename="../../Window.cpp" line="1253"/>
       <source>App Version</source>
       <translation>应用程序版本</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1196"/>
+      <location filename="../../Window.cpp" line="1254"/>
       <source>Godot Version</source>
       <translation>Godot版本</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1197"/>
+      <location filename="../../Window.cpp" line="1255"/>
       <source>Version</source>
       <translation>版本</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1198"/>
+      <location filename="../../Window.cpp" line="1256"/>
       <source>Map Revision</source>
       <translation>地图修订</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1199"/>
+      <location filename="../../Window.cpp" line="1257"/>
       <source>Addon Name:</source>
       <translation>插件名称:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1200"/>
+      <location filename="../../Window.cpp" line="1260"/>
       <source>Loaded</source>
       <translation>已加载</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="801"/>
+      <location filename="../../Window.cpp" line="858"/>
       <source>Created by %1</source>
       <translation>由 %1 创建</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="130"/>
+      <location filename="../../Window.cpp" line="133"/>
       <source>Donate On Ko-fi...</source>
       <translation>在 Ko-fi 上捐款</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="177"/>
-      <source>Bosnian</source>
-      <translation>波斯尼亚语</translation>
-    </message>
-    <message>
       <location filename="../../Window.cpp" line="179"/>
-      <source>Dutch</source>
-      <translation>荷兰语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="180"/>
-      <source>English</source>
-      <translation>英语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="181"/>
-      <source>Japanese</source>
-      <translation>日语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="182"/>
-      <source>Italian</source>
-      <translation>意大利语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="183"/>
-      <source>Polish</source>
-      <translation>波兰语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="184"/>
-      <source>Spanish</source>
-      <translation>西班牙语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="186"/>
-      <source>Russian</source>
-      <translation>俄语</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="175"/>
       <source>System Language</source>
       <translation>系统默认语言</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="178"/>
-      <source>Chinese (Simplified)</source>
-      <translation>简体中文</translation>
+      <location filename="../../Window.cpp" line="233"/>
+      <source>Enable Rich Presence</source>
+      <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="185"/>
-      <source>Swedish</source>
-      <translation>瑞典语</translation>
+      <location filename="../../Window.cpp" line="284"/>
+      <source>Disable Startup Update Check</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="1258"/>
+      <source>Embedded</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="1259"/>
+      <source>Encrypted</source>
+      <translation></translation>
     </message>
   </context>
   <context>
