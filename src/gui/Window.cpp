@@ -307,7 +307,7 @@ Window::Window(QWidget* parent)
 		this->controls();
 	});
 
-#ifdef QT_DEBUG
+#ifdef DEBUG
     // Debug menu
     auto* debugMenu = this->menuBar()->addMenu(tr("Debug"));
 

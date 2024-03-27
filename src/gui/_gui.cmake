@@ -114,6 +114,8 @@ endif()
 
 add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
+vpkedit_configure_target(${PROJECT_NAME})
+
 qt_add_translations(${PROJECT_NAME}
         TS_FILES
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_bs_BA.ts"
@@ -144,18 +146,6 @@ if(WIN32 AND MSVC)
     target_link_options(
             ${PROJECT_NAME} PRIVATE
             "/ENTRY:mainCRTStartup")
-endif()
-
-# Create PDBs in release
-if(WIN32)
-    target_compile_options(
-            ${PROJECT_NAME} PRIVATE
-            "$<$<CONFIG:Release>:/Zi>")
-    target_link_options(
-            ${PROJECT_NAME} PRIVATE
-            "$<$<CONFIG:Release>:/DEBUG>"
-            "$<$<CONFIG:Release>:/OPT:REF>"
-            "$<$<CONFIG:Release>:/OPT:ICF>")
 endif()
 
 # Copy these next to the executable

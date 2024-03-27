@@ -56,6 +56,43 @@ if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
+# Macro to set up many things at once for a given target
+function(vpkedit_configure_target TARGET)
+    # Define DEBUG macro
+    target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+
+    # Set optimization flags
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        # Build with debug friendly optimizations and debug symbols (MSVC defaults are fine)
+        if(UNIX OR MINGW)
+            target_compile_options(${TARGET} PRIVATE -Og -g)
+        endif()
+        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
+            target_compile_options(${TARGET} PRIVATE -fno-limit-debug-info)
+        endif()
+    else()
+        # Build with optimizations and don't omit stack pointer for debugging (MSVC defaults are fine)
+        if(UNIX OR MINGW)
+            target_compile_options(${TARGET} PRIVATE -O2 -fno-omit-frame-pointer)
+        endif()
+    endif()
+
+    # Create PDBs in release
+    if(WIN32 AND MSVC)
+        get_target_property(TARGET_TYPE ${TARGET} TYPE)
+        if((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE"))
+            target_compile_options(
+                    ${TARGET} PRIVATE
+                    "$<$<CONFIG:Release>:/Zi>")
+            target_link_options(
+                    ${TARGET} PRIVATE
+                    "$<$<CONFIG:Release>:/DEBUG>"
+                    "$<$<CONFIG:Release>:/OPT:REF>"
+                    "$<$<CONFIG:Release>:/OPT:ICF>")
+        endif()
+    endif()
+endfunction()
+
 # libvpkedit
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/_lib.cmake")
 

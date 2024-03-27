@@ -11,16 +11,6 @@ endif()
 
 add_executable(${PROJECT_NAME}cli ${${PROJECT_NAME}cli_SOURCES})
 
-target_link_libraries(${PROJECT_NAME}cli PUBLIC lib${PROJECT_NAME} argparse::argparse)
+vpkedit_configure_target(${PROJECT_NAME}cli)
 
-# Create PDBs in release
-if(WIN32)
-    target_compile_options(
-            ${PROJECT_NAME}cli PRIVATE
-            "$<$<CONFIG:Release>:/Zi>")
-    target_link_options(
-            ${PROJECT_NAME}cli PRIVATE
-            "$<$<CONFIG:Release>:/DEBUG>"
-            "$<$<CONFIG:Release>:/OPT:REF>"
-            "$<$<CONFIG:Release>:/OPT:ICF>")
-endif()
+target_link_libraries(${PROJECT_NAME}cli PUBLIC lib${PROJECT_NAME} argparse::argparse)
