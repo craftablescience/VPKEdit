@@ -103,16 +103,6 @@ jobs:
             ${{env.BUILD_DIR}}/tls/*.dll
           retention-days: 7
 
-      - name: Upload Standalone PDBs [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}
-          path: |
-            ${{env.BUILD_DIR}}/vpkeditcli.pdb
-            ${{env.BUILD_DIR}}/vpkedit.pdb
-          retention-days: 7
-
       - name: Upload Standalone CLI/GUI [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
@@ -151,8 +141,18 @@ jobs:
           name: ${{matrix.target}}-Windows-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}
           path: |
             ${{env.BUILD_DIR}}/libvpkeditc.dll
-            ${{env.BUILD_DIR}}/libvpkeditc.pdb
             ${{github.workspace}}/include/vpkeditc/
+          retention-days: 7
+
+      - name: Upload Standalone PDBs [target:VPKEdit]
+        if: ${{matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}
+          path: |
+            ${{env.BUILD_DIR}}/libvpkeditc.pdb
+            ${{env.BUILD_DIR}}/vpkeditcli.pdb
+            ${{env.BUILD_DIR}}/vpkedit.pdb
           retention-days: 7
 
   build-linux:
