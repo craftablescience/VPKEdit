@@ -75,23 +75,43 @@ const QIcon& getIconForExtension(QString extension) {
 
 class EntryItem : public QTreeWidgetItem {
 public:
-	explicit EntryItem(QTreeWidget* parent)
-			: QTreeWidgetItem(parent) {}
+	explicit EntryItem(QTreeWidget* parent, bool isVirtual = false)
+			: QTreeWidgetItem(parent)
+			, isVirtual_(isVirtual) {}
 
-	explicit EntryItem(QTreeWidgetItem* parent)
-			: QTreeWidgetItem(parent) {}
+	explicit EntryItem(QTreeWidgetItem* parent, bool isVirtual = false)
+			: QTreeWidgetItem(parent)
+			, isVirtual_(isVirtual) {}
 
 	bool operator<(const QTreeWidgetItem& other) const override {
+		// Virtual entries should always go above regular entries
+		if (this->isVirtual() && !dynamic_cast<const EntryItem&>(other).isVirtual()) {
+			return true;
+		}
+		if (!this->isVirtual() && dynamic_cast<const EntryItem&>(other).isVirtual()) {
+			return false;
+		}
+
+		// Directories should always go above files
 		if (!this->childCount() && other.childCount()) {
 			return false;
 		}
 		if (this->childCount() && !other.childCount()) {
 			return true;
 		}
+
+		// Use QCollator to sort strings with numbers properly
 		static QCollator col;
 		col.setNumericMode(true);
 		return col.compare(this->text(0), other.text(0)) < 0;
 	}
+
+	[[nodiscard]] bool isVirtual() const {
+		return this->isVirtual_;
+	}
+
+private:
+	bool isVirtual_;
 };
 
 EntryTree::EntryTree(Window* window_, QWidget* parent)
@@ -103,12 +123,30 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
     this->workerThread = nullptr;
     this->root = nullptr;
+	this->virtualRoot = nullptr;
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(true, this);
     QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData.setReadOnly(this->window->isReadOnly());
         if (auto* selectedItem = this->itemAt(pos)) {
+			if (dynamic_cast<EntryItem*>(selectedItem)->isVirtual()) {
+				if (selectedItem->childCount() > 0) {
+					return;
+				}
+
+				// Show the virtual file context menu at the requested position
+                auto* selectedVirtualFileAction = contextMenuData.contextMenuVirtualFile->exec(this->mapToGlobal(pos));
+
+                // Handle the selected action
+                if (selectedVirtualFileAction == contextMenuData.extractVirtualFileAction) {
+                    this->window->extractVirtualFile(selectedItem->text(0));
+                } else if (selectedVirtualFileAction == contextMenuData.overwriteVirtualFileAction) {
+                    // todo
+                }
+				return;
+			}
+
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
                 // Show the root context menu at the requested position
@@ -164,6 +202,18 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 }
 
 void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
+	// Create virtual root item if present
+	this->virtualRoot = nullptr;
+	if (!packFile.getVirtualEntries().empty()) {
+		this->virtualRoot = new EntryItem(this, true);
+		this->virtualRoot->setText(0, tr("virtual"));
+		this->virtualRoot->setForeground(0, Qt::yellow);
+		if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
+			this->virtualRoot->setIcon(0, this->style()->standardIcon(QStyle::SP_DirLinkIcon));
+		}
+	}
+
+	// Create root item
     this->root = new EntryItem(this);
     this->root->setText(0, packFile.getTruncatedFilestem().c_str());
 	if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
@@ -477,6 +527,19 @@ void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
             tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
         }
     }
+
+	if (tree->virtualRoot) {
+		auto virtualEntries = packFile.getVirtualEntries();
+		for (const auto& virtualEntry : virtualEntries) {
+			auto* virtualItem = new EntryItem(tree->virtualRoot, true);
+			virtualItem->setText(0, virtualEntry.name.c_str());
+			virtualItem->setForeground(0, Qt::yellow);
+			if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
+				virtualItem->setIcon(0, ::getIconForExtension("." + QFileInfo(virtualEntry.name.c_str()).suffix()));
+			}
+		}
+	}
+
     tree->sortItems(0, Qt::AscendingOrder);
     emit taskFinished();
 }

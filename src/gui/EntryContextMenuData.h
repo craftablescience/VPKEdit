@@ -5,34 +5,39 @@
 #include <QStyle>
 
 struct EntryContextMenuData {
-    explicit EntryContextMenuData(bool useRoot, QWidget* parent = nullptr) {
-        this->contextMenuFile = new QMenu(parent);
-        this->extractFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract File..."));
-        this->contextMenuFile->addSeparator();
-        this->editFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move File..."));
-	    this->copyFilePathAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
-        this->contextMenuFile->addSeparator();
-        this->removeFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove File"));
+	explicit EntryContextMenuData(bool useRoot, QWidget* parent = nullptr) {
+		this->contextMenuFile = new QMenu(parent);
+		this->extractFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract File..."));
+		this->contextMenuFile->addSeparator();
+		this->editFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move File..."));
+		this->copyFilePathAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
+		this->contextMenuFile->addSeparator();
+		this->removeFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove File"));
 
-        this->contextMenuDir = new QMenu(parent);
-        this->extractDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract Folder..."));
-        this->contextMenuDir->addSeparator();
-        this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
-        this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
-        this->contextMenuDir->addSeparator();
-        this->renameDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move Folder..."));
-	    this->copyDirPathAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
-        this->contextMenuDir->addSeparator();
-        this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
+		this->contextMenuDir = new QMenu(parent);
+		this->extractDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract Folder..."));
+		this->contextMenuDir->addSeparator();
+		this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+		this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
+		this->contextMenuDir->addSeparator();
+		this->renameDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move Folder..."));
+		this->copyDirPathAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
+		this->contextMenuDir->addSeparator();
+		this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
 
-        if (useRoot) {
-            this->contextMenuAll = new QMenu(parent);
-            this->extractAllAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract All..."));
-            this->contextMenuAll->addSeparator();
-            this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
-            this->addDirToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
-        }
-    }
+		if (useRoot) {
+			this->contextMenuAll = new QMenu(parent);
+			this->extractAllAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract All..."));
+			this->contextMenuAll->addSeparator();
+			this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+			this->addDirToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
+		}
+
+		this->contextMenuVirtualFile = new QMenu(parent);
+		this->extractVirtualFileAction = this->contextMenuVirtualFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Save As..."));
+		this->contextMenuVirtualFile->addSeparator();
+		this->overwriteVirtualFileAction = this->contextMenuVirtualFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Overwrite..."));
+	}
 
 	void setReadOnly(bool readOnly) const {
 		this->editFileAction->setDisabled(readOnly);
@@ -49,24 +54,30 @@ struct EntryContextMenuData {
 		if (this->addDirToRootAction) {
 			this->addDirToRootAction->setDisabled(readOnly);
 		}
+
+		this->overwriteVirtualFileAction->setDisabled(readOnly);
 	}
 
-    QMenu* contextMenuFile = nullptr;
-    QAction* extractFileAction = nullptr;
-    QAction* editFileAction = nullptr;
+	QMenu* contextMenuFile = nullptr;
+	QAction* extractFileAction = nullptr;
+	QAction* editFileAction = nullptr;
 	QAction* copyFilePathAction = nullptr;
-    QAction* removeFileAction = nullptr;
+	QAction* removeFileAction = nullptr;
 
-    QMenu* contextMenuDir = nullptr;
-    QAction* extractDirAction = nullptr;
-    QAction* addFileToDirAction = nullptr;
-    QAction* addDirToDirAction = nullptr;
-    QAction* renameDirAction = nullptr;
+	QMenu* contextMenuDir = nullptr;
+	QAction* extractDirAction = nullptr;
+	QAction* addFileToDirAction = nullptr;
+	QAction* addDirToDirAction = nullptr;
+	QAction* renameDirAction = nullptr;
 	QAction* copyDirPathAction = nullptr;
-    QAction* removeDirAction = nullptr;
+	QAction* removeDirAction = nullptr;
 
-    QMenu* contextMenuAll = nullptr;
-    QAction* extractAllAction = nullptr;
-    QAction* addFileToRootAction = nullptr;
-    QAction* addDirToRootAction = nullptr;
+	QMenu* contextMenuAll = nullptr;
+	QAction* extractAllAction = nullptr;
+	QAction* addFileToRootAction = nullptr;
+	QAction* addDirToRootAction = nullptr;
+
+	QMenu* contextMenuVirtualFile = nullptr;
+	QAction* extractVirtualFileAction = nullptr;
+	QAction* overwriteVirtualFileAction = nullptr;
 };

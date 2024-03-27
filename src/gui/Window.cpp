@@ -292,9 +292,18 @@ Window::Window(QWidget* parent)
 
 	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
 	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
-		this->verifyChecksums();
+		VerifyChecksumsDialog::showDialog(*this->packFile, this);
 	});
 	this->toolsGeneralMenu->setDisabled(true);
+
+	this->toolsBSPMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), "BSP");
+	this->toolsBSPMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create Lump Patch File") + " (.lmp)", [this] {
+		this->toolBSPCreateLumpPatchFile();
+	});
+	this->toolsBSPMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Apply Lump Patch File") + " (.lmp)", [this] {
+		this->toolBSPApplyLumpPatchFile();
+	});
+	this->toolsBSPMenu->setDisabled(true);
 
 	// Help menu
     auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
@@ -302,10 +311,10 @@ Window::Window(QWidget* parent)
         this->about();
     });
     helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About Qt"), Qt::ALT | Qt::Key_F1, [this] {
-        this->aboutQt();
+        QMessageBox::aboutQt(this);
     });
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogListView), tr("Controls"), Qt::Key_F2, [this] {
-		this->controls();
+		ControlsDialog::showDialog(this);
 	});
 
 #ifdef DEBUG
@@ -872,18 +881,6 @@ void Window::about() {
     about.exec();
 }
 
-void Window::aboutQt() {
-    QMessageBox::aboutQt(this);
-}
-
-void Window::controls() {
-	ControlsDialog::showDialog(this);
-}
-
-void Window::verifyChecksums() {
-	VerifyChecksumsDialog::showDialog(*this->packFile, this);
-}
-
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
     auto entry = this->packFile->findEntry(path.toStdString());
     if (!entry) {
@@ -928,6 +925,46 @@ bool Window::hasEntry(const QString& path) const {
 
 void Window::selectSubItemInDir(const QString& path) const {
     this->entryTree->selectSubItem(path);
+}
+
+void Window::extractVirtualFile(const QString& name, QString savePath) {
+	std::optional<std::vector<std::byte>> data = std::nullopt;
+	for (const auto& virtualEntry : this->packFile->getVirtualEntries()) {
+		if (virtualEntry.name == name.toStdString()) {
+			data = this->packFile->readVirtualEntry(virtualEntry);
+			break;
+		}
+	}
+    if (!data) {
+        QMessageBox::critical(this, tr("Error"), tr("Failed to read data for virtual file named \"%1\".").arg(name));
+        return;
+    }
+
+    if (savePath.isEmpty()) {
+        QString filter;
+        if (auto index = name.lastIndexOf('.'); index >= 0) {
+            auto fileExt = name.sliced(index); // ".ext"
+            auto fileExtPretty = fileExt.toUpper();
+            fileExtPretty.remove('.');
+
+            filter = fileExtPretty + " (*" + fileExt + ");;All files (*.*)";
+        }
+        savePath = QFileDialog::getSaveFileName(this, tr("Extract as..."), name, filter);
+    }
+    if (savePath.isEmpty()) {
+        return;
+    }
+
+    QFile file(savePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(savePath));
+        return;
+    }
+    auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), static_cast<std::streamsize>(data->size()));
+    if (bytesWritten != data->size()) {
+        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(savePath));
+    }
+    file.close();
 }
 
 void Window::extractFile(const QString& path, QString savePath) {
@@ -1138,6 +1175,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
     this->addDirAction->setDisabled(freeze);
     this->setPropertiesAction->setDisabled(freeze);
 	this->toolsGeneralMenu->setDisabled(freeze);
+	this->toolsBSPMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::BSP));
 
     this->searchBar->setDisabled(freeze);
     this->entryTree->setDisabled(freeze);
@@ -1260,6 +1298,14 @@ void Window::resetStatusBar() {
 	this->statusText->setText(' ' + tr("Loaded") + ' ' + packFileStatus);
 	this->statusText->show();
 	this->statusProgressBar->hide();
+}
+
+void Window::toolBSPCreateLumpPatchFile() const {
+	// todo
+}
+
+void Window::toolBSPApplyLumpPatchFile() const {
+	// todo
 }
 
 void CreateVPKFromDirWorker::run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, PackFileOptions options) {

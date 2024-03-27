@@ -59,6 +59,7 @@ private:
 
     QThread* workerThread;
     QTreeWidgetItem* root;
+    QTreeWidgetItem* virtualRoot;
 
     bool autoExpandDirectories;
 };
