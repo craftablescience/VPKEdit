@@ -303,8 +303,8 @@ jobs:
           cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
           cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j$(nproc)
 
-      - name: Upload C Wrapper Library [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
+      - name: Upload C Wrapper Library [compiler:gcc][target:VPKEdit]
+        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
           name: ${{matrix.target}}-Linux-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}
@@ -328,7 +328,7 @@ jobs:
                repo: context.repo.repo,
                run_id: ${{github.run_id}},
             })).data.artifacts;
-            const filteredArtifacts = artifacts.filter(artifact => artifact && artifact.name.includes("Release") && !artifact.name.includes("clang"));
+            const filteredArtifacts = artifacts.filter(artifact => artifact.name.includes("Release"));
             console.log(`Found ${artifacts.length} artifacts - ${filteredArtifacts.length} qualify for upload.`);
             for (const artifact of filteredArtifacts) {
               console.log(`Downloading "${artifact.name}.zip"...`);
