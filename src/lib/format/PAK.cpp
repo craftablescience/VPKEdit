@@ -10,7 +10,7 @@ using namespace vpkedit;
 using namespace vpkedit::detail;
 
 PAK::PAK(const std::string& fullFilePath_, PackFileOptions options_)
-		: PackFileReadOnly(fullFilePath_, options_) {
+		: PackFile(fullFilePath_, options_) {
 	this->type = PackFileType::PAK;
 }
 
@@ -92,6 +92,90 @@ std::optional<std::vector<std::byte>> PAK::readEntry(const Entry& entry) const {
 	}
 	stream.seekInput(entry.offset);
 	return stream.readBytes(entry.length);
+}
+
+Entry& PAK::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	auto filename = filename_;
+	if (!this->isCaseSensitive()) {
+		::toLowerCase(filename);
+	}
+
+	entry.path = filename;
+	entry.length = buffer.size();
+
+	// Offset will be reset when it's baked
+	entry.offset = 0;
+
+	if (!this->unbakedEntries.contains("")) {
+		this->unbakedEntries[""] = {};
+	}
+	this->unbakedEntries.at("").push_back(entry);
+	return this->unbakedEntries.at("").back();
+}
+
+bool PAK::bake(const std::string& outputDir_, const Callback& callback) {
+	// Get the proper file output folder
+	std::string outputDir = this->getBakeOutputDir(outputDir_);
+	std::string outputPath = outputDir + '/' + this->getFilename() + "_test.pak";
+
+	// Reconstruct data for ease of access
+	std::vector<Entry*> entriesToBake;
+	for (auto& [entryDir, entryList] : this->entries) {
+		for (auto& entry : entryList) {
+			entriesToBake.push_back(&entry);
+		}
+	}
+	for (auto& [entryDir, entryList] : this->unbakedEntries) {
+		for (auto& entry : entryList) {
+			entriesToBake.push_back(&entry);
+		}
+	}
+
+	// Read data before overwriting, we don't know if we're writing to ourself
+	std::vector<std::byte> fileData;
+	for (auto* entry : entriesToBake) {
+		if (auto binData = this->readEntry(*entry)) {
+			entry->offset = fileData.size();
+
+			fileData.insert(fileData.end(), binData->begin(), binData->end());
+		} else {
+			entry->offset = 0;
+			entry->length = 0;
+		}
+	}
+
+	{
+		FileStream stream{outputPath, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+		stream.seekOutput(0);
+
+		// Signature
+		stream.write(PAK_SIGNATURE);
+
+		// Index and size of directory
+		const std::uint32_t directoryIndex = sizeof(PAK_SIGNATURE) + sizeof(std::uint32_t) * 2;
+		stream.write(directoryIndex);
+		const std::uint32_t directorySize = entriesToBake.size() * 64;
+		stream.write(directorySize);
+
+		// Directory
+		for (auto entry : entriesToBake) {
+			stream.write(entry->path, PAK_FILENAME_MAX_SIZE, false);
+			stream.write(static_cast<std::uint32_t>(entry->offset + directoryIndex + directorySize));
+			stream.write(static_cast<std::uint32_t>(entry->length));
+
+			if (callback) {
+				callback(entry->getParentPath(), *entry);
+			}
+		}
+
+		// File data
+		stream.writeBytes(fileData);
+	}
+
+	// Clean up
+	this->mergeUnbakedEntries();
+	PackFile::setFullFilePath(outputDir);
+	return true;
 }
 
 std::vector<Attribute> PAK::getSupportedEntryAttributes() const {

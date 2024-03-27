@@ -140,7 +140,6 @@ bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
 		if (auto binData = this->readEntry(*entry)) {
 			fileData.insert(fileData.end(), binData->begin(), binData->end());
 		} else {
-			// Offsets are fixed later
 			entry->length = 0;
 		}
 	}
