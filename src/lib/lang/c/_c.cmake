@@ -43,6 +43,8 @@ add_library(
         "${CMAKE_CURRENT_LIST_DIR}/PackFile.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/String.cpp")
 
+vpkedit_configure_target(lib${PROJECT_NAME}c)
+
 set_target_properties(lib${PROJECT_NAME}c PROPERTIES PREFIX "")
 
 target_link_libraries(lib${PROJECT_NAME}c PUBLIC lib${PROJECT_NAME})
