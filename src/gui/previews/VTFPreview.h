@@ -23,10 +23,15 @@ public:
     void setData(const std::vector<std::byte>& data);
 
     void setFrame(int frame);
+
     void setFace(int face);
+
     void setMip(int mip);
+
     void setAlphaEnabled(bool alpha);
+
     void setTileEnabled(bool tile);
+
     void setZoom(int zoom_);
 
     [[nodiscard]] int getMaxFrame() const;

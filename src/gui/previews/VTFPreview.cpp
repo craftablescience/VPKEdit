@@ -312,12 +312,16 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
     this->mipSpin->setValue(0);
     this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
 
-    this->alphaCheckBox->setChecked(false);
+	// Don't reset alpha: this is handled automatically
+    //this->alphaCheckBox->setChecked(false);
     this->alphaCheckBox->setDisabled(!this->vtf->hasAlpha());
 
-    this->tileCheckBox->setChecked(false);
+	// Don't reset tiled: this is handled automatically
+    //this->tileCheckBox->setChecked(false);
 
-    this->zoomSlider->setValue(100);
+	// Don't reset zoom: set the preexisting zoom on the vtf
+    //this->zoomSlider->setValue(100);
+	this->vtf->setZoom(this->zoomSlider->value());
 
     this->versionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
 
