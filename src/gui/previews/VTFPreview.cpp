@@ -64,8 +64,8 @@ QString vtfFormatToString(VTFImageFormat format) {
 
 VTFWidget::VTFWidget(QWidget* parent)
         : QWidget(parent)
-        , currentFace(1)
-        , currentFrame(1)
+        , currentFace(0)
+        , currentFrame(0)
         , currentMip(0)
         , alphaEnabled(false)
         , tileEnabled(false)
@@ -74,7 +74,7 @@ VTFWidget::VTFWidget(QWidget* parent)
 void VTFWidget::setData(const std::vector<std::byte>& data) {
     this->vtf = std::make_unique<VTFLib::CVTFFile>();
     this->vtf->Load(data.data(), static_cast<vlUInt>(data.size()));
-    this->decodeImage(1, 1, 0, this->alphaEnabled);
+    this->decodeImage(0, 0, 0, this->alphaEnabled);
     this->zoom = 1.f;
 }
 
@@ -206,31 +206,31 @@ VTFPreview::VTFPreview(QWidget* parent)
 
     auto* controlsLayout = new QVBoxLayout(controls);
 
+	auto* faceSpinParent = new QWidget(controls);
+	auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
+	auto* faceSpinLabel = new QLabel(tr("Face"), faceSpinParent);
+	faceSpinLayout->addWidget(faceSpinLabel);
+	this->faceSpin = new QSpinBox(controls);
+	this->faceSpin->setMinimum(0);
+	QObject::connect(this->faceSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setFace(this->faceSpin->value());
+		this->vtf->repaint();
+	});
+	faceSpinLayout->addWidget(this->faceSpin);
+	controlsLayout->addWidget(faceSpinParent);
+
     auto* frameSpinParent = new QWidget(controls);
     auto* frameSpinLayout = new QHBoxLayout(frameSpinParent);
     auto* frameSpinLabel = new QLabel(tr("Frame"), frameSpinParent);
     frameSpinLayout->addWidget(frameSpinLabel);
     this->frameSpin = new QSpinBox(frameSpinParent);
-    this->frameSpin->setMinimum(1);
+    this->frameSpin->setMinimum(0);
     QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
         this->vtf->setFrame(this->frameSpin->value());
         this->vtf->repaint();
     });
     frameSpinLayout->addWidget(this->frameSpin);
     controlsLayout->addWidget(frameSpinParent);
-
-    auto* faceSpinParent = new QWidget(controls);
-    auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
-    auto* faceSpinLabel = new QLabel(tr("Face"), faceSpinParent);
-    faceSpinLayout->addWidget(faceSpinLabel);
-    this->faceSpin = new QSpinBox(controls);
-    this->faceSpin->setMinimum(1);
-    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
-        this->vtf->setFace(this->faceSpin->value());
-        this->vtf->repaint();
-    });
-    faceSpinLayout->addWidget(this->faceSpin);
-    controlsLayout->addWidget(faceSpinParent);
 
     auto* mipSpinParent = new QWidget(controls);
     auto* mipSpinLayout = new QHBoxLayout(mipSpinParent);
@@ -300,13 +300,13 @@ VTFPreview::VTFPreview(QWidget* parent)
 void VTFPreview::setData(const std::vector<std::byte>& data) const {
     this->vtf->setData(data);
 
-    this->frameSpin->setMaximum(this->vtf->getMaxFrame());
-    this->frameSpin->setValue(1);
-    this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
+	this->faceSpin->setMaximum(this->vtf->getMaxFace() - 1);
+	this->faceSpin->setValue(0);
+	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1);
 
-    this->faceSpin->setMaximum(this->vtf->getMaxFace());
-    this->faceSpin->setValue(1);
-    this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1);
+    this->frameSpin->setMaximum(this->vtf->getMaxFrame() - 1);
+    this->frameSpin->setValue(0);
+    this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
 
     this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
     this->mipSpin->setValue(0);
