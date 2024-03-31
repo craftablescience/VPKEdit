@@ -1,5 +1,6 @@
 #pragma once
 
+#imclude <cstdint>
 #include <string>
 #include <string_view>
 
