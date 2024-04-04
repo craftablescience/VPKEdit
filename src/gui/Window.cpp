@@ -956,7 +956,15 @@ void Window::extractFile(const QString& path, QString savePath) {
     this->writeEntryToFile(savePath, *entry);
 }
 
-void Window::extractFilesIf(const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
+void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath) {
+	QString saveDir = savePath;
+	if (saveDir.isEmpty()) {
+		saveDir = QFileDialog::getExistingDirectory(this, tr("Extract to..."));
+	}
+	if (saveDir.isEmpty()) {
+		return;
+	}
+
     // Set up progress bar
     this->statusText->hide();
     this->statusProgressBar->show();
@@ -1003,14 +1011,8 @@ void Window::extractFilesIf(const QString& saveDir, const std::function<bool(con
     this->extractPackFileWorkerThread->start();
 }
 
-void Window::extractDir(const QString& path, QString saveDir) {
-    if (saveDir.isEmpty()) {
-        saveDir = QFileDialog::getExistingDirectory(this, tr("Extract to..."));
-    }
-    if (saveDir.isEmpty()) {
-        return;
-    }
-    this->extractFilesIf(saveDir, [path](const QString& dir) { return dir.startsWith(path); });
+void Window::extractDir(const QString& path, const QString& saveDir) {
+    this->extractFilesIf([path](const QString& dir) { return dir.startsWith(path); }, saveDir);
 }
 
 void Window::extractAll(QString saveDir) {
@@ -1023,7 +1025,7 @@ void Window::extractAll(QString saveDir) {
     saveDir += '/';
     saveDir += this->packFile->getFilestem().c_str();
 
-    this->extractFilesIf(saveDir, [](const QString&) { return true; });
+    this->extractFilesIf([](const QString&) { return true; }, saveDir);
 }
 
 void Window::setDropEnabled(bool dropEnabled_) {
