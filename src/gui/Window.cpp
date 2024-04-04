@@ -33,7 +33,6 @@
 #endif
 #include <vpkedit/Version.h>
 
-#include "config/Options.h"
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
@@ -41,6 +40,7 @@
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "utility/DiscordPresence.h"
+#include "utility/Options.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -53,7 +53,8 @@ Window::Window(QWidget* parent)
 		, createVPKFromDirWorkerThread(nullptr)
 		, savePackFileWorkerThread(nullptr)
         , extractPackFileWorkerThread(nullptr)
-		, modified(false) {
+		, modified(false)
+		, dropEnabled(true) {
 	this->setWindowTitle(PROJECT_TITLE.data());
 	this->setWindowIcon(QIcon(":/icon.png"));
 	this->setMinimumSize(900, 500);
@@ -1025,6 +1026,10 @@ void Window::extractAll(QString saveDir) {
     this->extractFilesIf(saveDir, [](const QString&) { return true; });
 }
 
+void Window::setDropEnabled(bool dropEnabled_) {
+	this->dropEnabled = dropEnabled_;
+}
+
 void Window::markModified(bool modified_) {
 	if (this->isReadOnly()) {
 		return;
@@ -1100,7 +1105,7 @@ void Window::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 void Window::dropEvent(QDropEvent* event) {
-	if (!event->mimeData()->hasUrls() || !this->fileViewer->isDirPreviewVisible()) {
+	if (!this->dropEnabled || !event->mimeData()->hasUrls() || !this->fileViewer->isDirPreviewVisible()) {
 		return;
 	}
 	for(const QUrl& url : event->mimeData()->urls()) {

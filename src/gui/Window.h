@@ -89,6 +89,8 @@ public:
 
     void extractAll(QString saveDir = QString());
 
+	void setDropEnabled(bool dropEnabled_);
+
     void markModified(bool modified_);
 
     [[nodiscard]] bool promptUserToKeepModifications();
@@ -136,6 +138,8 @@ private:
 
     std::unique_ptr<vpkedit::PackFile> packFile;
     bool modified;
+
+	bool dropEnabled;
 
     void freezeActions(bool freeze, bool freezeCreationActions = true) const;
 
