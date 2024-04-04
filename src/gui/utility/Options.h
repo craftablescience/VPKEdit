@@ -17,6 +17,7 @@ constexpr std::string_view OPT_DISCORD_ENABLE_RICH_PRESENCE = "enable_discord_ri
 
 // Storage
 constexpr std::string_view STR_OPEN_RECENT = "open_recent";
+constexpr std::string_view STR_IGNORED_UPDATE_VERSION = "ignored_update_version";
 
 namespace Options {
 

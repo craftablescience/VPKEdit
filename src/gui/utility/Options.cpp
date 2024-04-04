@@ -63,6 +63,10 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(STR_OPEN_RECENT, QStringList{});
 	}
 
+	if (!options.contains(STR_IGNORED_UPDATE_VERSION)) {
+		options.setValue(STR_IGNORED_UPDATE_VERSION, QString());
+	}
+
 	opts = &options;
 }
 
