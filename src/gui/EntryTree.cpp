@@ -1,5 +1,6 @@
 #include "EntryTree.h"
 
+#include <algorithm>
 #include <filesystem>
 
 #include <QApplication>
@@ -116,6 +117,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
         , autoExpandDirectories(false) {
     this->setMinimumWidth(200);
     this->setHeaderHidden(true);
+	this->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
 
     this->workerThread = nullptr;
     this->root = nullptr;
@@ -124,7 +126,26 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
     EntryContextMenuData contextMenuData(true, this);
     QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData.setReadOnly(this->window->isReadOnly());
-        if (auto* selectedItem = this->itemAt(pos)) {
+		if (this->selectedItems().length() > 1) {
+			// Show the selection context menu at the requested position
+			auto* selectedSelectionAction = contextMenuData.contextMenuSelection->exec(this->mapToGlobal(pos));
+
+			// Handle the selected action
+			if (selectedSelectionAction == contextMenuData.extractSelectedAction) {
+				this->window->extractFilesIf([this](const QString& dir) {
+					return std::ranges::any_of(this->selectedItems(), [this, &dir](QTreeWidgetItem* item) {
+						return dir.startsWith(this->getItemPath(item));
+					});
+				});
+			} else if (selectedSelectionAction == contextMenuData.removeSelectedAction) {
+				for (auto* item : this->selectedItems()) {
+					if (item == this->root) {
+						continue;
+					}
+					this->removeEntry(item);
+				}
+			}
+		} else if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (path.isEmpty()) {
                 // Show the root context menu at the requested position

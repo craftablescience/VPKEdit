@@ -83,9 +83,9 @@ public:
 
     void extractFile(const QString& path, QString savePath = QString());
 
-    void extractFilesIf(const QString& saveDir, const std::function<bool(const QString&)>& predicate);
+    void extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath = QString());
 
-    void extractDir(const QString& path, QString saveDir = QString());
+    void extractDir(const QString& path, const QString& saveDir = QString());
 
     void extractAll(QString saveDir = QString());
 

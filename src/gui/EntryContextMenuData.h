@@ -25,6 +25,11 @@ struct EntryContextMenuData {
         this->contextMenuDir->addSeparator();
         this->removeDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Folder"));
 
+		this->contextMenuSelection = new QMenu(parent);
+		this->extractSelectedAction = this->contextMenuSelection->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract Selected..."));
+		this->contextMenuSelection->addSeparator();
+		this->removeSelectedAction = this->contextMenuSelection->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove Selected..."));
+
         if (useRoot) {
             this->contextMenuAll = new QMenu(parent);
             this->extractAllAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract All..."));
@@ -42,6 +47,8 @@ struct EntryContextMenuData {
 		this->addDirToDirAction->setDisabled(readOnly);
 		this->renameDirAction->setDisabled(readOnly);
 		this->removeDirAction->setDisabled(readOnly);
+
+		this->removeSelectedAction->setDisabled(readOnly);
 
 		if (this->addFileToRootAction) {
 			this->addFileToRootAction->setDisabled(readOnly);
@@ -64,6 +71,10 @@ struct EntryContextMenuData {
     QAction* renameDirAction = nullptr;
 	QAction* copyDirPathAction = nullptr;
     QAction* removeDirAction = nullptr;
+
+	QMenu* contextMenuSelection = nullptr;
+	QAction* extractSelectedAction = nullptr;
+	QAction* removeSelectedAction = nullptr;
 
     QMenu* contextMenuAll = nullptr;
     QAction* extractAllAction = nullptr;
