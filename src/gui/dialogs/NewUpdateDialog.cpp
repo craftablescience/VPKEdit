@@ -4,6 +4,8 @@
 #include <QSpacerItem>
 #include <vpkedit/Version.h>
 
+#include "../utility/Options.h"
+
 using namespace vpkedit;
 
 NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& version, const QString& details, QWidget* parent)
@@ -22,11 +24,18 @@ NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& vers
 		gridLayout->addItem(horizontalSpacer, gridLayout->rowCount(), 0, 1, gridLayout->columnCount());
 	}
 
-	this->setStandardButtons(QMessageBox::StandardButton::Close);
+	this->setStandardButtons(QMessageBox::StandardButton::Ignore | QMessageBox::StandardButton::Close);
 }
 
 void NewUpdateDialog::getNewUpdatePrompt(const QString& releaseLink, const QString& version, const QString& details, QWidget* parent) {
+	if (::Options::get<QString>(STR_IGNORED_UPDATE_VERSION) == version) {
+		return;
+	}
+
     auto* dialog = new NewUpdateDialog(releaseLink, version, details, parent);
-    dialog->exec();
+    auto button = dialog->exec();
+	if (button == QMessageBox::StandardButton::Ignore) {
+		::Options::set(STR_IGNORED_UPDATE_VERSION, version);
+	}
     dialog->deleteLater();
 }
