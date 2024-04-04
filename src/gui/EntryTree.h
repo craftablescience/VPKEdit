@@ -44,6 +44,10 @@ public slots:
 protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
+	void mousePressEvent(QMouseEvent* event) override;
+
+	void mouseMoveEvent(QMouseEvent* event) override;
+
 private:
     [[nodiscard]] QString getItemPath(QTreeWidgetItem* item) const;
 
@@ -56,6 +60,8 @@ private:
     void removeEntryRecurse(QTreeWidgetItem* item);
 
     Window* window;
+
+	QPoint dragStartPos;
 
     QThread* workerThread;
     QTreeWidgetItem* root;

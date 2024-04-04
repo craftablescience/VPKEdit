@@ -57,9 +57,6 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidge
 
 # Add sources and create executable
 list(APPEND ${PROJECT_NAME}_SOURCES
-        "${CMAKE_CURRENT_LIST_DIR}/config/Options.h"
-        "${CMAKE_CURRENT_LIST_DIR}/config/Options.cpp"
-
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/EntryOptionsDialog.h"
@@ -96,6 +93,10 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/Options.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/Options.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"

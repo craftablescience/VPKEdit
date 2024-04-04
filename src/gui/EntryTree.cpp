@@ -1,20 +1,25 @@
 #include "EntryTree.h"
 
+#include <filesystem>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QCollator>
+#include <QDrag>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QMimeDatabase>
 #include <QMimeType>
 #include <QProgressBar>
 #include <QStyle>
 #include <QThread>
 
-#include "config/Options.h"
 #include "previews/TextPreview.h"
+#include "utility/Options.h"
+#include "utility/TempDir.h"
 #include "EntryContextMenuData.h"
 #include "Window.h"
 
@@ -69,6 +74,17 @@ const QIcon& getIconForExtension(QString extension) {
 	// Couldn't find it, use a generic file icon
 	cachedExtensions[extension] = QApplication::style()->standardIcon(QStyle::SP_FileIcon);
 	return cachedExtensions[extension];
+}
+
+QString join(const QStringList& list, const QString& separator) {
+	if (list.isEmpty()) {
+		return "";
+	}
+	QString result = list.first();
+	for (int i = 1; i < list.size(); ++i) {
+		result += separator + list[i];
+	}
+	return result;
 }
 
 } // namespace
@@ -368,6 +384,97 @@ void EntryTree::keyPressEvent(QKeyEvent* event) {
 		}
 	}
 	QTreeWidget::keyPressEvent(event);
+}
+
+void EntryTree::mousePressEvent(QMouseEvent* event) {
+	QTreeWidget::mousePressEvent(event);
+
+	this->dragStartPos = event->pos();
+}
+
+void EntryTree::mouseMoveEvent(QMouseEvent* event) {
+	if (!(event->buttons() & Qt::LeftButton)) {
+		return QTreeWidget::mouseMoveEvent(event);
+	}
+	if ((event->pos() - this->dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
+		return QTreeWidget::mouseMoveEvent(event);
+	}
+	if (this->selectedItems().isEmpty()) {
+		return QTreeWidget::mouseMoveEvent(event);
+	}
+	event->accept();
+
+	auto* drag = new QDrag(this);
+	auto* mimeData = new QMimeData();
+
+	// Strip shared directories until we have a root folder
+	QList<QTreeWidgetItem*> items = this->selectedItems();
+
+	QList<QStringList> pathSplits;
+	for (auto* item : items) {
+		pathSplits.push_back(this->getItemPath(item).split('/'));
+	}
+	QStringList rootDirList;
+	while (true) {
+		bool allTheSame = true;
+		QString first = pathSplits[0][0];
+		for (const auto& path : pathSplits) {
+			if (path.length() == 1) {
+				allTheSame = false;
+				break;
+			}
+			if (path[0] != first) {
+				allTheSame = false;
+				break;
+			}
+		}
+		if (!allTheSame) {
+			break;
+		}
+		rootDirList.push_back(std::move(first));
+		for (auto& path : pathSplits) {
+			path.pop_front();
+		}
+	}
+	// Add one for separator
+	qsizetype rootDirLen = ::join(rootDirList, "/").length();
+
+	// Extract
+	std::function<void(QTreeWidgetItem*)> extractItemRecurse;
+	extractItemRecurse = [&](QTreeWidgetItem* item) {
+		if (item->childCount() > 0) {
+			for (int i = 0; i < item->childCount(); i++) {
+				extractItemRecurse(item->child(i));
+			}
+		} else {
+			const QString itemPath = TempDir::get().path() + QDir::separator() + this->getItemPath(item).sliced(rootDirLen);
+
+			std::string itemPathStr = itemPath.toStdString();
+			std::filesystem::path itemPathDir(itemPathStr);
+			TempDir::get().mkpath(itemPathDir.parent_path().string().c_str());
+
+			this->window->extractFile(this->getItemPath(item), itemPath);
+		}
+	};
+	for (auto* item : items) {
+		extractItemRecurse(item);
+	}
+
+	QList<QUrl> extractedPaths;
+	QStringList extractedRawPaths = TempDir::get().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+	for (const auto& rawPath : extractedRawPaths) {
+		extractedPaths.push_back(QUrl::fromLocalFile(TempDir::get().path() + QDir::separator() + rawPath));
+	}
+
+	// Set up drag
+	this->window->setDropEnabled(false);
+
+	mimeData->setUrls(extractedPaths);
+	drag->setMimeData(mimeData);
+	drag->exec(Qt::MoveAction);
+	TempDir::clear();
+
+	this->window->setDropEnabled(true);
 }
 
 QString EntryTree::getItemPath(QTreeWidgetItem* item) const {

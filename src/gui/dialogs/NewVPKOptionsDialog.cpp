@@ -8,7 +8,7 @@
 #include <QSpinBox>
 #include <vpkedit/format/VPK.h>
 
-#include "../config/Options.h"
+#include "../utility/Options.h"
 
 using namespace vpkedit;
 

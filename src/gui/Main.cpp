@@ -8,8 +8,8 @@
 
 #include <vpkedit/Version.h>
 
-#include "config/Options.h"
 #include "utility/DiscordPresence.h"
+#include "utility/Options.h"
 #include "Window.h"
 
 using namespace vpkedit;
