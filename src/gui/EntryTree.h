@@ -62,6 +62,7 @@ private:
     Window* window;
 
 	QPoint dragStartPos;
+	QList<QTreeWidgetItem*> dragSelectedItems;
 
     QThread* workerThread;
     QTreeWidgetItem* root;
