@@ -408,9 +408,10 @@ void EntryTree::keyPressEvent(QKeyEvent* event) {
 }
 
 void EntryTree::mousePressEvent(QMouseEvent* event) {
-	QTreeWidget::mousePressEvent(event);
-
 	this->dragStartPos = event->pos();
+	this->dragSelectedItems = this->selectedItems();
+
+	QTreeWidget::mousePressEvent(event);
 }
 
 void EntryTree::mouseMoveEvent(QMouseEvent* event) {
@@ -420,7 +421,7 @@ void EntryTree::mouseMoveEvent(QMouseEvent* event) {
 	if ((event->pos() - this->dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
 		return QTreeWidget::mouseMoveEvent(event);
 	}
-	if (this->selectedItems().isEmpty()) {
+	if (this->dragSelectedItems.isEmpty()) {
 		return QTreeWidget::mouseMoveEvent(event);
 	}
 	event->accept();
@@ -429,10 +430,8 @@ void EntryTree::mouseMoveEvent(QMouseEvent* event) {
 	auto* mimeData = new QMimeData();
 
 	// Strip shared directories until we have a root folder
-	QList<QTreeWidgetItem*> items = this->selectedItems();
-
 	QList<QStringList> pathSplits;
-	for (auto* item : items) {
+	for (auto* item : this->dragSelectedItems) {
 		pathSplits.push_back(this->getItemPath(item).split('/'));
 	}
 	QStringList rootDirList;
@@ -477,7 +476,7 @@ void EntryTree::mouseMoveEvent(QMouseEvent* event) {
 			this->window->extractFile(this->getItemPath(item), itemPath);
 		}
 	};
-	for (auto* item : items) {
+	for (auto* item : this->dragSelectedItems) {
 		extractItemRecurse(item);
 	}
 
