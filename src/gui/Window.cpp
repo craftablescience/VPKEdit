@@ -227,6 +227,7 @@ Window::Window(QWidget* parent)
 		DiscordPresence::init("1222285763459158056");
 		DiscordPresence::setState("Editing an archive file");
 		DiscordPresence::setLargeImage("icon");
+		DiscordPresence::setLargeImageText(PROJECT_TITLE.data());
 		DiscordPresence::setStartTimestamp(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 		DiscordPresence::setTopButton({"View on GitHub", std::string{PROJECT_HOMEPAGE}});
 	};
