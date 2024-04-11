@@ -219,7 +219,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* infoPreview = newPreview<InfoPreview>(this);
     layout->addWidget(infoPreview);
 
-	auto* mdlPreview = newPreview<MDLPreview>(this, this);
+	auto* mdlPreview = newPreview<MDLPreview>(this, this->window, this);
 	layout->addWidget(mdlPreview);
 
     auto* textPreview = newPreview<TextPreview>(this);

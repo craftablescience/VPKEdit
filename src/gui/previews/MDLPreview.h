@@ -23,10 +23,13 @@ class QCheckBox;
 class QKeyEvent;
 class QMouseEvent;
 class QSpinBox;
+class QTabWidget;
 class QTimerEvent;
 class QToolButton;
+class QTreeWidget;
 
 class FileViewer;
+class Window;
 
 #pragma pack(push, 1)
 struct MDLVertex {
@@ -167,7 +170,7 @@ public:
 			".vta",
 	};
 
-	explicit MDLPreview(FileViewer* fileViewer_, QWidget* parent = nullptr);
+	explicit MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent = nullptr);
 
 	void setMesh(const QString& path, const vpkedit::PackFile& packFile) const;
 
@@ -176,11 +179,15 @@ private:
 
 	FileViewer* fileViewer;
 
-	MDLWidget* mdl;
 	QCheckBox* backfaceCulling;
 	QSpinBox* skinSpinBox;
     QToolButton* shadingModeWireframe;
     QToolButton* shadingModeShadedUntextured;
     QToolButton* shadingModeUnshadedTextured;
     QToolButton* shadingModeShadedTextured;
+
+	MDLWidget* mdl;
+
+	QTabWidget* tabs;
+	QTreeWidget* materialsTab;
 };

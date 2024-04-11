@@ -220,6 +220,9 @@ void EntryTree::selectEntry(const QString& path) {
 		selected->setSelected(false);
 	}
 	auto* entry = this->getItemAtPath(path);
+	if (!entry) {
+		return;
+	}
 
 	auto* currentEntry = entry;
 	while (currentEntry != this->root) {

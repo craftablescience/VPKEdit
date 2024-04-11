@@ -8,23 +8,58 @@
 #include <studiomodelpp/studiomodelpp.h>
 #include <QApplication>
 #include <QCheckBox>
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QStyleOption>
+#include <QTabWidget>
 #include <QToolButton>
+#include <QTreeWidget>
 #include <QtMath>
+#include <vpkedit/detail/Misc.h>
 #include <vpkedit/PackFile.h>
 #include <VTFLib.h>
 
 #include "../utility/ThemedIcon.h"
 #include "../FileViewer.h"
+#include "../Window.h"
 
 using namespace std::literals;
 using namespace studiomodelpp;
+using namespace vpkedit::detail;
 using namespace vpkedit;
+
+namespace {
+
+std::optional<VTFData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
+	auto materialEntry = packFile.findEntry(materialPath);
+	if (!materialEntry) return std::nullopt;
+
+	auto materialFile = packFile.readEntryText(*materialEntry);
+	if (!materialFile) return std::nullopt;
+
+	KeyValueRoot materialKV;
+	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return std::nullopt;
+
+	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
+	if (!baseTexturePathKV.IsValid()) return std::nullopt;
+
+	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
+	if (!textureEntry) return std::nullopt;
+
+	auto textureFile = packFile.readEntry(*textureEntry);
+	if (!textureFile) return std::nullopt;
+
+	VTFLib::CVTFFile vtf;
+	vtf.Load(textureFile->data(), static_cast<vlUInt>(textureFile->size()), false);
+	return VTFDecoder::decodeImage(vtf);
+}
+
+} // namespace
 
 QList<QVector3D> AABB::getCorners() const {
 	return {
@@ -402,9 +437,10 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 	}
 }
 
+constexpr int TOOLBAR_SPACE_SIZE = 48;
 constexpr int SHADING_MODE_BUTTON_SIZE = 24;
 
-MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
+MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		: QWidget(parent)
 		, fileViewer(fileViewer_)
 		, shadingModeWireframe(nullptr)
@@ -413,12 +449,23 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 		, shadingModeShadedTextured(nullptr) {
 	auto* layout = new QVBoxLayout(this);
 
-    auto* controls = new QWidget(this);
-	controls->setFixedHeight(40);
+    auto* controls = new QFrame(this);
+	controls->setFrameShape(QFrame::Shape::StyledPanel);
+	controls->setFixedHeight(TOOLBAR_SPACE_SIZE);
 	layout->addWidget(controls, Qt::AlignRight);
 
     auto* controlsLayout = new QHBoxLayout(controls);
 	controlsLayout->setAlignment(Qt::AlignRight);
+
+	auto* tabsToggleButton = new QPushButton(tr("Toggle Info Panel"), this);
+	tabsToggleButton->setCheckable(true);
+	tabsToggleButton->setChecked(false);
+	QObject::connect(tabsToggleButton, &QPushButton::clicked, this, [&](bool checked) {
+		this->tabs->setVisible(checked);
+	});
+	controlsLayout->addWidget(tabsToggleButton);
+
+	controlsLayout->addSpacing(TOOLBAR_SPACE_SIZE);
 
 	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), this);
 	this->backfaceCulling->setCheckState(Qt::CheckState::Checked);
@@ -427,7 +474,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	});
 	controlsLayout->addWidget(this->backfaceCulling);
 
-	controlsLayout->addSpacing(48);
+	controlsLayout->addSpacing(TOOLBAR_SPACE_SIZE);
 
 	controlsLayout->addWidget(new QLabel(tr("Skin"), this));
 	this->skinSpinBox = new QSpinBox(this);
@@ -439,7 +486,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	});
 	controlsLayout->addWidget(this->skinSpinBox);
 
-	controlsLayout->addSpacing(48);
+	controlsLayout->addSpacing(TOOLBAR_SPACE_SIZE);
 
 	const QList<QPair<QToolButton**, Qt::Key>> buttons{
 		{&this->shadingModeWireframe,        Qt::Key_1},
@@ -455,7 +502,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 				"QToolButton          { background-color: rgba(0,0,0,0); border: none; }\n"
 				"QToolButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
 		button->setShortcut(buttons[i].second);
-		QObject::connect(button, &QToolButton::pressed, this, [=, this] {
+		QObject::connect(button, &QToolButton::pressed, this, [this, i] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
 		});
 		controlsLayout->addWidget(button, 0, Qt::AlignVCenter | Qt::AlignRight);
@@ -463,30 +510,19 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 
 	this->mdl = new MDLWidget(this);
 	layout->addWidget(this->mdl);
-}
 
-static std::optional<VTFData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
-	auto materialEntry = packFile.findEntry(materialPath);
-	if (!materialEntry) return std::nullopt;
+	this->tabs = new QTabWidget(this);
+	this->tabs->setFixedHeight(150);
+	this->tabs->hide();
 
-	auto materialFile = packFile.readEntryText(*materialEntry);
-	if (!materialFile) return std::nullopt;
+	this->materialsTab = new QTreeWidget(this->tabs);
+	this->materialsTab->setHeaderHidden(true);
+	QObject::connect(this->materialsTab, &QTreeWidget::itemClicked, this, [window](QTreeWidgetItem* item) {
+		window->selectEntryInEntryTree(item->text(0));
+	});
+	this->tabs->addTab(this->materialsTab, tr("Materials Found"));
 
-	KeyValueRoot materialKV;
-	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return std::nullopt;
-
-	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
-	if (!baseTexturePathKV.IsValid()) return std::nullopt;
-
-	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
-	if (!textureEntry) return std::nullopt;
-
-	auto textureFile = packFile.readEntry(*textureEntry);
-	if (!textureFile) return std::nullopt;
-
-	VTFLib::CVTFFile vtf;
-	vtf.Load(textureFile->data(), static_cast<vlUInt>(textureFile->size()), false);
-	return VTFDecoder::decodeImage(vtf);
+	layout->addWidget(this->tabs);
 }
 
 void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
@@ -586,13 +622,21 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
 	});
 
+	this->materialsTab->clear();
 	QList<int> missingMaterialIndexes;
 	std::vector<std::optional<VTFData>> vtfs;
 	for (int materialIndex = 0; materialIndex < mdlParser.mdl.materials.size(); materialIndex++) {
 		bool foundMaterial = false;
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
-			if (auto data = getTextureDataForMaterial(packFile, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
+			std::string vmtPath = "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt";
+			::normalizeSlashes(vmtPath);
+			if (auto data = getTextureDataForMaterial(packFile, vmtPath)) {
 				vtfs.push_back(std::move(data));
+
+				auto* item = new QTreeWidgetItem(this->materialsTab);
+				item->setText(0, vmtPath.c_str());
+				this->materialsTab->addTopLevelItem(item);
+
 				foundMaterial = true;
 				break;
 			}
