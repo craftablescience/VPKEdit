@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <optional>
-#include <tuple>
 #include <utility>
 
 #include <KeyValue.h>
@@ -101,11 +100,9 @@ void MDLWidget::addSubMesh(const QList<unsigned short>& indices, int textureInde
 	mesh.ebo.release();
 }
 
-void MDLWidget::setTextures(std::vector<std::optional<VTFData>>&& vtfData) {
+void MDLWidget::setTextures(const std::vector<std::optional<VTFData>>& vtfData) {
 	this->clearTextures();
-
-	this->vtfs = std::move(vtfData);
-	for (const auto& vtf : this->vtfs) {
+	for (const auto& vtf : vtfData) {
 		if (!vtf) {
 			this->textures.push_back(nullptr);
 			continue;
@@ -125,7 +122,6 @@ void MDLWidget::clearTextures() {
 		delete texture;
 	}
 	this->textures.clear();
-	this->vtfs.clear();
 }
 
 void MDLWidget::setSkinLookupTable(std::vector<std::vector<short>> skins_) {
@@ -590,24 +586,23 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
 	});
 
-	QList<int> brokenMaterialIndexes;
-	std::vector<std::optional<VTFData>> vtfData;
+	QList<int> missingMaterialIndexes;
+	std::vector<std::optional<VTFData>> vtfs;
 	for (int materialIndex = 0; materialIndex < mdlParser.mdl.materials.size(); materialIndex++) {
 		bool foundMaterial = false;
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
 			if (auto data = getTextureDataForMaterial(packFile, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
-				vtfData.push_back(std::move(data));
+				vtfs.push_back(std::move(data));
 				foundMaterial = true;
 				break;
 			}
 		}
 		if (!foundMaterial) {
-			vtfData.emplace_back(std::nullopt);
-			brokenMaterialIndexes.push_back(materialIndex);
+			vtfs.emplace_back(std::nullopt);
+			missingMaterialIndexes.push_back(materialIndex);
 		}
 	}
-	auto numMaterials = vtfData.size();
-	this->mdl->setTextures(std::move(vtfData));
+	this->mdl->setTextures(vtfs);
 
 	bool hasAMaterial = false;
 
@@ -625,7 +620,6 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 
 			for (int meshIndex = 0; meshIndex < mdlModel.meshes.size(); meshIndex++) {
 				auto& mdlMesh = mdlModel.meshes.at(meshIndex);
-				auto materialIndex = mdlMesh.material;
 				auto& vtxMesh = vtxModel.modelLODs.at(currentLOD).meshes.at(meshIndex);
 
 				QList<unsigned short> indices;
@@ -653,10 +647,10 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 					}
 				}
 
-				if (materialIndex >= numMaterials || brokenMaterialIndexes.contains(materialIndex)) {
+				if (mdlMesh.material >= vtfs.size() || missingMaterialIndexes.contains(mdlMesh.material)) {
 					this->mdl->addSubMesh(indices, -1);
 				} else {
-					this->mdl->addSubMesh(indices, materialIndex);
+					this->mdl->addSubMesh(indices, mdlMesh.material);
 					hasAMaterial = true;
 				}
 			}

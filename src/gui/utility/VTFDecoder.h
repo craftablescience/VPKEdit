@@ -18,6 +18,8 @@ struct VTFData {
 
 namespace VTFDecoder {
 
+std::optional<VTFData> decodeImage(const VTFLib::CVTFFile& vtf, bool alpha);
+
 std::optional<VTFData> decodeImage(const VTFLib::CVTFFile& vtf, int face = 0, int frame = 0, int mip = 0, bool alpha = false);
 
 } // namespace VTFDecoder

@@ -79,7 +79,7 @@ public:
 
 	void addSubMesh(const QList<unsigned short>& indices, int textureIndex);
 
-	void setTextures(std::vector<std::optional<VTFData>>&& vtfData);
+	void setTextures(const std::vector<std::optional<VTFData>>& vtfData);
 
 	void clearTextures();
 
@@ -132,7 +132,6 @@ private:
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
 	int vertexCount;
 	QList<MDLSubMesh> meshes;
-	std::vector<std::optional<VTFData>> vtfs;
 	QList<QOpenGLTexture*> textures;
 
 	int skin;
