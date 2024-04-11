@@ -522,6 +522,10 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 	});
 	this->tabs->addTab(this->materialsTab, tr("Materials Found"));
 
+	this->allMaterialsTab = new QTreeWidget(this->tabs);
+	this->allMaterialsTab->setHeaderHidden(true);
+	this->tabs->addTab(this->allMaterialsTab, tr("All Materials"));
+
 	layout->addWidget(this->tabs);
 }
 
@@ -621,6 +625,24 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		{mdlParser.mdl.hullMin.x, mdlParser.mdl.hullMin.y, mdlParser.mdl.hullMin.z},
 		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
 	});
+
+	this->allMaterialsTab->clear();
+	auto* allMaterialDirsItem = new QTreeWidgetItem(this->allMaterialsTab);
+	allMaterialDirsItem->setText(0, tr("Folders"));
+	this->allMaterialsTab->addTopLevelItem(allMaterialDirsItem);
+	for (const auto& materialDir : mdlParser.mdl.materialDirectories) {
+		auto* materialDirItem = new QTreeWidgetItem(allMaterialDirsItem);
+		materialDirItem->setText(0, materialDir.c_str());
+	}
+	allMaterialDirsItem->setExpanded(true);
+	auto* allMaterialNamesItem = new QTreeWidgetItem(this->allMaterialsTab);
+	allMaterialNamesItem->setText(0, tr("Material Names"));
+	this->allMaterialsTab->addTopLevelItem(allMaterialNamesItem);
+	for (const auto& material : mdlParser.mdl.materials) {
+		auto* materialNameItem = new QTreeWidgetItem(allMaterialNamesItem);
+		materialNameItem->setText(0, material.name.c_str());
+	}
+	allMaterialNamesItem->setExpanded(true);
 
 	this->materialsTab->clear();
 	QList<int> missingMaterialIndexes;

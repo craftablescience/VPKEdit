@@ -190,4 +190,5 @@ private:
 
 	QTabWidget* tabs;
 	QTreeWidget* materialsTab;
+	QTreeWidget* allMaterialsTab;
 };
