@@ -22,6 +22,7 @@ class PackFile;
 class QCheckBox;
 class QKeyEvent;
 class QMouseEvent;
+class QSpinBox;
 class QTimerEvent;
 class QToolButton;
 
@@ -54,8 +55,7 @@ struct AABB {
 };
 
 struct MDLSubMesh {
-	VTFData vtfData;
-	QOpenGLTexture* texture;
+	int textureIndex;
 	QOpenGLBuffer ebo{QOpenGLBuffer::Type::IndexBuffer};
 	int indexCount;
 };
@@ -77,11 +77,19 @@ public:
 
 	void setVertices(const QList<MDLVertex>& vertices_);
 
-	void addSubMesh(const QList<unsigned short>& indices);
+	void addSubMesh(const QList<unsigned short>& indices, int textureIndex);
 
-	void addSubMesh(const QList<unsigned short>& indices, VTFData&& vtfData);
+	void setTextures(std::vector<std::optional<VTFData>>&& vtfData);
+
+	void clearTextures();
+
+	void setSkinLookupTable(std::vector<std::vector<short>> skins_);
 
 	void setAABB(AABB aabb);
+
+	[[nodiscard]] int getSkin() const { return this->skin; }
+
+	void setSkin(int skin_);
 
 	[[nodiscard]] MDLShadingMode getShadingMode() const { return this->shadingMode; }
 
@@ -123,7 +131,12 @@ private:
 	QOpenGLTexture matCapTexture;
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
 	int vertexCount;
-	std::vector<MDLSubMesh> meshes;
+	QList<MDLSubMesh> meshes;
+	std::vector<std::optional<VTFData>> vtfs;
+	QList<QOpenGLTexture*> textures;
+
+	int skin;
+	std::vector<std::vector<short>> skins;
 
 	MDLShadingMode shadingMode;
 	QMatrix4x4 projection;
@@ -166,6 +179,7 @@ private:
 
 	MDLWidget* mdl;
 	QCheckBox* backfaceCulling;
+	QSpinBox* skinSpinBox;
     QToolButton* shadingModeWireframe;
     QToolButton* shadingModeShadedUntextured;
     QToolButton* shadingModeUnshadedTextured;

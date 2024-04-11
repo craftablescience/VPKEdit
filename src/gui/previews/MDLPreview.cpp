@@ -3,14 +3,17 @@
 #include <filesystem>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 #include <KeyValue.h>
 #include <studiomodelpp/studiomodelpp.h>
 #include <QApplication>
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QSpinBox>
 #include <QStyleOption>
 #include <QToolButton>
 #include <QtMath>
@@ -55,6 +58,7 @@ MDLWidget::MDLWidget(QWidget* parent)
 		, missingTexture(QOpenGLTexture::Target2D)
 		, matCapTexture(QOpenGLTexture::Target2D)
 		, vertexCount(0)
+		, skin(0)
 		, shadingMode(MDLShadingMode::UNSHADED_TEXTURED)
 		, distance(0.0)
 		, distanceScale(0.0)
@@ -85,10 +89,10 @@ void MDLWidget::setVertices(const QList<MDLVertex>& vertices_) {
 	this->vertices.release();
 }
 
-void MDLWidget::addSubMesh(const QList<unsigned short>& indices) {
+void MDLWidget::addSubMesh(const QList<unsigned short>& indices, int textureIndex) {
 	auto& mesh = this->meshes.emplace_back();
 
-	mesh.texture = nullptr;
+	mesh.textureIndex = textureIndex;
 
 	mesh.indexCount = static_cast<int>(indices.size());
 	mesh.ebo.create();
@@ -97,19 +101,35 @@ void MDLWidget::addSubMesh(const QList<unsigned short>& indices) {
 	mesh.ebo.release();
 }
 
-void MDLWidget::addSubMesh(const QList<unsigned short>& indices, VTFData&& vtfData) {
-	auto& mesh = this->meshes.emplace_back();
+void MDLWidget::setTextures(std::vector<std::optional<VTFData>>&& vtfData) {
+	this->clearTextures();
 
-	mesh.vtfData = std::move(vtfData);
-	mesh.texture = new QOpenGLTexture{QOpenGLTexture::Target::Target2D};
-	mesh.texture->create();
-	mesh.texture->setData(QImage(reinterpret_cast<uchar*>(mesh.vtfData.data.get()), static_cast<int>(mesh.vtfData.width), static_cast<int>(mesh.vtfData.height), mesh.vtfData.format));
+	this->vtfs = std::move(vtfData);
+	for (const auto& vtf : this->vtfs) {
+		if (!vtf) {
+			this->textures.push_back(nullptr);
+			continue;
+		}
+		auto* texture = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
+		texture->create();
+		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.get()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), vtf->format));
+		this->textures.push_back(texture);
+	}
+}
 
-	mesh.indexCount = static_cast<int>(indices.size());
-	mesh.ebo.create();
-	mesh.ebo.bind();
-	mesh.ebo.allocate(indices.constData(), static_cast<int>(mesh.indexCount * sizeof(unsigned short)));
-	mesh.ebo.release();
+void MDLWidget::clearTextures() {
+	for (auto* texture : this->textures) {
+		if (texture && texture->isCreated()) {
+			texture->destroy();
+		}
+		delete texture;
+	}
+	this->textures.clear();
+	this->vtfs.clear();
+}
+
+void MDLWidget::setSkinLookupTable(std::vector<std::vector<short>> skins_) {
+	this->skins = std::move(skins_);
 }
 
 void MDLWidget::setAABB(AABB aabb) {
@@ -125,7 +145,10 @@ void MDLWidget::setAABB(AABB aabb) {
 	this->target = midpoint;
 	this->distance = static_cast<float>(sphereRadius / qTan(fovRad / 2));
     this->distanceScale = this->distance / 128.0f;
+}
 
+void MDLWidget::setSkin(int skin_) {
+	this->skin = skin_;
 	this->update();
 }
 
@@ -149,17 +172,17 @@ void MDLWidget::clearMeshes() {
 		this->vertices.destroy();
 	}
 
-	for (auto& mesh : this->meshes) {
-		if (mesh.texture && mesh.texture->isCreated()) {
-			mesh.texture->destroy();
-		}
-		delete mesh.texture;
+	this->clearTextures();
 
+	for (auto& mesh : this->meshes) {
 		if (mesh.ebo.isCreated()) {
 			mesh.ebo.destroy();
 		}
 	}
 	this->meshes.clear();
+
+	this->skin = 0;
+	this->skins.clear();
 
 	this->update();
 }
@@ -265,8 +288,8 @@ void MDLWidget::paintGL() {
 	this->vertices.bind();
 
 	for (auto& mesh : this->meshes) {
-		auto* texture = mesh.texture;
-		if (!texture) {
+		QOpenGLTexture* texture;
+		if (mesh.textureIndex < 0 || this->skins.size() <= this->skin || this->skins[this->skin].size() <= mesh.textureIndex || !(texture = this->textures[this->skins[this->skin][mesh.textureIndex]])) {
 			texture = &this->missingTexture;
 		}
 		texture->bind(0);
@@ -395,7 +418,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	auto* layout = new QVBoxLayout(this);
 
     auto* controls = new QWidget(this);
-	controls->setFixedHeight(34);
+	controls->setFixedHeight(40);
 	layout->addWidget(controls, Qt::AlignRight);
 
     auto* controlsLayout = new QHBoxLayout(controls);
@@ -406,8 +429,21 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, QWidget* parent)
 	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, this, [&](int state) {
 		this->mdl->setCullBackFaces(state == Qt::CheckState::Checked);
 	});
-	// todo: qt stretch 20 hack
-	controlsLayout->addWidget(this->backfaceCulling, 20, Qt::AlignVCenter | Qt::AlignLeft);
+	controlsLayout->addWidget(this->backfaceCulling);
+
+	controlsLayout->addSpacing(48);
+
+	controlsLayout->addWidget(new QLabel(tr("Skin"), this));
+	this->skinSpinBox = new QSpinBox(this);
+	this->skinSpinBox->setFixedWidth(32);
+	this->skinSpinBox->setMinimum(0);
+	this->skinSpinBox->setValue(0);
+	QObject::connect(this->skinSpinBox, &QSpinBox::valueChanged, this, [&](int value) {
+		this->mdl->setSkin(value);
+	});
+	controlsLayout->addWidget(this->skinSpinBox);
+
+	controlsLayout->addSpacing(48);
 
 	const QList<QPair<QToolButton**, Qt::Key>> buttons{
 		{&this->shadingModeWireframe,        Qt::Key_1},
@@ -544,10 +580,34 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	}
 	this->mdl->setVertices(vertices);
 
+	this->skinSpinBox->setValue(0);
+	this->skinSpinBox->setMaximum(std::max(static_cast<int>(mdlParser.mdl.skins.size()) - 1, 0));
+	this->skinSpinBox->setDisabled(this->skinSpinBox->maximum() == 0);
+	this->mdl->setSkinLookupTable(mdlParser.mdl.skins);
+
 	this->mdl->setAABB({
 		{mdlParser.mdl.hullMin.x, mdlParser.mdl.hullMin.y, mdlParser.mdl.hullMin.z},
 		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
 	});
+
+	QList<int> brokenMaterialIndexes;
+	std::vector<std::optional<VTFData>> vtfData;
+	for (int materialIndex = 0; materialIndex < mdlParser.mdl.materials.size(); materialIndex++) {
+		bool foundMaterial = false;
+		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
+			if (auto data = getTextureDataForMaterial(packFile, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
+				vtfData.push_back(std::move(data));
+				foundMaterial = true;
+				break;
+			}
+		}
+		if (!foundMaterial) {
+			vtfData.emplace_back(std::nullopt);
+			brokenMaterialIndexes.push_back(materialIndex);
+		}
+	}
+	auto numMaterials = vtfData.size();
+	this->mdl->setTextures(std::move(vtfData));
 
 	bool hasAMaterial = false;
 
@@ -593,22 +653,11 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 					}
 				}
 
-				if (mdlParser.mdl.materials.size() <= materialIndex) {
-					this->mdl->addSubMesh(indices);
-					continue;
-				}
-				// Try to find the material in the VPK
-				bool foundMaterial = false;
-				for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
-					if (auto data = getTextureDataForMaterial(packFile, "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt")) {
-						this->mdl->addSubMesh(indices, std::move(data.value()));
-						foundMaterial = true;
-						hasAMaterial = true;
-						break;
-					}
-				}
-				if (!foundMaterial) {
-					this->mdl->addSubMesh(indices);
+				if (materialIndex >= numMaterials || brokenMaterialIndexes.contains(materialIndex)) {
+					this->mdl->addSubMesh(indices, -1);
+				} else {
+					this->mdl->addSubMesh(indices, materialIndex);
+					hasAMaterial = true;
 				}
 			}
 		}
