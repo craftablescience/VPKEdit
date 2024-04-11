@@ -713,10 +713,8 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 					}
 				}
 
-				if (mdlMesh.material >= vtfs.size() || missingMaterialIndexes.contains(mdlMesh.material)) {
-					this->mdl->addSubMesh(indices, -1);
-				} else {
-					this->mdl->addSubMesh(indices, mdlMesh.material);
+				this->mdl->addSubMesh(indices, mdlMesh.material);
+				if (mdlMesh.material < vtfs.size() && !missingMaterialIndexes.contains(mdlMesh.material)) {
 					hasAMaterial = true;
 				}
 			}
