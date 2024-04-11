@@ -440,7 +440,10 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
         return;
     }
 
-    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? QString(((std::filesystem::path(dirPath.toStdString()).parent_path().string() + std::filesystem::path::preferred_separator + std::filesystem::path(dirPath.toStdString()).stem().string()) + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str()) : startPath, VPK_SAVE_FILTER);
+	QString vpkSaveFilePath = std::filesystem::path(dirPath.toStdString()).parent_path().string().c_str();
+	vpkSaveFilePath += QDir::separator();
+	vpkSaveFilePath += (std::filesystem::path(dirPath.toStdString()).stem().string() + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str();
+    auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? vpkSaveFilePath : startPath, VPK_SAVE_FILTER);
     if (vpkPath.isEmpty()) {
         return;
     }
