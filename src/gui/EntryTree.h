@@ -38,6 +38,10 @@ public:
 
     void addEntry(const QString& path);
 
+	void extractEntries(const QStringList& paths, const QString& destination = QString());
+
+	void createDrag(const QStringList& paths);
+
 public slots:
     void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/) const;
 
