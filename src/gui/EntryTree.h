@@ -7,6 +7,7 @@
 #include <vpkedit/PackFile.h>
 
 class QKeyEvent;
+class QMouseEvent;
 class QProgressBar;
 class QThread;
 

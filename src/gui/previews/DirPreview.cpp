@@ -1,5 +1,6 @@
 #include "DirPreview.h"
 
+#include <QApplication>
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QHeaderView>
@@ -85,13 +86,28 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 
     this->verticalHeader()->hide();
     this->setSelectionBehavior(QAbstractItemView::SelectRows);
+	this->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
     this->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     EntryContextMenuData contextMenuData(false, this);
     QObject::connect(this, &QTableWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
         contextMenuData.setReadOnly(this->window->isReadOnly());
-        if (auto* selectedItem = this->itemAt(pos)) {
+	    if (this->selectedItems().length() > this->columnCount()) {
+		    // Show the selection context menu at the requested position
+		    auto* selectedSelectionAction = contextMenuData.contextMenuSelection->exec(this->mapToGlobal(pos));
+
+		    // Handle the selected action
+		    if (selectedSelectionAction == contextMenuData.extractSelectedAction) {
+			    QStringList paths;
+			    for (auto* item : this->selectedItems()) {
+				    paths.push_back(this->getItemPath(item));
+			    }
+			    this->window->extractPaths(paths);
+		    } else if (selectedSelectionAction == contextMenuData.removeSelectedAction) {
+			    this->removeSelectedRows(false);
+		    }
+	    } else if (auto* selectedItem = this->itemAt(pos)) {
             QString path = this->getItemPath(selectedItem);
             if (this->item(selectedItem->row(), Column::TYPE)->text() == DIR_TYPE_NAME) {
                 // Show the directory context menu at the requested position
@@ -269,21 +285,37 @@ const QString& DirPreview::getCurrentPath() const {
 }
 
 void DirPreview::keyPressEvent(QKeyEvent* event) {
-	// Depends on only one row being selectable, makes the logic easier
-	if (event->keyCombination().key() == Qt::Key_Delete && !this->selectedItems().empty()) {
+	if (event->keyCombination().key() == Qt::Key_Delete) {
 		event->accept();
-
-		const auto path = this->getItemPath(this->selectedItems().at(0));
-
-		if (event->keyCombination().keyboardModifiers() != Qt::SHIFT) {
-			auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(path), QMessageBox::Ok | QMessageBox::Cancel);
-			if (reply == QMessageBox::Cancel) {
-				return;
-			}
-		}
-		this->window->requestEntryRemoval(this->getItemPath(this->selectedItems().at(0)));
+		this->removeSelectedRows(event->keyCombination().keyboardModifiers() != Qt::SHIFT);
 	}
 	QTableWidget::keyPressEvent(event);
+}
+
+void DirPreview::mousePressEvent(QMouseEvent* event) {
+	this->dragStartPos = event->pos();
+	this->dragSelectedItems = this->selectedItems();
+
+	QTableWidget::mousePressEvent(event);
+}
+
+void DirPreview::mouseMoveEvent(QMouseEvent* event) {
+	if (!(event->buttons() & Qt::LeftButton)) {
+		return QTableWidget::mouseMoveEvent(event);
+	}
+	if ((event->pos() - this->dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
+		return QTableWidget::mouseMoveEvent(event);
+	}
+	if (this->dragSelectedItems.isEmpty()) {
+		return QTableWidget::mouseMoveEvent(event);
+	}
+	event->accept();
+
+	QStringList paths;
+	for (auto* item : this->dragSelectedItems) {
+		paths.push_back(this->getItemPath(item));
+	}
+	this->window->createDrag(paths);
 }
 
 void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
@@ -365,4 +397,34 @@ QString DirPreview::getItemPath(QTableWidgetItem* item) const {
         return entryName;
     }
     return this->currentPath + '/' + entryName;
+}
+
+void DirPreview::removeSelectedRows(bool needsConfirmDialog) {
+	QList<QTableWidgetItem*> selectedRows;
+	for (auto* item : this->selectedItems()) {
+		bool foundMatch = false;
+		for (auto* selectedAlready : selectedRows) {
+			if (item->row() == selectedAlready->row()) {
+				foundMatch = true;
+				break;
+			}
+		}
+		if (!foundMatch) {
+			selectedRows.push_back(item);
+		}
+	}
+	for (auto* item : selectedRows) {
+		const auto path = this->getItemPath(item);
+		if (needsConfirmDialog) {
+			auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(path), QMessageBox::Ok | QMessageBox::Cancel);
+			if (reply == QMessageBox::Cancel) {
+				return;
+			}
+		}
+		bool wasDir = this->item(item->row(), Column::TYPE)->text() == DIR_TYPE_NAME;
+		this->window->requestEntryRemoval(this->getItemPath(item));
+		if (wasDir) {
+			this->removeRow(item->row());
+		}
+	}
 }

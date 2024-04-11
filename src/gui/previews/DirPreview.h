@@ -9,6 +9,7 @@ class PackFile;
 } // namespace vpkedit
 
 class QKeyEvent;
+class QMouseEvent;
 
 class FileViewer;
 class Window;
@@ -34,6 +35,10 @@ public:
 protected:
 	void keyPressEvent(QKeyEvent* event) override;
 
+	void mousePressEvent(QMouseEvent* event) override;
+
+	void mouseMoveEvent(QMouseEvent* event) override;
+
 private:
     void addRowForFile(const vpkedit::PackFile& packFile, const QString& path);
 
@@ -41,8 +46,13 @@ private:
 
     QString getItemPath(QTableWidgetItem* item) const;
 
+	void removeSelectedRows(bool needsConfirmDialog);
+
     FileViewer* fileViewer;
     Window* window;
+
+	QPoint dragStartPos;
+	QList<QTableWidgetItem*> dragSelectedItems;
 
     QString currentPath;
     QString currentSearchQuery;
