@@ -87,6 +87,8 @@ public:
 
     void extractDir(const QString& path, const QString& saveDir = QString());
 
+	void extractPaths(const QStringList& paths, const QString& saveDir = QString());
+
     void extractAll(QString saveDir = QString());
 
 	void setDropEnabled(bool dropEnabled_);

@@ -7,6 +7,7 @@
 #include <QClipboard>
 #include <QCollator>
 #include <QDrag>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QKeyEvent>
@@ -132,11 +133,11 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
 			// Handle the selected action
 			if (selectedSelectionAction == contextMenuData.extractSelectedAction) {
-				this->window->extractFilesIf([this](const QString& dir) {
-					return std::ranges::any_of(this->selectedItems(), [this, &dir](QTreeWidgetItem* item) {
-						return dir.startsWith(this->getItemPath(item));
-					});
-				});
+				QStringList paths;
+				for (auto* item : this->selectedItems()) {
+					paths.push_back(this->getItemPath(item));
+				}
+				this->extractEntries(paths);
 			} else if (selectedSelectionAction == contextMenuData.removeSelectedAction) {
 				for (auto* item : this->selectedItems()) {
 					if (item == this->root) {
@@ -364,6 +365,90 @@ void EntryTree::addEntry(const QString& path) {
 	this->sortItems(0, Qt::AscendingOrder);
 }
 
+void EntryTree::extractEntries(const QStringList& paths, const QString& destination) {
+	// Get destination folder
+	QString saveDir = destination;
+	if (saveDir.isEmpty()) {
+		saveDir = QFileDialog::getExistingDirectory(this, tr("Extract to..."));
+	}
+	if (saveDir.isEmpty()) {
+		return;
+	}
+
+	// Strip shared directories until we have a root folder
+	QList<QStringList> pathSplits;
+	for (const auto& path : paths) {
+		pathSplits.push_back(path.split('/'));
+	}
+	QStringList rootDirList;
+	while (true) {
+		bool allTheSame = true;
+		QString first = pathSplits[0][0];
+		for (const auto& path : pathSplits) {
+			if (path.length() == 1) {
+				allTheSame = false;
+				break;
+			}
+			if (path[0] != first) {
+				allTheSame = false;
+				break;
+			}
+		}
+		if (!allTheSame) {
+			break;
+		}
+		rootDirList.push_back(std::move(first));
+		for (auto& path : pathSplits) {
+			path.pop_front();
+		}
+	}
+	// Add one for separator
+	qsizetype rootDirLen = ::join(rootDirList, "/").length();
+
+	// Extract
+	std::function<void(QTreeWidgetItem*)> extractItemRecurse;
+	extractItemRecurse = [&](QTreeWidgetItem* item) {
+		if (item->childCount() > 0) {
+			for (int i = 0; i < item->childCount(); i++) {
+				extractItemRecurse(item->child(i));
+			}
+		} else {
+			const QString itemPath = saveDir + QDir::separator() + this->getItemPath(item).sliced(rootDirLen);
+			std::string itemPathStr = itemPath.toStdString();
+			std::filesystem::path itemPathDir(itemPathStr);
+			QDir(saveDir).mkpath(itemPathDir.parent_path().string().c_str());
+
+			this->window->extractFile(this->getItemPath(item), itemPath);
+		}
+	};
+	for (const auto& path : paths) {
+		extractItemRecurse(this->getItemAtPath(path));
+	}
+}
+
+void EntryTree::createDrag(const QStringList& paths) {
+	auto* drag = new QDrag(this);
+	auto* mimeData = new QMimeData();
+
+	this->extractEntries(paths, TempDir::get().path());
+
+	QList<QUrl> extractedPaths;
+	QStringList extractedRawPaths = TempDir::get().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+	for (const auto& rawPath : extractedRawPaths) {
+		extractedPaths.push_back(QUrl::fromLocalFile(TempDir::get().path() + QDir::separator() + rawPath));
+	}
+
+	// Set up drag
+	this->window->setDropEnabled(false);
+
+	mimeData->setUrls(extractedPaths);
+	drag->setMimeData(mimeData);
+	drag->exec(Qt::MoveAction);
+	TempDir::clear();
+
+	this->window->setDropEnabled(true);
+}
+
 void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
     if (!item) {
         return;
@@ -426,75 +511,11 @@ void EntryTree::mouseMoveEvent(QMouseEvent* event) {
 	}
 	event->accept();
 
-	auto* drag = new QDrag(this);
-	auto* mimeData = new QMimeData();
-
-	// Strip shared directories until we have a root folder
-	QList<QStringList> pathSplits;
+	QStringList paths;
 	for (auto* item : this->dragSelectedItems) {
-		pathSplits.push_back(this->getItemPath(item).split('/'));
+		paths.push_back(this->getItemPath(item));
 	}
-	QStringList rootDirList;
-	while (true) {
-		bool allTheSame = true;
-		QString first = pathSplits[0][0];
-		for (const auto& path : pathSplits) {
-			if (path.length() == 1) {
-				allTheSame = false;
-				break;
-			}
-			if (path[0] != first) {
-				allTheSame = false;
-				break;
-			}
-		}
-		if (!allTheSame) {
-			break;
-		}
-		rootDirList.push_back(std::move(first));
-		for (auto& path : pathSplits) {
-			path.pop_front();
-		}
-	}
-	// Add one for separator
-	qsizetype rootDirLen = ::join(rootDirList, "/").length();
-
-	// Extract
-	std::function<void(QTreeWidgetItem*)> extractItemRecurse;
-	extractItemRecurse = [&](QTreeWidgetItem* item) {
-		if (item->childCount() > 0) {
-			for (int i = 0; i < item->childCount(); i++) {
-				extractItemRecurse(item->child(i));
-			}
-		} else {
-			const QString itemPath = TempDir::get().path() + QDir::separator() + this->getItemPath(item).sliced(rootDirLen);
-
-			std::string itemPathStr = itemPath.toStdString();
-			std::filesystem::path itemPathDir(itemPathStr);
-			TempDir::get().mkpath(itemPathDir.parent_path().string().c_str());
-
-			this->window->extractFile(this->getItemPath(item), itemPath);
-		}
-	};
-	for (auto* item : this->dragSelectedItems) {
-		extractItemRecurse(item);
-	}
-
-	QList<QUrl> extractedPaths;
-	QStringList extractedRawPaths = TempDir::get().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-	for (const auto& rawPath : extractedRawPaths) {
-		extractedPaths.push_back(QUrl::fromLocalFile(TempDir::get().path() + QDir::separator() + rawPath));
-	}
-
-	// Set up drag
-	this->window->setDropEnabled(false);
-
-	mimeData->setUrls(extractedPaths);
-	drag->setMimeData(mimeData);
-	drag->exec(Qt::MoveAction);
-	TempDir::clear();
-
-	this->window->setDropEnabled(true);
+	this->createDrag(paths);
 }
 
 QString EntryTree::getItemPath(QTreeWidgetItem* item) const {
