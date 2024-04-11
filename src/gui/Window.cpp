@@ -1019,6 +1019,10 @@ void Window::extractPaths(const QStringList& paths, const QString& saveDir) {
 	this->entryTree->extractEntries(paths, saveDir);
 }
 
+void Window::createDrag(const QStringList& paths) {
+	this->entryTree->createDrag(paths);
+}
+
 void Window::extractAll(QString saveDir) {
     if (saveDir.isEmpty()) {
         saveDir = QFileDialog::getExistingDirectory(this, tr("Extract to..."));

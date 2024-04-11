@@ -89,6 +89,8 @@ public:
 
 	void extractPaths(const QStringList& paths, const QString& saveDir = QString());
 
+	void createDrag(const QStringList& paths);
+
     void extractAll(QString saveDir = QString());
 
 	void setDropEnabled(bool dropEnabled_);
