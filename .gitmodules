@@ -22,3 +22,6 @@
 [submodule "src/gui/thirdparty/discord"]
 	path = src/gui/thirdparty/discord
 	url = https://github.com/craftablescience/discord-rpc-clean
+[submodule "src/cli/thirdparty/indicators"]
+	path = src/cli/thirdparty/indicators
+	url = https://github.com/p-ranav/indicators

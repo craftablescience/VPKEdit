@@ -1,8 +1,10 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 
 #include <argparse/argparse.hpp>
+#include <indicators/indeterminate_progress_bar.hpp>
 #include <vpkedit/format/VPK.h>
 #include <vpkedit/Version.h>
 
@@ -25,13 +27,26 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	bool saveToDir = cli.get<bool>("-s");
+	auto noProgressBar = cli.get<bool>("--no-progress");
+	auto saveToDir = cli.get<bool>("-s");
 	auto preloadExtensions = cli.get<std::vector<std::string>>("-p");
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get("-v")));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get("-c")) * 1024 * 1024);
 	auto generateMD5Entries = cli.get<bool>("--gen-md5-entries");
 
-	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions](const std::string& fullEntryPath) {
+	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
+	if (!noProgressBar) {
+		bar = std::make_unique<indicators::IndeterminateProgressBar>(
+				indicators::option::BarWidth{40},
+				indicators::option::Start{"["},
+				indicators::option::Fill{"·"},
+				indicators::option::Lead{"<==>"},
+				indicators::option::End{"]"},
+				indicators::option::PostfixText{"Packing files..."}
+		);
+	}
+
+	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions, noProgressBar, &bar](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
 			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path(fullEntryPath).extension().string().ends_with(preloadExtension)) ||
@@ -40,13 +55,20 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 				break;
 			}
 		}
+		if (!noProgressBar) {
+			bar->tick();
+		}
 		return std::make_tuple(saveToDir, preloadBytes);
 	}, {
 		.vpk_version = version,
 		.vpk_preferredChunkSize = preferredChunkSize,
 		.vpk_generateMD5Entries = generateMD5Entries,
 	});
-	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << std::endl;
+
+	if (!noProgressBar) {
+		bar->mark_as_completed();
+	}
+	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
 }
 
 } // namespace
@@ -82,6 +104,10 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("-o", "--output")
 		.help("The path to the output VPK or directory. If unspecified, will default next to the input.");
+
+	cli.add_argument("--no-progress")
+		.help("Hide all progress bars.")
+		.flag();
 
 	cli.add_argument("-v", "--version")
 		.help("(Pack) The version of the VPK. Can be 1 or 2.")
