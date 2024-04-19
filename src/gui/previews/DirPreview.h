@@ -15,22 +15,22 @@ class FileViewer;
 class Window;
 
 class DirPreview : public QTableWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
+	DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
 
-    void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
+	void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
 
-    void addEntry(const vpkedit::PackFile& packFile, const QString& path);
+	void addEntry(const vpkedit::PackFile& packFile, const QString& path);
 
-    void removeFile(const QString& path);
+	void removeFile(const QString& path);
 
-    void removeDir(const QString& path);
+	void removeDir(const QString& path);
 
-    void setSearchQuery(const QString& query);
+	void setSearchQuery(const QString& query);
 
-    [[nodiscard]] const QString& getCurrentPath() const;
+	[[nodiscard]] const QString& getCurrentPath() const;
 
 protected:
 	void keyPressEvent(QKeyEvent* event) override;
@@ -40,20 +40,20 @@ protected:
 	void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
-    void addRowForFile(const vpkedit::PackFile& packFile, const QString& path);
+	void addRowForFile(const vpkedit::PackFile& packFile, const QString& path);
 
-    void addRowForDir(const QString& name);
+	void addRowForDir(const QString& name);
 
-    QString getItemPath(QTableWidgetItem* item) const;
+	QString getItemPath(QTableWidgetItem* item) const;
 
 	void removeSelectedRows(bool needsConfirmDialog);
 
-    FileViewer* fileViewer;
-    Window* window;
+	FileViewer* fileViewer;
+	Window* window;
 
 	QPoint dragStartPos;
 	QList<QTableWidgetItem*> dragSelectedItems;
 
-    QString currentPath;
-    QString currentSearchQuery;
+	QString currentPath;
+	QString currentSearchQuery;
 };

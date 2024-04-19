@@ -11,14 +11,14 @@ class QCheckBox;
 class QComboBox;
 
 class PackFileOptionsDialog : public QDialog {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit PackFileOptionsDialog(vpkedit::PackFileType type, vpkedit::PackFileOptions options_, QWidget* parent = nullptr);
+	explicit PackFileOptionsDialog(vpkedit::PackFileType type, vpkedit::PackFileOptions options_, QWidget* parent = nullptr);
 
 	[[nodiscard]] vpkedit::PackFileOptions getPackFileOptions();
 
-    static std::optional<vpkedit::PackFileOptions> getPackFileOptions(vpkedit::PackFileType type, vpkedit::PackFileOptions options, QWidget* parent = nullptr);
+	static std::optional<vpkedit::PackFileOptions> getPackFileOptions(vpkedit::PackFileType type, vpkedit::PackFileOptions options, QWidget* parent = nullptr);
 
 private:
 	vpkedit::PackFileOptions options;

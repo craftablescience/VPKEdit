@@ -20,86 +20,86 @@ class EntryTree;
 class FileViewer;
 
 class Window : public QMainWindow {
-    Q_OBJECT;
+	Q_OBJECT;
 
-    friend class CreateVPKFromDirWorker;
-    friend class SavePackFileWorker;
-    friend class ExtractPackFileWorker;
+	friend class CreateVPKFromDirWorker;
+	friend class SavePackFileWorker;
+	friend class ExtractPackFileWorker;
 
 public:
-    explicit Window(QWidget* parent = nullptr);
+	explicit Window(QWidget* parent = nullptr);
 
-    void newVPK(bool fromDirectory, const QString& startPath = QString());
+	void newVPK(bool fromDirectory, const QString& startPath = QString());
 
-    void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
+	void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
 
-    void savePackFile(bool saveAs = false, bool async = true);
+	void savePackFile(bool saveAs = false, bool async = true);
 
-    void saveAsPackFile(bool async = true);
+	void saveAsPackFile(bool async = true);
 
-    void closePackFile();
+	void closePackFile();
 
 	void checkForNewUpdate(bool hidden = false) const;
 
 	[[nodiscard]] bool isReadOnly() const;
 
-    void setProperties();
+	void setProperties();
 
-    void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
+	void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
 
-    void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString());
+	void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString());
 
-    bool removeFile(const QString& path);
+	bool removeFile(const QString& path);
 
-    void removeDir(const QString& path) const;
+	void removeDir(const QString& path) const;
 
-    void requestEntryRemoval(const QString& path) const;
+	void requestEntryRemoval(const QString& path) const;
 
-    void editFile(const QString& oldPath);
+	void editFile(const QString& oldPath);
 
-    void renameDir(const QString& oldPath, const QString& newPath_ = QString());
+	void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
-    void about();
+	void about();
 
-    void aboutQt();
+	void aboutQt();
 
-    void controls();
+	void controls();
 
 	void verifyChecksums();
 
-    [[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
+	[[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
-    [[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
+	[[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
 
 	void selectEntryInEntryTree(const QString& path) const;
 
-    void selectEntryInFileViewer(const QString& path) const;
+	void selectEntryInFileViewer(const QString& path) const;
 
-    void selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const;
+	void selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const;
 
 	[[nodiscard]] bool hasEntry(const QString& path) const;
 
-    void selectSubItemInDir(const QString& path) const;
+	void selectSubItemInDir(const QString& path) const;
 
-    void extractFile(const QString& path, QString savePath = QString());
+	void extractFile(const QString& path, QString savePath = QString());
 
-    void extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath = QString());
+	void extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath = QString());
 
-    void extractDir(const QString& path, const QString& saveDir = QString());
+	void extractDir(const QString& path, const QString& saveDir = QString());
 
 	void extractPaths(const QStringList& paths, const QString& saveDir = QString());
 
 	void createDrag(const QStringList& paths);
 
-    void extractAll(QString saveDir = QString());
+	void extractAll(QString saveDir = QString());
 
 	void setDropEnabled(bool dropEnabled_);
 
-    void markModified(bool modified_);
+	void markModified(bool modified_);
 
-    [[nodiscard]] bool promptUserToKeepModifications();
+	[[nodiscard]] bool promptUserToKeepModifications();
 
-    [[nodiscard]] bool clearContents();
+	[[nodiscard]] bool clearContents();
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -108,54 +108,54 @@ protected:
 
 	void dropEvent(QDropEvent* event) override;
 
-    void closeEvent(QCloseEvent* event) override;
+	void closeEvent(QCloseEvent* event) override;
 
 signals:
 	void themeUpdated();
 
 private:
-    QLabel* statusText;
-    QProgressBar* statusProgressBar;
-    QLineEdit* searchBar;
-    EntryTree* entryTree;
-    FileViewer* fileViewer;
+	QLabel* statusText;
+	QProgressBar* statusProgressBar;
+	QLineEdit* searchBar;
+	EntryTree* entryTree;
+	FileViewer* fileViewer;
 
-    QAction* createEmptyVPKAction;
-    QAction* createVPKFromDirAction;
-    QAction* openAction;
-    QMenu*   openRelativeToMenu;
-    QMenu*   openRecentMenu;
-    QAction* saveAction;
-    QAction* saveAsAction;
-    QAction* closeFileAction;
-    QAction* extractAllAction;
-    QAction* addFileAction;
-    QAction* addDirAction;
-    QAction* setPropertiesAction;
+	QAction* createEmptyVPKAction;
+	QAction* createVPKFromDirAction;
+	QAction* openAction;
+	QMenu*   openRelativeToMenu;
+	QMenu*   openRecentMenu;
+	QAction* saveAction;
+	QAction* saveAsAction;
+	QAction* closeFileAction;
+	QAction* extractAllAction;
+	QAction* addFileAction;
+	QAction* addDirAction;
+	QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
 
-    QNetworkAccessManager* checkForNewUpdateNetworkManager;
+	QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
-    QThread* createVPKFromDirWorkerThread;
-    QThread* savePackFileWorkerThread;
-    QThread* extractPackFileWorkerThread;
+	QThread* createVPKFromDirWorkerThread;
+	QThread* savePackFileWorkerThread;
+	QThread* extractPackFileWorkerThread;
 
-    std::unique_ptr<vpkedit::PackFile> packFile;
-    bool modified;
+	std::unique_ptr<vpkedit::PackFile> packFile;
+	bool modified;
 
 	bool dropEnabled;
 
-    void freezeActions(bool freeze, bool freezeCreationActions = true) const;
+	void freezeActions(bool freeze, bool freezeCreationActions = true) const;
 
 	void freezeModifyActions(bool readOnly) const;
 
-    bool loadPackFile(const QString& path);
+	bool loadPackFile(const QString& path);
 
 	void rebuildOpenRecentMenu(const QStringList& paths);
 
 	void checkForUpdatesReply(QNetworkReply* reply);
 
-    void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
+	void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
 
 	void resetStatusBar();
 };
@@ -186,14 +186,14 @@ signals:
 };
 
 class ExtractPackFileWorker : public QObject {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    ExtractPackFileWorker() = default;
+	ExtractPackFileWorker() = default;
 
-    void run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate);
+	void run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate);
 
 signals:
-    void progressUpdated(int value);
-    void taskFinished();
+	void progressUpdated(int value);
+	void taskFinished();
 };

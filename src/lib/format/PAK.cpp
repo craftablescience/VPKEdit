@@ -26,10 +26,10 @@ std::unique_ptr<PackFile> PAK::open(const std::string& path, PackFileOptions opt
 	FileStream reader{pak->fullFilePath};
 	reader.seekInput(0);
 
-    if (auto signature = reader.read<std::int32_t>(); signature != PAK_SIGNATURE) {
-        // File is not a PAK
-        return nullptr;
-    }
+	if (auto signature = reader.read<std::int32_t>(); signature != PAK_SIGNATURE) {
+		// File is not a PAK
+		return nullptr;
+	}
 
 	auto directoryOffset = reader.read<std::uint32_t>();
 	// Directory size / file entry size

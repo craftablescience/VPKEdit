@@ -13,20 +13,20 @@
 using namespace vpkedit;
 
 NewVPKOptionsDialog::NewVPKOptionsDialog(bool fromDirectory, PackFileOptions options, bool singleFile, QWidget* parent)
-        : QDialog(parent) {
+		: QDialog(parent) {
 	const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
-    this->setModal(true);
-    this->setWindowTitle(tr("New VPK Properties"));
+	this->setModal(true);
+	this->setWindowTitle(tr("New VPK Properties"));
 
-    auto* layout = new QFormLayout(this);
+	auto* layout = new QFormLayout(this);
 
-    auto* versionLabel = new QLabel(tr("Version:"), this);
-    this->version = new QComboBox(this);
-    this->version->addItem("v1");
-    this->version->addItem("v2");
-    this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
-    layout->addRow(versionLabel, this->version);
+	auto* versionLabel = new QLabel(tr("Version:"), this);
+	this->version = new QComboBox(this);
+	this->version->addItem("v1");
+	this->version->addItem("v2");
+	this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
+	layout->addRow(versionLabel, this->version);
 
 	this->singleFile = nullptr;
 	if (fromDirectory) {
@@ -58,11 +58,11 @@ NewVPKOptionsDialog::NewVPKOptionsDialog(bool fromDirectory, PackFileOptions opt
 		});
 	}
 
-    auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    layout->addWidget(buttonBox);
+	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+	layout->addWidget(buttonBox);
 
-    QObject::connect(buttonBox, &QDialogButtonBox::accepted, this, &NewVPKOptionsDialog::accept);
-    QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &NewVPKOptionsDialog::reject);
+	QObject::connect(buttonBox, &QDialogButtonBox::accepted, this, &NewVPKOptionsDialog::accept);
+	QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &NewVPKOptionsDialog::reject);
 }
 
 PackFileOptions NewVPKOptionsDialog::getPackFileOptions() const {
@@ -74,11 +74,11 @@ PackFileOptions NewVPKOptionsDialog::getPackFileOptions() const {
 }
 
 std::optional<std::tuple<PackFileOptions, bool>> NewVPKOptionsDialog::getNewVPKOptions(bool fromDirectory, PackFileOptions options, bool singleFile, QWidget* parent) {
-    auto* dialog = new NewVPKOptionsDialog(fromDirectory, options, singleFile, parent);
-    int ret = dialog->exec();
+	auto* dialog = new NewVPKOptionsDialog(fromDirectory, options, singleFile, parent);
+	int ret = dialog->exec();
 	dialog->deleteLater();
-    if (ret != QDialog::Accepted) {
-        return std::nullopt;
-    }
-    return std::make_tuple(dialog->getPackFileOptions(), dialog->singleFile && dialog->singleFile->isChecked());
+	if (ret != QDialog::Accepted) {
+		return std::nullopt;
+	}
+	return std::make_tuple(dialog->getPackFileOptions(), dialog->singleFile && dialog->singleFile->isChecked());
 }

@@ -3,10 +3,10 @@
 #include "InfoPreview.h"
 
 class EmptyPreview : public InfoPreview {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    static inline const QStringList EXTENSIONS{};
+	static inline const QStringList EXTENSIONS{};
 
-    explicit EmptyPreview(QWidget* parent = nullptr);
+	explicit EmptyPreview(QWidget* parent = nullptr);
 };

@@ -50,7 +50,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		int preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
 			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path(fullEntryPath).extension().string().ends_with(preloadExtension)) ||
-			    std::filesystem::path(fullEntryPath).filename().string() == preloadExtension) {
+				std::filesystem::path(fullEntryPath).filename().string() == preloadExtension) {
 				preloadBytes = VPK_MAX_PRELOAD_BYTES;
 				break;
 			}

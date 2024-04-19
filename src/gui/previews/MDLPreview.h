@@ -143,7 +143,7 @@ private:
 	MDLShadingMode shadingMode;
 	QMatrix4x4 projection;
 	float distance;
-    float distanceScale;
+	float distanceScale;
 	QVector3D target;
 	float fov;
 	bool cullBackFaces;
@@ -181,10 +181,10 @@ private:
 
 	QCheckBox* backfaceCulling;
 	QSpinBox* skinSpinBox;
-    QToolButton* shadingModeWireframe;
-    QToolButton* shadingModeShadedUntextured;
-    QToolButton* shadingModeUnshadedTextured;
-    QToolButton* shadingModeShadedTextured;
+	QToolButton* shadingModeWireframe;
+	QToolButton* shadingModeShadedUntextured;
+	QToolButton* shadingModeUnshadedTextured;
+	QToolButton* shadingModeShadedTextured;
 
 	MDLWidget* mdl;
 

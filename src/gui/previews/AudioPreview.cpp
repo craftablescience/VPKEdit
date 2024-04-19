@@ -117,7 +117,7 @@ AudioPreview::AudioPreview(FileViewer* fileViewer_, QWidget* parent)
 			this->seekBar->setValue(0);
 		}
 	});
-    timer->start(5);
+	timer->start(5);
 }
 
 AudioPreview::~AudioPreview() {

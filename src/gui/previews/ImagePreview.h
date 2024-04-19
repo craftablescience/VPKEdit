@@ -11,56 +11,56 @@ class QCheckBox;
 class QSlider;
 
 class ImageWidget : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit ImageWidget(QWidget* parent = nullptr);
+	explicit ImageWidget(QWidget* parent = nullptr);
 
-    void setData(const std::vector<std::byte>& data);
+	void setData(const std::vector<std::byte>& data);
 
-    void setAlphaEnabled(bool alpha);
-    void setTileEnabled(bool tile);
-    void setZoom(int zoom_);
+	void setAlphaEnabled(bool alpha);
+	void setTileEnabled(bool tile);
+	void setZoom(int zoom_);
 
-    [[nodiscard]] bool hasAlpha() const;
-    [[nodiscard]] bool getAlphaEnabled() const;
-    [[nodiscard]] bool getTileEnabled() const;
-    [[nodiscard]] float getZoom() const;
+	[[nodiscard]] bool hasAlpha() const;
+	[[nodiscard]] bool getAlphaEnabled() const;
+	[[nodiscard]] bool getTileEnabled() const;
+	[[nodiscard]] float getZoom() const;
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
+	void paintEvent(QPaintEvent* event) override;
 
 private:
-    QImage image;
-    bool alphaEnabled;
-    bool tileEnabled;
-    float zoom;
+	QImage image;
+	bool alphaEnabled;
+	bool tileEnabled;
+	float zoom;
 };
 
 class ImagePreview : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    static inline const QStringList EXTENSIONS {
-        ".tga",
-        ".jpg",
-        ".jpeg",
-        ".jfif",
-        ".png",
-        ".webp",
-        ".bmp",
-    };
+	static inline const QStringList EXTENSIONS {
+		".tga",
+		".jpg",
+		".jpeg",
+		".jfif",
+		".png",
+		".webp",
+		".bmp",
+	};
 
-    explicit ImagePreview(QWidget* parent = nullptr);
+	explicit ImagePreview(QWidget* parent = nullptr);
 
-    void setData(const std::vector<std::byte>& data) const;
+	void setData(const std::vector<std::byte>& data) const;
 
 protected:
-    void wheelEvent(QWheelEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
 
 private:
-    ImageWidget* image;
-    QCheckBox* alphaCheckBox;
-    QCheckBox* tileCheckBox;
-    QSlider* zoomSlider;
+	ImageWidget* image;
+	QCheckBox* alphaCheckBox;
+	QCheckBox* tileCheckBox;
+	QSlider* zoomSlider;
 };

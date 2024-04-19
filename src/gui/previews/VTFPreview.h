@@ -15,38 +15,38 @@ class QSlider;
 class QSpinBox;
 
 class VTFWidget : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit VTFWidget(QWidget* parent = nullptr);
+	explicit VTFWidget(QWidget* parent = nullptr);
 
-    void setData(const std::vector<std::byte>& data);
+	void setData(const std::vector<std::byte>& data);
 
-    void setFrame(int frame);
+	void setFrame(int frame);
 
-    void setFace(int face);
+	void setFace(int face);
 
-    void setMip(int mip);
+	void setMip(int mip);
 
-    void setAlphaEnabled(bool alpha);
+	void setAlphaEnabled(bool alpha);
 
-    void setTileEnabled(bool tile);
+	void setTileEnabled(bool tile);
 
-    void setZoom(int zoom_);
+	void setZoom(int zoom_);
 
-    [[nodiscard]] int getMaxFrame() const;
+	[[nodiscard]] int getMaxFrame() const;
 
-    [[nodiscard]] int getMaxFace() const;
+	[[nodiscard]] int getMaxFace() const;
 
-    [[nodiscard]] int getMaxMip() const;
+	[[nodiscard]] int getMaxMip() const;
 
-    [[nodiscard]] bool hasAlpha() const;
+	[[nodiscard]] bool hasAlpha() const;
 
-    [[nodiscard]] bool getAlphaEnabled() const;
+	[[nodiscard]] bool getAlphaEnabled() const;
 
-    [[nodiscard]] bool getTileEnabled() const;
+	[[nodiscard]] bool getTileEnabled() const;
 
-    [[nodiscard]] float getZoom() const;
+	[[nodiscard]] float getZoom() const;
 
 	[[nodiscard]] QString getVersion() const;
 
@@ -55,48 +55,48 @@ public:
 	[[nodiscard]] int getAuxCompression() const;
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
+	void paintEvent(QPaintEvent* event) override;
 
 private:
-    std::unique_ptr<VTFLib::CVTFFile> vtf;
+	std::unique_ptr<VTFLib::CVTFFile> vtf;
 
-    QImage image;
-    VTFData vtfData;
+	QImage image;
+	VTFData vtfData;
 
-    int currentFace;
-    int currentFrame;
-    int currentMip;
-    bool alphaEnabled;
-    bool tileEnabled;
-    float zoom;
+	int currentFace;
+	int currentFrame;
+	int currentMip;
+	bool alphaEnabled;
+	bool tileEnabled;
+	float zoom;
 
-    void decodeImage(int face, int frame, int mip, bool alpha);
+	void decodeImage(int face, int frame, int mip, bool alpha);
 };
 
 class VTFPreview : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    static inline const QStringList EXTENSIONS {
-        ".vtf",
-    };
+	static inline const QStringList EXTENSIONS {
+		".vtf",
+	};
 
-    explicit VTFPreview(QWidget* parent = nullptr);
+	explicit VTFPreview(QWidget* parent = nullptr);
 
-    void setData(const std::vector<std::byte>& data) const;
+	void setData(const std::vector<std::byte>& data) const;
 
 protected:
-    void wheelEvent(QWheelEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
 
 private:
-    VTFWidget* vtf;
-    QSpinBox* frameSpin;
-    QSpinBox* faceSpin;
-    QSpinBox* mipSpin;
-    QCheckBox* alphaCheckBox;
-    QCheckBox* tileCheckBox;
-    QSlider* zoomSlider;
-    QLabel* versionLabel;
-    QLabel* imageFormatLabel;
-    QLabel* compressionLevelLabel;
+	VTFWidget* vtf;
+	QSpinBox* frameSpin;
+	QSpinBox* faceSpin;
+	QSpinBox* mipSpin;
+	QCheckBox* alphaCheckBox;
+	QCheckBox* tileCheckBox;
+	QSlider* zoomSlider;
+	QLabel* versionLabel;
+	QLabel* imageFormatLabel;
+	QLabel* compressionLevelLabel;
 };

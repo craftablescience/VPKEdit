@@ -10,12 +10,12 @@
 using namespace vpkedit;
 
 PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions options_, QWidget* parent)
-        : QDialog(parent)
+		: QDialog(parent)
 		, options(options_) {
-    this->setModal(true);
-    this->setWindowTitle(tr("Properties"));
+	this->setModal(true);
+	this->setWindowTitle(tr("Properties"));
 
-    auto* layout = new QFormLayout(this);
+	auto* layout = new QFormLayout(this);
 
 	this->vpk_version = nullptr;
 #ifdef VPKEDIT_ZIP_COMPRESSION
@@ -42,11 +42,11 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
 		layout->addWidget(nothingLabel);
 	}
 
-    auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    layout->addWidget(buttonBox);
+	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+	layout->addWidget(buttonBox);
 
-    QObject::connect(buttonBox, &QDialogButtonBox::accepted, this, &PackFileOptionsDialog::accept);
-    QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &PackFileOptionsDialog::reject);
+	QObject::connect(buttonBox, &QDialogButtonBox::accepted, this, &PackFileOptionsDialog::accept);
+	QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &PackFileOptionsDialog::reject);
 }
 
 PackFileOptions PackFileOptionsDialog::getPackFileOptions() {
@@ -60,11 +60,11 @@ PackFileOptions PackFileOptionsDialog::getPackFileOptions() {
 }
 
 std::optional<PackFileOptions> PackFileOptionsDialog::getPackFileOptions(PackFileType type, PackFileOptions options, QWidget* parent) {
-    auto* dialog = new PackFileOptionsDialog(type, options, parent);
-    int ret = dialog->exec();
+	auto* dialog = new PackFileOptionsDialog(type, options, parent);
+	int ret = dialog->exec();
 	dialog->deleteLater();
-    if (ret != QDialog::Accepted) {
-        return std::nullopt;
-    }
-    return dialog->getPackFileOptions();
+	if (ret != QDialog::Accepted) {
+		return std::nullopt;
+	}
+	return dialog->getPackFileOptions();
 }

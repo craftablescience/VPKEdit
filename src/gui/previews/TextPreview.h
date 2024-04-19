@@ -7,76 +7,76 @@
 class TextPreview;
 
 class LineNumberArea : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit LineNumberArea(TextPreview* textPreview, QWidget* parent = nullptr);
+	explicit LineNumberArea(TextPreview* textPreview, QWidget* parent = nullptr);
 
-    [[nodiscard]] QSize sizeHint() const override;
+	[[nodiscard]] QSize sizeHint() const override;
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
+	void paintEvent(QPaintEvent* event) override;
 
 private:
-    TextPreview* preview;
+	TextPreview* preview;
 };
 
 class KeyValuesHighlighter : public QSyntaxHighlighter {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit KeyValuesHighlighter(QTextDocument* document = nullptr);
+	explicit KeyValuesHighlighter(QTextDocument* document = nullptr);
 
 protected:
-    void highlightBlock(const QString& text) override;
+	void highlightBlock(const QString& text) override;
 
 private:
-    struct HighlightingRule {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-    };
-    QList<HighlightingRule> highlightingRules;
+	struct HighlightingRule {
+		QRegularExpression pattern;
+		QTextCharFormat format;
+	};
+	QList<HighlightingRule> highlightingRules;
 };
 
 class TextPreview : public QPlainTextEdit {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    // Reminder if you add a format that should be highlighted to change that list too!
-    static inline const QStringList EXTENSIONS {
-        ".txt", ".md",                                             // Text
-        ".nut", ".lua", ".gm", ".py", ".js", ".ts",                // Scripts
-        ".vmf", ".vmm", ".vmx", ".vmt",                            // Assets (1)
-        ".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd",             // Assets (2)
-        ".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",             // KeyValues
-        ".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",             // Valve formats
-        ".ini", ".yml", ".yaml", ".toml", ".json",                 // Config
-        ".html", ".htm", ".xml", ".css", ".scss", ".sass",         // Web
-        "authors", "credits", "license", "readme",                 // Info
-        ".gitignore", ".gitattributes", ".gitmodules",             // Git
-        ".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap", // Godot
-    };
+	// Reminder if you add a format that should be highlighted to change that list too!
+	static inline const QStringList EXTENSIONS {
+		".txt", ".md",                                             // Text
+		".nut", ".lua", ".gm", ".py", ".js", ".ts",                // Scripts
+		".vmf", ".vmm", ".vmx", ".vmt",                            // Assets (1)
+		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd",             // Assets (2)
+		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",             // KeyValues
+		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",             // Valve formats
+		".ini", ".yml", ".yaml", ".toml", ".json",                 // Config
+		".html", ".htm", ".xml", ".css", ".scss", ".sass",         // Web
+		"authors", "credits", "license", "readme",                 // Info
+		".gitignore", ".gitattributes", ".gitmodules",             // Git
+		".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap", // Godot
+	};
 
-    explicit TextPreview(QWidget* parent = nullptr);
+	explicit TextPreview(QWidget* parent = nullptr);
 
-    void setText(const QString& text, const QString& extension);
+	void setText(const QString& text, const QString& extension);
 
-    [[nodiscard]] int getLineNumberAreaWidth() const;
+	[[nodiscard]] int getLineNumberAreaWidth() const;
 
-    void onLineNumberAreaPaintEvent(QPaintEvent* event) const;
+	void onLineNumberAreaPaintEvent(QPaintEvent* event) const;
 
 protected:
-    void resizeEvent(QResizeEvent* event) override;
+	void resizeEvent(QResizeEvent* event) override;
 
 private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
+	void updateLineNumberAreaWidth(int newBlockCount);
 
-    void updateLineNumberArea(const QRect& rect, int dy);
+	void updateLineNumberArea(const QRect& rect, int dy);
 
-    void highlightCurrentLine();
+	void highlightCurrentLine();
 
 private:
-    LineNumberArea* lineNumberArea;
+	LineNumberArea* lineNumberArea;
 
-    KeyValuesHighlighter keyValuesHighlighter;
+	KeyValuesHighlighter keyValuesHighlighter;
 };

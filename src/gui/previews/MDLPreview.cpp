@@ -167,15 +167,15 @@ void MDLWidget::setAABB(AABB aabb) {
 	// https://stackoverflow.com/a/32836605 - calculate optimal camera distance from bounding box
 	auto midpoint = (aabb.max + aabb.min) / 2.0f;
 	float sphereRadius = 0.0f;
-    for (const auto corner : aabb.getCorners()) {
-        if (auto dist = midpoint.distanceToPoint(corner); dist > sphereRadius) {
-            sphereRadius = dist;
-        }
-    }
+	for (const auto corner : aabb.getCorners()) {
+		if (auto dist = midpoint.distanceToPoint(corner); dist > sphereRadius) {
+			sphereRadius = dist;
+		}
+	}
 	float fovRad = qDegreesToRadians(this->fov);
 	this->target = midpoint;
 	this->distance = static_cast<float>(sphereRadius / qTan(fovRad / 2));
-    this->distanceScale = this->distance / 128.0f;
+	this->distanceScale = this->distance / 128.0f;
 }
 
 void MDLWidget::setSkin(int skin_) {
@@ -219,10 +219,10 @@ void MDLWidget::clearMeshes() {
 }
 
 void MDLWidget::initializeGL() {
-    if (!this->initializeOpenGLFunctions()) {
-        QMessageBox::critical(this, tr("Error"), tr("Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models."));
-        return; // and probably crash right after
-    }
+	if (!this->initializeOpenGLFunctions()) {
+		QMessageBox::critical(this, tr("Error"), tr("Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models."));
+		return; // and probably crash right after
+	}
 
 	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/mdl.vert");
 	this->wireframeShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/mdl_wireframe.frag");
@@ -360,73 +360,73 @@ void MDLWidget::paintGL() {
 void MDLWidget::mousePressEvent(QMouseEvent* event) {
 	this->mousePressPosition = QVector2D(event->position());
 
-    if (event->button() == Qt::MouseButton::RightButton) {
-        this->rmbBeingHeld = true;
-    }
+	if (event->button() == Qt::MouseButton::RightButton) {
+		this->rmbBeingHeld = true;
+	}
 
 	event->accept();
 }
 
 void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
-    if (event->button() == Qt::MouseButton::RightButton) {
-        this->rmbBeingHeld = false;
+	if (event->button() == Qt::MouseButton::RightButton) {
+		this->rmbBeingHeld = false;
 		event->accept();
-    }
+	}
 }
 
 void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 	QVector2D diff = QVector2D(event->position()) - this->mousePressPosition;
 
-    // If holding shift, just move the mesh
-    if (QApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) {
-        this->translationalVelocity = QVector3D(diff.x() * this->distanceScale / 4.0f, -diff.y() * this->distanceScale / 4.0f, 0.0);
-        this->target += this->translationalVelocity;
-	    this->mousePressPosition = QVector2D(event->position());
-        this->update();
-        return;
-    }
+	// If holding shift, just move the mesh
+	if (QApplication::queryKeyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) {
+		this->translationalVelocity = QVector3D(diff.x() * this->distanceScale / 4.0f, -diff.y() * this->distanceScale / 4.0f, 0.0);
+		this->target += this->translationalVelocity;
+		this->mousePressPosition = QVector2D(event->position());
+		this->update();
+		return;
+	}
 
-    QVector3D inputAxis;
-    if (!rmbBeingHeld) {
-        // Rotation axis is perpendicular to the mouse position difference vector
-        inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-    } else {
-        // Rotation axis is the z-axis
-        inputAxis = QVector3D(0.0, 0.0, -diff.x()).normalized();
-    }
+	QVector3D inputAxis;
+	if (!rmbBeingHeld) {
+		// Rotation axis is perpendicular to the mouse position difference vector
+		inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+	} else {
+		// Rotation axis is the z-axis
+		inputAxis = QVector3D(0.0, 0.0, -diff.x()).normalized();
+	}
 
 	// Accelerate relative to the length of the mouse sweep
 	float acceleration = diff.length();
 
-    // Update rotation axis, velocity
+	// Update rotation axis, velocity
 	this->rotationAxis = (acceleration * inputAxis).normalized();
 	this->angularSpeed = acceleration;
 
-    // Update old position
+	// Update old position
 	this->mousePressPosition = QVector2D(event->position());
-    this->update();
+	this->update();
 
 	event->accept();
 }
 
 void MDLWidget::wheelEvent(QWheelEvent* event) {
-    if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
-        this->distance -= static_cast<float>(numDegrees.y()) * this->distanceScale;
-        this->update();
-    }
-    event->accept();
+	if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+		this->distance -= static_cast<float>(numDegrees.y()) * this->distanceScale;
+		this->update();
+	}
+	event->accept();
 }
 
 constexpr float MOTION_REDUCTION_AMOUNT = 0.75f;
 
 void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
-    this->translationalVelocity *= MOTION_REDUCTION_AMOUNT;
-    if (this->translationalVelocity.length() < 0.01) {
-        this->translationalVelocity = QVector3D();
-    } else {
-        this->target += this->translationalVelocity;
-        this->update();
-    }
+	this->translationalVelocity *= MOTION_REDUCTION_AMOUNT;
+	if (this->translationalVelocity.length() < 0.01) {
+		this->translationalVelocity = QVector3D();
+	} else {
+		this->target += this->translationalVelocity;
+		this->update();
+	}
 
 	this->angularSpeed *= MOTION_REDUCTION_AMOUNT;
 	if (this->angularSpeed < 0.01) {
@@ -449,12 +449,12 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		, shadingModeShadedTextured(nullptr) {
 	auto* layout = new QVBoxLayout(this);
 
-    auto* controls = new QFrame(this);
+	auto* controls = new QFrame(this);
 	controls->setFrameShape(QFrame::Shape::StyledPanel);
 	controls->setFixedHeight(TOOLBAR_SPACE_SIZE);
 	layout->addWidget(controls, Qt::AlignRight);
 
-    auto* controlsLayout = new QHBoxLayout(controls);
+	auto* controlsLayout = new QHBoxLayout(controls);
 	controlsLayout->setAlignment(Qt::AlignRight);
 
 	auto* tabsToggleButton = new QPushButton(tr("Toggle Info Panel"), this);
@@ -581,10 +581,10 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	bool opened = mdlParser.open(reinterpret_cast<const uint8_t*>(mdlData->data()), mdlData->size(),
 								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
 								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
-    if (!opened) {
-	    this->fileViewer->showGenericErrorPreview(tr("This model is invalid, it cannot be previewed!"));
-        return;
-    }
+	if (!opened) {
+		this->fileViewer->showGenericErrorPreview(tr("This model is invalid, it cannot be previewed!"));
+		return;
+	}
 
 	// Maybe we can add a setting for this...
 	constexpr int currentLOD = ROOT_LOD;

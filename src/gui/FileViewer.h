@@ -65,34 +65,34 @@ private:
 };
 
 class FileViewer : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    explicit FileViewer(Window* window_, QWidget* parent = nullptr);
+	explicit FileViewer(Window* window_, QWidget* parent = nullptr);
 
 	void requestNavigateBack();
 
 	void requestNavigateNext();
 
-    void displayEntry(const QString& path, const vpkedit::PackFile& packFile);
+	void displayEntry(const QString& path, const vpkedit::PackFile& packFile);
 
-    void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
+	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
 
-    void addEntry(const vpkedit::PackFile& packFile, const QString& path);
+	void addEntry(const vpkedit::PackFile& packFile, const QString& path);
 
-    void removeFile(const QString& path);
+	void removeFile(const QString& path);
 
-    void removeDir(const QString& path);
+	void removeDir(const QString& path);
 
-    void setSearchQuery(const QString& query);
+	void setSearchQuery(const QString& query);
 
-    void selectSubItemInDir(const QString& name) const;
+	void selectSubItemInDir(const QString& name) const;
 
 	[[nodiscard]] bool isDirPreviewVisible();
 
 	[[nodiscard]] const QString& getDirPreviewCurrentPath();
 
-    void clearContents(bool resetHistory);
+	void clearContents(bool resetHistory);
 
 	template<typename T>
 	T* getPreview() {
@@ -119,11 +119,11 @@ public:
 	}
 
 private:
-    Window* window;
+	Window* window;
 
 	NavBar* navbar;
 
-    std::unordered_map<std::type_index, QWidget*> previews;
+	std::unordered_map<std::type_index, QWidget*> previews;
 
 	template<typename T, typename... Args>
 	T* newPreview(Args... args) {

@@ -3,10 +3,10 @@
 #include <QLabel>
 
 class InfoPreview : public QWidget {
-    Q_OBJECT;
+	Q_OBJECT;
 
 public:
-    InfoPreview(const QPixmap& icon, const QString& text, QWidget* parent = nullptr);
+	InfoPreview(const QPixmap& icon, const QString& text, QWidget* parent = nullptr);
 
 	explicit InfoPreview(QWidget* parent = nullptr);
 

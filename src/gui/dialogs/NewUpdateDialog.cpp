@@ -9,14 +9,14 @@
 using namespace vpkedit;
 
 NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& version, const QString& details, QWidget* parent)
-        : QMessageBox(parent) {
-    this->setWindowTitle(tr("New Update Available"));
+		: QMessageBox(parent) {
+	this->setWindowTitle(tr("New Update Available"));
 
-    this->setText(tr("There is a new update available!\n\n"
+	this->setText(tr("There is a new update available!\n\n"
 					 "Current version:  v%1\n\n"
 					 "Latest version:  %2\n\n"
 					 "[Click here to go to the release on GitHub.](%3)").arg(PROJECT_VERSION_PRETTY.data(), version, releaseLink));
-    this->setTextFormat(Qt::MarkdownText);
+	this->setTextFormat(Qt::MarkdownText);
 	this->setDetailedText(details);
 
 	if (auto* gridLayout = dynamic_cast<QGridLayout*>(this->layout())) {
@@ -32,10 +32,10 @@ void NewUpdateDialog::getNewUpdatePrompt(const QString& releaseLink, const QStri
 		return;
 	}
 
-    auto* dialog = new NewUpdateDialog(releaseLink, version, details, parent);
-    auto button = dialog->exec();
+	auto* dialog = new NewUpdateDialog(releaseLink, version, details, parent);
+	auto button = dialog->exec();
 	if (button == QMessageBox::StandardButton::Ignore) {
 		::Options::set(STR_IGNORED_UPDATE_VERSION, version);
 	}
-    dialog->deleteLater();
+	dialog->deleteLater();
 }

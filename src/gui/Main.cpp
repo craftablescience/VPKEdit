@@ -20,14 +20,14 @@ int main(int argc, char** argv) {
 	format.setSamples(4);
 	QSurfaceFormat::setDefaultFormat(format);
 
-    QApplication app(argc, argv);
+	QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
-    QCoreApplication::setApplicationName(PROJECT_NAME.data());
-    QCoreApplication::setApplicationVersion(PROJECT_VERSION.data());
+	QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
+	QCoreApplication::setApplicationName(PROJECT_NAME.data());
+	QCoreApplication::setApplicationVersion(PROJECT_VERSION.data());
 
 #if !defined(__APPLE__) && !defined(_WIN32)
-    QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
+	QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
 #endif
 
 	std::unique_ptr<QSettings> options;
@@ -46,16 +46,16 @@ int main(int argc, char** argv) {
 		QCoreApplication::installTranslator(&translator);
 	}
 
-    auto* window = new Window();
-    if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
-        window->show();
-    } else {
-        window->showMaximized();
-    }
+	auto* window = new Window();
+	if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
+		window->show();
+	} else {
+		window->showMaximized();
+	}
 
 	auto* discordUpdateTimer = new QTimer(window);
 	QObject::connect(discordUpdateTimer, &QTimer::timeout, window, &DiscordPresence::update);
 	discordUpdateTimer->start(10);
 
-    return QApplication::exec();
+	return QApplication::exec();
 }

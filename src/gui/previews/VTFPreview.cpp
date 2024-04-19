@@ -63,71 +63,71 @@ QString vtfFormatToString(VTFImageFormat format) {
 } // namespace
 
 VTFWidget::VTFWidget(QWidget* parent)
-        : QWidget(parent)
-        , currentFace(0)
-        , currentFrame(0)
-        , currentMip(0)
-        , alphaEnabled(false)
-        , tileEnabled(false)
-        , zoom(1.f) {}
+		: QWidget(parent)
+		, currentFace(0)
+		, currentFrame(0)
+		, currentMip(0)
+		, alphaEnabled(false)
+		, tileEnabled(false)
+		, zoom(1.f) {}
 
 void VTFWidget::setData(const std::vector<std::byte>& data) {
-    this->vtf = std::make_unique<VTFLib::CVTFFile>();
-    this->vtf->Load(data.data(), static_cast<vlUInt>(data.size()));
-    this->decodeImage(0, 0, 0, this->alphaEnabled);
-    this->zoom = 1.f;
+	this->vtf = std::make_unique<VTFLib::CVTFFile>();
+	this->vtf->Load(data.data(), static_cast<vlUInt>(data.size()));
+	this->decodeImage(0, 0, 0, this->alphaEnabled);
+	this->zoom = 1.f;
 }
 
 void VTFWidget::setFrame(int frame) {
-    this->decodeImage(this->currentFace, frame, this->currentMip, this->alphaEnabled);
+	this->decodeImage(this->currentFace, frame, this->currentMip, this->alphaEnabled);
 }
 
 void VTFWidget::setFace(int face) {
-    this->decodeImage(face, this->currentFrame, this->currentMip, this->alphaEnabled);
+	this->decodeImage(face, this->currentFrame, this->currentMip, this->alphaEnabled);
 }
 
 void VTFWidget::setMip(int mip) {
-    this->decodeImage(this->currentFace, this->currentFrame, mip, this->alphaEnabled);
+	this->decodeImage(this->currentFace, this->currentFrame, mip, this->alphaEnabled);
 }
 
 void VTFWidget::setAlphaEnabled(bool alpha) {
-    this->decodeImage(this->currentFace, this->currentFrame, this->currentMip, alpha);
+	this->decodeImage(this->currentFace, this->currentFrame, this->currentMip, alpha);
 }
 
 void VTFWidget::setTileEnabled(bool tile) {
-    this->tileEnabled = tile;
+	this->tileEnabled = tile;
 }
 
 void VTFWidget::setZoom(int zoom_) {
-    this->zoom = static_cast<float>(zoom_) / 100.f;
+	this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
 int VTFWidget::getMaxFrame() const {
-    return static_cast<int>(this->vtf->GetFrameCount());
+	return static_cast<int>(this->vtf->GetFrameCount());
 }
 
 int VTFWidget::getMaxFace() const {
-    return static_cast<int>(this->vtf->GetFaceCount());
+	return static_cast<int>(this->vtf->GetFaceCount());
 }
 
 int VTFWidget::getMaxMip() const {
-    return static_cast<int>(this->vtf->GetMipmapCount());
+	return static_cast<int>(this->vtf->GetMipmapCount());
 }
 
 bool VTFWidget::hasAlpha() const {
-    return CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
+	return CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
 }
 
 bool VTFWidget::getAlphaEnabled() const {
-    return this->alphaEnabled;
+	return this->alphaEnabled;
 }
 
 bool VTFWidget::getTileEnabled() const {
-    return this->tileEnabled;
+	return this->tileEnabled;
 }
 
 float VTFWidget::getZoom() const {
-    return this->zoom;
+	return this->zoom;
 }
 
 QString VTFWidget::getVersion() const {
@@ -147,36 +147,36 @@ int VTFWidget::getAuxCompression() const {
 
 // Taken directly from vtex2, thanks!
 void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
-    QPainter painter(this);
+	QPainter painter(this);
 
-    if (!this->vtf) {
-        return;
-    }
+	if (!this->vtf) {
+		return;
+	}
 
-    // Compute draw size for this mip, frame, etc
-    vlUInt imageWidth, imageHeight, imageDepth;
-    CVTFFile::ComputeMipmapDimensions(
-            this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
-            this->currentMip, imageWidth, imageHeight, imageDepth);
+	// Compute draw size for this mip, frame, etc
+	vlUInt imageWidth, imageHeight, imageDepth;
+	CVTFFile::ComputeMipmapDimensions(
+			this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
+			this->currentMip, imageWidth, imageHeight, imageDepth);
 
-    float realZoom = powf(2, static_cast<float>(this->currentMip)) * this->zoom;
+	float realZoom = powf(2, static_cast<float>(this->currentMip)) * this->zoom;
 
-    int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(imageWidth) * realZoom)) / 2;
-    int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(imageHeight) * realZoom)) / 2;
-    int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
-    int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
+	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(imageWidth) * realZoom)) / 2;
+	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(imageHeight) * realZoom)) / 2;
+	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
+	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
 
-    QRect sourceRect(0, 0, this->image.width(), this->image.height());
+	QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
-    if (!this->tileEnabled) {
-        painter.drawImage(QRect(zoomedXPos, zoomedYPos, zoomedWidth, zoomedHeight), this->image, sourceRect);
-        return;
-    }
-    for (int i = -zoomedWidth; i <= zoomedWidth; i += zoomedWidth) {
-        for (int j = -zoomedHeight; j <= zoomedHeight; j += zoomedHeight) {
-            painter.drawImage(QRect(zoomedXPos + i, zoomedYPos + j, zoomedWidth, zoomedHeight), this->image, sourceRect);
-        }
-    }
+	if (!this->tileEnabled) {
+		painter.drawImage(QRect(zoomedXPos, zoomedYPos, zoomedWidth, zoomedHeight), this->image, sourceRect);
+		return;
+	}
+	for (int i = -zoomedWidth; i <= zoomedWidth; i += zoomedWidth) {
+		for (int j = -zoomedHeight; j <= zoomedHeight; j += zoomedHeight) {
+			painter.drawImage(QRect(zoomedXPos + i, zoomedYPos + j, zoomedWidth, zoomedHeight), this->image, sourceRect);
+		}
+	}
 }
 
 void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
@@ -186,25 +186,25 @@ void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
 		return;
 	}
 	this->vtfData = std::move(result.value());
-    this->image = QImage(reinterpret_cast<uchar*>(this->vtfData.data.get()), static_cast<int>(this->vtfData.width), static_cast<int>(this->vtfData.height), this->vtfData.format);
-    this->currentFace = face;
-    this->currentFrame = frame;
-    this->currentMip = mip;
-    this->alphaEnabled = alpha;
+	this->image = QImage(reinterpret_cast<uchar*>(this->vtfData.data.get()), static_cast<int>(this->vtfData.width), static_cast<int>(this->vtfData.height), this->vtfData.format);
+	this->currentFace = face;
+	this->currentFrame = frame;
+	this->currentMip = mip;
+	this->alphaEnabled = alpha;
 }
 
 VTFPreview::VTFPreview(QWidget* parent)
-        : QWidget(parent) {
-    auto* layout = new QHBoxLayout(this);
+		: QWidget(parent) {
+	auto* layout = new QHBoxLayout(this);
 
-    this->vtf = new VTFWidget(this);
-    layout->addWidget(this->vtf);
+	this->vtf = new VTFWidget(this);
+	layout->addWidget(this->vtf);
 
-    auto* controls = new QWidget(this);
+	auto* controls = new QWidget(this);
 	controls->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
-    layout->addWidget(controls);
+	layout->addWidget(controls);
 
-    auto* controlsLayout = new QVBoxLayout(controls);
+	auto* controlsLayout = new QVBoxLayout(controls);
 
 	auto* faceSpinParent = new QWidget(controls);
 	auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
@@ -219,121 +219,121 @@ VTFPreview::VTFPreview(QWidget* parent)
 	faceSpinLayout->addWidget(this->faceSpin);
 	controlsLayout->addWidget(faceSpinParent);
 
-    auto* frameSpinParent = new QWidget(controls);
-    auto* frameSpinLayout = new QHBoxLayout(frameSpinParent);
-    auto* frameSpinLabel = new QLabel(tr("Frame"), frameSpinParent);
-    frameSpinLayout->addWidget(frameSpinLabel);
-    this->frameSpin = new QSpinBox(frameSpinParent);
-    this->frameSpin->setMinimum(0);
-    QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
-        this->vtf->setFrame(this->frameSpin->value());
-        this->vtf->repaint();
-    });
-    frameSpinLayout->addWidget(this->frameSpin);
-    controlsLayout->addWidget(frameSpinParent);
+	auto* frameSpinParent = new QWidget(controls);
+	auto* frameSpinLayout = new QHBoxLayout(frameSpinParent);
+	auto* frameSpinLabel = new QLabel(tr("Frame"), frameSpinParent);
+	frameSpinLayout->addWidget(frameSpinLabel);
+	this->frameSpin = new QSpinBox(frameSpinParent);
+	this->frameSpin->setMinimum(0);
+	QObject::connect(this->frameSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setFrame(this->frameSpin->value());
+		this->vtf->repaint();
+	});
+	frameSpinLayout->addWidget(this->frameSpin);
+	controlsLayout->addWidget(frameSpinParent);
 
-    auto* mipSpinParent = new QWidget(controls);
-    auto* mipSpinLayout = new QHBoxLayout(mipSpinParent);
-    auto* mipSpinLabel = new QLabel(tr("Mip"), mipSpinParent);
-    mipSpinLayout->addWidget(mipSpinLabel);
-    this->mipSpin = new QSpinBox(controls);
-    this->mipSpin->setMinimum(0);
-    QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
-        this->vtf->setMip(this->mipSpin->value());
-        this->vtf->repaint();
-    });
-    mipSpinLayout->addWidget(this->mipSpin);
-    controlsLayout->addWidget(mipSpinParent);
+	auto* mipSpinParent = new QWidget(controls);
+	auto* mipSpinLayout = new QHBoxLayout(mipSpinParent);
+	auto* mipSpinLabel = new QLabel(tr("Mip"), mipSpinParent);
+	mipSpinLayout->addWidget(mipSpinLabel);
+	this->mipSpin = new QSpinBox(controls);
+	this->mipSpin->setMinimum(0);
+	QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setMip(this->mipSpin->value());
+		this->vtf->repaint();
+	});
+	mipSpinLayout->addWidget(this->mipSpin);
+	controlsLayout->addWidget(mipSpinParent);
 
-    auto* alphaCheckBoxParent = new QWidget(controls);
-    auto* alphaCheckBoxLayout = new QHBoxLayout(alphaCheckBoxParent);
-    auto* alphaCheckBoxLabel = new QLabel(tr("Alpha"), alphaCheckBoxParent);
-    alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
-    this->alphaCheckBox = new QCheckBox(controls);
-    QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
-        this->vtf->setAlphaEnabled(this->alphaCheckBox->isChecked());
-        this->vtf->repaint();
-    });
-    alphaCheckBoxLayout->addWidget(this->alphaCheckBox, 0, Qt::AlignHCenter);
-    controlsLayout->addWidget(alphaCheckBoxParent);
+	auto* alphaCheckBoxParent = new QWidget(controls);
+	auto* alphaCheckBoxLayout = new QHBoxLayout(alphaCheckBoxParent);
+	auto* alphaCheckBoxLabel = new QLabel(tr("Alpha"), alphaCheckBoxParent);
+	alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
+	this->alphaCheckBox = new QCheckBox(controls);
+	QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
+		this->vtf->setAlphaEnabled(this->alphaCheckBox->isChecked());
+		this->vtf->repaint();
+	});
+	alphaCheckBoxLayout->addWidget(this->alphaCheckBox, 0, Qt::AlignHCenter);
+	controlsLayout->addWidget(alphaCheckBoxParent);
 
-    auto* tileCheckBoxParent = new QWidget(controls);
-    auto* tileCheckBoxLayout = new QHBoxLayout(tileCheckBoxParent);
-    auto* tileCheckBoxLabel = new QLabel(tr("Tile"), tileCheckBoxParent);
-    tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
-    this->tileCheckBox = new QCheckBox(controls);
-    QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
-        this->vtf->setTileEnabled(this->tileCheckBox->isChecked());
-        this->vtf->repaint();
-    });
-    tileCheckBoxLayout->addWidget(this->tileCheckBox, 0, Qt::AlignHCenter);
-    controlsLayout->addWidget(tileCheckBoxParent);
+	auto* tileCheckBoxParent = new QWidget(controls);
+	auto* tileCheckBoxLayout = new QHBoxLayout(tileCheckBoxParent);
+	auto* tileCheckBoxLabel = new QLabel(tr("Tile"), tileCheckBoxParent);
+	tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
+	this->tileCheckBox = new QCheckBox(controls);
+	QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
+		this->vtf->setTileEnabled(this->tileCheckBox->isChecked());
+		this->vtf->repaint();
+	});
+	tileCheckBoxLayout->addWidget(this->tileCheckBox, 0, Qt::AlignHCenter);
+	controlsLayout->addWidget(tileCheckBoxParent);
 
-    auto* zoomSliderParent = new QWidget(controls);
-    auto* zoomSliderLayout = new QHBoxLayout(zoomSliderParent);
-    auto* zoomSliderLabel = new QLabel(tr("Zoom"), zoomSliderParent);
-    zoomSliderLayout->addWidget(zoomSliderLabel);
-    this->zoomSlider = new QSlider(controls);
-    this->zoomSlider->setMinimum(20);
-    this->zoomSlider->setMaximum(800);
-    this->zoomSlider->setValue(100);
-    QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
-        this->vtf->setZoom(this->zoomSlider->value());
-        this->vtf->repaint();
-    });
-    zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
-    controlsLayout->addWidget(zoomSliderParent);
+	auto* zoomSliderParent = new QWidget(controls);
+	auto* zoomSliderLayout = new QHBoxLayout(zoomSliderParent);
+	auto* zoomSliderLabel = new QLabel(tr("Zoom"), zoomSliderParent);
+	zoomSliderLayout->addWidget(zoomSliderLabel);
+	this->zoomSlider = new QSlider(controls);
+	this->zoomSlider->setMinimum(20);
+	this->zoomSlider->setMaximum(800);
+	this->zoomSlider->setValue(100);
+	QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
+		this->vtf->setZoom(this->zoomSlider->value());
+		this->vtf->repaint();
+	});
+	zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
+	controlsLayout->addWidget(zoomSliderParent);
 
-    this->versionLabel = new QLabel(controls);
+	this->versionLabel = new QLabel(controls);
 	this->versionLabel->setAlignment(Qt::AlignRight);
-    controlsLayout->addWidget(this->versionLabel);
+	controlsLayout->addWidget(this->versionLabel);
 
-    this->imageFormatLabel = new QLabel(controls);
+	this->imageFormatLabel = new QLabel(controls);
 	this->imageFormatLabel->setAlignment(Qt::AlignRight);
-    controlsLayout->addWidget(this->imageFormatLabel);
+	controlsLayout->addWidget(this->imageFormatLabel);
 
-    this->compressionLevelLabel = new QLabel(controls);
+	this->compressionLevelLabel = new QLabel(controls);
 	this->compressionLevelLabel->setAlignment(Qt::AlignRight);
-    controlsLayout->addWidget(this->compressionLevelLabel);
+	controlsLayout->addWidget(this->compressionLevelLabel);
 }
 
 void VTFPreview::setData(const std::vector<std::byte>& data) const {
-    this->vtf->setData(data);
+	this->vtf->setData(data);
 
 	this->faceSpin->setMaximum(this->vtf->getMaxFace() - 1);
 	this->faceSpin->setValue(0);
 	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1);
 
-    this->frameSpin->setMaximum(this->vtf->getMaxFrame() - 1);
-    this->frameSpin->setValue(0);
-    this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
+	this->frameSpin->setMaximum(this->vtf->getMaxFrame() - 1);
+	this->frameSpin->setValue(0);
+	this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
 
-    this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
-    this->mipSpin->setValue(0);
-    this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
+	this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
+	this->mipSpin->setValue(0);
+	this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
 
 	// Don't reset alpha: this is handled automatically
-    //this->alphaCheckBox->setChecked(false);
-    this->alphaCheckBox->setDisabled(!this->vtf->hasAlpha());
+	//this->alphaCheckBox->setChecked(false);
+	this->alphaCheckBox->setDisabled(!this->vtf->hasAlpha());
 
 	// Don't reset tiled: this is handled automatically
-    //this->tileCheckBox->setChecked(false);
+	//this->tileCheckBox->setChecked(false);
 
 	// Don't reset zoom: set the preexisting zoom on the vtf
-    //this->zoomSlider->setValue(100);
+	//this->zoomSlider->setValue(100);
 	this->vtf->setZoom(this->zoomSlider->value());
 
-    this->versionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
+	this->versionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
 
-    this->imageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
+	this->imageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
 
-    this->compressionLevelLabel->setText(tr("Compression: %1").arg(this->vtf->getAuxCompression()));
+	this->compressionLevelLabel->setText(tr("Compression: %1").arg(this->vtf->getAuxCompression()));
 	this->compressionLevelLabel->setVisible(this->vtf->getAuxCompression() >= 0);
 }
 
 void VTFPreview::wheelEvent(QWheelEvent* event) {
-    if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
-        this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y());
-    }
-    event->accept();
+	if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+		this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y());
+	}
+	event->accept();
 }
