@@ -80,7 +80,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -91,7 +91,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -107,7 +107,7 @@ jobs:
         if: ${{matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli.exe
             ${{env.BUILD_DIR}}/vpkedit.exe
@@ -123,7 +123,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
@@ -138,7 +138,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/libvpkeditc.dll
             ${{github.workspace}}/include/vpkeditc/
@@ -148,7 +148,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/libvpkeditc.pdb
             ${{env.BUILD_DIR}}/vpkeditcli.pdb
@@ -243,7 +243,7 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Linux-Standalone-CLI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -254,7 +254,7 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Linux-Standalone-GUI-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/CREDITS.md
             ${{env.BUILD_DIR}}/LICENSE
@@ -276,7 +276,7 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'StrataSource'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Linux-Binaries-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli
             ${{env.BUILD_DIR}}/vpkedit
@@ -292,7 +292,7 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7
@@ -307,7 +307,7 @@ jobs:
         if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.target}}-Linux-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}
+          name: '${{matrix.target}}-Linux-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/libvpkeditc.so*
             ${{github.workspace}}/include/vpkeditc/
@@ -324,19 +324,19 @@ jobs:
         with:
           script: |
             const artifacts = (await github.rest.actions.listWorkflowRunArtifacts({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               run_id: ${{github.run_id}},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{github.run_id}},
             })).data.artifacts;
             const filteredArtifacts = artifacts.filter(artifact => artifact.name.includes("Release"));
             console.log(`Found ${artifacts.length} artifacts - ${filteredArtifacts.length} qualify for upload.`);
             for (const artifact of filteredArtifacts) {
               console.log(`Downloading "${artifact.name}.zip"...`);
               let download = await github.rest.actions.downloadArtifact({
-                 owner: context.repo.owner,
-                 repo: context.repo.repo,
-                 artifact_id: artifact.id,
-                 archive_format: 'zip',
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip',
               });
               let fs = require('fs');
               fs.writeFileSync(`${{github.workspace}}/${artifact.name}.zip`, Buffer.from(download.data));
