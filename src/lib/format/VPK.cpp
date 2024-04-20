@@ -271,10 +271,28 @@ bool VPK::verifyFileChecksum() const {
 		return true;
 	}
 
-	// todo: MD5 sections
+	// MD5 sections
+	{
+		FileStream stream{this->getFilepath().data()};
+
+		stream.seekInput(this->getHeaderLength());
+		if (this->footer2.treeChecksum != ::computeMD5(stream.readBytes(this->header1.treeSize))) {
+			return false;
+		}
+
+		stream.seekInput(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize);
+		if (this->footer2.md5EntriesChecksum != ::computeMD5(stream.readBytes(this->header2.archiveMD5SectionSize))) {
+			return false;
+		}
+
+		stream.seekInput(0);
+		if (this->footer2.wholeFileChecksum != ::computeMD5(stream.readBytes(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize + this->header2.archiveMD5SectionSize + this->header2.otherMD5SectionSize - sizeof(this->footer2.wholeFileChecksum)))) {
+			return false;
+		}
+	}
 
 	// Signature section
-	if (this->footer2.publicKey.empty()) {
+	if (this->footer2.publicKey.empty() || this->footer2.signature.empty()) {
 		return true;
 	}
 	auto dirFileBuffer = ::readFileData(this->getFilepath().data());
@@ -627,6 +645,8 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 			md5EntriesChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(this->md5Entries.data()), this->md5Entries.size() * sizeof(MD5Entry));
 			md5EntriesChecksumMD5.Final(reinterpret_cast<CryptoPP::byte*>(this->footer2.md5EntriesChecksum.data()));
 		}
+		wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(this->footer2.treeChecksum.data()), this->footer2.treeChecksum.size());
+		wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(this->footer2.md5EntriesChecksum.data()), this->footer2.md5EntriesChecksum.size());
 		wholeFileChecksumMD5.Final(reinterpret_cast<CryptoPP::byte*>(this->footer2.wholeFileChecksum.data()));
 
 		// We can't recalculate the signature without the private key
