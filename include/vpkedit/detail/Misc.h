@@ -15,4 +15,6 @@ std::pair<std::string, std::string> splitFilenameAndParentDir(const std::string&
 
 std::vector<std::byte> readFileData(const std::string& filepath, std::size_t preloadBytesOffset = 0);
 
+std::string readFileText(const std::string& filepath, std::size_t preloadBytesOffset = 0);
+
 } // namespace vpkedit::detail

@@ -43,3 +43,15 @@ std::vector<std::byte> detail::readFileData(const std::string& filepath, std::si
 	stream.seekInput(preloadBytesOffset);
 	return stream.readBytes(std::filesystem::file_size(filepath) - preloadBytesOffset);
 }
+
+std::string detail::readFileText(const std::string& filepath, std::size_t preloadBytesOffset) {
+	auto data = readFileData(filepath, preloadBytesOffset);
+	std::string out;
+	for (std::byte b : data) {
+		out.push_back(static_cast<char>(b));
+	}
+	while (!out.empty() && out[out.size() - 1] == '\0') {
+		out.pop_back();
+	}
+	return out;
+}

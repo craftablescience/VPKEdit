@@ -14,6 +14,9 @@ constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 constexpr std::string_view VPK_DIR_SUFFIX = "_dir";
 constexpr std::string_view VPK_EXTENSION = ".vpk";
 
+constexpr std::string_view VPK_KEYPAIR_PUBLIC_KEY_TEMPLATE = "public_key\n{\n\ttype \"rsa\"\n\trsa_public_key \"%s\"\n}\n";
+constexpr std::string_view VPK_KEYPAIR_PRIVATE_KEY_TEMPLATE = "private_key\n{\n\ttype \"rsa\"\n\trsa_private_key \"%s\"\n\tprivate_key_encrypted 0\n\tpublic_key\n\t{\n\t\ttype \"rsa\"\n\t\trsa_public_key \"%s\"\n\t}\n}\n";
+
 class VPK : public PackFile {
 protected:
 #pragma pack(push, 1)
@@ -74,6 +77,8 @@ public:
 
 	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
 
+	[[nodiscard]] bool verifyFileChecksum() const override;
+
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const Entry& entry) const override;
 
 	bool removeEntry(const std::string& filename_) override;
@@ -85,6 +90,14 @@ public:
 	[[nodiscard]] std::vector<Attribute> getSupportedEntryAttributes() const override;
 
 	[[nodiscard]] explicit operator std::string() const override;
+
+	/// Generate keypair files, which can be used to sign a VPK
+	/// Input is a truncated file path, e.g. "/x/y/z/key" or just "key" for the CWD
+	/// It will append ".publickey.vdf" and ".privatekey.vdf" to the input and save those files
+	static void generateKeyPairFiles(const std::string& name);
+
+	/// Sign the VPK with the given keypair. Run this after VPK::bake if modifying the VPK file contents
+	bool sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey);
 
 	/// Returns 1 for v1, 2 for v2
 	[[nodiscard]] std::uint32_t getVersion() const;

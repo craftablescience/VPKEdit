@@ -36,6 +36,7 @@ add_library(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/FileStream.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/MD5.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/Misc.h"
+		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/detail/RSA.h"
 
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/BSP.h"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/format/FPX.h"
@@ -59,6 +60,7 @@ add_library(
 		"${CMAKE_CURRENT_LIST_DIR}/detail/FileStream.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/MD5.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/detail/Misc.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/detail/RSA.cpp"
 
 		"${CMAKE_CURRENT_LIST_DIR}/format/BSP.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/format/FPX.cpp"
