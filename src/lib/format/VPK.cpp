@@ -2,7 +2,8 @@
 
 #include <filesystem>
 
-#include <MD5.h>
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include <cryptopp/md5.h>
 
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/FileStream.h>
@@ -580,28 +581,28 @@ bool VPK::bake(const std::string& outputDir_, const Callback& callback) {
 		this->header2.signatureSectionSize = 0;
 
 		// Calculate Footer2
-		MD5 wholeFileChecksumMD5;
+		CryptoPP::Weak::MD5 wholeFileChecksumMD5;
 		{
 			// Only the tree is updated in the file right now
-			wholeFileChecksumMD5.update(reinterpret_cast<const std::byte*>(&this->header1), sizeof(Header1));
-			wholeFileChecksumMD5.update(reinterpret_cast<const std::byte*>(&this->header2), sizeof(Header2));
+			wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(&this->header1), sizeof(Header1));
+			wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(&this->header2), sizeof(Header2));
 		}
 		{
 			outDir.seekInput(sizeof(Header1) + sizeof(Header2));
 			std::vector<std::byte> treeData = outDir.readBytes(this->header1.treeSize);
-			wholeFileChecksumMD5.update(treeData.data(), treeData.size());
+			wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(treeData.data()), treeData.size());
 			this->footer2.treeChecksum = ::computeMD5(treeData);
 		}
 		if (!dirVPKEntryData.empty()) {
-			wholeFileChecksumMD5.update(dirVPKEntryData.data(), dirVPKEntryData.size());
+			wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(dirVPKEntryData.data()), dirVPKEntryData.size());
 		}
 		{
-			wholeFileChecksumMD5.update(reinterpret_cast<const std::byte*>(this->md5Entries.data()), this->md5Entries.size() * sizeof(MD5Entry));
-			MD5 md5EntriesChecksumMD5;
-			md5EntriesChecksumMD5.update(reinterpret_cast<const std::byte*>(this->md5Entries.data()), this->md5Entries.size() * sizeof(MD5Entry));
-			md5EntriesChecksumMD5.finalize(reinterpret_cast<unsigned char*>(this->footer2.md5EntriesChecksum.data()));
+			wholeFileChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(this->md5Entries.data()), this->md5Entries.size() * sizeof(MD5Entry));
+			CryptoPP::Weak::MD5 md5EntriesChecksumMD5;
+			md5EntriesChecksumMD5.Update(reinterpret_cast<const CryptoPP::byte*>(this->md5Entries.data()), this->md5Entries.size() * sizeof(MD5Entry));
+			md5EntriesChecksumMD5.Final(reinterpret_cast<CryptoPP::byte*>(this->footer2.md5EntriesChecksum.data()));
 		}
-		wholeFileChecksumMD5.finalize(reinterpret_cast<unsigned char*>(this->footer2.wholeFileChecksum.data()));
+		wholeFileChecksumMD5.Final(reinterpret_cast<CryptoPP::byte*>(this->footer2.wholeFileChecksum.data()));
 
 		// We can't recalculate the signature without the private key
 		this->footer2.publicKey.clear();

@@ -1,8 +1,11 @@
-# For hashing parts of a VPK and stored files
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/md5")
+# For various cryptographic algorithms
+if (NOT TARGET cryptopp::cryptopp)
+	set(CRYPTOPP_BUILD_TESTING OFF CACHE INTERNAL "")
+	set(CRYPTOPP_INSTALL       OFF CACHE INTERNAL "")
+	add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/cryptopp")
+endif()
 
 # For parsing BSP pack lumps and very basic uncompressed/LZMA-compressed ZIP files
-# If the target already exists, someone else is providing it. We can assume they've enabled the necessary features...
 if (NOT TARGET MINIZIP::minizip)
 	set(MZ_COMPAT           OFF CACHE INTERNAL "")
 	set(MZ_ZLIB             OFF CACHE INTERNAL "")
@@ -23,6 +26,7 @@ configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h.in"
 		"${CMAKE_CURRENT_SOURCE_DIR}/include/vpkedit/Version.h")
 
+# Create library
 add_library(
 		lib${PROJECT_NAME} STATIC
 
@@ -72,7 +76,7 @@ vpkedit_configure_target(lib${PROJECT_NAME})
 
 set_target_properties(lib${PROJECT_NAME} PROPERTIES PREFIX "")
 
-target_link_libraries(lib${PROJECT_NAME} PUBLIC MD5 MINIZIP::minizip)
+target_link_libraries(lib${PROJECT_NAME} PUBLIC cryptopp::cryptopp MINIZIP::minizip)
 
 target_include_directories(
 		lib${PROJECT_NAME} PUBLIC

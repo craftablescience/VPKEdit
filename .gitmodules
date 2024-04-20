@@ -25,3 +25,6 @@
 [submodule "src/cli/thirdparty/indicators"]
 	path = src/cli/thirdparty/indicators
 	url = https://github.com/p-ranav/indicators
+[submodule "src/lib/thirdparty/cryptopp"]
+	path = src/lib/thirdparty/cryptopp
+	url = https://github.com/abdes/cryptopp-cmake
