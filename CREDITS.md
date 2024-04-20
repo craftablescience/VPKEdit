@@ -15,17 +15,18 @@
 - Swedish: TheDudeWhosNameIsAce
 
 ## Acknowledgements
-- [ValvePak](https://github.com/ValveResourceFormat/ValvePak) - xPaw
-
-  Most of the very early code in the libvpkedit library was indirectly
-  based off ValvePak and the Valve Developer Wiki, and the VPK entry CRC
-  calculation code was copied directly from ValvePak.
-- Adler32 implementation - Jean-loup Gailly, Mark Adler
-- RSA Data Security, Inc. MD5 Message-Digest Algorithm implementation - Frank Thilo
-- [minizip-ng](https://github.com/zlib-ng/minizip-ng) - Gilles Vollant, Nathan Moinvaziri
-- [Qt](https://www.qt.io) - The Qt Company
-- [VTFLib](https://github.com/StrataSource/VTFLib) - Neil 'Jed' Jedrzejewski, Joshua Ashton, Strata Source Contributors
-- [SAPP](https://github.com/Trico-Everfire/SteamAppPathProvider) - Trico Everfire
-- [SpeedyKeyV](https://github.com/ozxybox/SpeedyKeyV) - OzxyBox
-- [argparse](https://github.com/p-ranav/argparse) & [indicators](https://github.com/p-ranav/indicators) - P-ranav and contributors
-- Default MatCap texture is from [nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
+- GUI
+  - [Discord RPC](https://github.com/craftablescience/discord-rpc-clean) - Discord Inc. and contributors
+  - [MiniAudio](https://github.com/mackron/miniaudio) - David Reid and contributors
+  - [Qt](https://www.qt.io) - The Qt Company
+  - [SAPP](https://github.com/Trico-Everfire/SteamAppPathProvider) - Trico Everfire, Momentum Mod Contributors
+  - [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors
+  - [SpeedyKeyV](https://github.com/ozxybox/SpeedyKeyV) - OzxyBox
+  - [VTFLib](https://github.com/StrataSource/VTFLib) - Neil 'Jed' Jedrzejewski, Joshua Ashton, Strata Source Contributors
+  - Default MatCap texture is from [nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
+- CLI
+  - [argparse](https://github.com/p-ranav/argparse) & [indicators](https://github.com/p-ranav/indicators) - P-ranav and contributors
+- `libvpkedit`
+  - Adler32 implementation - Jean-loup Gailly, Mark Adler
+  - [cryptopp](https://github.com/weidai11/cryptopp), [cryptopp-cmake](https://github.com/abdes/cryptopp-cmake) - Wei Dai, Abdessattar Sassi, and contributors
+  - [minizip-ng](https://github.com/zlib-ng/minizip-ng) - Gilles Vollant, Nathan Moinvaziri, and contributors
