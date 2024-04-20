@@ -1,5 +1,6 @@
 #include <vpkedit/format/VPK.h>
 
+#include <cstdio>
 #include <filesystem>
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -9,6 +10,7 @@
 #include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/MD5.h>
 #include <vpkedit/detail/Misc.h>
+#include <vpkedit/detail/RSA.h>
 #include <vpkedit/format/FPX.h>
 
 using namespace vpkedit;
@@ -261,6 +263,29 @@ std::unique_ptr<PackFile> VPK::openInternal(const std::string& path, PackFileOpt
 
 std::vector<std::string> VPK::verifyEntryChecksums() const {
 	return this->verifyEntryChecksumsUsingCRC32();
+}
+
+bool VPK::verifyFileChecksum() const {
+	// No checksums or signature in v1
+	if (this->header1.version == 1) {
+		return true;
+	}
+
+	// todo: MD5 sections
+
+	// Signature section
+	if (this->footer2.publicKey.empty()) {
+		return true;
+	}
+	auto dirFileBuffer = ::readFileData(this->getFilepath().data());
+	const auto signatureSectionSize = this->footer2.publicKey.size() + this->footer2.signature.size() + sizeof(std::uint32_t) * 2;
+	if (dirFileBuffer.size() <= signatureSectionSize) {
+		return false;
+	}
+	for (int i = 0; i < signatureSectionSize; i++) {
+		dirFileBuffer.pop_back();
+	}
+	return ::verifySHA256Key(dirFileBuffer, this->footer2.publicKey, this->footer2.signature);
 }
 
 std::optional<std::vector<std::byte>> VPK::readEntry(const Entry& entry) const {
@@ -650,6 +675,63 @@ std::vector<Attribute> VPK::getSupportedEntryAttributes() const {
 VPK::operator std::string() const {
 	return PackFile::operator std::string() +
 		" | Version v" + std::to_string(this->header1.version);
+}
+
+void VPK::generateKeyPairFiles(const std::string& name) {
+	auto keys = ::computeSHA256KeyPair(1024);
+	{
+		auto privateKeyPath = name + ".privatekey.vdf";
+		FileStream stream{privateKeyPath, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+
+		std::string output;
+		// Template size, remove %s and %s, add key sizes, add null terminator size
+		output.resize(VPK_KEYPAIR_PRIVATE_KEY_TEMPLATE.size() - 4 + keys.first.size() + keys.second.size() + 1);
+		if (std::sprintf(output.data(), VPK_KEYPAIR_PRIVATE_KEY_TEMPLATE.data(), keys.first.data(), keys.second.data()) < 0) {
+			std::cerr << "Failed to write Source engine private key file!" << std::endl;
+		} else {
+			output.pop_back();
+			stream.write(output, false);
+		}
+	}
+	{
+		auto publicKeyPath = name + ".publickey.vdf";
+		FileStream stream{publicKeyPath, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+
+		std::string output;
+		// Template size, remove %s, add key size, add null terminator size
+		output.resize(VPK_KEYPAIR_PUBLIC_KEY_TEMPLATE.size() - 2 + keys.second.size() + 1);
+		if (std::sprintf(output.data(), VPK_KEYPAIR_PUBLIC_KEY_TEMPLATE.data(), keys.second.data()) < 0) {
+			std::cerr << "Failed to write Source engine public key file!" << std::endl;
+		} else {
+			output.pop_back();
+			stream.write(output, false);
+		}
+	}
+}
+
+bool VPK::sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey) {
+	if (this->header1.version == 1) {
+		return false;
+	}
+
+	auto dirFileBuffer = ::readFileData(this->getFilepath().data());
+	const auto signatureSectionSize = this->footer2.publicKey.size() + this->footer2.signature.size() + sizeof(std::uint32_t) * 2;
+	if (dirFileBuffer.size() <= signatureSectionSize) {
+		return false;
+	}
+	for (int i = 0; i < signatureSectionSize; i++) {
+		dirFileBuffer.pop_back();
+	}
+	this->footer2.publicKey = publicKey;
+	this->footer2.signature = ::signDataWithSHA256Key(dirFileBuffer, privateKey);
+
+	FileStream stream{this->getFilepath().data(), FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
+	stream.seekOutput(dirFileBuffer.size());
+	stream.write(static_cast<std::uint32_t>(this->footer2.publicKey.size()));
+	stream.writeBytes(this->footer2.publicKey);
+	stream.write(static_cast<std::uint32_t>(this->footer2.signature.size()));
+	stream.writeBytes(this->footer2.signature);
+	return true;
 }
 
 std::uint32_t VPK::getVersion() const {
