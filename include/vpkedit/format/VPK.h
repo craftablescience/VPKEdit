@@ -94,7 +94,7 @@ public:
 	/// Generate keypair files, which can be used to sign a VPK
 	/// Input is a truncated file path, e.g. "/x/y/z/key" or just "key" for the CWD
 	/// It will append ".publickey.vdf" and ".privatekey.vdf" to the input and save those files
-	static void generateKeyPairFiles(const std::string& name);
+	static bool generateKeyPairFiles(const std::string& name);
 
 	/// Sign the VPK with the given keypair. Run this after VPK::bake if modifying the VPK file contents
 	bool sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey);

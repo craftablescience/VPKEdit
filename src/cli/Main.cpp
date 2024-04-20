@@ -143,7 +143,10 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 }
 
 void generateKeyPair(const std::string& inputPath) {
-	VPK::generateKeyPairFiles(inputPath);
+	if (!VPK::generateKeyPairFiles(inputPath)) {
+		std::cerr << "Failed to generate public/private key files at \"" << inputPath << ".[private/public]key.vdf\"!" << std::endl;
+		return;
+	}
 	std::cout << "Generated private/public key files at \"" << inputPath << ".[private/public]key.vdf\"." << std::endl;
 	std::cout << "Remember to NEVER share a private key! The public key is fine to share." << std::endl;
 }

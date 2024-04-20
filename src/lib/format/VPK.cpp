@@ -697,7 +697,7 @@ VPK::operator std::string() const {
 		" | Version v" + std::to_string(this->header1.version);
 }
 
-void VPK::generateKeyPairFiles(const std::string& name) {
+bool VPK::generateKeyPairFiles(const std::string& name) {
 	auto keys = ::computeSHA256KeyPair(1024);
 	{
 		auto privateKeyPath = name + ".privatekey.vdf";
@@ -707,7 +707,7 @@ void VPK::generateKeyPairFiles(const std::string& name) {
 		// Template size, remove %s and %s, add key sizes, add null terminator size
 		output.resize(VPK_KEYPAIR_PRIVATE_KEY_TEMPLATE.size() - 4 + keys.first.size() + keys.second.size() + 1);
 		if (std::sprintf(output.data(), VPK_KEYPAIR_PRIVATE_KEY_TEMPLATE.data(), keys.first.data(), keys.second.data()) < 0) {
-			std::cerr << "Failed to write Source engine private key file!" << std::endl;
+			return false;
 		} else {
 			output.pop_back();
 			stream.write(output, false);
@@ -721,12 +721,13 @@ void VPK::generateKeyPairFiles(const std::string& name) {
 		// Template size, remove %s, add key size, add null terminator size
 		output.resize(VPK_KEYPAIR_PUBLIC_KEY_TEMPLATE.size() - 2 + keys.second.size() + 1);
 		if (std::sprintf(output.data(), VPK_KEYPAIR_PUBLIC_KEY_TEMPLATE.data(), keys.second.data()) < 0) {
-			std::cerr << "Failed to write Source engine public key file!" << std::endl;
+			return false;
 		} else {
 			output.pop_back();
 			stream.write(output, false);
 		}
 	}
+	return true;
 }
 
 bool VPK::sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey) {
