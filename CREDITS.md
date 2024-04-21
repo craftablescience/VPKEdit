@@ -27,5 +27,6 @@
 - CLI
   - [argparse](https://github.com/p-ranav/argparse) & [indicators](https://github.com/p-ranav/indicators) - P-ranav and contributors
 - `libvpkedit`
+  - Adler32 implementation - Jean-loup Gailly, Mark Adler
   - [cryptopp](https://github.com/weidai11/cryptopp), [cryptopp-cmake](https://github.com/abdes/cryptopp-cmake) - Wei Dai, Abdessattar Sassi, and contributors
   - [minizip-ng](https://github.com/zlib-ng/minizip-ng) - Gilles Vollant, Nathan Moinvaziri, and contributors
