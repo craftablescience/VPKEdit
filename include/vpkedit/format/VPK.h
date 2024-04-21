@@ -96,6 +96,9 @@ public:
 	/// It will append ".publickey.vdf" and ".privatekey.vdf" to the input and save those files
 	static bool generateKeyPairFiles(const std::string& name);
 
+	/// Sign the VPK with the given private key KeyValues file. (See below comment)
+	bool sign(const std::string& filename_);
+
 	/// Sign the VPK with the given keypair. Run this after VPK::bake if modifying the VPK file contents
 	bool sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey);
 
