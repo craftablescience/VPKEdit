@@ -759,7 +759,7 @@ bool VPK::generateKeyPairFiles(const std::string& name) {
 }
 
 bool VPK::sign(const std::string& filename_) {
-	if (this->header1.version == 1 || !std::filesystem::exists(filename_) || std::filesystem::is_directory(filename_)) {
+	if (this->header1.version != 2 || !std::filesystem::exists(filename_) || std::filesystem::is_directory(filename_)) {
 		return false;
 	}
 
@@ -778,7 +778,7 @@ bool VPK::sign(const std::string& filename_) {
 }
 
 bool VPK::sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey) {
-	if (this->header1.version == 1) {
+	if (this->header1.version != 2) {
 		return false;
 	}
 

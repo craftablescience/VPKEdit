@@ -299,15 +299,6 @@ Window::Window(QWidget* parent)
 	});
 	this->toolsGeneralMenu->setDisabled(true);
 
-	this->toolsFPXMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX");
-	this->toolsFPXMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Generate Public/Private Key Files..."), [this] {
-		this->generateKeyPairFiles();
-	});
-	this->toolsFPXMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Sign File..."), [this] {
-		this->signPackFile();
-	});
-	this->toolsFPXMenu->setDisabled(true);
-
 	this->toolsVPKMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK");
 	this->toolsVPKMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Generate Public/Private Key Files..."), [this] {
 		this->generateKeyPairFiles();
@@ -918,8 +909,7 @@ void Window::signPackFile(const QString& privateKeyLocation) {
 	if (privateKeyPath.isEmpty()) {
 		return;
 	}
-	if ((this->packFile->getType() == PackFileType::FPX && dynamic_cast<FPX&>(*this->packFile).sign(privateKeyPath.toStdString())) ||
-		(this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toStdString()))) {
+	if (this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toStdString())) {
 		QMessageBox::information(this, tr("Success"), tr("Successfully signed the pack file."));
 	} else {
 		QMessageBox::information(this, tr("Error"), tr("Failed to sign the pack file! Check the file contains both the private key and public key."));
@@ -1234,7 +1224,6 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
 	this->addDirAction->setDisabled(freeze);
 	this->setPropertiesAction->setDisabled(freeze);
 	this->toolsGeneralMenu->setDisabled(freeze);
-	this->toolsFPXMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::FPX));
 	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::VPK));
 
 	this->searchBar->setDisabled(freeze);

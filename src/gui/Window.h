@@ -133,7 +133,6 @@ private:
 	QAction* addDirAction;
 	QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
-	QMenu*   toolsFPXMenu;
 	QMenu*   toolsVPKMenu;
 
 	QNetworkAccessManager* checkForNewUpdateNetworkManager;

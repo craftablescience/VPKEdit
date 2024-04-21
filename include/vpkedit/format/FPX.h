@@ -19,6 +19,8 @@ protected:
 	[[nodiscard]] static std::unique_ptr<PackFile> openInternal(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
 private:
+	using VPK::generateKeyPairFiles;
+	using VPK::sign;
 	using VPK::getVersion;
 	using VPK::setVersion;
 
