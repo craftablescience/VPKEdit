@@ -74,7 +74,18 @@ VPKEDIT_API bool vpkedit_vpk_generate_keypair_files(const char* path) {
 	return VPK::generateKeyPairFiles(path);
 }
 
-VPKEDIT_API bool vpkedit_vpk_sign(VPKEdit_PackFileHandle_t handle, const unsigned char* privateKeyBuffer, size_t privateKeyLen, const unsigned char* publicKeyBuffer, size_t publicKeyLen) {
+VPKEDIT_API bool vpkedit_vpk_sign_from_file(VPKEdit_PackFileHandle_t handle, const char* filename) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(filename, false);
+
+	auto* vpk = ::getPackFile(handle);
+	if (vpk->getType() != PackFileType::VPK) {
+		return false;
+	}
+	return dynamic_cast<VPK*>(vpk)->sign(filename);
+}
+
+VPKEDIT_API bool vpkedit_vpk_sign_from_mem(VPKEdit_PackFileHandle_t handle, const unsigned char* privateKeyBuffer, size_t privateKeyLen, const unsigned char* publicKeyBuffer, size_t publicKeyLen) {
 	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
 	VPKEDIT_EARLY_RETURN_VALUE(privateKeyBuffer, false);
 	VPKEDIT_EARLY_RETURN_VALUE(privateKeyLen, false);

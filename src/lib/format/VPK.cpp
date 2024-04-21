@@ -16,7 +16,7 @@
 using namespace vpkedit;
 using namespace vpkedit::detail;
 
-// Runtime-only flag that indicates a file is going to be written to an existing archive file
+/// Runtime-only flag that indicates a file is going to be written to an existing archive file
 constexpr std::uint32_t VPK_FLAG_REUSING_CHUNK = 0x1;
 
 namespace {
@@ -44,6 +44,34 @@ std::string padArchiveIndex(int num) {
 
 bool isFPX(const VPK* vpk) {
 	return vpk->getType() == PackFileType::FPX;
+}
+
+/// Very rudimentary, doesn't handle escapes, but works fine for reading private/public key files
+std::string_view readValueForKeyInKV(std::string_view key, std::string_view kv) {
+	auto index = kv.find(key);
+	if (index == std::string_view::npos) {
+		return "";
+	}
+	while (kv.size() > index && kv[index] != '\"') {
+		index++;
+	}
+	if (index >= kv.size()) {
+		return "";
+	}
+	while (kv.size() > index && kv[index] != '\"') {
+		index++;
+	}
+	if (++index >= kv.size()) {
+		return "";
+	}
+	auto beginIndex = index;
+	while (kv.size() > index && kv[index] != '\"') {
+		index++;
+	}
+	if (index >= kv.size()) {
+		return "";
+	}
+	return std::string_view{kv.data() + beginIndex, index - beginIndex};
 }
 
 } // namespace
@@ -728,6 +756,25 @@ bool VPK::generateKeyPairFiles(const std::string& name) {
 		}
 	}
 	return true;
+}
+
+bool VPK::sign(const std::string& filename_) {
+	if (this->header1.version == 1 || !std::filesystem::exists(filename_) || std::filesystem::is_directory(filename_)) {
+		return false;
+	}
+
+	auto fileData = ::readFileText(filename_);
+
+	auto privateKeyHex = ::readValueForKeyInKV("rsa_private_key", fileData);
+	if (privateKeyHex.empty()) {
+		return false;
+	}
+	auto publicKeyHex = ::readValueForKeyInKV("rsa_public_key", fileData);
+	if (publicKeyHex.empty()) {
+		return false;
+	}
+
+	return this->sign(::decodeHexString(privateKeyHex), ::decodeHexString(publicKeyHex));
 }
 
 bool VPK::sign(const std::vector<std::byte>& privateKey, const std::vector<std::byte>& publicKey) {

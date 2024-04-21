@@ -31,34 +31,6 @@ constexpr std::string_view ARG_GEN_GEN_KEYPAIR_LONG = "--gen-keypair";
 
 namespace {
 
-/// Very rudimentary, doesn't handle escapes, but works fine for reading private/public key files
-std::string_view readValueForKeyInKV(std::string_view key, std::string_view kv) {
-	auto index = kv.find(key);
-	if (index == std::string_view::npos) {
-		return "";
-	}
-	while (kv.size() > index && kv[index] != '\"') {
-		index++;
-	}
-	if (index >= kv.size()) {
-		return "";
-	}
-	while (kv.size() > index && kv[index] != '\"') {
-		index++;
-	}
-	if (++index >= kv.size()) {
-		return "";
-	}
-	auto beginIndex = index;
-	while (kv.size() > index && kv[index] != '\"') {
-		index++;
-	}
-	if (index >= kv.size()) {
-		return "";
-	}
-	return std::string_view{kv.data() + beginIndex, index - beginIndex};
-}
-
 /// Pack contents of a directory into a VPK
 void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
@@ -117,23 +89,9 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (!signPath.empty()) {
-		if (!std::filesystem::exists(signPath) || std::filesystem::is_directory(signPath)) {
-			throw std::runtime_error("Sign path must be a text file!");
-		}
-		auto fileData = ::readFileText(signPath);
-		auto privateKeyHex = ::readValueForKeyInKV("rsa_private_key", fileData);
-		if (privateKeyHex.empty()) {
-			throw std::runtime_error("Could not find \"rsa_private_key\" key in file: make sure you are using the *private* key file!");
-		}
-		auto publicKeyHex = ::readValueForKeyInKV("rsa_public_key", fileData);
-		if (publicKeyHex.empty()) {
-			throw std::runtime_error("Could not find \"rsa_public_key\" key in file!");
-		}
-		auto privateKey = ::decodeHexString(privateKeyHex);
-		auto publicKey = ::decodeHexString(publicKeyHex);
-
-		if (!dynamic_cast<VPK*>(vpk.get())->sign(privateKey, publicKey)) {
-			std::cerr << "Failed to sign VPK using private key at \"" << signPath << "\"!" << std::endl;
+		if (!dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
+			std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
+			std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
 		} else {
 			std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
 		}
