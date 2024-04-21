@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace libvpkedit.Format
@@ -22,6 +24,12 @@ namespace libvpkedit.Format
 
         [DllImport("libvpkeditc")]
         public static extern void* vpkedit_vpk_open_with_options([MarshalAs(UnmanagedType.LPStr)] string path, PackFileOptions options);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_vpk_generate_keypair_files([MarshalAs(UnmanagedType.LPStr)] string path);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_vpk_sign(void* handle, byte* privateKeyBuffer, ulong privateKeyLen, byte* publicKeyBuffer, ulong publicKeyLen);
 
         [DllImport("libvpkeditc")]
         public static extern uint vpkedit_vpk_get_version(void* handle);
@@ -85,6 +93,44 @@ namespace libvpkedit.Format
             {
                 var handle = Extern.vpkedit_vpk_open_with_options(path, options);
                 return handle == null ? null : new VPK(handle);
+            }
+        }
+
+        public static bool GenerateKeyPairFiles(string path)
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_vpk_generate_keypair_files(path));
+            }
+        }
+
+        public void Sign(byte[] privateKey, byte[] publicKey)
+        {
+            unsafe
+            {
+                fixed (byte* privateKeyBufferPtr = privateKey)
+                {
+                    fixed (byte* publicKeyBufferPtr = publicKey)
+                    {
+                        Extern.vpkedit_vpk_sign(Handle, privateKeyBufferPtr, (ulong) privateKey.LongLength, publicKeyBufferPtr, (ulong) publicKey.LongLength);
+                    }
+                }
+            }
+        }
+
+        public void Sign(IEnumerable<byte> privateKey, IEnumerable<byte> publicKey)
+        {
+            var privateKeyData = privateKey.ToArray();
+            var publicKeyData = publicKey.ToArray();
+            unsafe
+            {
+                fixed (byte* privateKeyBufferPtr = privateKeyData)
+                {
+                    fixed (byte* publicKeyBufferPtr = publicKeyData)
+                    {
+                        Extern.vpkedit_vpk_sign(Handle, privateKeyBufferPtr, (ulong) privateKeyData.LongLength, publicKeyBufferPtr, (ulong) publicKeyData.LongLength);
+                    }
+                }
             }
         }
 
