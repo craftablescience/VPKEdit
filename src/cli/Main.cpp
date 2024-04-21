@@ -31,7 +31,7 @@ constexpr std::string_view ARG_GEN_GEN_KEYPAIR_LONG = "--gen-keypair";
 
 namespace {
 
-// Very rudimentary, doesn't handle escapes, but works fine for reading key files
+/// Very rudimentary, doesn't handle escapes, but works fine for reading private/public key files
 std::string_view readValueForKeyInKV(std::string_view key, std::string_view kv) {
 	auto index = kv.find(key);
 	if (index == std::string_view::npos) {
@@ -142,6 +142,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
 }
 
+/// Generate private/public key files
 void generateKeyPair(const std::string& inputPath) {
 	if (!VPK::generateKeyPairFiles(inputPath)) {
 		std::cerr << "Failed to generate public/private key files at \"" << inputPath << ".[private/public]key.vdf\"!" << std::endl;
