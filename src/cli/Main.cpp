@@ -56,7 +56,7 @@ std::string_view readValueForKeyInKV(std::string_view key, std::string_view kv) 
 	if (index >= kv.size()) {
 		return "";
 	}
-	return {kv.begin() + beginIndex, index - beginIndex};
+	return std::string_view{kv.data() + beginIndex, index - beginIndex};
 }
 
 /// Pack contents of a directory into a VPK
