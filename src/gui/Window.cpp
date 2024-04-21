@@ -27,6 +27,7 @@
 #include <QStyleFactory>
 #include <QThread>
 #include <sapp/SteamAppPathProvider.h>
+#include <vpkedit/format/FPX.h>
 #include <vpkedit/format/VPK.h>
 #ifdef VPKEDIT_ZIP_COMPRESSION
 #include <vpkedit/format/ZIP.h>
@@ -270,20 +271,20 @@ Window::Window(QWidget* parent)
 	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
 
 	optionsMenu->addSeparator();
-	auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [=] {
+	auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [] {
 		Options::invert(OPT_ADVANCED_FILE_PROPS);
 	});
 	optionAdvancedMode->setCheckable(true);
 	optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADVANCED_FILE_PROPS));
 
 	optionsMenu->addSeparator();
-	auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [=] {
+	auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [] {
 		Options::invert(OPT_START_MAXIMIZED);
 	});
 	optionStartMaximized->setCheckable(true);
 	optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
-	auto* optionDisableStartupCheck = optionsMenu->addAction(tr("Disable Startup Update Check"), [=] {
+	auto* optionDisableStartupCheck = optionsMenu->addAction(tr("Disable Startup Update Check"), [] {
 		Options::invert(OPT_DISABLE_STARTUP_UPDATE_CHECK);
 	});
 	optionDisableStartupCheck->setCheckable(true);
@@ -297,6 +298,24 @@ Window::Window(QWidget* parent)
 		this->verifyChecksums();
 	});
 	this->toolsGeneralMenu->setDisabled(true);
+
+	this->toolsFPXMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX");
+	this->toolsFPXMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Generate Public/Private Key Files..."), [this] {
+		this->generateKeyPairFiles();
+	});
+	this->toolsFPXMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Sign File..."), [this] {
+		this->signPackFile();
+	});
+	this->toolsFPXMenu->setDisabled(true);
+
+	this->toolsVPKMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK");
+	this->toolsVPKMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Generate Public/Private Key Files..."), [this] {
+		this->generateKeyPairFiles();
+	});
+	this->toolsVPKMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Sign File..."), [this] {
+		this->signPackFile();
+	});
+	this->toolsVPKMenu->setDisabled(true);
 
 	// Help menu
 	auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
@@ -889,6 +908,36 @@ void Window::verifyChecksums() {
 	VerifyChecksumsDialog::showDialog(*this->packFile, this);
 }
 
+void Window::generateKeyPairFiles(const QString& name) {
+	auto path = name;
+	if (path.isEmpty()) {
+		path = QInputDialog::getText(this, tr("Keypair Filename"), tr("Name of the keypair files to generate:"));
+		if (path.isEmpty()) {
+			return;
+		}
+		path = (std::filesystem::path{this->packFile->getFilepath()}.parent_path() / path.toStdString()).string().c_str();
+	}
+	VPK::generateKeyPairFiles(path.toStdString());
+}
+
+void Window::signPackFile(const QString& privateKeyLocation) {
+	auto privateKeyPath = privateKeyLocation;
+	if (privateKeyPath.isEmpty()) {
+		privateKeyPath = QFileDialog::getOpenFileName(this, tr("Open Private Key File"),
+													  std::filesystem::path{this->packFile->getFilepath()}.parent_path().string().c_str(),
+													  "Private Key (*.privatekey.vdf);;All Files (*)");
+	}
+	if (privateKeyPath.isEmpty()) {
+		return;
+	}
+	if ((this->packFile->getType() == PackFileType::FPX && dynamic_cast<FPX&>(*this->packFile).sign(privateKeyPath.toStdString())) ||
+		(this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toStdString()))) {
+		QMessageBox::information(this, tr("Success"), tr("Successfully signed the pack file."));
+	} else {
+		QMessageBox::information(this, tr("Error"), tr("Failed to sign the pack file! Check the file contains both the private key and public key."));
+	}
+}
+
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
 	auto entry = this->packFile->findEntry(path.toStdString());
 	if (!entry) {
@@ -1157,6 +1206,8 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
 	this->addDirAction->setDisabled(freeze);
 	this->setPropertiesAction->setDisabled(freeze);
 	this->toolsGeneralMenu->setDisabled(freeze);
+	this->toolsFPXMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::FPX));
+	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::VPK));
 
 	this->searchBar->setDisabled(freeze);
 	this->entryTree->setDisabled(freeze);
