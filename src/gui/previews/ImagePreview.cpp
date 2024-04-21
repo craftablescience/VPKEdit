@@ -1,17 +1,36 @@
 #include "ImagePreview.h"
 
+#include <QApplication>
 #include <QCheckBox>
+#include <QClipboard>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMenu>
 #include <QPainter>
 #include <QSlider>
+#include <QStyle>
 #include <QWheelEvent>
 
 ImageWidget::ImageWidget(QWidget* parent)
 		: QWidget(parent)
 		, alphaEnabled(false)
 		, tileEnabled(false)
-		, zoom(1.f) {}
+		, zoom(1.f) {
+	this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	auto* contextMenu = new QMenu(this);
+	auto* copyImageAction = contextMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Copy Image"));
+
+	QObject::connect(this, &ImageWidget::customContextMenuRequested, this, [this, contextMenu, copyImageAction](const QPoint& pos) {
+		if (this->image.isNull()) {
+			return;
+		}
+		auto* selectedAction = contextMenu->exec(this->mapToGlobal(pos));
+		if (selectedAction == copyImageAction) {
+			QApplication::clipboard()->setImage(this->image, QClipboard::Clipboard);
+		}
+	});
+}
 
 void ImageWidget::setData(const std::vector<std::byte>& data) {
 	this->image.loadFromData(data);
