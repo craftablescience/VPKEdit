@@ -67,6 +67,10 @@ public:
 
 	void verifyChecksums();
 
+	void generateKeyPairFiles(const QString& name = QString());
+
+	void signPackFile(const QString& privateKeyLocation = QString());
+
 	[[nodiscard]] std::optional<std::vector<std::byte>> readBinaryEntry(const QString& path) const;
 
 	[[nodiscard]] std::optional<QString> readTextEntry(const QString& path) const;
@@ -133,6 +137,8 @@ private:
 	QAction* addDirAction;
 	QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
+	QMenu*   toolsFPXMenu;
+	QMenu*   toolsVPKMenu;
 
 	QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
