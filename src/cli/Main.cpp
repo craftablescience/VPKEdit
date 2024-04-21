@@ -5,7 +5,6 @@
 #include <argparse/argparse.hpp>
 #include <indicators/indeterminate_progress_bar.hpp>
 #include <vpkedit/detail/Misc.h>
-#include <vpkedit/detail/RSA.h>
 #include <vpkedit/format/VPK.h>
 #include <vpkedit/Version.h>
 
@@ -89,6 +88,10 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (!signPath.empty()) {
+		if (saveToDir) {
+			std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
+			std::cerr << "Remove the " << ARG_PACK_SINGLE_FILE_SHORT << " / " << ARG_PACK_SINGLE_FILE_LONG << " parameter for best results." << std::endl;
+		}
 		if (!dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
 			std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
 			std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
@@ -172,7 +175,8 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_GEN_GEN_KEYPAIR_LONG)
 		.help("(Generate) Generate files containing public/private keys with the specified name.\n"
-		      "DO NOT SHARE THE PRIVATE KEY FILE WITH ANYONE! Move it to a safe place where it will not be shipped.")
+		      "DO NOT SHARE THE PRIVATE KEY FILE WITH ANYONE! Move it to a safe place where it\n"
+		      "will not be shipped.")
 		.flag();
 
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
