@@ -782,23 +782,31 @@ bool VPK::sign(const std::vector<std::byte>& privateKey, const std::vector<std::
 		return false;
 	}
 
+	this->header2.signatureSectionSize = this->footer2.publicKey.size() + this->footer2.signature.size() + sizeof(std::uint32_t) * 2;
+	{
+		FileStream stream{this->getFilepath().data(), FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
+		stream.seekOutput(sizeof(Header1));
+		stream.write(this->header2);
+	}
+
 	auto dirFileBuffer = ::readFileData(this->getFilepath().data());
-	const auto signatureSectionSize = this->footer2.publicKey.size() + this->footer2.signature.size() + sizeof(std::uint32_t) * 2;
-	if (dirFileBuffer.size() <= signatureSectionSize) {
+	if (dirFileBuffer.size() <= this->header2.signatureSectionSize) {
 		return false;
 	}
-	for (int i = 0; i < signatureSectionSize; i++) {
+	for (int i = 0; i < this->header2.signatureSectionSize; i++) {
 		dirFileBuffer.pop_back();
 	}
 	this->footer2.publicKey = publicKey;
 	this->footer2.signature = ::signDataWithSHA256Key(dirFileBuffer, privateKey);
 
-	FileStream stream{this->getFilepath().data(), FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
-	stream.seekOutput(dirFileBuffer.size());
-	stream.write(static_cast<std::uint32_t>(this->footer2.publicKey.size()));
-	stream.writeBytes(this->footer2.publicKey);
-	stream.write(static_cast<std::uint32_t>(this->footer2.signature.size()));
-	stream.writeBytes(this->footer2.signature);
+	{
+		FileStream stream{this->getFilepath().data(), FILESTREAM_OPT_READ | FILESTREAM_OPT_WRITE};
+		stream.seekOutput(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize + this->header2.archiveMD5SectionSize + this->header2.otherMD5SectionSize);
+		stream.write(static_cast<std::uint32_t>(this->footer2.publicKey.size()));
+		stream.writeBytes(this->footer2.publicKey);
+		stream.write(static_cast<std::uint32_t>(this->footer2.signature.size()));
+		stream.writeBytes(this->footer2.signature);
+	}
 	return true;
 }
 
