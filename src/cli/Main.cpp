@@ -15,20 +15,39 @@ using namespace vpkedit;
 constexpr std::string_view ARG_OUTPUT_SHORT = "-o";
 constexpr std::string_view ARG_OUTPUT_LONG = "--output";
 constexpr std::string_view ARG_NO_PROGRESS_LONG = "--no-progress";
-constexpr std::string_view ARG_PACK_VERSION_SHORT = "-v";
-constexpr std::string_view ARG_PACK_VERSION_LONG = "--version";
-constexpr std::string_view ARG_PACK_CHUNKSIZE_SHORT = "-c";
-constexpr std::string_view ARG_PACK_CHUNKSIZE_LONG = "--chunksize";
-constexpr std::string_view ARG_PACK_GEN_MD5_ENTRIES_LONG = "--gen-md5-entries";
-constexpr std::string_view ARG_PACK_PRELOAD_SHORT = "-p";
-constexpr std::string_view ARG_PACK_PRELOAD_LONG = "--preload";
-constexpr std::string_view ARG_PACK_SINGLE_FILE_SHORT = "-s";
-constexpr std::string_view ARG_PACK_SINGLE_FILE_LONG = "--single-file";
-constexpr std::string_view ARG_PACK_SIGN_SHORT = "-k";
-constexpr std::string_view ARG_PACK_SIGN_LONG = "--sign";
-constexpr std::string_view ARG_GEN_GEN_KEYPAIR_LONG = "--gen-keypair";
+constexpr std::string_view ARG_VERSION_SHORT = "-v";
+constexpr std::string_view ARG_VERSION_LONG = "--version";
+constexpr std::string_view ARG_CHUNKSIZE_SHORT = "-c";
+constexpr std::string_view ARG_CHUNKSIZE_LONG = "--chunksize";
+constexpr std::string_view ARG_GEN_MD5_ENTRIES_LONG = "--gen-md5-entries";
+constexpr std::string_view ARG_PRELOAD_SHORT = "-p";
+constexpr std::string_view ARG_PRELOAD_LONG = "--preload";
+constexpr std::string_view ARG_SINGLE_FILE_SHORT = "-s";
+constexpr std::string_view ARG_SINGLE_FILE_LONG = "--single-file";
+constexpr std::string_view ARG_SIGN_SHORT = "-k";
+constexpr std::string_view ARG_SIGN_LONG = "--sign";
+constexpr std::string_view ARG_GEN_KEYPAIR_LONG = "--gen-keypair";
 
 namespace {
+
+/// Sign an existing VPK
+void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
+	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
+
+	if (saveToDir) {
+		std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
+		std::cerr << "Remove the " << ARG_SINGLE_FILE_SHORT << " / " << ARG_SINGLE_FILE_LONG << " parameter for best results." << std::endl;
+	}
+
+	auto vpk = VPK::open(inputPath);
+	if (!dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
+		std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
+		std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
+	} else {
+		std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
+	}
+}
 
 /// Pack contents of a directory into a VPK
 void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
@@ -45,12 +64,12 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	auto noProgressBar = cli.get<bool>(ARG_NO_PROGRESS_LONG);
-	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_PACK_VERSION_SHORT)));
-	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_PACK_CHUNKSIZE_SHORT)) * 1024 * 1024);
-	auto generateMD5Entries = cli.get<bool>(ARG_PACK_GEN_MD5_ENTRIES_LONG);
-	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_PACK_PRELOAD_SHORT);
-	auto saveToDir = cli.get<bool>(ARG_PACK_SINGLE_FILE_SHORT);
-	auto signPath = cli.is_used(ARG_PACK_SIGN_SHORT) ? cli.get(ARG_PACK_SIGN_SHORT) : "";
+	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_VERSION_SHORT)));
+	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_CHUNKSIZE_SHORT)) * 1024 * 1024);
+	auto generateMD5Entries = cli.get<bool>(ARG_GEN_MD5_ENTRIES_LONG);
+	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_PRELOAD_SHORT);
+	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
+	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -88,16 +107,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (!signPath.empty()) {
-		if (saveToDir) {
-			std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
-			std::cerr << "Remove the " << ARG_PACK_SINGLE_FILE_SHORT << " / " << ARG_PACK_SINGLE_FILE_LONG << " parameter for best results." << std::endl;
-		}
-		if (!dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
-			std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
-			std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
-		} else {
-			std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
-		}
+		::sign(cli, outputPath);
 	}
 
 	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
@@ -124,15 +134,17 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has two modes:\n"
+	cli.add_description("This program currently has three modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
+						" - Sign:     Signs an existing VPK.\n"
 	                    "Modes are exclusive to one another and automatically determined by the <path> argument, as well as the other given\n"
 	                    "arguments when it is still unclear.");
 
 	cli.add_argument("<path>")
-		.help("(Pack) The directory to pack into a VPK.\n"
-			  "(Gen) The name of the file(s) to generate.")
+		.help("(Pack)     The directory to pack into a VPK.\n"
+			  "(Generate) The name of the file(s) to generate.\n"
+			  "(Sign)     The path to the VPK to sign.")
 		.required();
 
 	cli.add_argument(ARG_OUTPUT_SHORT, ARG_OUTPUT_LONG)
@@ -142,22 +154,22 @@ int main(int argc, const char* const* argv) {
 		.help("Hide all progress bars.")
 		.flag();
 
-	cli.add_argument(ARG_PACK_VERSION_SHORT, ARG_PACK_VERSION_LONG)
+	cli.add_argument(ARG_VERSION_SHORT, ARG_VERSION_LONG)
 		.help("(Pack) The version of the VPK. Can be 1 or 2.")
 		.default_value("2")
 		.choices("1", "2")
 		.nargs(1);
 
-	cli.add_argument(ARG_PACK_CHUNKSIZE_SHORT, ARG_PACK_CHUNKSIZE_LONG)
+	cli.add_argument(ARG_CHUNKSIZE_SHORT, ARG_CHUNKSIZE_LONG)
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
 		.nargs(1);
 
-	cli.add_argument(ARG_PACK_GEN_MD5_ENTRIES_LONG)
+	cli.add_argument(ARG_GEN_MD5_ENTRIES_LONG)
 		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
 		.flag();
 
-	cli.add_argument(ARG_PACK_PRELOAD_SHORT, ARG_PACK_PRELOAD_LONG)
+	cli.add_argument(ARG_PRELOAD_SHORT, ARG_PRELOAD_LONG)
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
 		      "preloaded in the directory VPK. Full file names are also supported here\n"
 		      "(i.e. this would preload any files named README.md or files ending in vmt:\n"
@@ -165,15 +177,16 @@ int main(int argc, const char* const* argv) {
 		.default_value(std::vector<std::string>{"vmt"})
 		.remaining();
 
-	cli.add_argument(ARG_PACK_SINGLE_FILE_SHORT, ARG_PACK_SINGLE_FILE_LONG)
+	cli.add_argument(ARG_SINGLE_FILE_SHORT, ARG_SINGLE_FILE_LONG)
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
 		      "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
 
-	cli.add_argument(ARG_PACK_SIGN_SHORT, ARG_PACK_SIGN_LONG)
-		.help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).");
+	cli.add_argument(ARG_SIGN_SHORT, ARG_SIGN_LONG)
+		.help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
+		      "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
-	cli.add_argument(ARG_GEN_GEN_KEYPAIR_LONG)
+	cli.add_argument(ARG_GEN_KEYPAIR_LONG)
 		.help("(Generate) Generate files containing public/private keys with the specified name.\n"
 		      "DO NOT SHARE THE PRIVATE KEY FILE WITH ANYONE! Move it to a safe place where it\n"
 		      "will not be shipped.")
@@ -206,10 +219,12 @@ int main(int argc, const char* const* argv) {
 		if (std::filesystem::exists(inputPath)) {
 			if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
 				::pack(cli, inputPath);
+			} else if (cli.is_used(ARG_SIGN_SHORT)) {
+				::sign(cli, inputPath);
 			} else {
 				std::cout << "Input path is not a directory: no action taken." << std::endl;
 			}
-		} else if (cli.get<bool>(ARG_GEN_GEN_KEYPAIR_LONG)) {
+		} else if (cli.get<bool>(ARG_GEN_KEYPAIR_LONG)) {
 			::generateKeyPair(inputPath);
 		} else {
 			throw std::runtime_error("Given path does not exist!");

@@ -9,7 +9,7 @@
 namespace vpkedit {
 
 constexpr std::uint32_t VPK_SIGNATURE = 0x55aa1234;
-constexpr std::uint32_t VPK_DIR_INDEX = 0x7fff;
+constexpr std::uint16_t VPK_DIR_INDEX = 0x7fff;
 constexpr std::uint16_t VPK_ENTRY_TERM = 0xffff;
 constexpr std::string_view VPK_DIR_SUFFIX = "_dir";
 constexpr std::string_view VPK_EXTENSION = ".vpk";
