@@ -42,7 +42,7 @@ public:
 protected:
 	GMA(const std::string& fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+	void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 	Header header{};
 

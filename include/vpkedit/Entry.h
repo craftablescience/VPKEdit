@@ -54,6 +54,8 @@ public:
 	/// Returns the file extension without a period (e.g. "materials/cable.vmt" -> "vmt")
 	[[nodiscard]] std::string getExtension() const;
 
+	[[nodiscard]] bool operator==(const Entry& other) const;
+
 private:
 	/// The data attached to the unbaked entry, or the path to the file containing the unbaked entry's data
 	std::variant<std::string, std::vector<std::byte>> unbakedData;
@@ -72,3 +74,14 @@ struct VirtualEntry {
 };
 
 } // namespace vpkedit
+
+namespace std {
+
+template<>
+struct hash<vpkedit::Entry> {
+	std::size_t operator()(const vpkedit::Entry& entry) const {
+		return hash<std::string>()(entry.path);
+	}
+};
+
+} // namespace std

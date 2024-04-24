@@ -129,10 +129,8 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFil
 	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_ENTRY_HANDLE_ARRAY_INVALID);
 
 	std::vector<Entry*> heapEntries;
-	for (const auto& [dir, entries] : ::getPackFile(handle)->getBakedEntries()) {
-		for (const auto& entry : entries) {
-			heapEntries.push_back(new Entry{entry});
-		}
+	for (const auto& entry : ::getPackFile(handle)->getBakedEntries()) {
+		heapEntries.push_back(new Entry{entry});
 	}
 
 	VPKEdit_EntryHandleArray_t array;
@@ -149,10 +147,8 @@ VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_unbaked_entries(VPKEdit_PackF
 	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_ENTRY_HANDLE_ARRAY_INVALID);
 
 	std::vector<Entry*> heapEntries;
-	for (const auto& [dir, entries] : ::getPackFile(handle)->getUnbakedEntries()) {
-		for (const auto& entry : entries) {
-			heapEntries.push_back(new Entry{entry});
-		}
+	for (const auto& entry : ::getPackFile(handle)->getUnbakedEntries()) {
+		heapEntries.push_back(new Entry{entry});
 	}
 
 	VPKEdit_EntryHandleArray_t array;

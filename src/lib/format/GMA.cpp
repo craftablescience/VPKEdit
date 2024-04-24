@@ -63,19 +63,10 @@ std::unique_ptr<PackFile> GMA::open(const std::string& path, PackFileOptions opt
 		offset += entry.length;
 	}
 	for (const auto& entry : entries) {
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
-		::normalizeSlashes(parentDir);
-		if (!gma->isCaseSensitive()) {
-			::toLowerCase(parentDir);
-		}
-
-		if (!gma->entries.contains(parentDir)) {
-			gma->entries[parentDir] = {};
-		}
-		gma->entries[parentDir].push_back(entry);
+		gma->entries.insert(entry);
 
 		if (callback) {
-			callback(parentDir, entry);
+			callback(entry);
 		}
 	}
 
@@ -102,21 +93,7 @@ bool GMA::verifyFileChecksum() const {
 
 std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
-		// Get the stored data
-		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
-			for (const Entry& unbakedEntry : unbakedEntryList) {
-				if (unbakedEntry.path == entry.path) {
-					std::vector<std::byte> unbakedData;
-					if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
-						unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
-					} else {
-						unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
-					}
-					return unbakedData;
-				}
-			}
-		}
-		return std::nullopt;
+		return this->readUnbakedEntry(entry);
 	}
 	// It's baked into the file on disk
 	FileStream stream{this->fullFilePath};
@@ -127,14 +104,13 @@ std::optional<std::vector<std::byte>> GMA::readEntry(const Entry& entry) const {
 	return stream.readBytes(entry.length);
 }
 
-Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
-	auto filename = filename_;
+void GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
+		::toLowerCase(entry.path);
 	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
-	entry.path = filename;
 	entry.length = buffer.size();
 	if (this->options.gma_writeCRCs) {
 		entry.crc32 = ::computeCRC32(buffer);
@@ -143,11 +119,7 @@ Entry& GMA::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	// Offset will be reset when it's baked
 	entry.offset = 0;
 
-	if (!this->unbakedEntries.contains(dir)) {
-		this->unbakedEntries[dir] = {};
-	}
-	this->unbakedEntries.at(dir).push_back(entry);
-	return this->unbakedEntries.at(dir).back();
+	this->unbakedEntries.insert(std::move(entry));
 }
 
 bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
@@ -157,15 +129,11 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 
 	// Reconstruct data for ease of access
 	std::vector<Entry*> entriesToBake;
-	for (auto& [entryDir, entryList] : this->entries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->entries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
-	for (auto& [entryDir, entryList] : this->unbakedEntries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->unbakedEntries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
 
 	// Read data before overwriting, we don't know if we're writing to ourself
@@ -202,7 +170,7 @@ bool GMA::bake(const std::string& outputDir_, const Callback& callback) {
 			stream.write<std::uint32_t>(this->options.gma_writeCRCs ? entry->crc32 : 0);
 
 			if (callback) {
-				callback(entry->getParentPath(), *entry);
+				callback(*entry);
 			}
 		}
 		stream.write(static_cast<std::uint32_t>(0));

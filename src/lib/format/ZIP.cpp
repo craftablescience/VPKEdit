@@ -63,18 +63,10 @@ std::unique_ptr<PackFile> ZIP::open(const std::string& path, PackFileOptions opt
 		entry.compressedLength = fileInfo->compressed_size;
 		entry.crc32 = fileInfo->crc;
 
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
-		::normalizeSlashes(parentDir);
-		if (!zip->isCaseSensitive()) {
-			::toLowerCase(parentDir);
-		}
-		if (!zip->entries.contains(parentDir)) {
-			zip->entries[parentDir] = {};
-		}
-		zip->entries[parentDir].push_back(entry);
+		zip->entries.insert(std::move(entry));
 
 		if (callback) {
-			callback(parentDir, entry);
+			callback(entry);
 		}
 	}
 
@@ -87,21 +79,7 @@ std::vector<std::string> ZIP::verifyEntryChecksums() const {
 
 std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
-		// Get the stored data
-		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
-			for (const Entry& unbakedEntry : unbakedEntryList) {
-				if (unbakedEntry.path == entry.path) {
-					std::vector<std::byte> unbakedData;
-					if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
-						unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
-					} else {
-						unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
-					}
-					return unbakedData;
-				}
-			}
-		}
-		return std::nullopt;
+		return this->readUnbakedEntry(entry);
 	}
 	// It's baked into the file on disk
 	if (!this->streamOpen || !this->zipOpen) {
@@ -120,23 +98,18 @@ std::optional<std::vector<std::byte>> ZIP::readEntry(const Entry& entry) const {
 	return out;
 }
 
-Entry& ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
-	auto filename = filename_;
+void ZIP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
+		::toLowerCase(entry.path);
 	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
-	entry.path = filename;
 	entry.length = buffer.size();
 	entry.compressedLength = 0;
 	entry.crc32 = ::computeCRC32(buffer);
 
-	if (!this->unbakedEntries.contains(dir)) {
-		this->unbakedEntries[dir] = {};
-	}
-	this->unbakedEntries.at(dir).push_back(entry);
-	return this->unbakedEntries.at(dir).back();
+	this->unbakedEntries.insert(std::move(entry));
 }
 
 bool ZIP::bake(const std::string& outputDir_, const Callback& callback) {
@@ -202,53 +175,49 @@ bool ZIP::bakeTempZip(const std::string& writeZipPath, const Callback& callback)
 	}
 #endif
 
-	for (const auto& [entryDir, entries] : this->getBakedEntries()) {
-		for (const Entry& entry : entries) {
-			auto binData = this->readEntry(entry);
-			if (!binData) {
-				continue;
-			}
+	for (const auto& entry : this->getBakedEntries()) {
+		auto binData = this->readEntry(entry);
+		if (!binData) {
+			continue;
+		}
 
-			mz_zip_file fileInfo;
-			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
-			fileInfo.flag = MZ_ZIP_FLAG_DATA_DESCRIPTOR;
-			fileInfo.filename = entry.path.c_str();
-			fileInfo.filename_size = entry.path.length();
-			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
-			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
-			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = this->options.zip_compressionMethod;
-			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
-				return false;
-			}
+		mz_zip_file fileInfo;
+		std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
+		fileInfo.flag = MZ_ZIP_FLAG_DATA_DESCRIPTOR;
+		fileInfo.filename = entry.path.c_str();
+		fileInfo.filename_size = entry.path.length();
+		fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
+		fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
+		fileInfo.crc = entry.crc32;
+		fileInfo.compression_method = this->options.zip_compressionMethod;
+		if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
+			return false;
+		}
 
-			if (callback) {
-				callback(entry.getParentPath(), entry);
-			}
+		if (callback) {
+			callback(entry);
 		}
 	}
-	for (const auto& [entryDir, entries] : this->getUnbakedEntries()) {
-		for (const Entry& entry : entries) {
-			auto binData = this->readEntry(entry);
-			if (!binData) {
-				continue;
-			}
+	for (const auto& entry : this->getUnbakedEntries()) {
+		auto binData = this->readEntry(entry);
+		if (!binData) {
+			continue;
+		}
 
-			mz_zip_entry fileInfo;
-			std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
-			fileInfo.filename = entry.path.c_str();
-			fileInfo.filename_size = entry.path.length();
-			fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
-			fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
-			fileInfo.crc = entry.crc32;
-			fileInfo.compression_method = this->options.zip_compressionMethod;
-			if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
-				return false;
-			}
+		mz_zip_entry fileInfo;
+		std::memset(&fileInfo, 0, sizeof(mz_zip_entry));
+		fileInfo.filename = entry.path.c_str();
+		fileInfo.filename_size = entry.path.length();
+		fileInfo.uncompressed_size = static_cast<std::int64_t>(entry.length);
+		fileInfo.compressed_size = static_cast<std::int64_t>(entry.compressedLength);
+		fileInfo.crc = entry.crc32;
+		fileInfo.compression_method = this->options.zip_compressionMethod;
+		if (mz_zip_writer_add_buffer(writeZipHandle, binData->data(), static_cast<int>(binData->size()), &fileInfo)) {
+			return false;
+		}
 
-			if (callback) {
-				callback(entry.getParentPath(), entry);
-			}
+		if (callback) {
+			callback(entry);
 		}
 	}
 

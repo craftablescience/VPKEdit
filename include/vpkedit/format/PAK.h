@@ -24,7 +24,7 @@ public:
 protected:
 	PAK(const std::string& fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+	void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 private:
 	VPKEDIT_REGISTER_PACKFILE_OPEN(PAK_EXTENSION, &PAK::open);

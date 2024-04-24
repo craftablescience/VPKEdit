@@ -24,17 +24,6 @@ void detail::normalizeSlashes(std::string& path, bool stripSlashes) {
 	}
 }
 
-std::pair<std::string, std::string> detail::splitFilenameAndParentDir(const std::string& filename) {
-	auto name = filename;
-	normalizeSlashes(name);
-
-	auto lastSeparator = name.rfind('/');
-	auto dir = lastSeparator != std::string::npos ? name.substr(0, lastSeparator) : "";
-	name = filename.substr(lastSeparator + 1);
-
-	return {dir, name};
-}
-
 std::vector<std::byte> detail::readFileData(const std::string& filepath, std::size_t preloadBytesOffset) {
 	FileStream stream{filepath};
 	if (!stream) {

@@ -48,19 +48,10 @@ std::unique_ptr<PackFile> PAK::open(const std::string& path, PackFileOptions opt
 		entry.offset = reader.read<std::uint32_t>();
 		entry.length = reader.read<std::uint32_t>();
 
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
-		::normalizeSlashes(parentDir);
-		if (!pak->isCaseSensitive()) {
-			::toLowerCase(parentDir);
-		}
-
-		if (!pak->entries.contains(parentDir)) {
-			pak->entries[parentDir] = {};
-		}
-		pak->entries[parentDir].push_back(entry);
+		pak->entries.insert(std::move(entry));
 
 		if (callback) {
-			callback(parentDir, entry);
+			callback(entry);
 		}
 	}
 
@@ -69,21 +60,7 @@ std::unique_ptr<PackFile> PAK::open(const std::string& path, PackFileOptions opt
 
 std::optional<std::vector<std::byte>> PAK::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
-		// Get the stored data
-		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
-			for (const Entry& unbakedEntry : unbakedEntryList) {
-				if (unbakedEntry.path == entry.path) {
-					std::vector<std::byte> unbakedData;
-					if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
-						unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
-					} else {
-						unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
-					}
-					return unbakedData;
-				}
-			}
-		}
-		return std::nullopt;
+		return this->readUnbakedEntry(entry);
 	}
 	// It's baked into the file on disk
 	FileStream stream{this->fullFilePath};
@@ -94,23 +71,19 @@ std::optional<std::vector<std::byte>> PAK::readEntry(const Entry& entry) const {
 	return stream.readBytes(entry.length);
 }
 
-Entry& PAK::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
-	auto filename = filename_;
+void PAK::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
+		::toLowerCase(entry.path);
 	}
 
-	entry.path = filename;
 	entry.length = buffer.size();
 
 	// Offset will be reset when it's baked
 	entry.offset = 0;
 
-	if (!this->unbakedEntries.contains("")) {
-		this->unbakedEntries[""] = {};
-	}
-	this->unbakedEntries.at("").push_back(entry);
-	return this->unbakedEntries.at("").back();
+	this->unbakedEntries.insert(std::move(entry));
 }
 
 bool PAK::bake(const std::string& outputDir_, const Callback& callback) {
@@ -120,15 +93,11 @@ bool PAK::bake(const std::string& outputDir_, const Callback& callback) {
 
 	// Reconstruct data for ease of access
 	std::vector<Entry*> entriesToBake;
-	for (auto& [entryDir, entryList] : this->entries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->entries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
-	for (auto& [entryDir, entryList] : this->unbakedEntries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->unbakedEntries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
 
 	// Read data before overwriting, we don't know if we're writing to ourself
@@ -164,7 +133,7 @@ bool PAK::bake(const std::string& outputDir_, const Callback& callback) {
 			stream.write(static_cast<std::uint32_t>(entry->length));
 
 			if (callback) {
-				callback(entry->getParentPath(), *entry);
+				callback(*entry);
 			}
 		}
 

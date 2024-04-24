@@ -8,6 +8,7 @@
 #include <vpkedit/detail/CRC32.h>
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/format/BSP.h>
+#include <vpkedit/format/FPX.h>
 #include <vpkedit/format/GCF.h>
 #include <vpkedit/format/GMA.h>
 #include <vpkedit/format/GRP.h>
@@ -54,26 +55,20 @@ bool PackFile::verifyFileChecksum() const {
 }
 
 std::optional<Entry> PackFile::findEntry(const std::string& filename_, bool includeUnbaked) const {
-	auto filename = filename_;
-	::normalizeSlashes(filename);
+	Entry entry{};
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
+		::toLowerCase(entry.path);
 	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
-	if (this->entries.contains(dir)) {
-		for (const Entry& entry : this->entries.at(dir)) {
-			if (entry.path == filename) {
-				return entry;
-			}
+	if (includeUnbaked) {
+		if (auto it = this->unbakedEntries.find(entry); it != this->unbakedEntries.end()) {
+			return *it;
 		}
 	}
-	if (includeUnbaked && this->unbakedEntries.contains(dir)) {
-		for (const Entry& unbakedEntry : this->unbakedEntries.at(dir)) {
-			if (unbakedEntry.path == filename) {
-				return unbakedEntry;
-			}
-		}
+	if (auto it = this->entries.find(entry); it != this->entries.end()) {
+		return *it;
 	}
 	return std::nullopt;
 }
@@ -104,8 +99,7 @@ void PackFile::addEntry(const std::string& filename_, const std::string& pathToF
 	entry.unbakedUsingByteBuffer = false;
 	entry.unbakedData = pathToFile;
 
-	Entry& finalEntry = this->addEntryInternal(entry, filename_, buffer, options_);
-	finalEntry.unbakedData = pathToFile;
+	this->addEntryInternal(entry, filename_, buffer, options_);
 }
 
 void PackFile::addEntry(const std::string& filename_, std::vector<std::byte>&& buffer, EntryOptions options_) {
@@ -116,9 +110,9 @@ void PackFile::addEntry(const std::string& filename_, std::vector<std::byte>&& b
 	Entry entry{};
 	entry.unbaked = true;
 	entry.unbakedUsingByteBuffer = true;
+	entry.unbakedData = std::move(buffer);
 
-	Entry& finalEntry = this->addEntryInternal(entry, filename_, buffer, options_);
-	finalEntry.unbakedData = std::move(buffer);
+	this->addEntryInternal(entry, filename_, buffer, options_);
 }
 
 void PackFile::addEntry(const std::string& filename_, const std::byte* buffer, std::uint64_t bufferLen, EntryOptions options_) {
@@ -135,59 +129,34 @@ bool PackFile::removeEntry(const std::string& filename_) {
 		return false;
 	}
 
-	auto filename = filename_;
+	Entry entry{};
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
-	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
-
-	// Check unbaked entries first
-	if (this->unbakedEntries.contains(dir)) {
-		for (auto& [preexistingDir, unbakedEntryVec] : this->unbakedEntries) {
-			if (preexistingDir != dir) {
-				continue;
-			}
-			for (auto it = unbakedEntryVec.begin(); it != unbakedEntryVec.end(); ++it) {
-				if (it->path == filename) {
-					unbakedEntryVec.erase(it);
-					return true;
-				}
-			}
-		}
+		::toLowerCase(entry.path);
 	}
 
-	// If it's not in regular entries either you can't remove it!
-	if (!this->entries.contains(dir))
-		return false;
-
-	for (auto it = this->entries.at(dir).begin(); it != this->entries.at(dir).end(); ++it) {
-		if (it->path == filename) {
-			this->entries.at(dir).erase(it);
-			return true;
-		}
+	if (auto it = this->unbakedEntries.find(entry); it != this->unbakedEntries.end()) {
+		this->unbakedEntries.erase(it);
+		return true;
+	}
+	if (auto it = this->entries.find(entry); it != this->entries.end()) {
+		this->entries.erase(it);
+		return true;
 	}
 	return false;
 }
 
-const std::unordered_map<std::string, std::vector<Entry>>& PackFile::getBakedEntries() const {
+const std::unordered_set<Entry>& PackFile::getBakedEntries() const {
 	return this->entries;
 }
 
-const std::unordered_map<std::string, std::vector<Entry>>& PackFile::getUnbakedEntries() const {
+const std::unordered_set<Entry>& PackFile::getUnbakedEntries() const {
 	return this->unbakedEntries;
 }
 
 std::size_t PackFile::getEntryCount(bool includeUnbaked) const {
-	std::size_t count = 0;
-	for (const auto& [directory, entries_] : this->entries) {
-		count += entries_.size();
-	}
-	if (includeUnbaked) {
-		for (const auto& [directory, entries_] : this->unbakedEntries) {
-			count += entries_.size();
-		}
-	}
-	return count;
+	return this->entries.size() + (includeUnbaked ? this->unbakedEntries.size() : 0);
 }
 
 std::optional<std::vector<std::byte>> PackFile::readVirtualEntry(const VirtualEntry& entry) const {
@@ -250,24 +219,20 @@ std::vector<std::string> PackFile::getSupportedFileTypes() {
 
 std::vector<std::string> PackFile::verifyEntryChecksumsUsingCRC32() const {
 	std::vector<std::string> out;
-	for (const auto& [dir, entryList] : this->entries) {
-		for (const auto& entry : entryList) {
-			if (!entry.crc32) {
-				continue;
-			}
-			if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
-				out.push_back(entry.path);
-			}
+	for (const auto& entry : this->entries) {
+		if (!entry.crc32) {
+			continue;
+		}
+		if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
+			out.push_back(entry.path);
 		}
 	}
-	for (const auto& [dir, entryList] : this->unbakedEntries) {
-		for (const auto& entry : entryList) {
-			if (!entry.crc32) {
-				continue;
-			}
-			if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
-				out.push_back(entry.path);
-			}
+	for (const auto& entry : this->unbakedEntries) {
+		if (!entry.crc32) {
+			continue;
+		}
+		if (auto data = this->readEntry(entry); !data || ::computeCRC32(*data) != entry.crc32) {
+			out.push_back(entry.path);
 		}
 	}
 	return out;
@@ -289,21 +254,29 @@ std::string PackFile::getBakeOutputDir(const std::string& outputDir) const {
 	return out;
 }
 
-void PackFile::mergeUnbakedEntries() {
-	for (auto& [dir, unbakedEntriesAndData] : this->unbakedEntries) {
-		for (Entry& unbakedEntry : unbakedEntriesAndData) {
-			if (!this->entries.contains(dir)) {
-				this->entries[dir] = {};
-			}
-
-			unbakedEntry.unbaked = false;
-
-			// Clear any data that might be stored in it
-			unbakedEntry.unbakedUsingByteBuffer = false;
-			unbakedEntry.unbakedData = "";
-
-			this->entries.at(dir).push_back(unbakedEntry);
+std::optional<std::vector<std::byte>> PackFile::readUnbakedEntry(const Entry& unbakedEntry) const {
+	if (auto it = this->unbakedEntries.find(unbakedEntry); it != this->unbakedEntries.end()) {
+		// Get the stored data
+		std::vector<std::byte> unbakedData;
+		if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
+			unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
+		} else {
+			unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
 		}
+		return unbakedData;
+	}
+	return std::nullopt;
+}
+
+void PackFile::mergeUnbakedEntries() {
+	for (auto entry : this->unbakedEntries) {
+		this->unbakedEntries.erase(entry);
+
+		entry.unbaked = false;
+		entry.unbakedUsingByteBuffer = false;
+		entry.unbakedData = "";
+
+		this->entries.insert(std::move(entry));
 	}
 	this->unbakedEntries.clear();
 }
@@ -347,8 +320,8 @@ PackFileReadOnly::operator std::string() const {
 	return PackFile::operator std::string() + " (Read-Only)";
 }
 
-Entry& PackFileReadOnly::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
-	return entry; // Stubbed
+void PackFileReadOnly::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+	// Stubbed
 }
 
 bool PackFileReadOnly::bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) {

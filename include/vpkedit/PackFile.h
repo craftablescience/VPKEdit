@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "Attribute.h"
@@ -33,7 +33,7 @@ public:
 	virtual ~PackFile() = default;
 
 	// Accepts the entry parent directory and the entry metadata
-	using Callback = std::function<void(const std::string& directory, const Entry& entry)>;
+	using Callback = std::function<void(const Entry& entry)>;
 
 	/// Open a generic pack file. The parser is selected based on the file extension
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
@@ -85,10 +85,10 @@ public:
 	virtual bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) = 0;
 
 	/// Get entries saved to disk
-	[[nodiscard]] const std::unordered_map<std::string, std::vector<Entry>>& getBakedEntries() const;
+	[[nodiscard]] const std::unordered_set<Entry>& getBakedEntries() const;
 
 	/// Get entries that have been added but not yet baked
-	[[nodiscard]] const std::unordered_map<std::string, std::vector<Entry>>& getUnbakedEntries() const;
+	[[nodiscard]] const std::unordered_set<Entry>& getUnbakedEntries() const;
 
 	/// Get the number of entries in the pack file
 	[[nodiscard]] std::size_t getEntryCount(bool includeUnbaked = true) const;
@@ -135,11 +135,13 @@ public:
 protected:
 	PackFile(std::string fullFilePath_, PackFileOptions options_);
 
+	virtual void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
+
 	[[nodiscard]] std::vector<std::string> verifyEntryChecksumsUsingCRC32() const;
 
-	virtual Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) = 0;
-
 	[[nodiscard]] std::string getBakeOutputDir(const std::string& outputDir) const;
+
+	[[nodiscard]] std::optional<std::vector<std::byte>> readUnbakedEntry(const Entry& unbakedEntry) const;
 
 	void mergeUnbakedEntries();
 
@@ -156,8 +158,8 @@ protected:
 	PackFileType type = PackFileType::UNKNOWN;
 	PackFileOptions options;
 
-	std::unordered_map<std::string, std::vector<Entry>> entries;
-	std::unordered_map<std::string, std::vector<Entry>> unbakedEntries;
+	std::unordered_set<Entry> entries;
+	std::unordered_set<Entry> unbakedEntries;
 
 	using FactoryFunction = std::function<std::unique_ptr<PackFile>(const std::string& path, PackFileOptions options, const Callback& callback)>;
 
@@ -175,9 +177,9 @@ public:
 	[[nodiscard]] explicit operator std::string() const override;
 
 protected:
-	PackFileReadOnly(std::string fullFilePath_, PackFileOptions options_);
+	PackFileReadOnly([[maybe_unused]] std::string fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
+	void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) final;
 
 	bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) final;
 };

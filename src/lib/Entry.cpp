@@ -23,3 +23,7 @@ std::string Entry::getExtension() const {
 	}
 	return ext;
 }
+
+bool Entry::operator==(const Entry& other) const {
+	return this->path == other.path;
+}

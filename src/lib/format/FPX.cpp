@@ -65,9 +65,6 @@ std::unique_ptr<PackFile> FPX::openInternal(const std::string& path, PackFileOpt
 			} else {
 				fullDir = directory;
 			}
-			if (!fpx->entries.contains(fullDir)) {
-				fpx->entries[fullDir] = {};
-			}
 
 			// Files
 			while (true) {
@@ -103,14 +100,14 @@ std::unique_ptr<PackFile> FPX::openInternal(const std::string& path, PackFileOpt
 					entry.length += preloadedDataSize;
 				}
 
-				fpx->entries[fullDir].push_back(entry);
+				fpx->entries.insert(entry);
 
 				if (entry.vpk_archiveIndex != VPK_DIR_INDEX && entry.vpk_archiveIndex > fpx->numArchives) {
 					fpx->numArchives = entry.vpk_archiveIndex;
 				}
 
 				if (callback) {
-					callback(fullDir, entry);
+					callback(entry);
 				}
 			}
 		}

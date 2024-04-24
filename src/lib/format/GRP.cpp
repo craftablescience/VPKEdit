@@ -53,17 +53,14 @@ std::unique_ptr<PackFile> GRP::open(const std::string& path, PackFileOptions opt
 
 	// At this point we've reached the file data section, calculate the offsets and then add the entries
 	std::size_t offset = reader.tellInput();
-	if (!grp->entries.contains("")) {
-		grp->entries[""] = {};
-	}
 	for (auto& entry : entries) {
 		entry.offset = offset;
 		offset += entry.length;
 
-		grp->entries[""].push_back(entry);
+		grp->entries.insert(std::move(entry));
 
 		if (callback) {
-			callback("", entry);
+			callback(entry);
 		}
 	}
 
@@ -72,21 +69,7 @@ std::unique_ptr<PackFile> GRP::open(const std::string& path, PackFileOptions opt
 
 std::optional<std::vector<std::byte>> GRP::readEntry(const Entry& entry) const {
 	if (entry.unbaked) {
-		// Get the stored data
-		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
-			for (const Entry& unbakedEntry : unbakedEntryList) {
-				if (unbakedEntry.path == entry.path) {
-					std::vector<std::byte> unbakedData;
-					if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
-						unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
-					} else {
-						unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
-					}
-					return unbakedData;
-				}
-			}
-		}
-		return std::nullopt;
+		return this->readUnbakedEntry(entry);
 	}
 	// It's baked into the file on disk
 	FileStream stream{this->fullFilePath};
@@ -97,7 +80,7 @@ std::optional<std::vector<std::byte>> GRP::readEntry(const Entry& entry) const {
 	return stream.readBytes(entry.length);
 }
 
-Entry& GRP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+void GRP::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	auto filename = filename_;
 	if (!this->isCaseSensitive()) {
 		::toLowerCase(filename);
@@ -109,11 +92,7 @@ Entry& GRP::addEntryInternal(Entry& entry, const std::string& filename_, std::ve
 	// Offset will be reset when it's baked
 	entry.offset = 0;
 
-	if (!this->unbakedEntries.contains("")) {
-		this->unbakedEntries[""] = {};
-	}
-	this->unbakedEntries.at("").push_back(entry);
-	return this->unbakedEntries.at("").back();
+	this->unbakedEntries.insert(std::move(entry));
 }
 
 bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
@@ -123,15 +102,11 @@ bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
 
 	// Reconstruct data for ease of access
 	std::vector<Entry*> entriesToBake;
-	for (auto& [entryDir, entryList] : this->entries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->entries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
-	for (auto& [entryDir, entryList] : this->unbakedEntries) {
-		for (auto& entry : entryList) {
-			entriesToBake.push_back(&entry);
-		}
+	for (const auto& entry : this->unbakedEntries) {
+		entriesToBake.push_back(const_cast<Entry*>(&entry));
 	}
 
 	// Read data before overwriting, we don't know if we're writing to ourself
@@ -160,7 +135,7 @@ bool GRP::bake(const std::string& outputDir_, const Callback& callback) {
 			stream.write(static_cast<std::uint32_t>(entry->length));
 
 			if (callback) {
-				callback(entry->getParentPath(), *entry);
+				callback(*entry);
 			}
 		}
 

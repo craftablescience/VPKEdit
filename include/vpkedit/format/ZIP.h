@@ -37,7 +37,7 @@ public:
 protected:
 	ZIP(const std::string& fullFilePath_, PackFileOptions options_);
 
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+	void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 	bool bakeTempZip(const std::string& writeZipPath, const Callback& callback);
 

@@ -626,11 +626,9 @@ void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
 	int progress = 0;
-	for (const auto& [directory, entries] : packFile.getBakedEntries()) {
+	for (const auto& entry : packFile.getBakedEntries()) {
+		tree->addNestedEntryComponents(entry.path.c_str());
 		emit progressUpdated(++progress);
-		for (const auto& entry : entries) {
-			tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
-		}
 	}
 	tree->sortItems(0, Qt::AscendingOrder);
 	emit taskFinished();

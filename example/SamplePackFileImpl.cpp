@@ -34,18 +34,6 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 		{"", "megamind.txt"},
 	};
 	for (auto& [dir, name] : samplePaths) {
-		// The path needs to be normalized, and respect case sensitivity
-		::normalizeSlashes(dir);
-		if (!example->isCaseSensitive()) {
-			::toLowerCase(dir);
-			::toLowerCase(name);
-		}
-
-		// Create the list if it doesn't exist
-		if (!example->entries.contains(dir)) {
-			example->entries[dir] = {};
-		}
-
 		// Use the createNewEntry function to avoid Entry having to friend every single damn class
 		Entry entry = createNewEntry();
 
@@ -54,11 +42,11 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 		entry.path += dir.empty() ? "" : "/";
 		entry.path += name;
 
-		// We already did it at the start, but this is how it's usually done
-		//::normalizeSlashes(entry.path);
-		//if (!options.allowUppercaseLettersInFilenames) {
-		//	::toLowerCase(entry.path);
-		//}
+		// The path needs to be normalized, and respect case sensitivity
+		::normalizeSlashes(entry.path);
+		if (!example->isCaseSensitive()) {
+			::toLowerCase(entry.path);
+		}
 
 		// The length should be the full uncompressed length of the file data in bytes
 		entry.length = 42;
@@ -71,8 +59,13 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 		// This can also be omitted if unused, 0 is the default
 		entry.crc32 = 0;
 
-		// Add the entry to the entries map
-		example->entries[dir].push_back(std::move(entry));
+		// Add the entry to the entries set
+		example->entries.insert(entry);
+
+		// Call the callback
+		if (callback) {
+			callback(entry);
+		}
 	}
 
 	return packFile;
@@ -87,23 +80,9 @@ bool EXAMPLE::verifyFileChecksum() const {
 }
 
 std::optional<std::vector<std::byte>> EXAMPLE::readEntry(const Entry& entry) const {
-	// Include this code verbatim - will likely be moved to a utility method soon
+	// Read the contents of the entry with a helper method if it's unbaked
 	if (entry.unbaked) {
-		// Get the stored data
-		for (const auto& [unbakedEntryDir, unbakedEntryList] : this->unbakedEntries) {
-			for (const Entry& unbakedEntry : unbakedEntryList) {
-				if (unbakedEntry.path == entry.path) {
-					std::vector<std::byte> unbakedData;
-					if (isEntryUnbakedUsingByteBuffer(unbakedEntry)) {
-						unbakedData = std::get<std::vector<std::byte>>(getEntryUnbakedData(unbakedEntry));
-					} else {
-						unbakedData = ::readFileData(std::get<std::string>(getEntryUnbakedData(unbakedEntry)));
-					}
-					return unbakedData;
-				}
-			}
-		}
-		return std::nullopt;
+		return this->readUnbakedEntry(entry);
 	}
 
 	// Use the contents of the entry to access the file data and return it
@@ -111,24 +90,19 @@ std::optional<std::vector<std::byte>> EXAMPLE::readEntry(const Entry& entry) con
 	return std::nullopt;
 }
 
-Entry& EXAMPLE::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
+void EXAMPLE::addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) {
 	// Include this verbatim
-	auto filename = filename_;
+	entry.path = filename_;
+	::normalizeSlashes(entry.path);
 	if (!this->isCaseSensitive()) {
-		::toLowerCase(filename);
+		::toLowerCase(entry.path);
 	}
-	auto [dir, name] = ::splitFilenameAndParentDir(filename);
 
 	// Initialize the entry - set the entry properties just like in EXAMPLE::open
-	entry.path = filename;
 	// ...
 
 	// Include this verbatim
-	if (!this->unbakedEntries.contains(dir)) {
-		this->unbakedEntries[dir] = {};
-	}
-	this->unbakedEntries.at(dir).push_back(entry);
-	return this->unbakedEntries.at(dir).back();
+	this->unbakedEntries.insert(std::move(entry));
 }
 
 bool EXAMPLE::bake(const std::string& outputDir_, const PackFile::Callback& callback) {
@@ -137,37 +111,33 @@ bool EXAMPLE::bake(const std::string& outputDir_, const PackFile::Callback& call
 	std::string outputPath = outputDir + '/' + this->getFilename();
 
 	// Loop over all entries and save them
-	for (const auto& [entryDir, entries] : this->getBakedEntries()) {
-		for (const Entry& entry : entries) {
-			auto binData = this->readEntry(entry);
-			if (!binData) {
-				continue;
-			}
+	for (const auto& entry : this->getBakedEntries()) {
+		auto binData = this->readEntry(entry);
+		if (!binData) {
+			continue;
+		}
 
-			// Write data here
-			// ...
+		// Write data here
+		// ...
 
-			// Call the callback
-			if (callback) {
-				callback(entry.getParentPath(), entry);
-			}
+		// Call the callback
+		if (callback) {
+			callback(entry);
 		}
 	}
 	// Yes this is copy-paste, you could probably turn this into a lambda and call it on both maps
-	for (const auto& [entryDir, entries] : this->getUnbakedEntries()) {
-		for (const Entry& entry : entries) {
-			auto binData = this->readEntry(entry);
-			if (!binData) {
-				continue;
-			}
+	for (const auto& entry : this->getUnbakedEntries()) {
+		auto binData = this->readEntry(entry);
+		if (!binData) {
+			continue;
+		}
 
-			// Write data here
-			// ...
+		// Write data here
+		// ...
 
-			// Call the callback
-			if (callback) {
-				callback(entry.getParentPath(), entry);
-			}
+		// Call the callback
+		if (callback) {
+			callback(entry);
 		}
 	}
 

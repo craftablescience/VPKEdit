@@ -120,19 +120,10 @@ std::unique_ptr<PackFile> BSP::open(const std::string& path, PackFileOptions opt
 		entry.compressedLength = fileInfo->compressed_size;
 		entry.crc32 = fileInfo->crc;
 
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
-		::normalizeSlashes(parentDir);
-		if (!bsp->isCaseSensitive()) {
-			::toLowerCase(parentDir);
-		}
-
-		if (!bsp->entries.contains(parentDir)) {
-			bsp->entries[parentDir] = {};
-		}
-		bsp->entries[parentDir].push_back(entry);
+		bsp->entries.insert(entry);
 
 		if (callback) {
-			callback(parentDir, entry);
+			callback(entry);
 		}
 	}
 

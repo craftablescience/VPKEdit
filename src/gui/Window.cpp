@@ -805,6 +805,7 @@ void Window::editFile(const QString& oldPath) {
 
 	// Remove file
 	this->requestEntryRemoval(oldPath);
+	this->packFile->removeEntry(oldPath.toStdString());
 
 	// Add new file with the same info and data at the new path
 	this->packFile->addEntry(newPath.toStdString(), std::move(data.value()), entryOptions);
@@ -825,18 +826,14 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	}
 
 	std::vector<QString> paths;
-	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
-		if (QString(directory.c_str()).startsWith(oldPath)) {
-			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
-			}
+	for (const auto& entry : this->packFile->getBakedEntries()) {
+		if (QString(entry.getParentPath().c_str()).startsWith(oldPath)) {
+			paths.emplace_back(entry.path.c_str());
 		}
 	}
-	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
-		if (QString(directory.c_str()).startsWith(oldPath)) {
-			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
-			}
+	for (const auto& entry : this->packFile->getUnbakedEntries()) {
+		if (QString(entry.getParentPath().c_str()).startsWith(oldPath)) {
+			paths.emplace_back(entry.path.c_str());
 		}
 	}
 
@@ -1041,14 +1038,14 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 
 	// Get progress bar maximum
 	int progressBarMax = 0;
-	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
-		if (predicate(QString(directory.c_str()))) {
-			progressBarMax += static_cast<int>(entries.size());
+	for (const auto& entry : this->packFile->getBakedEntries()) {
+		if (predicate(QString(entry.path.c_str()))) {
+			progressBarMax++;
 		}
 	}
-	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
-		if (predicate(QString(directory.c_str()))) {
-			progressBarMax += static_cast<int>(entries.size());
+	for (const auto& entry : this->packFile->getUnbakedEntries()) {
+		if (predicate(QString(entry.path.c_str()))) {
+			progressBarMax++;
 		}
 	}
 
@@ -1360,7 +1357,7 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 		loop = std::make_unique<QEventLoop>();
 	}
 	int currentEntry = 0;
-	bool success = window->packFile->bake(savePath.toStdString(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
+	bool success = window->packFile->bake(savePath.toStdString(), [this, loop_=loop.get(), &currentEntry](const Entry&) {
 		emit progressUpdated(++currentEntry);
 		if (loop_) {
 			loop_->processEvents();
@@ -1371,10 +1368,10 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 
 void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
 	int currentEntry = 0;
-	for (const auto& [directory, entries] : window->packFile->getBakedEntries()) {
-		QString dir(directory.c_str());
+	const auto saveEntry = [this, window, &saveDir, &predicate, &currentEntry](const Entry& entry) {
+		QString dir(entry.getParentPath().c_str());
 		if (!predicate(dir)) {
-			continue;
+			return;
 		}
 
 #ifdef _WIN32
@@ -1394,64 +1391,55 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 			return;
 		}
 
-		for (const auto& entry : entries) {
-			std::string filename{entry.getFilename()};
+		std::string filename{entry.getFilename()};
 #ifdef _WIN32
-			{
-				std::filesystem::path path{filename};
-				auto extension = path.extension().string();
-				QString stem = path.stem().string().c_str();
-				stem = stem.toUpper();
+		{
+			std::filesystem::path path{filename};
+			auto extension = path.extension().string();
+			QString stem = path.stem().string().c_str();
+			stem = stem.toUpper();
 
-				// Replace bad filenames
-				if (stem == "CON") {
-					filename = "_CON_" + extension;
-				} else if (stem == "PRN") {
-					filename = "_PRN_" + extension;
-				} else if (stem == "AUX") {
-					filename = "_AUX_" + extension;
-				} else if (stem == "NUL") {
-					filename = "_NUL_" + extension;
-				} else if (stem.startsWith("COM") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
-					filename = "_COM";
-					filename += stem[3].toLatin1();
-					filename += '_';
-					filename += extension;
-				} else if (stem.startsWith("LPT") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
-					filename = "_LPT";
-					filename += stem[3].toLatin1();
-					filename += '_';
-					filename += extension;
-				}
-
-				// Files cannot end with a period - weird
-				if (extension == ".") {
-					filename.pop_back();
-				}
+			// Replace bad filenames
+			if (stem == "CON") {
+				filename = "_CON_" + extension;
+			} else if (stem == "PRN") {
+				filename = "_PRN_" + extension;
+			} else if (stem == "AUX") {
+				filename = "_AUX_" + extension;
+			} else if (stem == "NUL") {
+				filename = "_NUL_" + extension;
+			} else if (stem.startsWith("COM") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
+				filename = "_COM";
+				filename += stem[3].toLatin1();
+				filename += '_';
+				filename += extension;
+			} else if (stem.startsWith("LPT") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
+				filename = "_LPT";
+				filename += stem[3].toLatin1();
+				filename += '_';
+				filename += extension;
 			}
+
+			// Files cannot end with a period - weird
+			while (filename.ends_with('.')) {
+				filename.pop_back();
+			}
+
+			if (filename.empty()) {
+				filename = "_";
+			}
+		}
 #endif
-			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + filename.c_str();
-			window->writeEntryToFile(filePath, entry);
-			emit progressUpdated(++currentEntry);
-		}
+		auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + filename.c_str();
+		window->writeEntryToFile(filePath, entry);
+		emit progressUpdated(++currentEntry);
+	};
+
+	for (const auto& entry : window->packFile->getBakedEntries()) {
+		saveEntry(entry);
 	}
-	for (const auto& [directory, entries] : window->packFile->getUnbakedEntries()) {
-		QString dir(directory.c_str());
-		if (!predicate(dir)) {
-			continue;
-		}
-
-		QDir qDir;
-		if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
-			QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
-			return;
-		}
-
-		for (const auto& entry : entries) {
-			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
-			window->writeEntryToFile(filePath, entry);
-			emit progressUpdated(++currentEntry);
-		}
+	for (const auto& entry : window->packFile->getUnbakedEntries()) {
+		saveEntry(entry);
 	}
 	emit taskFinished();
 }

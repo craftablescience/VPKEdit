@@ -60,7 +60,7 @@ protected:
 
 	// [WRITE] Adds a new entry from either a filename or a buffer
 	// Again, if your type needs any new options specific to entries, add them to EntryOptions
-	Entry& addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
+	void addEntryInternal(Entry& entry, const std::string& filename_, std::vector<std::byte>& buffer, EntryOptions options_) override;
 
 private:
 	// Finally, register the open method with the extension
