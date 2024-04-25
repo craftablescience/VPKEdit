@@ -26,8 +26,8 @@
 #include <QStringDecoder>
 #include <QStyleFactory>
 #include <QThread>
+#include <QTimer>
 #include <sapp/SteamAppPathProvider.h>
-#include <vpkedit/format/FPX.h>
 #include <vpkedit/format/VPK.h>
 #ifdef VPKEDIT_ZIP_COMPRESSION
 #include <vpkedit/format/ZIP.h>
@@ -226,10 +226,25 @@ Window::Window(QWidget* parent)
 	// Not translating this menu name, the translation is the same everywhere
 	auto* discordMenu = optionsMenu->addMenu(QIcon{":/icons/discord.png"}, "Discord...");
 	const auto setupDiscordRichPresence = [] {
-		DiscordPresence::init("1222285763459158056");
-		DiscordPresence::setState("Editing an archive file");
+		auto time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+#ifdef _WIN32
+		std::tm currentTimeVal{};
+		localtime_s(&currentTimeVal, &time);
+		auto* currentTime = &currentTimeVal;
+#else
+		auto* currentTime = std::localtime(&time);
+#endif
+		if (currentTime->tm_mon == 3 && currentTime->tm_mday == 1) {
+			// its april 1st you know what that means
+			DiscordPresence::init("1232981268472533032");
+			DiscordPresence::setDetails("Customizing character...");
+			DiscordPresence::setState("Ponyville Train Station");
+		} else {
+			DiscordPresence::init("1222285763459158056");
+			DiscordPresence::setState("Editing an archive file");
+			DiscordPresence::setLargeImageText(PROJECT_TITLE.data());
+		}
 		DiscordPresence::setLargeImage("icon");
-		DiscordPresence::setLargeImageText(PROJECT_TITLE.data());
 		DiscordPresence::setStartTimestamp(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 		DiscordPresence::setTopButton({"View on GitHub", std::string{PROJECT_HOMEPAGE}});
 	};
@@ -247,6 +262,9 @@ Window::Window(QWidget* parent)
 	if (Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
 		setupDiscordRichPresence();
 	}
+	auto* discordUpdateTimer = new QTimer(this);
+	QObject::connect(discordUpdateTimer, &QTimer::timeout, this, &DiscordPresence::update);
+	discordUpdateTimer->start(20);
 
 	auto* entryListMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Entry Tree..."));
 	auto* entryListMenuAutoExpandAction = entryListMenu->addAction(tr("Expand Folder When Selected"), [this] {
