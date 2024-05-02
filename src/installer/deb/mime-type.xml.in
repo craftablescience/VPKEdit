@@ -1,23 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-    <mime-type type="application/x-vpkedit">
-        <comment>VPKEdit Pack File</comment>
+    <mime-type type="application/x-vpkedit-bmz">
+        <comment>Bonus Map Zip</comment>
         <icon name="application-x-vpkedit"/>
-        <acronym>VPK</acronym>
-        <expanded-acronym>VPKEdit Pack File</expanded-acronym>
+        <acronym>BMZ</acronym>
+        <expanded-acronym>Bonus Map Zip</expanded-acronym>
         <glob-deleteall/>
         <glob pattern="*.bmz"/>
         <glob pattern="*.BMZ"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-bsp">
+        <comment>Source Map File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>BSP</acronym>
+        <expanded-acronym>Binary Space Partitioning</expanded-acronym>
+        <glob-deleteall/>
         <glob pattern="*.bsp"/>
         <glob pattern="*.BSP"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-fpx">
+        <comment>Tactical Intervention Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>FPX</acronym>
+        <glob-deleteall/>
         <glob pattern="*.fpx"/>
         <glob pattern="*.FPX"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-gcf">
+        <comment>Game Cache File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>GCF</acronym>
+        <expanded-acronym>Game Cache File</expanded-acronym>
+        <glob-deleteall/>
         <glob pattern="*.gcf"/>
         <glob pattern="*.GCF"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-gma">
+        <comment>Garry's Mod Addon</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>GMA</acronym>
+        <expanded-acronym>Garry's Mod Addon</expanded-acronym>
+        <glob-deleteall/>
         <glob pattern="*.gma"/>
         <glob pattern="*.GMA"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-grp">
+        <comment>Game Resource Package</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>GRP</acronym>
+        <expanded-acronym>Game Resource Package</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.grp"/>
+        <glob pattern="*.grp"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-pak">
+        <comment>Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>PAK</acronym>
+        <expanded-acronym>Pack File</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.pak"/>
+        <glob pattern="*.PAK"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-pck">
+        <comment>Godot Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>PCK</acronym>
+        <expanded-acronym>Godot Pack File</expanded-acronym>
+        <glob-deleteall/>
         <glob pattern="*.pck"/>
         <glob pattern="*.PCK"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-vpk">
+        <comment>Valve Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>VPK</acronym>
+        <expanded-acronym>Valve Pack File</expanded-acronym>
+        <glob-deleteall/>
         <glob pattern="*.vpk"/>
         <glob pattern="*.VPK"/>
     </mime-type>
