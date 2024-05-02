@@ -7,5 +7,5 @@ Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
 Categories=Qt;Development;Utility;
-MimeType=application/x-vpkedit
+MimeType=application/x-vpkedit-bmz;application/x-vpkedit-bsp;application/x-vpkedit-fpx;application/x-vpkedit-gcf;application/x-vpkedit-gma;application/x-vpkedit-grp;application/x-vpkedit-pak;application/x-vpkedit-pck;application/x-vpkedit-vpk
 PrefersNonDefaultGPU=true
