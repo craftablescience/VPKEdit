@@ -48,7 +48,8 @@ public:
 		".nut", ".lua", ".gm", ".py", ".js", ".ts",                // Scripts
 		".vmf", ".vmm", ".vmx", ".vmt",                            // Assets (1)
 		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd",             // Assets (2)
-		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",             // KeyValues
+		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",             // KeyValues (1)
+		".zpc", ".zpdata",                                         // KeyValues (2)
 		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",             // Valve formats
 		".ini", ".yml", ".yaml", ".toml", ".json",                 // Config
 		".html", ".htm", ".xml", ".css", ".scss", ".sass",         // Web
