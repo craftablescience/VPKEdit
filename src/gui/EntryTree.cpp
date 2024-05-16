@@ -31,6 +31,13 @@
 
 using namespace vpkedit;
 
+/**
+ * Neither the tree nor the model uses its signals as items are being put in. Firing signals slows the item
+ * creation process by a lot! So we disable them during the creation process and turn them back on when it's
+ * done. Also, if you use this more than once in the same scope, shame on you (it won't compile)
+ */
+#define QT_BLOCK_TREE_SIGNALS(obj) const QSignalBlocker blockTreeSignals{obj}, blockTreeModelSignals{obj->model()}
+
 namespace {
 
 #ifdef _WIN32
@@ -93,11 +100,7 @@ QString join(const QStringList& list, const QString& separator) {
 
 class EntryItem : public QTreeWidgetItem {
 public:
-	explicit EntryItem(QTreeWidget* parent)
-			: QTreeWidgetItem(parent) {}
-
-	explicit EntryItem(QTreeWidgetItem* parent)
-			: QTreeWidgetItem(parent) {}
+	using QTreeWidgetItem::QTreeWidgetItem;
 
 	bool operator<(const QTreeWidgetItem& other) const override {
 		// Directories should always go above files
@@ -365,6 +368,8 @@ void EntryTree::clearContents() {
 }
 
 void EntryTree::addEntry(const QString& path) {
+	QT_BLOCK_TREE_SIGNALS(this);
+
 	this->addNestedEntryComponents(path);
 	this->sortItems(0, Qt::AscendingOrder);
 }
@@ -581,11 +586,10 @@ void EntryTree::addNestedEntryComponents(const QString& path) const {
 		// If the child item doesn't exist, create a new one
 		if (!newItem) {
 			if (currentItem) {
-				newItem = new EntryItem(currentItem);
+				newItem = new EntryItem(currentItem, {components[i]});
 			} else {
-				newItem = new EntryItem(this->root);
+				newItem = new EntryItem(this->root, {components[i]});
 			}
-			newItem->setText(0, components[i]);
 
 			if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
 				if (i != components.size() - 1) { // is a directory
@@ -625,6 +629,8 @@ void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
 }
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
+	QT_BLOCK_TREE_SIGNALS(tree);
+
 	int progress = 0;
 	for (const auto& [directory, entries] : packFile.getBakedEntries()) {
 		emit progressUpdated(++progress);
@@ -632,6 +638,7 @@ void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
 			tree->addNestedEntryComponents(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
 		}
 	}
+
 	tree->sortItems(0, Qt::AscendingOrder);
 	emit taskFinished();
 }
