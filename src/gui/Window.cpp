@@ -596,7 +596,7 @@ void Window::savePackFile(bool saveAs, bool async) {
 
 		if (!success) {
 			QMessageBox::warning(this, tr("Could not save!"),
-			                     tr("An error occurred while saving changes to the VPK. Check that you have permissions to write to the file."));
+			                     tr("An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it."));
 		} else {
 			this->markModified(false);
 		}
