@@ -1,7 +1,9 @@
 #include "Window.h"
 
 #include <chrono>
+#include <fstream>
 
+#include <KeyValue.h>
 #include <QActionGroup>
 #include <QApplication>
 #include <QDesktopServices>
@@ -81,20 +83,70 @@ Window::Window(QWidget* parent)
 	});
 
 	this->openRelativeToMenu = nullptr;
-	if (sapp::SAPP sapp; sapp) {
+	if (SAPP sapp; sapp) {
 		QList<std::tuple<QString, QString, QDir>> sourceGames;
 
-		for (auto appID : sapp.getInstalledGameIDs()) {
-			if (!sapp.isGameUsingSourceEngine(appID) || sapp.isGameUsingSource2Engine(appID)) {
+		// Add Steam games
+		for (auto appID : sapp.getInstalledApps()) {
+			if (!sapp.isAppUsingSourceEngine(appID) || sapp.isAppUsingSource2Engine(appID)) {
+				continue;
+			}
+			sourceGames.emplace_back(sapp.getAppName(appID).data(), sapp.getAppIconPath(appID).c_str(), sapp.getAppInstallDir(appID).c_str());
+		}
+
+		// Add mods in the sourcemods directory
+		for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
+			if (!modDir.is_directory()) {
 				continue;
 			}
 
-			// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it for s&box
-			QString gameName(sapp.getGameName(appID).data());
-			gameName.replace("&", "&&");
+			const auto gameInfoPath = (modDir.path() / "gameinfo.txt").string();
+			if (!std::filesystem::exists(gameInfoPath)) {
+				continue;
+			}
 
-			sourceGames.emplace_back(gameName, sapp.getGameIconPath(appID).c_str(), sapp.getGameInstallDirectory(appID).data());
+			std::ifstream gameInfoFile{gameInfoPath};
+			auto gameInfoSize = std::filesystem::file_size(gameInfoPath);
+			std::string gameInfoData;
+			gameInfoData.resize(gameInfoSize);
+			gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
+
+			KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
+			if (!gameInfoRoot.IsValid()) {
+				continue;
+			}
+			auto& gameInfo = gameInfoRoot.Get("GameInfo");
+			if (!gameInfo.IsValid()) {
+				continue;
+			}
+			auto& gameInfoName = gameInfo.Get("game");
+			auto& gameInfoIconPath = gameInfo.Get("icon");
+
+			std::string modName;
+			if (gameInfoName.IsValid()) {
+				modName = gameInfoName.Value().string;
+			} else {
+				modName = std::filesystem::path{gameInfoPath}.parent_path().filename();
+			}
+
+			std::string modIconPath;
+			if (gameInfoIconPath.IsValid()) {
+				if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
+					modIconPath = modIconBigPath.string();
+				} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
+					modIconPath = modIconRegularPath.string();
+				}
+			}
+
+			sourceGames.emplace_back(modName.c_str(), modIconPath.c_str(), modDir.path().string().c_str());
 		}
+
+		// Replace & with && in game names
+		for (auto& games : sourceGames) {
+			// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it
+			std::get<0>(games).replace("&", "&&");
+		}
+
 		if (!sourceGames.empty()) {
 			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
 				return std::get<0>(lhs) < std::get<0>(rhs);
@@ -103,7 +155,7 @@ Window::Window(QWidget* parent)
 			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
 			for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
 				const auto relativeDirectory = relativeDirectoryPath.path();
-				this->openRelativeToMenu->addAction(QIcon(iconPath), gameName, [this, relativeDirectory] {
+				this->openRelativeToMenu->addAction(iconPath.isEmpty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath), gameName, [this, relativeDirectory] {
 					this->openPackFile(relativeDirectory);
 				});
 			}
