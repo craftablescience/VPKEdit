@@ -126,7 +126,7 @@ Window::Window(QWidget* parent)
 			if (gameInfoName.IsValid()) {
 				modName = gameInfoName.Value().string;
 			} else {
-				modName = std::filesystem::path{gameInfoPath}.parent_path().filename();
+				modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
 			}
 
 			std::string modIconPath;
