@@ -6,7 +6,7 @@
 	url = https://github.com/StrataSource/VTFLib
 [submodule "src/gui/thirdparty/sapp"]
 	path = src/gui/thirdparty/sapp
-	url = https://github.com/Trico-Everfire/SteamAppPathProvider
+	url = https://github.com/craftablescience/SteamAppPathProvider
 [submodule "src/gui/thirdparty/speedykeyv"]
 	path = src/gui/thirdparty/speedykeyv
 	url = https://github.com/ozxybox/SpeedyKeyV

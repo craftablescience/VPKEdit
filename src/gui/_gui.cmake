@@ -15,12 +15,12 @@ set_target_properties(
 # discord-rpc
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/discord")
 
-# sourcepp (various parsing libraries)
+# sourcepp
 set(SOURCEPP_USE_FGDPP OFF CACHE BOOL "" FORCE)
 set(SOURCEPP_USE_VMFPP OFF CACHE BOOL "" FORCE)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/sourcepp")
 
-# SpeedyKeyV (for SAPP)
+# SpeedyKeyV
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/speedykeyv")
 
 # SAPP
