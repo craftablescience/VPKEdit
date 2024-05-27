@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QtGlobal>
 #include <vpkedit/format/VPK.h>
 
 #include "../EntryContextMenuData.h"
@@ -190,7 +191,11 @@ void DirPreview::addEntry(const PackFile& packFile, const QString& path) {
 		return;
 	}
 	if (subfolderName.startsWith('/')) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
 		subfolderName.removeFirst();
+#else
+		subfolderName.remove(0, 1);
+#endif
 	}
 	auto subFolderLastIndex = subfolderName.indexOf('/');
 	if (subFolderLastIndex < 0) {
