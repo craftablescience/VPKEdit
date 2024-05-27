@@ -31,13 +31,6 @@
 
 using namespace vpkedit;
 
-/**
- * Neither the tree nor the model uses its signals as items are being put in. Firing signals slows the item
- * creation process by a lot! So we disable them during the creation process and turn them back on when it's
- * done. Also, if you use this more than once in the same scope, shame on you (it won't compile)
- */
-#define QT_BLOCK_TREE_SIGNALS(obj) const QSignalBlocker blockTreeSignals{obj}, blockTreeModelSignals{obj->model()}
-
 namespace {
 
 #ifdef _WIN32
@@ -368,8 +361,6 @@ void EntryTree::clearContents() {
 }
 
 void EntryTree::addEntry(const QString& path) {
-	QT_BLOCK_TREE_SIGNALS(this);
-
 	this->addNestedEntryComponents(path);
 	this->sortItems(0, Qt::AscendingOrder);
 }
@@ -629,8 +620,6 @@ void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
 }
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
-	QT_BLOCK_TREE_SIGNALS(tree);
-
 	int progress = 0;
 	for (const auto& [directory, entries] : packFile.getBakedEntries()) {
 		emit progressUpdated(++progress);
