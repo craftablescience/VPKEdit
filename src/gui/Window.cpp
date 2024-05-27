@@ -546,13 +546,15 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 
 		// Set up thread
 		this->createVPKFromDirWorkerThread = new QThread(this);
-		auto* worker = new CreateVPKFromDirWorker();
+		auto* worker = new IndeterminateProgressWorker();
 		worker->moveToThread(this->createVPKFromDirWorkerThread);
 		// Cringe compiler moment in the lambda capture list
 		QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, options_=options] {
-			worker->run(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, options_);
+			worker->run([vpkPath, dirPath, singleFile_, options_] {
+				(void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, options_);
+			});
 		});
-		QObject::connect(worker, &CreateVPKFromDirWorker::taskFinished, this, [this, vpkPath] {
+		QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, this, [this, vpkPath] {
 			// Kill thread
 			this->createVPKFromDirWorkerThread->quit();
 			this->createVPKFromDirWorkerThread->wait();
@@ -898,7 +900,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		}
 	}
 
-	std::vector<QString> paths;
+	QStringList paths;
 	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
 		if (QString(directory.c_str()).startsWith(oldPath)) {
 			for (const auto& entry : entries) {
@@ -1423,8 +1425,8 @@ void Window::resetStatusBar() {
 	this->statusProgressBar->hide();
 }
 
-void CreateVPKFromDirWorker::run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, PackFileOptions options) {
-	(void) VPK::createFromDirectory(vpkPath, contentPath, saveToDir, options);
+void IndeterminateProgressWorker::run(const std::function<void()>& fn) {
+	fn();
 	emit taskFinished();
 }
 

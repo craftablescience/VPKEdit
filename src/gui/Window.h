@@ -22,7 +22,6 @@ class FileViewer;
 class Window : public QMainWindow {
 	Q_OBJECT;
 
-	friend class CreateVPKFromDirWorker;
 	friend class SavePackFileWorker;
 	friend class ExtractPackFileWorker;
 
@@ -161,13 +160,13 @@ private:
 	void resetStatusBar();
 };
 
-class CreateVPKFromDirWorker : public QObject {
+class IndeterminateProgressWorker : public QObject {
 	Q_OBJECT;
 
 public:
-	CreateVPKFromDirWorker() = default;
+	IndeterminateProgressWorker() = default;
 
-	void run(const std::string& vpkPath, const std::string& contentPath, bool saveToDir, vpkedit::PackFileOptions options);
+	void run(const std::function<void()>& fn);
 
 signals:
 	void taskFinished();
