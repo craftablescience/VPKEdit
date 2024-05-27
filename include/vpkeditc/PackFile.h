@@ -25,10 +25,18 @@ VPKEDIT_API VPKEdit_PackFileType_e vpkedit_get_type(VPKEdit_PackFileHandle_t han
 
 VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle_t handle);
 
+VPKEDIT_API bool vpkedit_has_entry_checksums(VPKEdit_PackFileHandle_t handle);
+
 // REQUIRES MANUAL FREE: vpkedit_string_array_free
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_verify_entry_checksums(VPKEdit_PackFileHandle_t handle);
 
+VPKEDIT_API bool vpkedit_has_file_checksum(VPKEdit_PackFileHandle_t handle);
+
 VPKEDIT_API bool vpkedit_verify_file_checksum(VPKEdit_PackFileHandle_t handle);
+
+VPKEDIT_API bool vpkedit_has_file_signature(VPKEdit_PackFileHandle_t handle);
+
+VPKEDIT_API bool vpkedit_verify_file_signature(VPKEdit_PackFileHandle_t handle);
 
 VPKEDIT_API bool vpkedit_is_case_sensitive(VPKEdit_PackFileHandle_t handle);
 

@@ -86,6 +86,10 @@ std::vector<std::string> GMA::verifyEntryChecksums() const {
 	return this->verifyEntryChecksumsUsingCRC32();
 }
 
+bool GMA::hasFileChecksum() const {
+	return true;
+}
+
 bool GMA::verifyFileChecksum() const {
 	auto data = ::readFileData(this->fullFilePath);
 	if (data.size() <= 4) {

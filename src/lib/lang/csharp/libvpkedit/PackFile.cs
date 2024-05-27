@@ -20,10 +20,22 @@ namespace libvpkedit
         public static extern PackFileOptions vpkedit_get_options(void* handle);
 
         [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_has_entry_checksums(void* handle);
+
+        [DllImport("libvpkeditc")]
         public static extern StringArray vpkedit_verify_entry_checksums(void* handle);
 
         [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_has_file_checksum(void* handle);
+
+        [DllImport("libvpkeditc")]
         public static extern byte vpkedit_verify_file_checksum(void* handle);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_has_file_signature(void* handle);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_verify_file_signature(void* handle);
 
         [DllImport("libvpkeditc")]
         public static extern byte vpkedit_is_case_sensitive(void* handle);
@@ -146,6 +158,14 @@ namespace libvpkedit
             return StringUtils.ConvertToListAndDelete(ref stringArray);
         }
 
+        public bool HasEntryChecksums()
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_has_entry_checksums(Handle));
+            }
+        }
+
         public IEnumerable<string> VerifyEntryChecksums()
         {
             unsafe
@@ -155,11 +175,35 @@ namespace libvpkedit
             }
         }
 
+        public bool HasFileChecksum()
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_has_file_checksum(Handle));
+            }
+        }
+
         public bool VerifyFileChecksum()
         {
             unsafe
             {
                 return Convert.ToBoolean(Extern.vpkedit_verify_file_checksum(Handle));
+            }
+        }
+
+        public bool HasFileSignature()
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_has_file_signature(Handle));
+            }
+        }
+
+        public bool VerifyFileSignature()
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_verify_file_signature(Handle));
             }
         }
 

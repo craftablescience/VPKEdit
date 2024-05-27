@@ -44,14 +44,30 @@ public:
 	/// Get the current options of the pack file
 	[[nodiscard]] PackFileOptions getOptions() const;
 
+	/// Returns true if the format has a checksum for each entry
+	[[nodiscard]] virtual constexpr bool hasEntryChecksums() const {
+		return false;
+	}
+
 	/// Verify the checksums of each file, if a file fails the check its filename will be added to the vector.
 	/// If there is no checksum ability in the format, it will return an empty vector
 	[[nodiscard]] virtual std::vector<std::string> verifyEntryChecksums() const;
+
+	/// Returns true if the entire file has a checksum
+	[[nodiscard]] virtual bool hasFileChecksum() const;
 
 	/// Verify the checksum of the entire file, returns true on success
 	/// Will return true if there is no checksum ability in the format
 	[[nodiscard]] virtual bool verifyFileChecksum() const;
 
+	/// Returns true if the file is signed
+	[[nodiscard]] virtual bool hasFileSignature() const;
+
+	/// Verify the file signature, returns true on success
+	/// Will return true if there is no signature ability in the format
+	[[nodiscard]] virtual bool verifyFileSignature() const;
+
+	/// Does the format support case-sensitive file names?
 	[[nodiscard]] virtual constexpr bool isCaseSensitive() const noexcept {
 		return false;
 	}

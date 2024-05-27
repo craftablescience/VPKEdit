@@ -293,33 +293,52 @@ std::vector<std::string> VPK::verifyEntryChecksums() const {
 	return this->verifyEntryChecksumsUsingCRC32();
 }
 
+bool VPK::hasFileChecksum() const {
+	return this->header1.version == 2;
+}
+
 bool VPK::verifyFileChecksum() const {
-	// No checksums or signature in v1
-	if (this->header1.version == 1) {
+	// File checksums are only in v2
+	if (this->header1.version != 2) {
 		return true;
 	}
 
-	// MD5 sections
-	{
-		FileStream stream{this->getFilepath().data()};
+	FileStream stream{this->getFilepath().data()};
 
-		stream.seekInput(this->getHeaderLength());
-		if (this->footer2.treeChecksum != ::computeMD5(stream.readBytes(this->header1.treeSize))) {
-			return false;
-		}
-
-		stream.seekInput(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize);
-		if (this->footer2.md5EntriesChecksum != ::computeMD5(stream.readBytes(this->header2.archiveMD5SectionSize))) {
-			return false;
-		}
-
-		stream.seekInput(0);
-		if (this->footer2.wholeFileChecksum != ::computeMD5(stream.readBytes(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize + this->header2.archiveMD5SectionSize + this->header2.otherMD5SectionSize - sizeof(this->footer2.wholeFileChecksum)))) {
-			return false;
-		}
+	stream.seekInput(this->getHeaderLength());
+	if (this->footer2.treeChecksum != ::computeMD5(stream.readBytes(this->header1.treeSize))) {
+		return false;
 	}
 
-	// Signature section
+	stream.seekInput(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize);
+	if (this->footer2.md5EntriesChecksum != ::computeMD5(stream.readBytes(this->header2.archiveMD5SectionSize))) {
+		return false;
+	}
+
+	stream.seekInput(0);
+	if (this->footer2.wholeFileChecksum != ::computeMD5(stream.readBytes(this->getHeaderLength() + this->header1.treeSize + this->header2.fileDataSectionSize + this->header2.archiveMD5SectionSize + this->header2.otherMD5SectionSize - sizeof(this->footer2.wholeFileChecksum)))) {
+		return false;
+	}
+
+	return true;
+}
+
+bool VPK::hasFileSignature() const {
+	if (this->header1.version != 2) {
+		return false;
+	}
+	if (this->footer2.publicKey.empty() || this->footer2.signature.empty()) {
+		return false;
+	}
+	return true;
+}
+
+bool VPK::verifyFileSignature() const {
+	// Signatures are only in v2
+	if (this->header1.version != 2) {
+		return true;
+	}
+
 	if (this->footer2.publicKey.empty() || this->footer2.signature.empty()) {
 		return true;
 	}

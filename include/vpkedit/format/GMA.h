@@ -27,7 +27,13 @@ public:
 	/// Open a GMA file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
+	[[nodiscard]] constexpr bool hasEntryChecksums() const override {
+		return true;
+	}
+
 	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
+
+	[[nodiscard]] bool hasFileChecksum() const override;
 
 	[[nodiscard]] bool verifyFileChecksum() const override;
 

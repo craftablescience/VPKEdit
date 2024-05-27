@@ -49,7 +49,19 @@ std::vector<std::string> PackFile::verifyEntryChecksums() const {
 	return {};
 }
 
+bool PackFile::hasFileChecksum() const {
+	return false;
+}
+
 bool PackFile::verifyFileChecksum() const {
+	return true;
+}
+
+bool PackFile::hasFileSignature() const {
+	return false;
+}
+
+bool PackFile::verifyFileSignature() const {
 	return true;
 }
 

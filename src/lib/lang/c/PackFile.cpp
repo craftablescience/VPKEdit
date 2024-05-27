@@ -41,16 +41,40 @@ VPKEDIT_API VPKEdit_PackFileOptions_t vpkedit_get_options(VPKEdit_PackFileHandle
 	return ::convertOptionsToC(::getPackFile(handle)->getOptions());
 }
 
+VPKEDIT_API bool vpkedit_has_entry_checksums(VPKEdit_PackFileHandle_t handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+
+	return ::getPackFile(handle)->hasEntryChecksums();
+}
+
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_verify_entry_checksums(VPKEdit_PackFileHandle_t handle) {
 	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_STRING_ARRAY_INVALID);
 
 	return ::convertStringVector(::getPackFile(handle)->verifyEntryChecksums());
 }
 
+VPKEDIT_API bool vpkedit_has_file_checksum(VPKEdit_PackFileHandle_t handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+
+	return ::getPackFile(handle)->hasFileChecksum();
+}
+
 VPKEDIT_API bool vpkedit_verify_file_checksum(VPKEdit_PackFileHandle_t handle) {
 	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
 
 	return ::getPackFile(handle)->verifyFileChecksum();
+}
+
+VPKEDIT_API bool vpkedit_has_file_signature(VPKEdit_PackFileHandle_t handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+
+	return ::getPackFile(handle)->hasFileSignature();
+}
+
+VPKEDIT_API bool vpkedit_verify_file_signature(VPKEdit_PackFileHandle_t handle) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+
+	return ::getPackFile(handle)->verifyFileSignature();
 }
 
 VPKEDIT_API bool vpkedit_is_case_sensitive(VPKEdit_PackFileHandle_t handle) {
