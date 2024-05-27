@@ -89,7 +89,7 @@ Window::Window(QWidget* parent)
 
 		// Add Steam games
 		for (auto appID : sapp.getInstalledApps()) {
-			if (!sapp.isAppUsingSourceEngine(appID) || sapp.isAppUsingSource2Engine(appID)) {
+			if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
 				continue;
 			}
 			auto iconPath = sapp.getAppIconPath(appID);
