@@ -255,10 +255,6 @@ int main(int argc, const char* const* argv) {
 		      "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
 
-	cli.add_argument(ARG_SIGN_SHORT, ARG_SIGN_LONG)
-		.help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
-		      "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
-
 	cli.add_argument(ARG_GEN_KEYPAIR_LONG)
 		.help("(Generate) Generate files containing public/private keys with the specified name.\n"
 		      "DO NOT SHARE THE PRIVATE KEY FILE WITH ANYONE! Move it to a safe place where it\n"
@@ -268,6 +264,10 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_FILE_TREE_LONG)
 		.help("(Preview) Prints the file tree of the given VPK to the console.")
 		.flag();
+
+	cli.add_argument(ARG_SIGN_SHORT, ARG_SIGN_LONG)
+	    .help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
+	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
 	cli.add_argument(ARG_VERIFY_CHECKSUMS_LONG)
 		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "vpk", or "all" (without quotes).)")
