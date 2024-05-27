@@ -10,14 +10,18 @@ VerifyChecksumsDialog::VerifyChecksumsDialog(PackFile& packFile, QWidget* parent
 	this->setWindowTitle(tr("Verify Checksums"));
 
 	QString text;
-	if (packFile.verifyFileChecksum()) {
+	if (!packFile.hasFileChecksum()) {
+		text = tr("No overall file checksum present, moving on...");
+	} else if (packFile.verifyFileChecksum()) {
 		text = u8"✅ " + tr("Overall file checksum matches the expected value.");
 	} else {
 		text = u8"❌ " + tr("Overall file checksum does not match the expected value!");
 	}
 	text += "\n\n";
 
-	if (auto entries = packFile.verifyEntryChecksums(); entries.empty()) {
+	if (!packFile.hasEntryChecksums()) {
+		text += tr("This pack file format does not store checksums for contained files.");
+	} else if (auto entries = packFile.verifyEntryChecksums(); entries.empty()) {
 		text += u8"✅ " + tr("All file checksums match their expected values.");
 	} else {
 		text += u8"❌ " + tr("Some file checksums do not match their expected values!\nSee below for more information.");

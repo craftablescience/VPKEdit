@@ -71,6 +71,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/PackFileOptionsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.h"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"

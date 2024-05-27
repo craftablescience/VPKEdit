@@ -42,6 +42,7 @@
 #include "dialogs/NewVPKOptionsDialog.h"
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
+#include "dialogs/VerifySignatureDialog.h"
 #include "utility/DiscordPresence.h"
 #include "utility/Options.h"
 #include "utility/TGADecoder.h"
@@ -366,6 +367,9 @@ Window::Window(QWidget* parent)
 	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
 	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
 		VerifyChecksumsDialog::showDialog(*this->packFile, this);
+	});
+	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Signature"), [this] {
+		VerifySignatureDialog::showDialog(*this->packFile, this);
 	});
 	this->toolsGeneralMenu->setDisabled(true);
 
