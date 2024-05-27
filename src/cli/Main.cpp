@@ -24,13 +24,30 @@ constexpr std::string_view ARG_PRELOAD_SHORT = "-p";
 constexpr std::string_view ARG_PRELOAD_LONG = "--preload";
 constexpr std::string_view ARG_SINGLE_FILE_SHORT = "-s";
 constexpr std::string_view ARG_SINGLE_FILE_LONG = "--single-file";
+constexpr std::string_view ARG_GEN_KEYPAIR_LONG = "--gen-keypair";
+constexpr std::string_view ARG_FILE_TREE_LONG = "--file-tree";
 constexpr std::string_view ARG_SIGN_SHORT = "-k";
 constexpr std::string_view ARG_SIGN_LONG = "--sign";
-constexpr std::string_view ARG_GEN_KEYPAIR_LONG = "--gen-keypair";
 constexpr std::string_view ARG_VERIFY_CHECKSUMS_LONG = "--verify-checksums";
 constexpr std::string_view ARG_VERIFY_SIGNATURE_LONG = "--verify-signature";
 
 namespace {
+
+/// Print the file tree of an existing VPK
+void fileTree(const std::string& inputPath) {
+	auto vpk = VPK::open(inputPath);
+	if (!vpk) {
+		std::cerr << "Could not print the file tree of VPK at \"" << inputPath << "\": it failed to load!" << std::endl;
+	}
+
+	// todo: make this more tree-like
+	for (const auto& [directory, entries] : vpk->getBakedEntries()) {
+		std::cout << directory << std::endl;
+		for (const auto& entry : entries) {
+			std::cout << "- " << entry.getFilename() << std::endl;
+		}
+	}
+}
 
 /// Sign an existing VPK
 void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
@@ -51,7 +68,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 }
 
-/// Verify checksums and/or signature are valid
+/// Verify checksums and/or signature are valid for an existing VPK
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto vpk = VPK::open(inputPath);
 	if (!vpk) {
@@ -111,6 +128,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto generateMD5Entries = cli.get<bool>(ARG_GEN_MD5_ENTRIES_LONG);
 	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_PRELOAD_SHORT);
 	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
+	auto fileTree = cli.get<bool>(ARG_FILE_TREE_LONG);
 	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
 	auto shouldVerify = cli.is_used(ARG_VERIFY_CHECKSUMS_LONG) || cli.is_used(ARG_VERIFY_SIGNATURE_LONG);
 
@@ -149,6 +167,9 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		bar->mark_as_completed();
 	}
 
+	if (fileTree) {
+		::fileTree(outputPath);
+	}
 	if (!signPath.empty()) {
 		::sign(cli, outputPath);
 	}
@@ -180,18 +201,21 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has four modes:\n"
+	cli.add_description("This program currently has five modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
+	                    " - Preview:  Prints the file tree of an existing VPK to the console. Can also be combined\n"
+	                    "             with Pack mode to print the file tree of the new VPK.\n"
 	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
 	                    " - Verify:   Verify an existing VPK's checksums and/or signature. If used together with\n"
-						"             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
-						"Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
-						"when it is still unclear.");
+	                    "             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
+	                    "Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
+	                    "when it is still unclear.");
 
 	cli.add_argument("<path>")
 		.help("(Pack)     The directory to pack into a VPK.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
+		      "(Preview)  The path to the VPK to print the file tree of.\n"
 		      "(Sign)     The path to the VPK to sign.\n"
 		      "(Verify)   The path to the VPK to verify the contents of.")
 		.required();
@@ -241,6 +265,10 @@ int main(int argc, const char* const* argv) {
 		      "will not be shipped.")
 		.flag();
 
+	cli.add_argument(ARG_FILE_TREE_LONG)
+		.help("(Preview) Prints the file tree of the given VPK to the console.")
+		.flag();
+
 	cli.add_argument(ARG_VERIFY_CHECKSUMS_LONG)
 		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "vpk", or "all" (without quotes).)")
 		.choices("files", "vpk", "all")
@@ -279,6 +307,10 @@ int main(int argc, const char* const* argv) {
 				::pack(cli, inputPath);
 			} else {
 				bool foundAction = false;
+				if (cli.is_used(ARG_FILE_TREE_LONG)) {
+					foundAction = true;
+					::fileTree(inputPath);
+				}
 				if (cli.is_used(ARG_SIGN_SHORT)) {
 					foundAction = true;
 					::sign(cli, inputPath);
