@@ -55,6 +55,17 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 - Extract files and folders from readable pack files
 - Switch version of existing VPKs
 - Native Linux compatibility
+- User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):
+
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/bs?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/zh-Hans?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/nl?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/it?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/ja?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/pl?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/ru?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/es?token=bd5e1015742373e9f14f1a98d76c1386)
+  ![POEditor](https://img.shields.io/poeditor/progress/683443/sv?token=bd5e1015742373e9f14f1a98d76c1386)
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 
