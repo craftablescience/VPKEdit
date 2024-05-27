@@ -44,6 +44,7 @@
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "utility/DiscordPresence.h"
 #include "utility/Options.h"
+#include "utility/TGADecoder.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -84,14 +85,15 @@ Window::Window(QWidget* parent)
 
 	this->openRelativeToMenu = nullptr;
 	if (SAPP sapp; sapp) {
-		QList<std::tuple<QString, QString, QDir>> sourceGames;
+		QList<std::tuple<QString, QIcon, QDir>> sourceGames;
 
 		// Add Steam games
 		for (auto appID : sapp.getInstalledApps()) {
 			if (!sapp.isAppUsingSourceEngine(appID) || sapp.isAppUsingSource2Engine(appID)) {
 				continue;
 			}
-			sourceGames.emplace_back(sapp.getAppName(appID).data(), sapp.getAppIconPath(appID).c_str(), sapp.getAppInstallDir(appID).c_str());
+			auto iconPath = sapp.getAppIconPath(appID);
+			sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
 		}
 
 		// Add mods in the sourcemods directory
@@ -138,7 +140,8 @@ Window::Window(QWidget* parent)
 				}
 			}
 
-			sourceGames.emplace_back(modName.c_str(), modIconPath.c_str(), modDir.path().string().c_str());
+			std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
+			sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
 		}
 
 		// Replace & with && in game names
@@ -153,9 +156,9 @@ Window::Window(QWidget* parent)
 			});
 
 			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
-			for (const auto& [gameName, iconPath, relativeDirectoryPath] : sourceGames) {
+			for (const auto& [gameName, icon, relativeDirectoryPath] : sourceGames) {
 				const auto relativeDirectory = relativeDirectoryPath.path();
-				this->openRelativeToMenu->addAction(iconPath.isEmpty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath), gameName, [this, relativeDirectory] {
+				this->openRelativeToMenu->addAction(icon, gameName, [this, relativeDirectory] {
 					this->openPackFile(relativeDirectory);
 				});
 			}

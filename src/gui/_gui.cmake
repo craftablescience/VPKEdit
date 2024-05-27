@@ -101,6 +101,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/utility/Options.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/TGADecoder.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/TGADecoder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
