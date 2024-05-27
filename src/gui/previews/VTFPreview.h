@@ -22,6 +22,8 @@ public:
 
 	void setData(const std::vector<std::byte>& data);
 
+	void setShowEverythingEnabled(bool show);
+
 	void setFrame(int frame);
 
 	void setFace(int face);
@@ -33,6 +35,8 @@ public:
 	void setTileEnabled(bool tile);
 
 	void setZoom(int zoom_);
+
+	[[nodiscard]] bool getShowEverythingEnabled() const;
 
 	[[nodiscard]] int getMaxFrame() const;
 
@@ -63,6 +67,7 @@ private:
 	QImage image;
 	VTFData vtfData;
 
+	bool showEverything;
 	int currentFace;
 	int currentFrame;
 	int currentMip;
@@ -90,6 +95,7 @@ protected:
 
 private:
 	VTFWidget* vtf;
+	QCheckBox* showEverythingCheckBox;
 	QSpinBox* frameSpin;
 	QSpinBox* faceSpin;
 	QSpinBox* mipSpin;

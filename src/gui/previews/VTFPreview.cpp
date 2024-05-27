@@ -68,6 +68,7 @@ QString vtfFormatToString(VTFImageFormat format) {
 
 VTFWidget::VTFWidget(QWidget* parent)
 		: QWidget(parent)
+		, showEverything(false)
 		, currentFace(0)
 		, currentFrame(0)
 		, currentMip(0)
@@ -97,6 +98,10 @@ void VTFWidget::setData(const std::vector<std::byte>& data) {
 	this->zoom = 1.f;
 }
 
+void VTFWidget::setShowEverythingEnabled(bool show) {
+	this->showEverything = show;
+}
+
 void VTFWidget::setFrame(int frame) {
 	this->decodeImage(this->currentFace, frame, this->currentMip, this->alphaEnabled);
 }
@@ -119,6 +124,10 @@ void VTFWidget::setTileEnabled(bool tile) {
 
 void VTFWidget::setZoom(int zoom_) {
 	this->zoom = static_cast<float>(zoom_) / 100.f;
+}
+
+bool VTFWidget::getShowEverythingEnabled() const {
+	return this->showEverything;
 }
 
 int VTFWidget::getMaxFrame() const {
@@ -178,7 +187,7 @@ void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
 			this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
 			this->currentMip, imageWidth, imageHeight, imageDepth);
 
-	float realZoom = powf(2, static_cast<float>(this->currentMip)) * this->zoom;
+	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
 
 	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(imageWidth) * realZoom)) / 2;
 	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(imageHeight) * realZoom)) / 2;
@@ -187,14 +196,26 @@ void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
 
 	QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
-	if (!this->tileEnabled) {
-		painter.drawImage(QRect(zoomedXPos, zoomedYPos, zoomedWidth, zoomedHeight), this->image, sourceRect);
-		return;
-	}
-	for (int i = -zoomedWidth; i <= zoomedWidth; i += zoomedWidth) {
-		for (int j = -zoomedHeight; j <= zoomedHeight; j += zoomedHeight) {
-			painter.drawImage(QRect(zoomedXPos + i, zoomedYPos + j, zoomedWidth, zoomedHeight), this->image, sourceRect);
+	if (this->showEverything) {
+		int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
+		int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
+		for (int face = 0; face < this->getMaxFace(); face++) {
+			for (int frame = 0; frame < this->getMaxFrame(); frame++) {
+				auto imageData = VTFDecoder::decodeImage(*this->vtf, face, frame, this->currentMip, this->alphaEnabled);
+				if (imageData) {
+					QImage currentImage(reinterpret_cast<uchar*>(imageData->data.get()), static_cast<int>(imageData->width), static_cast<int>(imageData->height), imageData->format);
+					painter.drawImage(QRect(zoomedXPos + (zoomedWidth * face) - (totalZoomedWidth / 2), zoomedYPos + (zoomedHeight * frame) - (totalZoomedHeight / 2), zoomedWidth, zoomedHeight), currentImage, sourceRect);
+				}
+			}
 		}
+	} else if (this->tileEnabled) {
+		for (int i = -zoomedWidth; i <= zoomedWidth; i += zoomedWidth) {
+			for (int j = -zoomedHeight; j <= zoomedHeight; j += zoomedHeight) {
+				painter.drawImage(QRect(zoomedXPos + i, zoomedYPos + j, zoomedWidth, zoomedHeight), this->image, sourceRect);
+			}
+		}
+	} else {
+		painter.drawImage(QRect(zoomedXPos, zoomedYPos, zoomedWidth, zoomedHeight), this->image, sourceRect);
 	}
 }
 
@@ -224,6 +245,21 @@ VTFPreview::VTFPreview(QWidget* parent)
 	layout->addWidget(controls);
 
 	auto* controlsLayout = new QVBoxLayout(controls);
+
+	auto* showEverythingCheckBoxParent = new QWidget(controls);
+	auto* showEverythingCheckBoxLayout = new QHBoxLayout(showEverythingCheckBoxParent);
+	auto* showEverythingCheckBoxLabel = new QLabel(tr("Lay Flat"), showEverythingCheckBoxParent);
+	showEverythingCheckBoxLayout->addWidget(showEverythingCheckBoxLabel);
+	this->showEverythingCheckBox = new QCheckBox(controls);
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&] {
+		this->vtf->setShowEverythingEnabled(this->showEverythingCheckBox->isChecked());
+		this->faceSpin->setDisabled(this->showEverythingCheckBox->isChecked());
+		this->frameSpin->setDisabled(this->showEverythingCheckBox->isChecked());
+		this->tileCheckBox->setDisabled(this->showEverythingCheckBox->isChecked());
+		this->vtf->repaint();
+	});
+	showEverythingCheckBoxLayout->addWidget(this->showEverythingCheckBox, 0, Qt::AlignHCenter);
+	controlsLayout->addWidget(showEverythingCheckBoxParent);
 
 	auto* faceSpinParent = new QWidget(controls);
 	auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
@@ -293,8 +329,8 @@ VTFPreview::VTFPreview(QWidget* parent)
 	auto* zoomSliderLabel = new QLabel(tr("Zoom"), zoomSliderParent);
 	zoomSliderLayout->addWidget(zoomSliderLabel);
 	this->zoomSlider = new QSlider(controls);
-	this->zoomSlider->setMinimum(20);
-	this->zoomSlider->setMaximum(800);
+	this->zoomSlider->setMinimum(10);
+	this->zoomSlider->setMaximum(1000);
 	this->zoomSlider->setValue(100);
 	QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
 		this->vtf->setZoom(this->zoomSlider->value());
@@ -321,11 +357,11 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
 
 	this->faceSpin->setMaximum(this->vtf->getMaxFace() - 1);
 	this->faceSpin->setValue(0);
-	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1);
+	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1 || this->vtf->getShowEverythingEnabled());
 
 	this->frameSpin->setMaximum(this->vtf->getMaxFrame() - 1);
 	this->frameSpin->setValue(0);
-	this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1);
+	this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1 || this->vtf->getShowEverythingEnabled());
 
 	this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
 	this->mipSpin->setValue(0);
@@ -337,6 +373,7 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
 
 	// Don't reset tiled: this is handled automatically
 	//this->tileCheckBox->setChecked(false);
+	this->tileCheckBox->setDisabled(this->vtf->getShowEverythingEnabled());
 
 	// Don't reset zoom: set the preexisting zoom on the vtf
 	//this->zoomSlider->setValue(100);
