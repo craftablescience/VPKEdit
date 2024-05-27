@@ -27,6 +27,8 @@ constexpr std::string_view ARG_SINGLE_FILE_LONG = "--single-file";
 constexpr std::string_view ARG_SIGN_SHORT = "-k";
 constexpr std::string_view ARG_SIGN_LONG = "--sign";
 constexpr std::string_view ARG_GEN_KEYPAIR_LONG = "--gen-keypair";
+constexpr std::string_view ARG_VERIFY_CHECKSUMS_LONG = "--verify-checksums";
+constexpr std::string_view ARG_VERIFY_SIGNATURE_LONG = "--verify-signature";
 
 namespace {
 
@@ -41,11 +43,51 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	auto vpk = VPK::open(inputPath);
-	if (!dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
+	if (!vpk || !dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
 		std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
 		std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
 	} else {
 		std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
+	}
+}
+
+/// Verify checksums and/or signature are valid
+void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto vpk = VPK::open(inputPath);
+	if (!vpk) {
+		std::cerr << "Could not verify VPK at \"" << inputPath << "\": it failed to load!" << std::endl;
+		return;
+	}
+
+	if (cli.is_used(ARG_VERIFY_CHECKSUMS_LONG)) {
+		if (cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "all" || cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "vpk") {
+			if (vpk->verifyFileChecksum()) {
+				std::cout << "Overall VPK checksums match their expected values." << std::endl;
+			} else {
+				std::cerr << "One or more of the VPK checksums do not match the expected value(s)!" << std::endl;
+			}
+		}
+		if (cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "all" || cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "files") {
+			if (auto entries = vpk->verifyEntryChecksums(); entries.empty()) {
+				std::cout << "All file checksums match their expected values." << std::endl;
+			} else {
+				std::cerr << "Some file checksums do not match their expected values!" << std::endl;
+				std::cerr << "Files that failed to validate:" << std::endl;
+				for (const auto& entryPath : entries) {
+					std::cerr << entryPath << std::endl;
+				}
+			}
+		}
+	}
+
+	if (cli.is_used(ARG_VERIFY_SIGNATURE_LONG)) {
+		if (!vpk->hasFileSignature()) {
+			std::cout << "VPK does not have a signature." << std::endl;
+		} else if (vpk->verifyFileChecksum()) {
+			std::cout << "VPK signature is valid." << std::endl;
+		} else {
+			std::cerr << "VPK signature is invalid!" << std::endl;
+		}
 	}
 }
 
@@ -70,6 +112,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_PRELOAD_SHORT);
 	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
 	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
+	auto shouldVerify = cli.is_used(ARG_VERIFY_CHECKSUMS_LONG) || cli.is_used(ARG_VERIFY_SIGNATURE_LONG);
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -109,6 +152,9 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (!signPath.empty()) {
 		::sign(cli, outputPath);
 	}
+	if (shouldVerify) {
+		::verify(cli, outputPath);
+	}
 
 	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
 }
@@ -134,17 +180,20 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has three modes:\n"
+	cli.add_description("This program currently has four modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
-						" - Sign:     Signs an existing VPK.\n"
-	                    "Modes are exclusive to one another and automatically determined by the <path> argument, as well as the other given\n"
-	                    "arguments when it is still unclear.");
+	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
+	                    " - Verify:   Verify an existing VPK's checksums and/or signature. If used together with\n"
+						"             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
+						"Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
+						"when it is still unclear.");
 
 	cli.add_argument("<path>")
 		.help("(Pack)     The directory to pack into a VPK.\n"
-			  "(Generate) The name of the file(s) to generate.\n"
-			  "(Sign)     The path to the VPK to sign.")
+		      "(Generate) The name of the file(s) to generate.\n"
+		      "(Sign)     The path to the VPK to sign.\n"
+		      "(Verify)   The path to the VPK to verify the contents of.")
 		.required();
 
 	cli.add_argument(ARG_OUTPUT_SHORT, ARG_OUTPUT_LONG)
@@ -192,6 +241,15 @@ int main(int argc, const char* const* argv) {
 		      "will not be shipped.")
 		.flag();
 
+	cli.add_argument(ARG_VERIFY_CHECKSUMS_LONG)
+		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "vpk", or "all" (without quotes).)")
+		.choices("files", "vpk", "all")
+		.nargs(1);
+
+	cli.add_argument(ARG_VERIFY_SIGNATURE_LONG)
+		.help("(Verify) Verify the VPK's signature if it exists.")
+		.flag();
+
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
 	               R"(                    /$$                       /$$ /$$   /$$    )"        "\n"
 	               R"(                   | $$                      | $$|__/  | $$    )"        "\n"
@@ -219,10 +277,19 @@ int main(int argc, const char* const* argv) {
 		if (std::filesystem::exists(inputPath)) {
 			if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
 				::pack(cli, inputPath);
-			} else if (cli.is_used(ARG_SIGN_SHORT)) {
-				::sign(cli, inputPath);
 			} else {
-				std::cout << "Input path is not a directory: no action taken." << std::endl;
+				bool foundAction = false;
+				if (cli.is_used(ARG_SIGN_SHORT)) {
+					foundAction = true;
+					::sign(cli, inputPath);
+				}
+				if (cli.is_used(ARG_VERIFY_CHECKSUMS_LONG) || cli.is_used(ARG_VERIFY_SIGNATURE_LONG)) {
+					foundAction = true;
+					::verify(cli, inputPath);
+				}
+				if (!foundAction) {
+					throw std::runtime_error{"No action taken! Add some arguments to clarify your intent."};
+				}
 			}
 		} else if (cli.get<bool>(ARG_GEN_KEYPAIR_LONG)) {
 			::generateKeyPair(inputPath);
