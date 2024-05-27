@@ -28,12 +28,6 @@ public:
 	// If your type needs any new options, add them to PackFileOptions - it was the cleanest way to do it without messing with variants or std::any
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, PackFileOptions options = {}, const Callback& callback = nullptr);
 
-	// [OPTIONAL] Verifies the checksums of each entry, if any fail the validation check then add their filenames to the returned vector
-	[[nodiscard]] std::vector<std::string> verifyEntryChecksums() const override;
-
-	// [OPTIONAL] Verify the entire file's checksum, returns true on success
-	[[nodiscard]] bool verifyFileChecksum() const override;
-
 	// [OPTIONAL] Implement this and return true if your file format is case-sensitive
 	[[nodiscard]] constexpr bool isCaseSensitive() const noexcept override {
 		return PackFile::isCaseSensitive();

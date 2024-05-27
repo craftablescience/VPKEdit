@@ -73,17 +73,14 @@ std::unique_ptr<PackFile> EXAMPLE::open(const std::string& path, PackFileOptions
 
 		// Add the entry to the entries map
 		example->entries[dir].push_back(std::move(entry));
+
+		// Call the callback
+		if (callback) {
+			callback(dir, entry);
+		}
 	}
 
 	return packFile;
-}
-
-std::vector<std::string> EXAMPLE::verifyEntryChecksums() const {
-	return {};
-}
-
-bool EXAMPLE::verifyFileChecksum() const {
-	return true;
 }
 
 std::optional<std::vector<std::byte>> EXAMPLE::readEntry(const Entry& entry) const {
