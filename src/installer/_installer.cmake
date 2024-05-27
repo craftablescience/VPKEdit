@@ -161,6 +161,7 @@ else()
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
     set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${PROJECT_NAME}")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libxcb-cursor0")
+    set(CPACK_DEBIAN_COMPRESSION_TYPE "zstd")
 
     # Add symlinks so it can be ran from anywhere
     if(VPKEDIT_BUILD_CLI)
