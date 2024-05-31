@@ -14,52 +14,51 @@
 #include <QStyle>
 #include <QWheelEvent>
 
-using namespace VTFLib;
+using namespace vtfpp;
 
 namespace {
 
-QString vtfFormatToString(VTFImageFormat format) {
-	static const QMap<VTFImageFormat, QString> formatToString = {
-			{ IMAGE_FORMAT_RGBA8888, "RGBA8888" },
-			{ IMAGE_FORMAT_ABGR8888, "ABGR8888" },
-			{ IMAGE_FORMAT_RGB888, "RGB888" },
-			{ IMAGE_FORMAT_BGR888, "BGR888" },
-			{ IMAGE_FORMAT_RGB565, "RGB565" },
-			{ IMAGE_FORMAT_I8, "I8" },
-			{ IMAGE_FORMAT_IA88, "IA88" },
-			{ IMAGE_FORMAT_P8, "P8" },
-			{ IMAGE_FORMAT_A8, "A8" },
-			{ IMAGE_FORMAT_RGB888_BLUESCREEN, "RGB888_BLUESCREEN" },
-			{ IMAGE_FORMAT_BGR888_BLUESCREEN, "BGR888_BLUESCREEN" },
-			{ IMAGE_FORMAT_ARGB8888, "ARGB8888" },
-			{ IMAGE_FORMAT_BGRA8888, "BGRA8888" },
-			{ IMAGE_FORMAT_DXT1, "DXT1" },
-			{ IMAGE_FORMAT_DXT3, "DXT3" },
-			{ IMAGE_FORMAT_DXT5, "DXT5" },
-			{ IMAGE_FORMAT_BGRX8888, "BGRX8888" },
-			{ IMAGE_FORMAT_BGR565, "BGR565" },
-			{ IMAGE_FORMAT_BGRX5551, "BGRX5551" },
-			{ IMAGE_FORMAT_BGRA4444, "BGRA4444" },
-			{ IMAGE_FORMAT_DXT1_ONEBITALPHA, "DXT1_ONEBITALPHA" },
-			{ IMAGE_FORMAT_BGRA5551, "BGRA5551" },
-			{ IMAGE_FORMAT_UV88, "UV88" },
-			{ IMAGE_FORMAT_UVWQ8888, "UVWQ8888" },
-			{ IMAGE_FORMAT_RGBA16161616F, "RGBA16161616F" },
-			{ IMAGE_FORMAT_RGBA16161616, "RGBA16161616" },
-			{ IMAGE_FORMAT_UVLX8888, "UVLX8888" },
-			{ IMAGE_FORMAT_R32F, "R32F" },
-			{ IMAGE_FORMAT_RGB323232F, "RGB323232F" },
-			{ IMAGE_FORMAT_RGBA32323232F, "RGBA32323232F" },
-
-			{ IMAGE_FORMAT_NV_NULL, "NV_NULL" },
-
-			{ IMAGE_FORMAT_ATI2N, "ATI2N" },
-			{ IMAGE_FORMAT_ATI1N, "ATI1N" },
-
-			{ IMAGE_FORMAT_BC7, "BC7" },
+QString vtfFormatToString(ImageFormat format) {
+	using enum ImageFormat;
+	static const QMap<ImageFormat, QString> formatToString = {
+			{ RGBA8888, "RGBA8888" },
+			{ ABGR8888, "ABGR8888" },
+			{ RGB888, "RGB888" },
+			{ BGR888, "BGR888" },
+			{ RGB565, "RGB565" },
+			{ I8, "I8" },
+			{ IA88, "IA88" },
+			{ P8, "P8" },
+			{ A8, "A8" },
+			{ RGB888_BLUESCREEN, "RGB888_BLUESCREEN" },
+			{ BGR888_BLUESCREEN, "BGR888_BLUESCREEN" },
+			{ ARGB8888, "ARGB8888" },
+			{ BGRA8888, "BGRA8888" },
+			{ DXT1, "DXT1" },
+			{ DXT3, "DXT3" },
+			{ DXT5, "DXT5" },
+			{ BGRX8888, "BGRX8888" },
+			{ BGR565, "BGR565" },
+			{ BGRX5551, "BGRX5551" },
+			{ BGRA4444, "BGRA4444" },
+			{ DXT1_ONE_BIT_ALPHA, "DXT1_ONEBITALPHA" },
+			{ BGRA5551, "BGRA5551" },
+			{ UV88, "UV88" },
+			{ UVWQ8888, "UVWQ8888" },
+			{ RGBA16161616F, "RGBA16161616F" },
+			{ RGBA16161616, "RGBA16161616" },
+			{ UVLX8888, "UVLX8888" },
+			{ R32F, "R32F" },
+			{ RGB323232F, "RGB323232F" },
+			{ RGBA32323232F, "RGBA32323232F" },
+			{ EMPTY, "NV_NULL" },
+			{ ATI2N, "ATI2N" },
+			{ ATI1N, "ATI1N" },
+			{ BC7, "BC7" },
+			{ BC6H, "BC6H" },
 	};
 	if (!formatToString.contains(format)) {
-		return QObject::tr("Unknown");
+		return QObject::tr("Unknown Format");
 	}
 	return formatToString[format];
 }
@@ -69,9 +68,10 @@ QString vtfFormatToString(VTFImageFormat format) {
 VTFWidget::VTFWidget(QWidget* parent)
 		: QWidget(parent)
 		, showEverything(false)
-		, currentFace(0)
-		, currentFrame(0)
 		, currentMip(0)
+		, currentFrame(0)
+		, currentFace(0)
+		, currentSlice(0)
 		, alphaEnabled(false)
 		, tileEnabled(false)
 		, zoom(1.f) {
@@ -92,9 +92,8 @@ VTFWidget::VTFWidget(QWidget* parent)
 }
 
 void VTFWidget::setData(const std::vector<std::byte>& data) {
-	this->vtf = std::make_unique<VTFLib::CVTFFile>();
-	this->vtf->Load(data.data(), static_cast<vlUInt>(data.size()));
-	this->decodeImage(0, 0, 0, this->alphaEnabled);
+	this->vtf = std::make_unique<VTF>(data);
+	this->decodeImage(0, 0, 0, 0, this->alphaEnabled);
 	this->zoom = 1.f;
 }
 
@@ -102,20 +101,24 @@ void VTFWidget::setShowEverythingEnabled(bool show) {
 	this->showEverything = show;
 }
 
+void VTFWidget::setMip(int mip) {
+	this->decodeImage(mip, this->currentFrame, this->currentFace, this->currentSlice, this->alphaEnabled);
+}
+
 void VTFWidget::setFrame(int frame) {
-	this->decodeImage(this->currentFace, frame, this->currentMip, this->alphaEnabled);
+	this->decodeImage(this->currentMip, frame, this->currentFace, this->currentSlice, this->alphaEnabled);
 }
 
 void VTFWidget::setFace(int face) {
-	this->decodeImage(face, this->currentFrame, this->currentMip, this->alphaEnabled);
+	this->decodeImage(this->currentMip, this->currentFrame, face, this->currentSlice, this->alphaEnabled);
 }
 
-void VTFWidget::setMip(int mip) {
-	this->decodeImage(this->currentFace, this->currentFrame, mip, this->alphaEnabled);
+void VTFWidget::setSlice(int slice) {
+	this->decodeImage(this->currentMip, this->currentFrame, this->currentFace, slice, this->alphaEnabled);
 }
 
 void VTFWidget::setAlphaEnabled(bool alpha) {
-	this->decodeImage(this->currentFace, this->currentFrame, this->currentMip, alpha);
+	this->decodeImage(this->currentMip, this->currentFrame, this->currentFace, this->currentSlice, alpha);
 }
 
 void VTFWidget::setTileEnabled(bool tile) {
@@ -130,20 +133,24 @@ bool VTFWidget::getShowEverythingEnabled() const {
 	return this->showEverything;
 }
 
+int VTFWidget::getMaxMip() const {
+	return static_cast<int>(this->vtf->getMipCount());
+}
+
 int VTFWidget::getMaxFrame() const {
-	return static_cast<int>(this->vtf->GetFrameCount());
+	return static_cast<int>(this->vtf->getFrameCount());
 }
 
 int VTFWidget::getMaxFace() const {
-	return static_cast<int>(this->vtf->GetFaceCount());
+	return static_cast<int>(this->vtf->getFaceCount());
 }
 
-int VTFWidget::getMaxMip() const {
-	return static_cast<int>(this->vtf->GetMipmapCount());
+int VTFWidget::getMaxSlice() const {
+	return static_cast<int>(this->vtf->getSliceCount());
 }
 
 bool VTFWidget::hasAlpha() const {
-	return CVTFFile::GetImageFormatInfo(this->vtf->GetFormat()).uiAlphaBitsPerPixel > 0;
+	return ImageFormatDetails::alpha(this->vtf->getFormat()) > 0;
 }
 
 bool VTFWidget::getAlphaEnabled() const {
@@ -159,51 +166,52 @@ float VTFWidget::getZoom() const {
 }
 
 QString VTFWidget::getVersion() const {
-	return QString::number(this->vtf->GetMajorVersion()) + "." + QString::number(this->vtf->GetMinorVersion());
+	return QString::number(this->vtf->getMajorVersion()) + "." + QString::number(this->vtf->getMinorVersion());
 }
 
 QString VTFWidget::getFormat() const {
-	return ::vtfFormatToString(this->vtf->GetFormat());
+	return ::vtfFormatToString(this->vtf->getFormat());
 }
 
 int VTFWidget::getAuxCompression() const {
-	if (this->vtf->GetMajorVersion() < 7 || this->vtf->GetMinorVersion() < 6) {
-		return -1;
+	if (this->vtf->getMajorVersion() < 7 || this->vtf->getMinorVersion() < 6) {
+		return 0;
 	}
-	return this->vtf->GetAuxCompressionLevel();
+
+	auto auxResource = this->vtf->getResource(Resource::TYPE_AUX_COMPRESSION);
+	if (!auxResource) {
+		return 0;
+	}
+	return auxResource->getDataAsAuxCompressionLevel();
 }
 
-// Taken directly from vtex2, thanks!
-void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
+void VTFWidget::paintEvent(QPaintEvent*) {
 	QPainter painter(this);
 
 	if (!this->vtf) {
 		return;
 	}
 
-	// Compute draw size for this mip, frame, etc
-	vlUInt imageWidth, imageHeight, imageDepth;
-	CVTFFile::ComputeMipmapDimensions(
-			this->vtf->GetWidth(), this->vtf->GetHeight(), this->vtf->GetDepth(),
-			this->currentMip, imageWidth, imageHeight, imageDepth);
-
 	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
 
-	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(imageWidth) * realZoom)) / 2;
-	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(imageHeight) * realZoom)) / 2;
+	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(vtf->getWidth(this->currentMip)) * realZoom)) / 2;
+	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(vtf->getHeight(this->currentMip)) * realZoom)) / 2;
 	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
 	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
 
 	QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
-	if (this->showEverything) {
+	if (this->showEverything && (this->getMaxFrame() > 1 || this->getMaxFace() > 1)) {
 		int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
 		int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
 		for (int face = 0; face < this->getMaxFace(); face++) {
 			for (int frame = 0; frame < this->getMaxFrame(); frame++) {
-				auto imageData = VTFDecoder::decodeImage(*this->vtf, face, frame, this->currentMip, this->alphaEnabled);
-				if (imageData) {
-					QImage currentImage(reinterpret_cast<uchar*>(imageData->data.get()), static_cast<int>(imageData->width), static_cast<int>(imageData->height), imageData->format);
+				auto imageData = this->vtf->getImageDataAsRGBA8888(this->currentMip, frame, face, this->currentSlice);
+				if (!imageData.empty()) {
+					QImage currentImage(reinterpret_cast<uchar*>(imageData.data()), static_cast<int>(this->vtf->getWidth(this->currentMip)), static_cast<int>(this->vtf->getHeight(this->currentMip)), QImage::Format_RGBA8888);
+					if (!this->alphaEnabled) {
+						this->image = this->image.convertedTo(QImage::Format_RGB888);
+					}
 					painter.drawImage(QRect(zoomedXPos + (zoomedWidth * face) - (totalZoomedWidth / 2), zoomedYPos + (zoomedHeight * frame) - (totalZoomedHeight / 2), zoomedWidth, zoomedHeight), currentImage, sourceRect);
 				}
 			}
@@ -219,18 +227,22 @@ void VTFWidget::paintEvent(QPaintEvent* /*event*/) {
 	}
 }
 
-void VTFWidget::decodeImage(int face, int frame, int mip, bool alpha) {
-	auto result = VTFDecoder::decodeImage(*this->vtf, face, frame, mip, alpha);
-	if (!result) {
+void VTFWidget::decodeImage(int mip, int frame, int face, int slice, bool alpha) {
+	this->currentMip = mip;
+	this->currentFrame = frame;
+	this->currentFace = face;
+	this->currentSlice = slice;
+	this->alphaEnabled = alpha;
+
+	this->vtfData = this->vtf->getImageDataAsRGBA8888(this->currentMip, this->currentFrame, this->currentFace, this->currentSlice);
+	if (this->vtfData.empty()) {
 		this->image = QImage();
 		return;
 	}
-	this->vtfData = std::move(result.value());
-	this->image = QImage(reinterpret_cast<uchar*>(this->vtfData.data.get()), static_cast<int>(this->vtfData.width), static_cast<int>(this->vtfData.height), this->vtfData.format);
-	this->currentFace = face;
-	this->currentFrame = frame;
-	this->currentMip = mip;
-	this->alphaEnabled = alpha;
+	this->image = QImage(reinterpret_cast<uchar*>(this->vtfData.data()), static_cast<int>(this->vtf->getWidth(this->currentMip)), static_cast<int>(this->vtf->getHeight(this->currentMip)), QImage::Format_RGBA8888);
+	if (!this->alphaEnabled) {
+		this->image = this->image.convertedTo(QImage::Format_RGB888);
+	}
 }
 
 VTFPreview::VTFPreview(QWidget* parent)
@@ -253,26 +265,26 @@ VTFPreview::VTFPreview(QWidget* parent)
 	this->showEverythingCheckBox = new QCheckBox(controls);
 	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&] {
 		this->vtf->setShowEverythingEnabled(this->showEverythingCheckBox->isChecked());
-		this->faceSpin->setDisabled(this->showEverythingCheckBox->isChecked());
-		this->frameSpin->setDisabled(this->showEverythingCheckBox->isChecked());
+		this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1 || this->showEverythingCheckBox->isChecked());
+		this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1 || this->showEverythingCheckBox->isChecked());
 		this->tileCheckBox->setDisabled(this->showEverythingCheckBox->isChecked());
 		this->vtf->repaint();
 	});
 	showEverythingCheckBoxLayout->addWidget(this->showEverythingCheckBox, 0, Qt::AlignHCenter);
 	controlsLayout->addWidget(showEverythingCheckBoxParent);
 
-	auto* faceSpinParent = new QWidget(controls);
-	auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
-	auto* faceSpinLabel = new QLabel(tr("Face"), faceSpinParent);
-	faceSpinLayout->addWidget(faceSpinLabel);
-	this->faceSpin = new QSpinBox(controls);
-	this->faceSpin->setMinimum(0);
-	QObject::connect(this->faceSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
-		this->vtf->setFace(this->faceSpin->value());
+	auto* mipSpinParent = new QWidget(controls);
+	auto* mipSpinLayout = new QHBoxLayout(mipSpinParent);
+	auto* mipSpinLabel = new QLabel(tr("Mip"), mipSpinParent);
+	mipSpinLayout->addWidget(mipSpinLabel);
+	this->mipSpin = new QSpinBox(controls);
+	this->mipSpin->setMinimum(0);
+	QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setMip(this->mipSpin->value());
 		this->vtf->repaint();
 	});
-	faceSpinLayout->addWidget(this->faceSpin);
-	controlsLayout->addWidget(faceSpinParent);
+	mipSpinLayout->addWidget(this->mipSpin);
+	controlsLayout->addWidget(mipSpinParent);
 
 	auto* frameSpinParent = new QWidget(controls);
 	auto* frameSpinLayout = new QHBoxLayout(frameSpinParent);
@@ -287,18 +299,31 @@ VTFPreview::VTFPreview(QWidget* parent)
 	frameSpinLayout->addWidget(this->frameSpin);
 	controlsLayout->addWidget(frameSpinParent);
 
-	auto* mipSpinParent = new QWidget(controls);
-	auto* mipSpinLayout = new QHBoxLayout(mipSpinParent);
-	auto* mipSpinLabel = new QLabel(tr("Mip"), mipSpinParent);
-	mipSpinLayout->addWidget(mipSpinLabel);
-	this->mipSpin = new QSpinBox(controls);
-	this->mipSpin->setMinimum(0);
-	QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
-		this->vtf->setMip(this->mipSpin->value());
+	auto* faceSpinParent = new QWidget(controls);
+	auto* faceSpinLayout = new QHBoxLayout(faceSpinParent);
+	auto* faceSpinLabel = new QLabel(tr("Face"), faceSpinParent);
+	faceSpinLayout->addWidget(faceSpinLabel);
+	this->faceSpin = new QSpinBox(controls);
+	this->faceSpin->setMinimum(0);
+	QObject::connect(this->faceSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setFace(this->faceSpin->value());
 		this->vtf->repaint();
 	});
-	mipSpinLayout->addWidget(this->mipSpin);
-	controlsLayout->addWidget(mipSpinParent);
+	faceSpinLayout->addWidget(this->faceSpin);
+	controlsLayout->addWidget(faceSpinParent);
+
+	auto* sliceSpinParent = new QWidget(controls);
+	auto* sliceSpinLayout = new QHBoxLayout(sliceSpinParent);
+	auto* sliceSpinLabel = new QLabel(tr("Slice"), sliceSpinParent);
+	sliceSpinLayout->addWidget(sliceSpinLabel);
+	this->sliceSpin = new QSpinBox(controls);
+	this->sliceSpin->setMinimum(0);
+	QObject::connect(this->sliceSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
+		this->vtf->setSlice(this->sliceSpin->value());
+		this->vtf->repaint();
+	});
+	sliceSpinLayout->addWidget(this->sliceSpin);
+	controlsLayout->addWidget(sliceSpinParent);
 
 	auto* alphaCheckBoxParent = new QWidget(controls);
 	auto* alphaCheckBoxLayout = new QHBoxLayout(alphaCheckBoxParent);
@@ -355,17 +380,21 @@ VTFPreview::VTFPreview(QWidget* parent)
 void VTFPreview::setData(const std::vector<std::byte>& data) const {
 	this->vtf->setData(data);
 
-	this->faceSpin->setMaximum(this->vtf->getMaxFace() - 1);
-	this->faceSpin->setValue(0);
-	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1 || this->vtf->getShowEverythingEnabled());
+	this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
+	this->mipSpin->setValue(0);
+	this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
 
 	this->frameSpin->setMaximum(this->vtf->getMaxFrame() - 1);
 	this->frameSpin->setValue(0);
 	this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1 || this->vtf->getShowEverythingEnabled());
 
-	this->mipSpin->setMaximum(this->vtf->getMaxMip() - 1);
-	this->mipSpin->setValue(0);
-	this->mipSpin->setDisabled(this->vtf->getMaxMip() == 1);
+	this->faceSpin->setMaximum(this->vtf->getMaxFace() - 1);
+	this->faceSpin->setValue(0);
+	this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1 || this->vtf->getShowEverythingEnabled());
+
+	this->sliceSpin->setMaximum(this->vtf->getMaxSlice() - 1);
+	this->sliceSpin->setValue(0);
+	this->sliceSpin->setDisabled(this->vtf->getMaxSlice() == 1);
 
 	// Don't reset alpha: this is handled automatically
 	//this->alphaCheckBox->setChecked(false);
@@ -384,7 +413,7 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
 	this->imageFormatLabel->setText(tr("Format: %1").arg(this->vtf->getFormat()));
 
 	this->compressionLevelLabel->setText(tr("Compression: %1").arg(this->vtf->getAuxCompression()));
-	this->compressionLevelLabel->setVisible(this->vtf->getAuxCompression() >= 0);
+	this->compressionLevelLabel->setVisible(this->vtf->getAuxCompression() != 0);
 }
 
 void VTFPreview::wheelEvent(QWheelEvent* event) {

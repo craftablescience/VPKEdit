@@ -111,7 +111,6 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli.exe
             ${{env.BUILD_DIR}}/vpkedit.exe
-            ${{env.BUILD_DIR}}/vtflib.dll
           retention-days: 7
 
       - name: Create Installer [target:VPKEdit]
@@ -273,7 +272,6 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli
             ${{env.BUILD_DIR}}/vpkedit
-            ${{env.BUILD_DIR}}/libvtflib.so*
           retention-days: 7
 
       - name: Create Installer [compiler:gcc][target:VPKEdit]

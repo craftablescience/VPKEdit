@@ -1,13 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
 #include <QImage>
 #include <QWidget>
-#include <VTFLib.h>
-
-#include "../utility/VTFDecoder.h"
+#include <vtfpp/vtfpp.h>
 
 class QCheckBox;
 class QLabel;
@@ -24,11 +23,13 @@ public:
 
 	void setShowEverythingEnabled(bool show);
 
+	void setMip(int mip);
+
 	void setFrame(int frame);
 
 	void setFace(int face);
 
-	void setMip(int mip);
+	void setSlice(int slice);
 
 	void setAlphaEnabled(bool alpha);
 
@@ -38,11 +39,13 @@ public:
 
 	[[nodiscard]] bool getShowEverythingEnabled() const;
 
+	[[nodiscard]] int getMaxMip() const;
+
 	[[nodiscard]] int getMaxFrame() const;
 
 	[[nodiscard]] int getMaxFace() const;
 
-	[[nodiscard]] int getMaxMip() const;
+	[[nodiscard]] int getMaxSlice() const;
 
 	[[nodiscard]] bool hasAlpha() const;
 
@@ -62,20 +65,20 @@ protected:
 	void paintEvent(QPaintEvent* event) override;
 
 private:
-	std::unique_ptr<VTFLib::CVTFFile> vtf;
-
+	std::unique_ptr<vtfpp::VTF> vtf;
+	std::vector<std::byte> vtfData;
 	QImage image;
-	VTFData vtfData;
 
 	bool showEverything;
-	int currentFace;
-	int currentFrame;
 	int currentMip;
+	int currentFrame;
+	int currentFace;
+	int currentSlice;
 	bool alphaEnabled;
 	bool tileEnabled;
 	float zoom;
 
-	void decodeImage(int face, int frame, int mip, bool alpha);
+	void decodeImage(int mip, int frame, int face, int slice, bool alpha);
 };
 
 class VTFPreview : public QWidget {
@@ -96,9 +99,10 @@ protected:
 private:
 	VTFWidget* vtf;
 	QCheckBox* showEverythingCheckBox;
+	QSpinBox* mipSpin;
 	QSpinBox* frameSpin;
 	QSpinBox* faceSpin;
-	QSpinBox* mipSpin;
+	QSpinBox* sliceSpin;
 	QCheckBox* alphaCheckBox;
 	QCheckBox* tileCheckBox;
 	QSlider* zoomSlider;

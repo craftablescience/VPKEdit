@@ -2,16 +2,6 @@ set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 set(CMAKE_INSTALL_RPATH $ORIGIN)
 
-# VTFLib
-set(VTFLIB_STATIC OFF CACHE BOOL "" FORCE)
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/vtflib")
-set_target_properties(
-        vtflib PROPERTIES
-        # I don't know which one of these puts it next to the executable so let's do all of them!
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
-
 # discord-rpc
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/discord")
 
@@ -109,8 +99,6 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/utility/TGADecoder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/utility/VTFDecoder.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.h"
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.cpp"
@@ -142,10 +130,10 @@ target_link_libraries(
         ${PROJECT_NAME} PRIVATE
         lib${PROJECT_NAME}
         ${CMAKE_DL_LIBS}
-        vtflib
         discord-rpc
         dmxpp
         studiomodelpp
+        vtfpp
         keyvalues
         SAPP
         Qt::Core
