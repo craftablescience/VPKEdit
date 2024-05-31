@@ -90,7 +90,7 @@ elseif(UNIX)
             "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}.desktop")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}.desktop"
             DESTINATION "/usr/share/applications/")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon-128.png"
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
             DESTINATION "/usr/share/pixmaps/"
             RENAME "${PROJECT_NAME}.png")
 
@@ -101,11 +101,8 @@ elseif(UNIX)
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/mime-type.xml"
             DESTINATION "/usr/share/mime/packages/"
             RENAME "${PROJECT_NAME}.xml")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon-128.png"
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
             DESTINATION "/usr/share/icons/hicolor/128x128/mimetypes/"
-            RENAME "application-x-vpkedit.png")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon-512.png"
-            DESTINATION "/usr/share/icons/hicolor/512x512/mimetypes/"
             RENAME "application-x-vpkedit.png")
 endif()
 
@@ -126,7 +123,7 @@ if(WIN32)
     set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
     set(CPACK_NSIS_DISPLAY_NAME ${PROJECT_NAME_PRETTY})
     set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME_PRETTY})
-    set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_LIST_DIR}/../gui/res/icon.ico")
+    set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_LIST_DIR}/../shared/res/logo.ico")
     set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)

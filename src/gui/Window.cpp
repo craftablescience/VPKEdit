@@ -51,8 +51,6 @@
 
 using namespace vpkedit;
 
-constexpr auto VPK_SAVE_FILTER = "Valve Pack File (*.vpk)";
-
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
 		, createVPKFromDirWorkerThread(nullptr)
@@ -61,7 +59,7 @@ Window::Window(QWidget* parent)
 		, modified(false)
 		, dropEnabled(true) {
 	this->setWindowTitle(PROJECT_TITLE.data());
-	this->setWindowIcon(QIcon(":/icon.png"));
+	this->setWindowIcon(QIcon(":/logo.png"));
 	this->setMinimumSize(900, 500);
 
 	const auto showRestartWarning = [this] {
@@ -527,7 +525,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	QString vpkSaveFilePath = std::filesystem::path(dirPath.toStdString()).parent_path().string().c_str();
 	vpkSaveFilePath += QDir::separator();
 	vpkSaveFilePath += (std::filesystem::path(dirPath.toStdString()).stem().string() + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str();
-	auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? vpkSaveFilePath : startPath, VPK_SAVE_FILTER);
+	auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? vpkSaveFilePath : startPath, "Valve Pack File (*.vpk)");
 	if (vpkPath.isEmpty()) {
 		return;
 	}
@@ -957,7 +955,7 @@ void Window::about() {
 
 	QMessageBox about(this);
 	about.setWindowTitle(tr("About"));
-	about.setIconPixmap(QIcon(":/icon.png").pixmap(64, 64));
+	about.setIconPixmap(QIcon(":/logo.png").pixmap(64, 64));
 	about.setTextFormat(Qt::TextFormat::MarkdownText);
 	about.setText(creditsText);
 	about.exec();

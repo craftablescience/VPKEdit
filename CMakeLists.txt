@@ -77,10 +77,12 @@ function(vpkedit_configure_target TARGET)
         endif()
     endif()
 
-    # Create PDBs in release
     if(WIN32 AND MSVC)
         get_target_property(TARGET_TYPE ${TARGET} TYPE)
-        if((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE"))
+        get_target_property(TARGET_IS_GUI ${TARGET} WIN32_EXECUTABLE)
+
+        # Create PDBs in release
+        if(MSVC AND ((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE")))
             target_compile_options(
                     ${TARGET} PRIVATE
                     "$<$<CONFIG:Release>:/Zi>")
@@ -89,6 +91,21 @@ function(vpkedit_configure_target TARGET)
                     "$<$<CONFIG:Release>:/DEBUG>"
                     "$<$<CONFIG:Release>:/OPT:REF>"
                     "$<$<CONFIG:Release>:/OPT:ICF>")
+        endif()
+
+        # Add an icon to the executable
+        if(TARGET_TYPE STREQUAL "EXECUTABLE")
+            target_sources(
+                    ${TARGET} PRIVATE
+                    "$<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo_alt.rc>"
+                    "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo.rc>")
+        endif()
+
+        # Don't show the console when running the executable
+        if(MSVC AND TARGET_IS_GUI)
+            target_link_options(
+                    ${PROJECT_NAME} PRIVATE
+                    "/ENTRY:mainCRTStartup")
         endif()
     endif()
 endfunction()

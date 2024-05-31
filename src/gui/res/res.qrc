@@ -25,7 +25,5 @@
 
         <file>textures/checkerboard.png</file>
         <file>textures/default_matcap.png</file>
-
-        <file alias="icon.png">icon-fullres.png</file>
     </qresource>
 </RCC>

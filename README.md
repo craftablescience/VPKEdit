@@ -1,5 +1,5 @@
 <div>
-  <img align="left" width="44px" src="https://github.com/craftablescience/VPKEdit/blob/main/src/gui/res/icon-128.png?raw=true" alt="VPKEdit Logo" />
+  <img align="left" width="44px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/logo.png?raw=true" alt="VPKEdit Logo" />
   <h1>VPKEdit</h1>
 </div>
 

@@ -93,6 +93,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/previews/VTFPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/VTFPreview.cpp"
 
+        "$<$<CONFIG:Debug>:${CMAKE_CURRENT_LIST_DIR}/res/logo_alt.qrc>"
+        "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_LIST_DIR}/res/logo.qrc>"
         "${CMAKE_CURRENT_LIST_DIR}/res/res.qrc"
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
@@ -117,9 +119,6 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/Main.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Window.h"
         "${CMAKE_CURRENT_LIST_DIR}/Window.cpp")
-if(WIN32)
-    list(APPEND ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_LIST_DIR}/res/icon.rc")
-endif()
 
 add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
@@ -139,7 +138,23 @@ qt_add_translations(${PROJECT_NAME}
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_zh_CN.ts"
         SOURCES ${${PROJECT_NAME}_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME} ${CMAKE_DL_LIBS} vtflib discord-rpc dmxpp studiomodelpp keyvalues SAPP Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::OpenGL Qt::OpenGLWidgets)
+target_link_libraries(
+        ${PROJECT_NAME} PRIVATE
+        lib${PROJECT_NAME}
+        ${CMAKE_DL_LIBS}
+        vtflib
+        discord-rpc
+        dmxpp
+        studiomodelpp
+        keyvalues
+        SAPP
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+        Qt::Network
+        Qt::OpenGL
+        Qt::OpenGLWidgets)
+
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
@@ -151,11 +166,6 @@ target_include_directories(
         "${QT_INCLUDE}/QtNetwork"
         "${QT_INCLUDE}/QtOpenGL"
         "${QT_INCLUDE}/QtOpenGLWidgets")
-if(WIN32 AND MSVC)
-    target_link_options(
-            ${PROJECT_NAME} PRIVATE
-            "/ENTRY:mainCRTStartup")
-endif()
 
 # Copy these next to the executable
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
