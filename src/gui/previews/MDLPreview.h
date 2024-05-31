@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -10,8 +11,6 @@
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
-
-#include "../utility/VTFDecoder.h"
 
 namespace vpkedit {
 
@@ -70,6 +69,12 @@ enum class MDLShadingMode {
 	SHADED_TEXTURED = 3,
 };
 
+struct MDLTextureData {
+	std::vector<std::byte> data;
+	std::uint16_t width;
+	std::uint16_t height;
+};
+
 class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core {
 	Q_OBJECT;
 
@@ -82,7 +87,7 @@ public:
 
 	void addSubMesh(const QList<unsigned short>& indices, int textureIndex);
 
-	void setTextures(const std::vector<std::optional<VTFData>>& vtfData);
+	void setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& vtfData);
 
 	void clearTextures();
 

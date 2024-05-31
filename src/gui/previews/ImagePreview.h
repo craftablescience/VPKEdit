@@ -5,7 +5,6 @@
 
 #include <QImage>
 #include <QWidget>
-#include <VTFLib.h>
 
 class QCheckBox;
 class QSlider;

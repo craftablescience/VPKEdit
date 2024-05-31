@@ -11,10 +11,6 @@ install(FILES
         "${CMAKE_CURRENT_LIST_DIR}/.nonportable"
         DESTINATION .)
 
-install(TARGETS ${PROJECT_NAME} vtflib
-        RUNTIME DESTINATION .
-        LIBRARY DESTINATION .)
-
 if(WIN32)
     install(IMPORTED_RUNTIME_ARTIFACTS
             Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets

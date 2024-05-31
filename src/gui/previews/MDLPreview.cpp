@@ -1,7 +1,6 @@
 #include "MDLPreview.h"
 
 #include <filesystem>
-#include <optional>
 #include <utility>
 
 #include <KeyValue.h>
@@ -22,7 +21,7 @@
 #include <QtMath>
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/PackFile.h>
-#include <VTFLib.h>
+#include <vtfpp/vtfpp.h>
 
 #include "../utility/ThemedIcon.h"
 #include "../FileViewer.h"
@@ -32,31 +31,35 @@ using namespace std::literals;
 using namespace studiomodelpp;
 using namespace vpkedit::detail;
 using namespace vpkedit;
+using namespace vtfpp;
 
 namespace {
 
-std::optional<VTFData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
 	auto materialEntry = packFile.findEntry(materialPath);
-	if (!materialEntry) return std::nullopt;
+	if (!materialEntry) return nullptr;
 
 	auto materialFile = packFile.readEntryText(*materialEntry);
-	if (!materialFile) return std::nullopt;
+	if (!materialFile) return nullptr;
 
 	KeyValueRoot materialKV;
-	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return std::nullopt;
+	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return nullptr;
 
 	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
-	if (!baseTexturePathKV.IsValid()) return std::nullopt;
+	if (!baseTexturePathKV.IsValid()) return nullptr;
 
 	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
-	if (!textureEntry) return std::nullopt;
+	if (!textureEntry) return nullptr;
 
 	auto textureFile = packFile.readEntry(*textureEntry);
-	if (!textureFile) return std::nullopt;
+	if (!textureFile) return nullptr;
 
-	VTFLib::CVTFFile vtf;
-	vtf.Load(textureFile->data(), static_cast<vlUInt>(textureFile->size()), false);
-	return VTFDecoder::decodeImage(vtf);
+	VTF vtf{*textureFile};
+	return std::make_unique<MDLTextureData>(
+			vtf.getImageDataAsRGBA8888(),
+			vtf.getWidth(),
+			vtf.getHeight()
+	);
 }
 
 } // namespace
@@ -135,7 +138,7 @@ void MDLWidget::addSubMesh(const QList<unsigned short>& indices, int textureInde
 	mesh.ebo.release();
 }
 
-void MDLWidget::setTextures(const std::vector<std::optional<VTFData>>& vtfData) {
+void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& vtfData) {
 	this->clearTextures();
 	for (const auto& vtf : vtfData) {
 		if (!vtf) {
@@ -144,7 +147,7 @@ void MDLWidget::setTextures(const std::vector<std::optional<VTFData>>& vtfData) 
 		}
 		auto* texture = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
 		texture->create();
-		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.get()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), vtf->format));
+		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.data()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), QImage::Format_RGBA8888));
 		this->textures.push_back(texture);
 	}
 }
@@ -646,7 +649,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 
 	this->materialsTab->clear();
 	QList<int> missingMaterialIndexes;
-	std::vector<std::optional<VTFData>> vtfs;
+	std::vector<std::unique_ptr<MDLTextureData>> vtfs;
 	for (int materialIndex = 0; materialIndex < mdlParser.mdl.materials.size(); materialIndex++) {
 		bool foundMaterial = false;
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
@@ -664,7 +667,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 			}
 		}
 		if (!foundMaterial) {
-			vtfs.emplace_back(std::nullopt);
+			vtfs.emplace_back(nullptr);
 			missingMaterialIndexes.push_back(materialIndex);
 		}
 	}
