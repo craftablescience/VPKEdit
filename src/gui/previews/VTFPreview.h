@@ -37,6 +37,10 @@ public:
 
 	void setZoom(int zoom_);
 
+	[[nodiscard]] uint16_t getCurrentImageWidth() const;
+
+	[[nodiscard]] uint16_t getCurrentImageHeight() const;
+
 	[[nodiscard]] bool getShowEverythingEnabled() const;
 
 	[[nodiscard]] int getMaxMip() const;
@@ -106,6 +110,7 @@ private:
 	QCheckBox* alphaCheckBox;
 	QCheckBox* tileCheckBox;
 	QSlider* zoomSlider;
+	QLabel* sizeLabel;
 	QLabel* versionLabel;
 	QLabel* imageFormatLabel;
 	QLabel* compressionLevelLabel;
