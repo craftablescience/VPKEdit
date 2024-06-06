@@ -132,7 +132,8 @@ target_link_libraries(
         ${CMAKE_DL_LIBS}
         discord-rpc
         dmxpp
-        studiomodelpp
+        mdlpp
+        vicepp
         vtfpp
         keyvalues
         SAPP
@@ -146,7 +147,6 @@ target_link_libraries(
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
-        "${CMAKE_CURRENT_LIST_DIR}/thirdparty/sapp/include"
         "${QT_INCLUDE}"
         "${QT_INCLUDE}/QtCore"
         "${QT_INCLUDE}/QtGui"

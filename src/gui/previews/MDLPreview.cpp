@@ -4,7 +4,7 @@
 #include <utility>
 
 #include <KeyValue.h>
-#include <studiomodelpp/studiomodelpp.h>
+#include <mdlpp/mdlpp.h>
 #include <QApplication>
 #include <QCheckBox>
 #include <QFrame>
@@ -27,8 +27,8 @@
 #include "../FileViewer.h"
 #include "../Window.h"
 
+using namespace mdlpp;
 using namespace std::literals;
-using namespace studiomodelpp;
 using namespace vpkedit::detail;
 using namespace vpkedit;
 using namespace vtfpp;
