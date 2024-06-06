@@ -372,12 +372,13 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::VPK_ARCHIVE_INDEX, archiveIndexItem);
 
 	// CRC32
-	auto* crc32Item = new QTableWidgetItem(QString::number(entry->crc32));
+	QByteArray crc32{reinterpret_cast<const char*>(&entry->crc32), sizeof(entry->crc32)};
+	auto* crc32Item = new QTableWidgetItem("0x" + crc32.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::CRC32, crc32Item);
 
 	// MD5
 	QByteArray md5{reinterpret_cast<const char*>(entry->pck_md5.data()), static_cast<qsizetype>(entry->pck_md5.size())};
-	auto* md5Item = new QTableWidgetItem(md5.toHex().toUpper());
+	auto* md5Item = new QTableWidgetItem("0x" + md5.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::PCK_MD5, md5Item);
 }
 
