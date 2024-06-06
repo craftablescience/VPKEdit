@@ -1,8 +1,10 @@
 # Set up install rules
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION .)
+
 if(VPKEDIT_BUILD_CLI)
     install(TARGETS ${PROJECT_NAME}cli
-            RUNTIME DESTINATION .
-            LIBRARY DESTINATION .)
+            DESTINATION .)
 endif()
 
 install(FILES
@@ -17,8 +19,7 @@ if(WIN32)
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
 
-    install(FILES
-            "${QT_BASEDIR}/bin/opengl32sw.dll"
+    install(FILES "${QT_BASEDIR}/bin/opengl32sw.dll"
             DESTINATION .)
 
     install(FILES
