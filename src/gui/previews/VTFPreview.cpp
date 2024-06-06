@@ -218,7 +218,7 @@ void VTFWidget::paintEvent(QPaintEvent*) {
 				if (!imageData.empty()) {
 					QImage currentImage(reinterpret_cast<uchar*>(imageData.data()), static_cast<int>(this->vtf->getWidth(this->currentMip)), static_cast<int>(this->vtf->getHeight(this->currentMip)), QImage::Format_RGBA8888);
 					if (!this->alphaEnabled) {
-						this->image = this->image.convertedTo(QImage::Format_RGB888);
+						currentImage = currentImage.convertedTo(QImage::Format_RGB888);
 					}
 					painter.drawImage(QRect(zoomedXPos + (zoomedWidth * face) - (totalZoomedWidth / 2), zoomedYPos + (zoomedHeight * frame) - (totalZoomedHeight / 2), zoomedWidth, zoomedHeight), currentImage, sourceRect);
 				}
