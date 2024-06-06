@@ -129,6 +129,14 @@ void VTFWidget::setZoom(int zoom_) {
 	this->zoom = static_cast<float>(zoom_) / 100.f;
 }
 
+uint16_t VTFWidget::getCurrentImageWidth() const {
+	return this->vtf->getWidth(this->currentMip);
+}
+
+uint16_t VTFWidget::getCurrentImageHeight() const {
+	return this->vtf->getHeight(this->currentMip);
+}
+
 bool VTFWidget::getShowEverythingEnabled() const {
 	return this->showEverything;
 }
@@ -282,6 +290,7 @@ VTFPreview::VTFPreview(QWidget* parent)
 	QObject::connect(this->mipSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [&] {
 		this->vtf->setMip(this->mipSpin->value());
 		this->vtf->repaint();
+		this->sizeLabel->setText(QString("%1x%2").arg(this->vtf->getCurrentImageWidth()).arg(this->vtf->getCurrentImageHeight()));
 	});
 	mipSpinLayout->addWidget(this->mipSpin);
 	controlsLayout->addWidget(mipSpinParent);
@@ -364,6 +373,10 @@ VTFPreview::VTFPreview(QWidget* parent)
 	zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
 	controlsLayout->addWidget(zoomSliderParent);
 
+	this->sizeLabel = new QLabel(controls);
+	this->sizeLabel->setAlignment(Qt::AlignRight);
+	controlsLayout->addWidget(this->sizeLabel);
+
 	this->versionLabel = new QLabel(controls);
 	this->versionLabel->setAlignment(Qt::AlignRight);
 	controlsLayout->addWidget(this->versionLabel);
@@ -407,6 +420,8 @@ void VTFPreview::setData(const std::vector<std::byte>& data) const {
 	// Don't reset zoom: set the preexisting zoom on the vtf
 	//this->zoomSlider->setValue(100);
 	this->vtf->setZoom(this->zoomSlider->value());
+
+	this->sizeLabel->setText(QString("%1x%2").arg(this->vtf->getCurrentImageWidth()).arg(this->vtf->getCurrentImageHeight()));
 
 	this->versionLabel->setText(tr("Version: %1").arg(this->vtf->getVersion()));
 
