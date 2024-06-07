@@ -151,6 +151,8 @@ private:
 
 	bool loadPackFile(const QString& path);
 
+	void rebuildOpenInMenu();
+
 	void rebuildOpenRecentMenu(const QStringList& paths);
 
 	void checkForUpdatesReply(QNetworkReply* reply);

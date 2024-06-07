@@ -55,8 +55,12 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(OPT_DISABLE_STARTUP_UPDATE_CHECK, false);
 	}
 
-	if (!options.contains(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
-		options.setValue(OPT_DISCORD_ENABLE_RICH_PRESENCE, true);
+	if (!options.contains(OPT_ENABLE_DISCORD_RICH_PRESENCE)) {
+		options.setValue(OPT_ENABLE_DISCORD_RICH_PRESENCE, true);
+	}
+
+	if (!options.contains(OPT_DISABLE_STEAM_SCANNER)) {
+		options.setValue(OPT_DISABLE_STEAM_SCANNER, false);
 	}
 
 	if (!options.contains(STR_OPEN_RECENT)) {

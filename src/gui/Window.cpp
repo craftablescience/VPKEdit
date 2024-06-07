@@ -82,87 +82,8 @@ Window::Window(QWidget* parent)
 		this->openPackFile();
 	});
 
-	this->openRelativeToMenu = nullptr;
-	if (SAPP sapp; sapp) {
-		QList<std::tuple<QString, QIcon, QDir>> sourceGames;
-
-		// Add Steam games
-		for (auto appID : sapp.getInstalledApps()) {
-			if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
-				continue;
-			}
-			auto iconPath = sapp.getAppIconPath(appID);
-			sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
-		}
-
-		// Add mods in the sourcemods directory
-		for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
-			if (!modDir.is_directory()) {
-				continue;
-			}
-
-			const auto gameInfoPath = (modDir.path() / "gameinfo.txt").string();
-			if (!std::filesystem::exists(gameInfoPath)) {
-				continue;
-			}
-
-			std::ifstream gameInfoFile{gameInfoPath};
-			auto gameInfoSize = std::filesystem::file_size(gameInfoPath);
-			std::string gameInfoData;
-			gameInfoData.resize(gameInfoSize);
-			gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
-
-			KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
-			if (!gameInfoRoot.IsValid()) {
-				continue;
-			}
-			auto& gameInfo = gameInfoRoot.Get("GameInfo");
-			if (!gameInfo.IsValid()) {
-				continue;
-			}
-			auto& gameInfoName = gameInfo.Get("game");
-			auto& gameInfoIconPath = gameInfo.Get("icon");
-
-			std::string modName;
-			if (gameInfoName.IsValid()) {
-				modName = gameInfoName.Value().string;
-			} else {
-				modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
-			}
-
-			std::string modIconPath;
-			if (gameInfoIconPath.IsValid()) {
-				if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
-					modIconPath = modIconBigPath.string();
-				} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
-					modIconPath = modIconRegularPath.string();
-				}
-			}
-
-			std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
-			sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
-		}
-
-		// Replace & with && in game names
-		for (auto& games : sourceGames) {
-			// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it
-			std::get<0>(games).replace("&", "&&");
-		}
-
-		if (!sourceGames.empty()) {
-			std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
-				return std::get<0>(lhs) < std::get<0>(rhs);
-			});
-
-			this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
-			for (const auto& [gameName, icon, relativeDirectoryPath] : sourceGames) {
-				const auto relativeDirectory = relativeDirectoryPath.path();
-				this->openRelativeToMenu->addAction(icon, gameName, [this, relativeDirectory] {
-					this->openPackFile(relativeDirectory);
-				});
-			}
-		}
-	}
+	this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
+	this->rebuildOpenInMenu();
 
 	this->openRecentMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open Recent..."));
 	this->rebuildOpenRecentMenu(Options::get<QStringList>(STR_OPEN_RECENT));
@@ -224,6 +145,34 @@ Window::Window(QWidget* parent)
 
 	// Options menu
 	auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
+
+	auto* generalMenu = optionsMenu->addMenu(QIcon(":/logo.png"), "General...");
+	auto* optionAdvancedMode = generalMenu->addAction(tr("Advanced File Properties"), [] {
+		Options::invert(OPT_ADVANCED_FILE_PROPS);
+	});
+	optionAdvancedMode->setCheckable(true);
+	optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADVANCED_FILE_PROPS));
+
+	generalMenu->addSeparator();
+	auto* openInEnableAction = generalMenu->addAction(tr("Disable Open In Menu"), [this] {
+		Options::invert(OPT_DISABLE_STEAM_SCANNER);
+		this->rebuildOpenInMenu();
+	});
+	openInEnableAction->setCheckable(true);
+	openInEnableAction->setChecked(Options::get<bool>(OPT_DISABLE_STEAM_SCANNER));
+
+	auto* optionDisableStartupCheck = generalMenu->addAction(tr("Disable Startup Update Check"), [] {
+		Options::invert(OPT_DISABLE_STARTUP_UPDATE_CHECK);
+	});
+	optionDisableStartupCheck->setCheckable(true);
+	optionDisableStartupCheck->setChecked(Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK));
+
+	generalMenu->addSeparator();
+	auto* optionStartMaximized = generalMenu->addAction(tr("Start Maximized"), [] {
+		Options::invert(OPT_START_MAXIMIZED);
+	});
+	optionStartMaximized->setCheckable(true);
+	optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
 
 	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Language..."));
 	auto* languageMenuGroup = new QActionGroup(languageMenu);
@@ -300,17 +249,17 @@ Window::Window(QWidget* parent)
 		DiscordPresence::setTopButton({"View on GitHub", std::string{PROJECT_HOMEPAGE}});
 	};
 	auto* discordEnableAction = discordMenu->addAction(tr("Enable Rich Presence"), [setupDiscordRichPresence] {
-		Options::invert(OPT_DISCORD_ENABLE_RICH_PRESENCE);
-		if (Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
+		Options::invert(OPT_ENABLE_DISCORD_RICH_PRESENCE);
+		if (Options::get<bool>(OPT_ENABLE_DISCORD_RICH_PRESENCE)) {
 			setupDiscordRichPresence();
 		} else {
 			DiscordPresence::shutdown();
 		}
 	});
 	discordEnableAction->setCheckable(true);
-	discordEnableAction->setChecked(Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE));
+	discordEnableAction->setChecked(Options::get<bool>(OPT_ENABLE_DISCORD_RICH_PRESENCE));
 
-	if (Options::get<bool>(OPT_DISCORD_ENABLE_RICH_PRESENCE)) {
+	if (Options::get<bool>(OPT_ENABLE_DISCORD_RICH_PRESENCE)) {
 		setupDiscordRichPresence();
 	}
 	auto* discordUpdateTimer = new QTimer(this);
@@ -338,26 +287,6 @@ Window::Window(QWidget* parent)
 	});
 	entryListMenuHideIconsAction->setCheckable(true);
 	entryListMenuHideIconsAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS));
-
-	optionsMenu->addSeparator();
-	auto* optionAdvancedMode = optionsMenu->addAction(tr("Advanced File Properties"), [] {
-		Options::invert(OPT_ADVANCED_FILE_PROPS);
-	});
-	optionAdvancedMode->setCheckable(true);
-	optionAdvancedMode->setChecked(Options::get<bool>(OPT_ADVANCED_FILE_PROPS));
-
-	optionsMenu->addSeparator();
-	auto* optionStartMaximized = optionsMenu->addAction(tr("Start Maximized"), [] {
-		Options::invert(OPT_START_MAXIMIZED);
-	});
-	optionStartMaximized->setCheckable(true);
-	optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
-
-	auto* optionDisableStartupCheck = optionsMenu->addAction(tr("Disable Startup Update Check"), [] {
-		Options::invert(OPT_DISABLE_STARTUP_UPDATE_CHECK);
-	});
-	optionDisableStartupCheck->setCheckable(true);
-	optionDisableStartupCheck->setChecked(Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK));
 
 	// Tools menu
 	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
@@ -1288,7 +1217,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
 	this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
 	this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
 	this->openAction->setDisabled(freeze && freezeCreationActions);
-	if (this->openRelativeToMenu) this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
+	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
 	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
 	this->saveAction->setDisabled(freeze || !this->modified);
 	this->saveAsAction->setDisabled(freeze);
@@ -1368,6 +1297,105 @@ bool Window::loadPackFile(const QString& path) {
 	});
 
 	return true;
+}
+
+void Window::rebuildOpenInMenu() {
+	this->openRelativeToMenu->clear();
+	auto* noGamesDetectedAction = this->openRelativeToMenu->addAction(tr("No games detected."));
+	noGamesDetectedAction->setDisabled(true);
+
+	if (Options::get<bool>(OPT_DISABLE_STEAM_SCANNER)) {
+		return;
+	}
+
+	SAPP sapp;
+	if (!sapp) {
+		return;
+	}
+
+	QList<std::tuple<QString, QIcon, QDir>> sourceGames;
+
+	// Add Steam games
+	for (auto appID : sapp.getInstalledApps()) {
+		if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
+			continue;
+		}
+		auto iconPath = sapp.getAppIconPath(appID);
+		sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
+	}
+
+	// Add mods in the sourcemods directory
+	for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
+		if (!modDir.is_directory()) {
+			continue;
+		}
+
+		const auto gameInfoPath = (modDir.path() / "gameinfo.txt").string();
+		if (!std::filesystem::exists(gameInfoPath)) {
+			continue;
+		}
+
+		std::ifstream gameInfoFile{gameInfoPath};
+		auto gameInfoSize = std::filesystem::file_size(gameInfoPath);
+		std::string gameInfoData;
+		gameInfoData.resize(gameInfoSize);
+		gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
+
+		KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
+		if (!gameInfoRoot.IsValid()) {
+			continue;
+		}
+		auto& gameInfo = gameInfoRoot.Get("GameInfo");
+		if (!gameInfo.IsValid()) {
+			continue;
+		}
+		auto& gameInfoName = gameInfo.Get("game");
+		auto& gameInfoIconPath = gameInfo.Get("icon");
+
+		std::string modName;
+		if (gameInfoName.IsValid()) {
+			modName = gameInfoName.Value().string;
+		} else {
+			modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
+		}
+
+		std::string modIconPath;
+		if (gameInfoIconPath.IsValid()) {
+			if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
+				modIconPath = modIconBigPath.string();
+			} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
+				modIconPath = modIconRegularPath.string();
+			}
+		}
+
+		std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
+		sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
+	}
+
+	// Bail if nothing was found
+	if (sourceGames.empty()) {
+		return;
+	}
+
+	// Replace & with && in game names
+	for (auto& games : sourceGames) {
+		// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it
+		std::get<0>(games).replace("&", "&&");
+	}
+
+	// Sort games
+	std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
+		return std::get<0>(lhs) < std::get<0>(rhs);
+	});
+
+	// Add them to the menu
+	this->openRelativeToMenu->clear();
+	for (const auto& [gameName, icon, relativeDirectoryPath] : sourceGames) {
+		const auto relativeDirectory = relativeDirectoryPath.path();
+		this->openRelativeToMenu->addAction(icon, gameName, [this, relativeDirectory] {
+			this->openPackFile(relativeDirectory);
+		});
+	}
 }
 
 void Window::rebuildOpenRecentMenu(const QStringList& paths) {
