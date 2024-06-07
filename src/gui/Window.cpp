@@ -53,9 +53,6 @@ using namespace vpkedit;
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
-		, createVPKFromDirWorkerThread(nullptr)
-		, savePackFileWorkerThread(nullptr)
-		, extractPackFileWorkerThread(nullptr)
 		, modified(false)
 		, dropEnabled(true) {
 	this->setWindowTitle(PROJECT_TITLE.data());
@@ -1301,101 +1298,38 @@ bool Window::loadPackFile(const QString& path) {
 
 void Window::rebuildOpenInMenu() {
 	this->openRelativeToMenu->clear();
-	auto* noGamesDetectedAction = this->openRelativeToMenu->addAction(tr("No games detected."));
-	noGamesDetectedAction->setDisabled(true);
+	auto* loadingGamesAction = this->openRelativeToMenu->addAction(tr("Loading installed games..."));
+	loadingGamesAction->setDisabled(true);
 
-	if (Options::get<bool>(OPT_DISABLE_STEAM_SCANNER)) {
-		return;
-	}
-
-	SAPP sapp;
-	if (!sapp) {
-		return;
-	}
-
-	QList<std::tuple<QString, QIcon, QDir>> sourceGames;
-
-	// Add Steam games
-	for (auto appID : sapp.getInstalledApps()) {
-		if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
-			continue;
-		}
-		auto iconPath = sapp.getAppIconPath(appID);
-		sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
-	}
-
-	// Add mods in the sourcemods directory
-	for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
-		if (!modDir.is_directory()) {
-			continue;
-		}
-
-		const auto gameInfoPath = (modDir.path() / "gameinfo.txt").string();
-		if (!std::filesystem::exists(gameInfoPath)) {
-			continue;
-		}
-
-		std::ifstream gameInfoFile{gameInfoPath};
-		auto gameInfoSize = std::filesystem::file_size(gameInfoPath);
-		std::string gameInfoData;
-		gameInfoData.resize(gameInfoSize);
-		gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
-
-		KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
-		if (!gameInfoRoot.IsValid()) {
-			continue;
-		}
-		auto& gameInfo = gameInfoRoot.Get("GameInfo");
-		if (!gameInfo.IsValid()) {
-			continue;
-		}
-		auto& gameInfoName = gameInfo.Get("game");
-		auto& gameInfoIconPath = gameInfo.Get("icon");
-
-		std::string modName;
-		if (gameInfoName.IsValid()) {
-			modName = gameInfoName.Value().string;
-		} else {
-			modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
-		}
-
-		std::string modIconPath;
-		if (gameInfoIconPath.IsValid()) {
-			if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
-				modIconPath = modIconBigPath.string();
-			} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
-				modIconPath = modIconRegularPath.string();
-			}
-		}
-
-		std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
-		sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
-	}
-
-	// Bail if nothing was found
-	if (sourceGames.empty()) {
-		return;
-	}
-
-	// Replace & with && in game names
-	for (auto& games : sourceGames) {
-		// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it
-		std::get<0>(games).replace("&", "&&");
-	}
-
-	// Sort games
-	std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
-		return std::get<0>(lhs) < std::get<0>(rhs);
+	// Set up thread
+	this->scanSteamGamesWorkerThread = new QThread(this);
+	auto* worker = new ScanSteamGamesWorker();
+	worker->moveToThread(this->scanSteamGamesWorkerThread);
+	QObject::connect(this->scanSteamGamesWorkerThread, &QThread::started, worker, [worker] {
+		worker->run();
 	});
+	QObject::connect(worker, &ScanSteamGamesWorker::taskFinished, this, [this](const QList<std::tuple<QString, QIcon, QDir>>& sourceGames) {
+		// Add them to the menu
+		this->openRelativeToMenu->clear();
+		if (!sourceGames.empty()) {
+			for (const auto& [gameName, icon, relativeDirectoryPath] : sourceGames) {
+				const auto relativeDirectory = relativeDirectoryPath.path();
+				this->openRelativeToMenu->addAction(icon, gameName, [this, relativeDirectory] {
+					this->openPackFile(relativeDirectory);
+				});
+			}
+		} else {
+			auto* noGamesDetectedAction = this->openRelativeToMenu->addAction(tr("No games detected."));
+			noGamesDetectedAction->setDisabled(true);
+		}
 
-	// Add them to the menu
-	this->openRelativeToMenu->clear();
-	for (const auto& [gameName, icon, relativeDirectoryPath] : sourceGames) {
-		const auto relativeDirectory = relativeDirectoryPath.path();
-		this->openRelativeToMenu->addAction(icon, gameName, [this, relativeDirectory] {
-			this->openPackFile(relativeDirectory);
-		});
-	}
+		// Kill thread
+		this->scanSteamGamesWorkerThread->quit();
+		this->scanSteamGamesWorkerThread->wait();
+		delete this->scanSteamGamesWorkerThread;
+		this->scanSteamGamesWorkerThread = nullptr;
+	});
+	this->scanSteamGamesWorkerThread->start();
 }
 
 void Window::rebuildOpenRecentMenu(const QStringList& paths) {
@@ -1556,4 +1490,88 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 		}
 	}
 	emit taskFinished();
+}
+
+void ScanSteamGamesWorker::run() {
+	if (Options::get<bool>(OPT_DISABLE_STEAM_SCANNER)) {
+		emit taskFinished({});
+		return;
+	}
+
+	SAPP sapp;
+	if (!sapp) {
+		emit taskFinished({});
+		return;
+	}
+
+	QList<std::tuple<QString, QIcon, QDir>> sourceGames;
+
+	// Add Steam games
+	for (auto appID : sapp.getInstalledApps()) {
+		if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
+			continue;
+		}
+		auto iconPath = sapp.getAppIconPath(appID);
+		sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
+	}
+
+	// Add mods in the sourcemods directory
+	for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
+		if (!modDir.is_directory()) {
+			continue;
+		}
+
+		const auto gameInfoPath = (modDir.path() / "gameinfo.txt").string();
+		if (!std::filesystem::exists(gameInfoPath)) {
+			continue;
+		}
+
+		std::ifstream gameInfoFile{gameInfoPath};
+		auto gameInfoSize = std::filesystem::file_size(gameInfoPath);
+		std::string gameInfoData;
+		gameInfoData.resize(gameInfoSize);
+		gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
+
+		KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
+		if (!gameInfoRoot.IsValid()) {
+			continue;
+		}
+		auto& gameInfo = gameInfoRoot.Get("GameInfo");
+		if (!gameInfo.IsValid()) {
+			continue;
+		}
+		auto& gameInfoName = gameInfo.Get("game");
+		auto& gameInfoIconPath = gameInfo.Get("icon");
+
+		std::string modName;
+		if (gameInfoName.IsValid()) {
+			modName = gameInfoName.Value().string;
+		} else {
+			modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
+		}
+
+		std::string modIconPath;
+		if (gameInfoIconPath.IsValid()) {
+			if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
+				modIconPath = modIconBigPath.string();
+			} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
+				modIconPath = modIconRegularPath.string();
+			}
+		}
+
+		std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
+		sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
+	}
+
+	// Replace & with && in game names
+	for (auto& games : sourceGames) {
+		// Having an & before a character makes that the shortcut character and hides the &, so we need to escape it
+		std::get<0>(games).replace("&", "&&");
+	}
+
+	// Sort games and return
+	std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
+		return std::get<0>(lhs) < std::get<0>(rhs);
+	});
+	emit taskFinished(sourceGames);
 }

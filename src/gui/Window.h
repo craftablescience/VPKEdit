@@ -3,6 +3,7 @@
 #include <functional>
 #include <vector>
 
+#include <QDir>
 #include <QMainWindow>
 #include <vpkedit/PackFile.h>
 
@@ -136,9 +137,10 @@ private:
 
 	QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
-	QThread* createVPKFromDirWorkerThread;
-	QThread* savePackFileWorkerThread;
-	QThread* extractPackFileWorkerThread;
+	QThread* createVPKFromDirWorkerThread = nullptr;
+	QThread* savePackFileWorkerThread     = nullptr;
+	QThread* extractPackFileWorkerThread  = nullptr;
+	QThread* scanSteamGamesWorkerThread   = nullptr;
 
 	std::unique_ptr<vpkedit::PackFile> packFile;
 	bool modified;
@@ -198,4 +200,16 @@ public:
 signals:
 	void progressUpdated(int value);
 	void taskFinished();
+};
+
+class ScanSteamGamesWorker : public QObject {
+	Q_OBJECT;
+
+public:
+	ScanSteamGamesWorker() = default;
+
+	void run();
+
+signals:
+	void taskFinished(const QList<std::tuple<QString, QIcon, QDir>>& sourceGames);
 };
