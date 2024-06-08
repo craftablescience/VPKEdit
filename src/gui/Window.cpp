@@ -1387,7 +1387,7 @@ void Window::resetStatusBar() {
 
 void IndeterminateProgressWorker::run(const std::function<void()>& fn) {
 	fn();
-	emit taskFinished();
+	emit this->taskFinished();
 }
 
 void SavePackFileWorker::run(Window* window, const QString& savePath, bool async) {
@@ -1397,12 +1397,12 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 	}
 	int currentEntry = 0;
 	bool success = window->packFile->bake(savePath.toStdString(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
-		emit progressUpdated(++currentEntry);
+		emit this->progressUpdated(++currentEntry);
 		if (loop_) {
 			loop_->processEvents();
 		}
 	});
-	emit taskFinished(success);
+	emit this->taskFinished(success);
 }
 
 void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
@@ -1468,7 +1468,7 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 #endif
 			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + filename.c_str();
 			window->writeEntryToFile(filePath, entry);
-			emit progressUpdated(++currentEntry);
+			emit this->progressUpdated(++currentEntry);
 		}
 	}
 	for (const auto& [directory, entries] : window->packFile->getUnbakedEntries()) {
@@ -1486,25 +1486,25 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 		for (const auto& entry : entries) {
 			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
 			window->writeEntryToFile(filePath, entry);
-			emit progressUpdated(++currentEntry);
+			emit this->progressUpdated(++currentEntry);
 		}
 	}
-	emit taskFinished();
+	emit this->taskFinished();
 }
 
 void ScanSteamGamesWorker::run() {
+	QList<std::tuple<QString, QIcon, QDir>> sourceGames;
+
 	if (Options::get<bool>(OPT_DISABLE_STEAM_SCANNER)) {
-		emit taskFinished({});
+		emit this->taskFinished(sourceGames);
 		return;
 	}
 
 	SAPP sapp;
 	if (!sapp) {
-		emit taskFinished({});
+		emit this->taskFinished(sourceGames);
 		return;
 	}
-
-	QList<std::tuple<QString, QIcon, QDir>> sourceGames;
 
 	// Add Steam games
 	for (auto appID : sapp.getInstalledApps()) {
@@ -1573,5 +1573,5 @@ void ScanSteamGamesWorker::run() {
 	std::sort(sourceGames.begin(), sourceGames.end(), [](const auto& lhs, const auto& rhs) {
 		return std::get<0>(lhs) < std::get<0>(rhs);
 	});
-	emit taskFinished(sourceGames);
+	emit this->taskFinished(sourceGames);
 }
