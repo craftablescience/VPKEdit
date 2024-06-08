@@ -12,24 +12,29 @@ using namespace std::literals::string_literals;
 using namespace vpkedit::detail;
 using namespace vpkedit;
 
-constexpr std::string_view ARG_OUTPUT_SHORT = "-o";
-constexpr std::string_view ARG_OUTPUT_LONG = "--output";
-constexpr std::string_view ARG_NO_PROGRESS_LONG = "--no-progress";
-constexpr std::string_view ARG_VERSION_SHORT = "-v";
-constexpr std::string_view ARG_VERSION_LONG = "--version";
-constexpr std::string_view ARG_CHUNKSIZE_SHORT = "-c";
-constexpr std::string_view ARG_CHUNKSIZE_LONG = "--chunksize";
-constexpr std::string_view ARG_GEN_MD5_ENTRIES_LONG = "--gen-md5-entries";
-constexpr std::string_view ARG_PRELOAD_SHORT = "-p";
-constexpr std::string_view ARG_PRELOAD_LONG = "--preload";
-constexpr std::string_view ARG_SINGLE_FILE_SHORT = "-s";
-constexpr std::string_view ARG_SINGLE_FILE_LONG = "--single-file";
-constexpr std::string_view ARG_GEN_KEYPAIR_LONG = "--gen-keypair";
-constexpr std::string_view ARG_FILE_TREE_LONG = "--file-tree";
-constexpr std::string_view ARG_SIGN_SHORT = "-k";
-constexpr std::string_view ARG_SIGN_LONG = "--sign";
-constexpr std::string_view ARG_VERIFY_CHECKSUMS_LONG = "--verify-checksums";
-constexpr std::string_view ARG_VERIFY_SIGNATURE_LONG = "--verify-signature";
+#define ARG_S(name, short_, long_)                          \
+	constexpr std::string_view ARG_##name##_SHORT = short_; \
+	constexpr std::string_view ARG_##name##_LONG  = long_
+#define ARG_L(name, long_) \
+	constexpr std::string_view ARG_##name##_LONG  = long_
+
+ARG_S(OUTPUT,           "-o", "--output");
+ARG_L(NO_PROGRESS,            "--no-progress");
+ARG_S(VERSION,          "-v", "--version");
+ARG_S(CHUNKSIZE,        "-c", "--chunksize");
+ARG_L(GEN_MD5_ENTRIES,        "--gen-md5-entries");
+ARG_S(PRELOAD,          "-p", "--preload");
+ARG_S(SINGLE_FILE,      "-s", "--single-file");
+ARG_L(GEN_KEYPAIR,            "--gen-keypair");
+ARG_L(FILE_TREE,              "--file-tree");
+ARG_S(SIGN,             "-k", "--sign");
+ARG_L(VERIFY_CHECKSUMS,       "--verify-checksums");
+ARG_L(VERIFY_SIGNATURE,       "--verify-signature");
+
+#undef ARG_S
+#undef ARG_L
+#define ARG_S(name) ARG_##name##_SHORT
+#define ARG_L(name) ARG_##name##_LONG
 
 namespace {
 
@@ -51,12 +56,12 @@ void fileTree(const std::string& inputPath) {
 
 /// Sign an existing VPK
 void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
-	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
+	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
+	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
 
 	if (saveToDir) {
 		std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
-		std::cerr << "Remove the " << ARG_SINGLE_FILE_SHORT << " / " << ARG_SINGLE_FILE_LONG << " parameter for best results." << std::endl;
+		std::cerr << "Remove the " << ARG_S(SINGLE_FILE) << " / " << ARG_L(SINGLE_FILE) << " parameter for best results." << std::endl;
 	}
 
 	auto vpk = VPK::open(inputPath);
@@ -76,15 +81,15 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		return;
 	}
 
-	if (cli.is_used(ARG_VERIFY_CHECKSUMS_LONG)) {
-		if (cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "all" || cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "vpk") {
+	if (cli.is_used(ARG_L(VERIFY_CHECKSUMS))) {
+		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "vpk") {
 			if (vpk->verifyFileChecksum()) {
 				std::cout << "Overall VPK checksums match their expected values." << std::endl;
 			} else {
 				std::cerr << "One or more of the VPK checksums do not match the expected value(s)!" << std::endl;
 			}
 		}
-		if (cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "all" || cli.get(ARG_VERIFY_CHECKSUMS_LONG) == "files") {
+		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "files") {
 			if (auto entries = vpk->verifyEntryChecksums(); entries.empty()) {
 				std::cout << "All file checksums match their expected values." << std::endl;
 			} else {
@@ -97,7 +102,7 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	if (cli.is_used(ARG_VERIFY_SIGNATURE_LONG)) {
+	if (cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
 		if (!vpk->hasFileSignature()) {
 			std::cout << "VPK does not have a signature." << std::endl;
 		} else if (vpk->verifyFileChecksum()) {
@@ -110,27 +115,27 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 /// Pack contents of a directory into a VPK
 void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto outputPath = inputPath + (cli.get<bool>("-s") || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
-	if (cli.is_used(ARG_OUTPUT_SHORT)) {
-		if (!cli.get(ARG_OUTPUT_SHORT).ends_with(".vpk")) {
-			throw std::runtime_error("Output path must be a VPK file!");
+	auto outputPath = inputPath + (cli.get<bool>(ARG_S(SINGLE_FILE)) || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
+	if (cli.is_used(ARG_S(OUTPUT))) {
+		if (!cli.get(ARG_S(OUTPUT)).ends_with(".vpk")) {
+			throw std::runtime_error{"Output path must be a VPK file!"};
 		}
-		outputPath = cli.get("-o");
-		if (!cli.get<bool>("-s") && !outputPath.ends_with("_dir.vpk")) {
+		outputPath = cli.get(ARG_S(OUTPUT));
+		if (!cli.get<bool>(ARG_S(SINGLE_FILE)) && !outputPath.ends_with("_dir.vpk")) {
 			std::cerr << "Warning: multichunk VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
 			             "This VPK may not be able to be loaded by the Source engine or other VPK browsers!\n" << std::endl;
 		}
 	}
 
-	auto noProgressBar = cli.get<bool>(ARG_NO_PROGRESS_LONG);
-	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_VERSION_SHORT)));
-	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_CHUNKSIZE_SHORT)) * 1024 * 1024);
-	auto generateMD5Entries = cli.get<bool>(ARG_GEN_MD5_ENTRIES_LONG);
-	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_PRELOAD_SHORT);
-	auto saveToDir = cli.get<bool>(ARG_SINGLE_FILE_SHORT);
-	auto fileTree = cli.get<bool>(ARG_FILE_TREE_LONG);
-	auto signPath = cli.is_used(ARG_SIGN_SHORT) ? cli.get(ARG_SIGN_SHORT) : "";
-	auto shouldVerify = cli.is_used(ARG_VERIFY_CHECKSUMS_LONG) || cli.is_used(ARG_VERIFY_SIGNATURE_LONG);
+	auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
+	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
+	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
+	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
+	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
+	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
+	auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
+	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
+	auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -220,29 +225,29 @@ int main(int argc, const char* const* argv) {
 		      "(Verify)   The path to the VPK to verify the contents of.")
 		.required();
 
-	cli.add_argument(ARG_OUTPUT_SHORT, ARG_OUTPUT_LONG)
+	cli.add_argument(ARG_S(OUTPUT), ARG_L(OUTPUT))
 		.help("The path to the output VPK or directory. If unspecified, will default next to the input.");
 
-	cli.add_argument(ARG_NO_PROGRESS_LONG)
+	cli.add_argument(ARG_L(NO_PROGRESS))
 		.help("Hide all progress bars.")
 		.flag();
 
-	cli.add_argument(ARG_VERSION_SHORT, ARG_VERSION_LONG)
+	cli.add_argument(ARG_S(VERSION), ARG_L(VERSION))
 		.help("(Pack) The version of the VPK. Can be 1 or 2.")
 		.default_value("2")
 		.choices("1", "2")
 		.nargs(1);
 
-	cli.add_argument(ARG_CHUNKSIZE_SHORT, ARG_CHUNKSIZE_LONG)
+	cli.add_argument(ARG_S(CHUNKSIZE), ARG_L(CHUNKSIZE))
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
 		.nargs(1);
 
-	cli.add_argument(ARG_GEN_MD5_ENTRIES_LONG)
+	cli.add_argument(ARG_L(GEN_MD5_ENTRIES))
 		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
 		.flag();
 
-	cli.add_argument(ARG_PRELOAD_SHORT, ARG_PRELOAD_LONG)
+	cli.add_argument(ARG_S(PRELOAD), ARG_L(PRELOAD))
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
 		      "preloaded in the directory VPK. Full file names are also supported here\n"
 		      "(i.e. this would preload any files named README.md or files ending in vmt:\n"
@@ -250,31 +255,31 @@ int main(int argc, const char* const* argv) {
 		.default_value(std::vector<std::string>{"vmt"})
 		.remaining();
 
-	cli.add_argument(ARG_SINGLE_FILE_SHORT, ARG_SINGLE_FILE_LONG)
+	cli.add_argument(ARG_S(SINGLE_FILE), ARG_L(SINGLE_FILE))
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
 		      "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
 
-	cli.add_argument(ARG_GEN_KEYPAIR_LONG)
+	cli.add_argument(ARG_L(GEN_KEYPAIR))
 		.help("(Generate) Generate files containing public/private keys with the specified name.\n"
 		      "DO NOT SHARE THE PRIVATE KEY FILE WITH ANYONE! Move it to a safe place where it\n"
 		      "will not be shipped.")
 		.flag();
 
-	cli.add_argument(ARG_FILE_TREE_LONG)
+	cli.add_argument(ARG_L(FILE_TREE))
 		.help("(Preview) Prints the file tree of the given VPK to the console.")
 		.flag();
 
-	cli.add_argument(ARG_SIGN_SHORT, ARG_SIGN_LONG)
+	cli.add_argument(ARG_S(SIGN), ARG_L(SIGN))
 	    .help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
 	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
-	cli.add_argument(ARG_VERIFY_CHECKSUMS_LONG)
+	cli.add_argument(ARG_L(VERIFY_CHECKSUMS))
 		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "vpk", or "all" (without quotes).)")
 		.choices("files", "vpk", "all")
 		.nargs(1);
 
-	cli.add_argument(ARG_VERIFY_SIGNATURE_LONG)
+	cli.add_argument(ARG_L(VERIFY_SIGNATURE))
 		.help("(Verify) Verify the VPK's signature if it exists.")
 		.flag();
 
@@ -307,15 +312,15 @@ int main(int argc, const char* const* argv) {
 				::pack(cli, inputPath);
 			} else {
 				bool foundAction = false;
-				if (cli.is_used(ARG_FILE_TREE_LONG)) {
+				if (cli.is_used(ARG_L(FILE_TREE))) {
 					foundAction = true;
 					::fileTree(inputPath);
 				}
-				if (cli.is_used(ARG_SIGN_SHORT)) {
+				if (cli.is_used(ARG_S(SIGN))) {
 					foundAction = true;
 					::sign(cli, inputPath);
 				}
-				if (cli.is_used(ARG_VERIFY_CHECKSUMS_LONG) || cli.is_used(ARG_VERIFY_SIGNATURE_LONG)) {
+				if (cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
 					foundAction = true;
 					::verify(cli, inputPath);
 				}
@@ -323,10 +328,10 @@ int main(int argc, const char* const* argv) {
 					throw std::runtime_error{"No action taken! Add some arguments to clarify your intent."};
 				}
 			}
-		} else if (cli.get<bool>(ARG_GEN_KEYPAIR_LONG)) {
+		} else if (cli.get<bool>(ARG_L(GEN_KEYPAIR))) {
 			::generateKeyPair(inputPath);
 		} else {
-			throw std::runtime_error("Given path does not exist!");
+			throw std::runtime_error{"Given path does not exist!"};
 		}
 	} catch (const std::exception& e) {
 		if (argc > 1) {
