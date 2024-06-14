@@ -1,7 +1,3 @@
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
-set(CMAKE_INSTALL_RPATH $ORIGIN)
-
 # discord-rpc
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/discord")
 

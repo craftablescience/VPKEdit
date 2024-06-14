@@ -390,7 +390,7 @@ void MDLWidget::mouseMoveEvent(QMouseEvent* event) {
 	}
 
 	QVector3D inputAxis;
-	if (!rmbBeingHeld) {
+	if (!this->rmbBeingHeld) {
 		// Rotation axis is perpendicular to the mouse position difference vector
 		inputAxis = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 	} else {

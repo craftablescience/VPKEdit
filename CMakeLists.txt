@@ -42,6 +42,11 @@ option(VPKEDIT_USE_LTO "Build VPKEdit with link-time optimization enabled" OFF)
 
 # Global CMake options
 if(PROJECT_IS_TOP_LEVEL)
+    # Set proper runpath
+    set(CMAKE_SKIP_BUILD_RPATH OFF)
+    set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
+    set(CMAKE_INSTALL_RPATH $ORIGIN)
+
     # Compile with PIC
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
