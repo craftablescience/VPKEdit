@@ -1,0 +1,89 @@
+name: CodeQL
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: '0 0 * * 5'
+
+env:
+  BUILD_DIR: '${{github.workspace}}/build'
+  QT_VERSION: '6.6.3'
+  QT_MODULES: 'qtimageformats'
+
+jobs:
+  analyze:
+    name: Analyze (${{matrix.language}})
+    runs-on: ubuntu-20.04
+    timeout-minutes: ${{(matrix.language == 'swift' && 120) || 360}}
+    permissions:
+      security-events: write
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: c-cpp
+          build-mode: manual
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{matrix.language}}
+          build-mode: ${{matrix.build-mode}}
+
+      - name: Install Necessary Packages
+        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
+
+      - name: Install GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: 11
+          platform: x64
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: ${{env.QT_VERSION}}
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          dir: '${{github.workspace}}/qt'
+          modules: ${{env.QT_MODULES}}
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=Release -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_INSTALLER=OFF -DVPKEDIT_USE_LTO=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config Release -t libvpkeditc -- -j$(nproc)
+          cmake --build . --config Release -t vpkeditcli -- -j$(nproc)
+          cmake --build . --config Release -t vpkedit -- -j$(nproc)
+
+      - name: Fixup Binaries
+        run: |
+          chmod +x '${{env.BUILD_DIR}}/vpkedit'
+
+          # runpath cleanup for the Qt binaries. These are (mostly) wrong, leading to crashes
+          for f in ${{env.BUILD_DIR}}/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN' "$f"
+          done
+          for f in ${{env.BUILD_DIR}}/*/*.so*; do
+            echo "Fixing $f..."
+            chrpath -r '$ORIGIN/..' "$f"
+          done
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
