@@ -96,7 +96,7 @@ bool GMA::verifyFileChecksum() const {
 		return true;
 	}
 
-	auto checksum = *reinterpret_cast<std::uint32_t*>(data.data() + data.size() - sizeof(std::uint32_t));
+	auto checksum = *(reinterpret_cast<std::uint32_t*>(data.data() + data.size()) - 1);
 	data.pop_back();
 	data.pop_back();
 	data.pop_back();
