@@ -1,11 +1,7 @@
 name: CodeQL
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  schedule:
-    - cron: '0 0 * * 5'
+  workflow_dispatch:
+    # nothing here
 
 env:
   BUILD_DIR: '${{github.workspace}}/build'
@@ -60,12 +56,11 @@ jobs:
           cache: true
 
       - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=Release -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_INSTALLER=OFF -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=Release -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64" -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
         run: |
-          cmake --build . --config Release -t libvpkeditc -- -j$(nproc)
           cmake --build . --config Release -t vpkeditcli -- -j$(nproc)
           cmake --build . --config Release -t vpkedit -- -j$(nproc)
 
