@@ -48,7 +48,7 @@ std::unique_ptr<PackFile> PAK::open(const std::string& path, PackFileOptions opt
 		entry.offset = reader.read<std::uint32_t>();
 		entry.length = reader.read<std::uint32_t>();
 
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
+		auto parentDir = std::filesystem::path{entry.path}.parent_path().string();
 		::normalizeSlashes(parentDir);
 		if (!pak->isCaseSensitive()) {
 			::toLowerCase(parentDir);

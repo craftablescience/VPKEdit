@@ -535,23 +535,23 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	this->mdl->clearMeshes();
 
-	QString basePath = std::filesystem::path(path.toStdString()).replace_extension().string().c_str();
+	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();
 	if (path.endsWith(".vtx")) {
 		// Remove .dx80, .dx90, .sw
-		basePath = std::filesystem::path(basePath.toStdString()).replace_extension().string().c_str();
+		basePath = std::filesystem::path{basePath}.replace_extension().string();
 	}
 
-	auto mdlEntry = packFile.findEntry(basePath.toStdString() + ".mdl");
-	auto vvdEntry = packFile.findEntry(basePath.toStdString() + ".vvd");
-	auto vtxEntry = packFile.findEntry(basePath.toStdString() + ".vtx");
+	auto mdlEntry = packFile.findEntry(basePath + ".mdl");
+	auto vvdEntry = packFile.findEntry(basePath + ".vvd");
+	auto vtxEntry = packFile.findEntry(basePath + ".vtx");
 	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath.toStdString() + ".dx90.vtx");
+		vtxEntry = packFile.findEntry(basePath + ".dx90.vtx");
 	}
 	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath.toStdString() + ".dx80.vtx");
+		vtxEntry = packFile.findEntry(basePath + ".dx80.vtx");
 	}
 	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath.toStdString() + ".sw.vtx");
+		vtxEntry = packFile.findEntry(basePath + ".sw.vtx");
 	}
 	if (!mdlEntry || !vvdEntry || !vtxEntry) {
 		QString error{tr("Unable to find all the required files the model is composed of!") + '\n'};
@@ -563,10 +563,10 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		}
 		if (!vtxEntry) {
 			error += "\n- " + tr("One of the following:") +
-					 "\n  - " + basePath + ".vtx" +
-					 "\n  - " + basePath + ".dx90.vtx" +
-					 "\n  - " + basePath + ".dx80.vtx" +
-					 "\n  - " + basePath + ".sw.vtx";
+					 "\n  - " + basePath.c_str() + ".vtx" +
+					 "\n  - " + basePath.c_str() + ".dx90.vtx" +
+					 "\n  - " + basePath.c_str() + ".dx80.vtx" +
+					 "\n  - " + basePath.c_str() + ".sw.vtx";
 		}
 
 		this->fileViewer->showGenericErrorPreview(error);

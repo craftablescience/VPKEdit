@@ -414,7 +414,7 @@ void EntryTree::extractEntries(const QStringList& paths, const QString& destinat
 			}
 		} else {
 			const QString itemPath = saveDir + QDir::separator() + this->getItemPath(item).sliced(rootDirLen);
-			std::string itemPathStr = itemPath.toStdString();
+			std::string itemPathStr = itemPath.toLocal8Bit().constData();
 			std::filesystem::path itemPathDir(itemPathStr);
 			QDir(saveDir).mkpath(itemPathDir.parent_path().string().c_str());
 

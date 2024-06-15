@@ -16,7 +16,7 @@ std::unique_ptr<PackFile> FPX::open(const std::string& path, PackFileOptions opt
 	auto fpx = FPX::openInternal(path, options, callback);
 	if (!fpx && path.length() > 8) {
 		// If it just tried to load a numbered archive, let's try to load the directory FPX
-		if (auto dirPath = path.substr(0, path.length() - 8) + FPX_DIR_SUFFIX.data() + std::filesystem::path(path).extension().string(); std::filesystem::exists(dirPath)) {
+		if (auto dirPath = path.substr(0, path.length() - 8) + FPX_DIR_SUFFIX.data() + std::filesystem::path{path}.extension().string(); std::filesystem::exists(dirPath)) {
 			fpx = FPX::openInternal(dirPath, options, callback);
 		}
 	}

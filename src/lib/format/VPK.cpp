@@ -145,7 +145,7 @@ std::unique_ptr<PackFile> VPK::open(const std::string& path, PackFileOptions opt
 	auto vpk = VPK::openInternal(path, options, callback);
 	if (!vpk && path.length() > 8) {
 		// If it just tried to load a numbered archive, let's try to load the directory VPK
-		if (auto dirPath = path.substr(0, path.length() - 8) + VPK_DIR_SUFFIX.data() + std::filesystem::path(path).extension().string(); std::filesystem::exists(dirPath)) {
+		if (auto dirPath = path.substr(0, path.length() - 8) + VPK_DIR_SUFFIX.data() + std::filesystem::path{path}.extension().string(); std::filesystem::exists(dirPath)) {
 			vpk = VPK::openInternal(dirPath, options, callback);
 		}
 	}

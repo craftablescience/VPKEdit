@@ -325,7 +325,7 @@ void DirPreview::mouseMoveEvent(QMouseEvent* event) {
 
 void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	// Note: does not check if the path is inside the directory being previewed
-	auto entry = packFile.findEntry(path.toStdString());
+	auto entry = packFile.findEntry(path.toLocal8Bit().constData());
 	if (!entry) {
 		return;
 	}

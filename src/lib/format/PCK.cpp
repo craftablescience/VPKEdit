@@ -111,7 +111,7 @@ std::unique_ptr<PackFile> PCK::open(const std::string& path, PackFileOptions opt
 			entry.flags = reader.read<std::uint32_t>();
 		}
 
-		auto parentDir = std::filesystem::path(entry.path).parent_path().string();
+		auto parentDir = std::filesystem::path{entry.path}.parent_path().string();
 		::normalizeSlashes(parentDir);
 		if (!pck->entries.contains(parentDir)) {
 			pck->entries[parentDir] = {};

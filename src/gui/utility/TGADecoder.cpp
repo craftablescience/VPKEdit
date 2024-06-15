@@ -32,7 +32,7 @@ std::optional<QImage> TGADecoder::decodeImage(const QString& imagePath) {
 	}
 
 	// Create stream
-	std::ifstream imageStream{imagePath.toStdString(), std::ios::binary};
+	std::ifstream imageStream{imagePath.toLocal8Bit().constData(), std::ios::binary};
 	if (!imageStream) {
 		return std::nullopt;
 	}

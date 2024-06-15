@@ -24,7 +24,7 @@ PackFile::PackFile(std::string fullFilePath_, PackFileOptions options_)
 		, options(options_) {}
 
 std::unique_ptr<PackFile> PackFile::open(const std::string& path, PackFileOptions options, const Callback& callback) {
-	auto extension = std::filesystem::path(path).extension().string();
+	auto extension = std::filesystem::path{path}.extension().string();
 	::toLowerCase(extension);
 	const auto& registry = PackFile::getOpenExtensionRegistry();
 	if (registry.contains(extension)) {

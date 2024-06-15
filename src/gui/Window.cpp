@@ -448,9 +448,9 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 		return;
 	}
 
-	QString vpkSaveFilePath = std::filesystem::path(dirPath.toStdString()).parent_path().string().c_str();
+	QString vpkSaveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
 	vpkSaveFilePath += QDir::separator();
-	vpkSaveFilePath += (std::filesystem::path(dirPath.toStdString()).stem().string() + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str();
+	vpkSaveFilePath += (std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string() + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str();
 	auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? vpkSaveFilePath : startPath, "Valve Pack File (*.vpk)");
 	if (vpkPath.isEmpty()) {
 		return;
@@ -475,7 +475,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 		// Cringe compiler moment in the lambda capture list
 		QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, options_=options] {
 			worker->run([vpkPath, dirPath, singleFile_, options_] {
-				(void) VPK::createFromDirectory(vpkPath.toStdString(), dirPath.toStdString(), singleFile_, options_);
+				(void) VPK::createFromDirectory(vpkPath.toLocal8Bit().constData(), dirPath.toLocal8Bit().constData(), singleFile_, options_);
 			});
 		});
 		QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, this, [this, vpkPath] {
@@ -491,7 +491,7 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 		});
 		this->createVPKFromDirWorkerThread->start();
 	} else {
-		(void) VPK::createEmpty(vpkPath.toStdString(), options);
+		(void) VPK::createEmpty(vpkPath.toLocal8Bit().constData(), options);
 		this->loadPackFile(vpkPath);
 	}
 }
@@ -696,7 +696,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	if (!prefilledPath.isEmpty()) {
 		prefilledPath += '/';
 	}
-	prefilledPath += std::filesystem::path(filepath.toStdString()).filename().string().c_str();
+	prefilledPath += std::filesystem::path{filepath.toLocal8Bit().constData()}.filename().string().c_str();
 
 	QString entryPath = prefilledPath;
 	EntryOptions options;
@@ -714,8 +714,8 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 		entryPath = entryPath.toLower();
 	}
 
-	this->packFile->removeEntry(entryPath.toStdString());
-	this->packFile->addEntry(entryPath.toStdString(), filepath.toStdString(), options);
+	this->packFile->removeEntry(entryPath.toLocal8Bit().constData());
+	this->packFile->addEntry(entryPath.toLocal8Bit().constData(), filepath.toLocal8Bit().constData(), options);
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(*this->packFile, entryPath);
 	this->markModified(true);
@@ -734,7 +734,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 	if (!prefilledPath.isEmpty()) {
 		prefilledPath += '/';
 	}
-	prefilledPath += std::filesystem::path(dirpath.toStdString()).filename().string().c_str();
+	prefilledPath += std::filesystem::path{dirpath.toLocal8Bit().constData()}.filename().string().c_str();
 
 	QString parentEntryPath = prefilledPath;
 	EntryOptions options;
@@ -757,8 +757,8 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 			subEntryPath = subEntryPath.toLower();
 		}
 
-		this->packFile->removeEntry(subEntryPath.toStdString());
-		this->packFile->addEntry(subEntryPath.toStdString(), subEntryPathFS.toStdString(), options);
+		this->packFile->removeEntry(subEntryPath.toLocal8Bit().constData());
+		this->packFile->addEntry(subEntryPath.toLocal8Bit().constData(), subEntryPathFS.toLocal8Bit().constData(), options);
 		this->entryTree->addEntry(subEntryPath);
 		this->fileViewer->addEntry(*this->packFile, subEntryPath);
 	}
@@ -766,7 +766,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 }
 
 bool Window::removeFile(const QString& path) {
-	if (!this->packFile->removeEntry(path.toStdString())) {
+	if (!this->packFile->removeEntry(path.toLocal8Bit().constData())) {
 		QMessageBox::critical(this, tr("Error Removing File"), tr("There was an error removing the file at \"%1\"!").arg(path));
 		return false;
 	}
@@ -785,7 +785,7 @@ void Window::requestEntryRemoval(const QString& path) const {
 
 void Window::editFile(const QString& oldPath) {
 	// Get file information and data
-	auto entry = this->packFile->findEntry(oldPath.toStdString());
+	auto entry = this->packFile->findEntry(oldPath.toLocal8Bit().constData());
 	if (!entry) {
 		QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not find file!").arg(oldPath));
 		return;
@@ -807,7 +807,7 @@ void Window::editFile(const QString& oldPath) {
 	this->requestEntryRemoval(oldPath);
 
 	// Add new file with the same info and data at the new path
-	this->packFile->addEntry(newPath.toStdString(), std::move(data.value()), entryOptions);
+	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), entryOptions);
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
 	this->markModified(true);
@@ -842,7 +842,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 
 	for (const auto& path : paths) {
 		// Get data
-		auto entry = this->packFile->findEntry(path.toStdString());
+		auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
 		if (!entry) {
 			continue;
 		}
@@ -858,7 +858,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		QString newEntryPath = newPath + path.sliced(oldPath.length());
 
 		// Add new file with the same info and data at the new path
-		this->packFile->addEntry(newEntryPath.toStdString(), std::move(entryData.value()), {
+		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
 			.vpk_saveToDirectory = entry->vpk_archiveIndex == VPK_DIR_INDEX,
 			.vpk_preloadBytes = static_cast<unsigned int>(entry->vpk_preloadedData.size()),
 		});
@@ -894,9 +894,9 @@ void Window::generateKeyPairFiles(const QString& name) {
 		if (path.isEmpty()) {
 			return;
 		}
-		path = (std::filesystem::path{this->packFile->getFilepath()}.parent_path() / path.toStdString()).string().c_str();
+		path = (std::filesystem::path{this->packFile->getFilepath()}.parent_path() / path.toLocal8Bit().constData()).string().c_str();
 	}
-	VPK::generateKeyPairFiles(path.toStdString());
+	VPK::generateKeyPairFiles(path.toLocal8Bit().constData());
 }
 
 void Window::signPackFile(const QString& privateKeyLocation) {
@@ -909,7 +909,7 @@ void Window::signPackFile(const QString& privateKeyLocation) {
 	if (privateKeyPath.isEmpty()) {
 		return;
 	}
-	if (this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toStdString())) {
+	if (this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toLocal8Bit().constData())) {
 		QMessageBox::information(this, tr("Success"), tr("Successfully signed the pack file."));
 	} else {
 		QMessageBox::information(this, tr("Error"), tr("Failed to sign the pack file! Check the file contains both the private key and public key."));
@@ -917,7 +917,7 @@ void Window::signPackFile(const QString& privateKeyLocation) {
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
-	auto entry = this->packFile->findEntry(path.toStdString());
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
 	if (!entry) {
 		return std::nullopt;
 	}
@@ -925,7 +925,7 @@ std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& pat
 }
 
 std::optional<QString> Window::readTextEntry(const QString& path) const {
-	auto entry = this->packFile->findEntry(path.toStdString());
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
 	if (!entry) {
 		return std::nullopt;
 	}
@@ -965,7 +965,7 @@ void Window::selectSubItemInDir(const QString& path) const {
 void Window::extractVirtualFile(const QString& name, QString savePath) {
 	std::optional<std::vector<std::byte>> data = std::nullopt;
 	for (const auto& virtualEntry : this->packFile->getVirtualEntries()) {
-		if (virtualEntry.name == name.toStdString()) {
+		if (virtualEntry.name == name.toLocal8Bit().constData()) {
 			data = this->packFile->readVirtualEntry(virtualEntry);
 			break;
 		}
@@ -1003,7 +1003,7 @@ void Window::extractVirtualFile(const QString& name, QString savePath) {
 }
 
 void Window::extractFile(const QString& path, QString savePath) {
-	auto entry = this->packFile->findEntry(path.toStdString());
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
 	if (!entry) {
 		QMessageBox::critical(this, tr("Error"), tr("Failed to find file at \"%1\".").arg(path));
 		return;
@@ -1252,7 +1252,7 @@ bool Window::loadPackFile(const QString& path) {
 	QString fixedPath = QDir(path).absolutePath();
 	fixedPath.replace('\\', '/');
 
-	this->packFile = PackFile::open(fixedPath.toStdString());
+	this->packFile = PackFile::open(fixedPath.toLocal8Bit().constData());
 	if (!this->packFile) {
 		// Remove from recent paths if it's there
 		if (recentPaths.contains(fixedPath)) {
@@ -1396,7 +1396,7 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 		loop = std::make_unique<QEventLoop>();
 	}
 	int currentEntry = 0;
-	bool success = window->packFile->bake(savePath.toStdString(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
+	bool success = window->packFile->bake(savePath.toLocal8Bit().constData(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
 		emit this->progressUpdated(++currentEntry);
 		if (loop_) {
 			loop_->processEvents();
