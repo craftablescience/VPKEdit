@@ -298,7 +298,7 @@ int main(int argc, const char* const* argv) {
 		.required();
 
 	cli.add_argument(ARG_P(OUTPUT))
-		.help("The path to the output VPK, directory, or file. If unspecified, will default next to the input.");
+		.help("The path to the output VPK, directory, or file. If unspecified, will default next to the input path.");
 
 	cli.add_argument(ARG_L(NO_PROGRESS))
 		.help("Hide all progress bars.")
@@ -349,7 +349,7 @@ int main(int argc, const char* const* argv) {
 		.flag();
 
 	cli.add_argument(ARG_L(FILE_TREE))
-		.help("(Preview) Prints the file tree of the given VPK to the console.")
+		.help("(Preview) Prints the file tree of the given pack file to the console.")
 		.flag();
 
 	cli.add_argument(ARG_P(SIGN))
@@ -357,12 +357,12 @@ int main(int argc, const char* const* argv) {
 	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
 	cli.add_argument(ARG_L(VERIFY_CHECKSUMS))
-		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "overall", or "all" (without quotes).)")
+		.help(R"((Verify) Verify the pack file's checksums. Can be "files", "overall", or "all" (without quotes).)")
 		.choices("files", "overall", "all")
 		.nargs(1);
 
 	cli.add_argument(ARG_L(VERIFY_SIGNATURE))
-		.help("(Verify) Verify the VPK's signature if it exists.")
+		.help("(Verify) Verify the pack file's signature if it exists.")
 		.flag();
 
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
