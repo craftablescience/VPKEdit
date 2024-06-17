@@ -30,7 +30,7 @@ KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
 
 	QTextCharFormat variableFormat;
 	pragmaFormat.setForeground(Qt::magenta);
-	rule.pattern = QRegularExpression(R"(\[\s*\$[A-Za-z0-9_&|!]+\s*\])");
+	rule.pattern = QRegularExpression(R"(\[\s*!?\$[A-Za-z0-9_&|!]+\s*\])");
 	rule.format = pragmaFormat;
 	this->highlightingRules.append(rule);
 
