@@ -21,7 +21,7 @@ VPKEdit is on the Windows package registry, so you only need to run one command 
 
 ###### Manual:
 
-1. You will need to install the VS2015-2022 runtime located at https://aka.ms/vs/16/release/vc_redist.x64.exe.
+1. You will need to install the VS2015-2022 runtime located at https://aka.ms/vs/17/release/vc_redist.x64.exe.
 2. When that is installed, download either the standalone version or the installer version from [the latest
    GitHub release](https://github.com/craftablescience/VPKEdit/releases/latest), under the `Assets` dropdown.
 3. If you downloaded the standalone files, you're done, just unzip the files. If you downloaded the installer,
