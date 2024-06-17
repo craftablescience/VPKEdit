@@ -25,6 +25,7 @@ ARG_S(CHUNKSIZE,        "-c", "--chunksize");
 ARG_L(GEN_MD5_ENTRIES,        "--gen-md5-entries");
 ARG_S(PRELOAD,          "-p", "--preload");
 ARG_S(SINGLE_FILE,      "-s", "--single-file");
+ARG_S(EXTRACT,          "-e", "--extract");
 ARG_L(GEN_KEYPAIR,            "--gen-keypair");
 ARG_L(FILE_TREE,              "--file-tree");
 ARG_S(SIGN,             "-k", "--sign");
@@ -35,14 +36,78 @@ ARG_L(VERIFY_SIGNATURE,       "--verify-signature");
 #undef ARG_L
 #define ARG_S(name) ARG_##name##_SHORT
 #define ARG_L(name) ARG_##name##_LONG
+#define ARG_P(name) ARG_S(name), ARG_L(name)
 
 namespace {
+
+/// Extract file(s) from an existing pack file
+void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto packFile = PackFile::open(inputPath);
+	if (!packFile) {
+		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+	}
+
+	auto extractPath = cli.get(ARG_S(EXTRACT));
+	if (extractPath == "/") {
+		// Extract everything
+		auto outputPath = std::filesystem::path{inputPath}.parent_path().string();
+		if (cli.is_used(ARG_S(OUTPUT))) {
+			outputPath = cli.get(ARG_S(OUTPUT));
+		}
+		if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
+			std::cerr << "Output location must be an existing directory!" << std::endl;
+			return;
+		}
+		if (!packFile->extractAll(outputPath)) {
+			std::cerr
+					<< "Could not extract pack file contents to \"" << outputPath << "\"!\n"
+					<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+					<< std::endl;
+		}
+		std::cout << "Extracted pack file contents under \"" << outputPath << "\"." << std::endl;
+	} else if (extractPath.ends_with('/')) {
+		// Extract directory
+		auto outputPath = std::filesystem::path{inputPath}.parent_path().string();
+		if (cli.is_used(ARG_S(OUTPUT))) {
+			outputPath = cli.get(ARG_S(OUTPUT));
+		}
+		if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
+			std::cerr << "Output location must be an existing directory!" << std::endl;
+			return;
+		}
+		if (!packFile->extractDir(extractPath, outputPath)) {
+			std::cerr
+					<< "Some or all files were unable to be extracted to \"" << outputPath << "\"!\n"
+					<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+					<< std::endl;
+		}
+		std::cout << "Extracted directory under \"" << outputPath << "\"." << std::endl;
+	} else {
+		// Extract file
+		auto outputPath = (std::filesystem::path{inputPath}.parent_path() / std::filesystem::path{extractPath}.filename()).string();
+		if (cli.is_used(ARG_S(OUTPUT))) {
+			outputPath = cli.get(ARG_S(OUTPUT));
+		}
+		auto entry = packFile->findEntry(extractPath);
+		if (!entry) {
+			std::cerr << "Could not find file at \"" << extractPath << "\" in the pack file!" << std::endl;
+			return;
+		}
+		if (!packFile->extractEntry(*entry, outputPath)) {
+			std::cerr
+				<< "Could not extract file at \"" << extractPath << "\" to \"" << outputPath << "\"!\n"
+				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+				<< std::endl;
+		}
+		std::cout << "Extracted file at \"" << extractPath << "\" to \"" << outputPath << "\"." << std::endl;
+	}
+}
 
 /// Print the file tree of an existing pack file
 void fileTree(const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not print the file tree of the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 	}
 
 	// todo: make this more tree-like
@@ -77,7 +142,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not verify pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		std::cerr << "Could not open then pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 		return;
 	}
 
@@ -156,8 +221,8 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions, noProgressBar, &bar](const std::string& fullEntryPath) {
 		int preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
-			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path(fullEntryPath).extension().string().ends_with(preloadExtension)) ||
-				std::filesystem::path(fullEntryPath).filename().string() == preloadExtension) {
+			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path{fullEntryPath}.extension().string().ends_with(preloadExtension)) ||
+				std::filesystem::path{fullEntryPath}.filename().string() == preloadExtension) {
 				preloadBytes = VPK_MAX_PRELOAD_BYTES;
 				break;
 			}
@@ -210,8 +275,9 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has five modes:\n"
+	cli.add_description("This program currently has six modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
+	                    " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
 	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
 	                    "             with Pack mode to print the file tree of the new VPK.\n"
@@ -219,30 +285,32 @@ int main(int argc, const char* const* argv) {
 	                    " - Verify:   Verify the given pack file's checksums and/or signature. If used together with\n"
 	                    "             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
 	                    "Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
-	                    "when it is still unclear.");
+	                    "when it is still unclear. Almost all modes are compatible with each other, and will run in the\n"
+	                    "most logical sequence possible.");
 
 	cli.add_argument("<path>")
 		.help("(Pack)     The directory to pack into a VPK.\n"
+		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Preview)  The path to the pack file to print the file tree of.\n"
 		      "(Sign)     The path to the VPK to sign.\n"
 		      "(Verify)   The path to the pack file to verify the contents of.")
 		.required();
 
-	cli.add_argument(ARG_S(OUTPUT), ARG_L(OUTPUT))
-		.help("The path to the output VPK or directory. If unspecified, will default next to the input.");
+	cli.add_argument(ARG_P(OUTPUT))
+		.help("The path to the output VPK, directory, or file. If unspecified, will default next to the input.");
 
 	cli.add_argument(ARG_L(NO_PROGRESS))
 		.help("Hide all progress bars.")
 		.flag();
 
-	cli.add_argument(ARG_S(VERSION), ARG_L(VERSION))
+	cli.add_argument(ARG_P(VERSION))
 		.help("(Pack) The version of the VPK. Can be 1 or 2.")
 		.default_value("2")
 		.choices("1", "2")
 		.nargs(1);
 
-	cli.add_argument(ARG_S(CHUNKSIZE), ARG_L(CHUNKSIZE))
+	cli.add_argument(ARG_P(CHUNKSIZE))
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
 		.nargs(1);
@@ -251,7 +319,7 @@ int main(int argc, const char* const* argv) {
 		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
 		.flag();
 
-	cli.add_argument(ARG_S(PRELOAD), ARG_L(PRELOAD))
+	cli.add_argument(ARG_P(PRELOAD))
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
 		      "preloaded in the directory VPK. Full file names are also supported here\n"
 		      "(i.e. this would preload any files named README.md or files ending in vmt:\n"
@@ -259,10 +327,20 @@ int main(int argc, const char* const* argv) {
 		.default_value(std::vector<std::string>{"vmt"})
 		.remaining();
 
-	cli.add_argument(ARG_S(SINGLE_FILE), ARG_L(SINGLE_FILE))
+	cli.add_argument(ARG_P(SINGLE_FILE))
 		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
 		      "Breaks the VPK if its size will be >= 4gb!")
 		.flag();
+
+	cli.add_argument(ARG_P(EXTRACT))
+		.help("(Extract) Extracts the given file or directory, or the entire pack file.\n"
+		      "If given a file path, it will try to read that file and save it to the output path.\n"
+		      "If given a path ending in a forward slash, it will try to extract that directory\n"
+		      "to the given output directory.\n"
+		      "If given a single slash, it will extract the entire pack file under the given output\n"
+		      "directory.")
+		.default_value("/")
+		.nargs(1);
 
 	cli.add_argument(ARG_L(GEN_KEYPAIR))
 		.help("(Generate) Generate files containing public/private keys with the specified name.\n"
@@ -274,7 +352,7 @@ int main(int argc, const char* const* argv) {
 		.help("(Preview) Prints the file tree of the given VPK to the console.")
 		.flag();
 
-	cli.add_argument(ARG_S(SIGN), ARG_L(SIGN))
+	cli.add_argument(ARG_P(SIGN))
 	    .help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
 	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
@@ -316,6 +394,10 @@ int main(int argc, const char* const* argv) {
 				::pack(cli, inputPath);
 			} else {
 				bool foundAction = false;
+				if (cli.is_used(ARG_S(EXTRACT))) {
+					foundAction = true;
+					::extract(cli, inputPath);
+				}
 				if (cli.is_used(ARG_L(FILE_TREE))) {
 					foundAction = true;
 					::fileTree(inputPath);
