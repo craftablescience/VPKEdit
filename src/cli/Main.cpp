@@ -38,15 +38,15 @@ ARG_L(VERIFY_SIGNATURE,       "--verify-signature");
 
 namespace {
 
-/// Print the file tree of an existing VPK
+/// Print the file tree of an existing pack file
 void fileTree(const std::string& inputPath) {
-	auto vpk = VPK::open(inputPath);
-	if (!vpk) {
-		std::cerr << "Could not print the file tree of VPK at \"" << inputPath << "\": it failed to load!" << std::endl;
+	auto packFile = PackFile::open(inputPath);
+	if (!packFile) {
+		std::cerr << "Could not print the file tree of the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 	}
 
 	// todo: make this more tree-like
-	for (const auto& [directory, entries] : vpk->getBakedEntries()) {
+	for (const auto& [directory, entries] : packFile->getBakedEntries()) {
 		std::cout << directory << std::endl;
 		for (const auto& entry : entries) {
 			std::cout << "- " << entry.getFilename() << std::endl;
@@ -73,7 +73,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 }
 
-/// Verify checksums and/or signature are valid for an existing VPK
+/// Verify checksums and/or signature are valid for an existing pack file
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
@@ -213,7 +213,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_description("This program currently has five modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
-	                    " - Preview:  Prints the file tree of an existing VPK to the console. Can also be combined\n"
+	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
 	                    "             with Pack mode to print the file tree of the new VPK.\n"
 	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
 	                    " - Verify:   Verify the given pack file's checksums and/or signature. If used together with\n"
@@ -224,7 +224,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument("<path>")
 		.help("(Pack)     The directory to pack into a VPK.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
-		      "(Preview)  The path to the VPK to print the file tree of.\n"
+		      "(Preview)  The path to the pack file to print the file tree of.\n"
 		      "(Sign)     The path to the VPK to sign.\n"
 		      "(Verify)   The path to the pack file to verify the contents of.")
 		.required();
