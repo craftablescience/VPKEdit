@@ -17,11 +17,10 @@ namespace vpkedit {
 
 // Executable extensions - mostly just for Godot exports
 constexpr std::string_view EXECUTABLE_EXTENSION0 = ".exe";    // - Windows
-constexpr std::string_view EXECUTABLE_EXTENSION2 = ".elf";    // - Linux (Generic)
-constexpr std::string_view EXECUTABLE_EXTENSION1 = ".bin";    // |- Godot 3 and below (and Generic)
-constexpr std::string_view EXECUTABLE_EXTENSION3 = ".x86";    // |- Godot 4 (32-bit)
-constexpr std::string_view EXECUTABLE_EXTENSION4 = ".x86_32"; // |- Godot 4 (32-bit)
-constexpr std::string_view EXECUTABLE_EXTENSION5 = ".x86_64"; // |- Godot 4 (64-bit)
+constexpr std::string_view EXECUTABLE_EXTENSION1 = ".bin";    // - Linux + Godot 3 and below (and Generic)
+constexpr std::string_view EXECUTABLE_EXTENSION2 = ".x86";    //         | Godot 4 (32-bit)
+constexpr std::string_view EXECUTABLE_EXTENSION3 = ".x86_32"; //         | Godot 4 (32-bit)
+constexpr std::string_view EXECUTABLE_EXTENSION4 = ".x86_64"; //         | Godot 4 (64-bit)
 
 class PackFile {
 public:
@@ -49,7 +48,7 @@ public:
 		return false;
 	}
 
-	/// Verify the checksums of each file, if a file fails the check its filename will be added to the vector.
+	/// Verify the checksums of each file, if a file fails the check its filename will be added to the vector
 	/// If there is no checksum ability in the format, it will return an empty vector
 	[[nodiscard]] virtual std::vector<std::string> verifyEntryChecksums() const;
 
@@ -100,6 +99,18 @@ public:
 	/// If output folder is unspecified, it will overwrite the original
 	virtual bool bake(const std::string& outputDir_ /*= ""*/, const Callback& callback /*= nullptr*/) = 0;
 
+	/// Extract the given entry to disk at the given file path
+	bool extractEntry(const Entry& entry, const std::string& filePath) const; // NOLINT(*-use-nodiscard)
+
+	/// Extract the given directory to disk under the given output directory
+	bool extractDir(const std::string& dir, const std::string& outputDir) const; // NOLINT(*-use-nodiscard)
+
+	/// Extract the contents of the pack file to disk at the given directory
+	bool extractAll(const std::string& outputDir, bool createUnderPackFileDir = true) const; // NOLINT(*-use-nodiscard)
+
+	/// Extract the contents of the pack file to disk at the given directory - only entries which match the predicate are extracted
+	bool extractAll(const std::string& outputDir, const std::function<bool(const Entry&)>& predicate) const; // NOLINT(*-use-nodiscard)
+
 	/// Get entries saved to disk
 	[[nodiscard]] const std::unordered_map<std::string, std::vector<Entry>>& getBakedEntries() const;
 
@@ -144,6 +155,9 @@ public:
 	[[nodiscard]] virtual std::vector<Attribute> getSupportedEntryAttributes() const;
 
 	[[nodiscard]] virtual explicit operator std::string() const;
+
+	/// On Windows, some characters and file names are invalid - this escapes the given entry path
+	[[nodiscard]] static std::string escapeEntryPath(const std::string& path);
 
 	/// Returns a list of supported extensions, e.g. {".vpk", ".bsp"}
 	[[nodiscard]] static std::vector<std::string> getSupportedFileTypes();
@@ -212,5 +226,4 @@ protected:
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable1TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION1, function); \
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable2TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION2, function); \
 	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable3TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION3, function); \
-	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable4TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION4, function); \
-	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable5TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION5, function)
+	static inline const FactoryFunction& VPKEDIT_HELPER_UNIQUE_NAME(packFileOpenExecutable4TypeFactoryFunction) = PackFile::registerOpenExtensionForTypeFactory(vpkedit::EXECUTABLE_EXTENSION4, function);
