@@ -75,22 +75,26 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 /// Verify checksums and/or signature are valid for an existing VPK
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto vpk = VPK::open(inputPath);
-	if (!vpk) {
-		std::cerr << "Could not verify VPK at \"" << inputPath << "\": it failed to load!" << std::endl;
+	auto packFile = PackFile::open(inputPath);
+	if (!packFile) {
+		std::cerr << "Could not verify pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 		return;
 	}
 
 	if (cli.is_used(ARG_L(VERIFY_CHECKSUMS))) {
-		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "vpk") {
-			if (vpk->verifyFileChecksum()) {
-				std::cout << "Overall VPK checksums match their expected values." << std::endl;
+		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "overall") {
+			if (!packFile->hasFileChecksum()) {
+				std::cout << "This pack file has no overall checksum(s)." << std::endl;
+			} else if (packFile->verifyFileChecksum()) {
+				std::cout << "Overall pack file checksums match their expected values." << std::endl;
 			} else {
-				std::cerr << "One or more of the VPK checksums do not match the expected value(s)!" << std::endl;
+				std::cerr << "One or more of the pack file overall checksums do not match the expected value(s)!" << std::endl;
 			}
 		}
 		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "files") {
-			if (auto entries = vpk->verifyEntryChecksums(); entries.empty()) {
+			if (!packFile->hasEntryChecksums()) {
+				std::cout << "This pack file format does not store checksums per file." << std::endl;
+			} else if (auto entries = packFile->verifyEntryChecksums(); entries.empty()) {
 				std::cout << "All file checksums match their expected values." << std::endl;
 			} else {
 				std::cerr << "Some file checksums do not match their expected values!" << std::endl;
@@ -103,12 +107,12 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
-		if (!vpk->hasFileSignature()) {
-			std::cout << "VPK does not have a signature." << std::endl;
-		} else if (vpk->verifyFileChecksum()) {
-			std::cout << "VPK signature is valid." << std::endl;
+		if (!packFile->hasFileSignature()) {
+			std::cout << "Pack file does not have a signature." << std::endl;
+		} else if (packFile->verifyFileSignature()) {
+			std::cout << "Pack file signature is valid." << std::endl;
 		} else {
-			std::cerr << "VPK signature is invalid!" << std::endl;
+			std::cerr << "Pack file signature is invalid!" << std::endl;
 		}
 	}
 }
@@ -212,7 +216,7 @@ int main(int argc, const char* const* argv) {
 	                    " - Preview:  Prints the file tree of an existing VPK to the console. Can also be combined\n"
 	                    "             with Pack mode to print the file tree of the new VPK.\n"
 	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
-	                    " - Verify:   Verify an existing VPK's checksums and/or signature. If used together with\n"
+	                    " - Verify:   Verify the given pack file's checksums and/or signature. If used together with\n"
 	                    "             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
 	                    "Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
 	                    "when it is still unclear.");
@@ -222,7 +226,7 @@ int main(int argc, const char* const* argv) {
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Preview)  The path to the VPK to print the file tree of.\n"
 		      "(Sign)     The path to the VPK to sign.\n"
-		      "(Verify)   The path to the VPK to verify the contents of.")
+		      "(Verify)   The path to the pack file to verify the contents of.")
 		.required();
 
 	cli.add_argument(ARG_S(OUTPUT), ARG_L(OUTPUT))
@@ -275,8 +279,8 @@ int main(int argc, const char* const* argv) {
 	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
 	cli.add_argument(ARG_L(VERIFY_CHECKSUMS))
-		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "vpk", or "all" (without quotes).)")
-		.choices("files", "vpk", "all")
+		.help(R"((Verify) Verify the VPK's checksums. Can be "files", "overall", or "all" (without quotes).)")
+		.choices("files", "overall", "all")
 		.nargs(1);
 
 	cli.add_argument(ARG_L(VERIFY_SIGNATURE))
