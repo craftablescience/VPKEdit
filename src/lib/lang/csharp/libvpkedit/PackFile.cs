@@ -65,6 +65,18 @@ namespace libvpkedit
         public static extern byte vpkedit_bake(void* handle, [MarshalAs(UnmanagedType.LPStr)] string outputDir);
 
         [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_extract_entry(void* handle, void* entry, [MarshalAs(UnmanagedType.LPStr)] string filePath);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_extract_dir(void* handle, [MarshalAs(UnmanagedType.LPStr)] string dir, [MarshalAs(UnmanagedType.LPStr)] string outputDir);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_extract_all(void* handle, [MarshalAs(UnmanagedType.LPStr)] string outputDir, byte createUnderPackFileDir);
+
+        [DllImport("libvpkeditc")]
+        public static extern byte vpkedit_extract_all_if(void* handle, [MarshalAs(UnmanagedType.LPStr)] string outputDir, IntPtr predicate);
+
+        [DllImport("libvpkeditc")]
         public static extern EntryHandleArray vpkedit_get_baked_entries(void* handle);
 
         [DllImport("libvpkeditc")]
@@ -113,6 +125,9 @@ namespace libvpkedit
         public static extern void vpkedit_close(void** handle);
 
         [DllImport("libvpkeditc")]
+        public static extern String vpkedit_escape_entry_path([MarshalAs(UnmanagedType.LPStr)] string path);
+
+        [DllImport("libvpkeditc")]
         public static extern StringArray vpkedit_get_supported_file_types();
     }
 
@@ -150,6 +165,12 @@ namespace libvpkedit
                 var handle = Extern.vpkedit_open_with_options(path, options);
                 return handle == null ? null : new PackFile(handle);
             }
+        }
+
+        public static string EscapeEntryPath(string path)
+        {
+            var str = Extern.vpkedit_escape_entry_path(path);
+            return StringUtils.ConvertToStringAndDelete(ref str);
         }
 
         public static List<string> GetSupportedFileTypes()
@@ -278,6 +299,45 @@ namespace libvpkedit
             unsafe
             {
                 return Convert.ToBoolean(Extern.vpkedit_bake(Handle, outputDir));
+            }
+        }
+
+        public bool ExtractEntry(Entry entry, string filePath)
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_extract_entry(Handle, entry.Handle, filePath));
+            }
+        }
+
+        public bool ExtractDir(string dir, string outputDir)
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_extract_dir(Handle, dir, outputDir));
+            }
+        }
+
+        public bool ExtractAll(string outputDir, bool createUnderPackFileDir = true)
+        {
+            unsafe
+            {
+                return Convert.ToBoolean(Extern.vpkedit_extract_all(Handle, outputDir, Convert.ToByte(createUnderPackFileDir)));
+            }
+        }
+
+        private unsafe delegate byte ExtractAllPredicateNative(void* entry);
+
+        public bool ExtractAll(string outputDir, Func<Entry, bool> predicate)
+        {
+            unsafe
+            {
+                ExtractAllPredicateNative predicateWrapper = (entry) =>
+                {
+                    // HACK: tell the entry its in an array so it doesn't kill itself
+                    return Convert.ToByte(predicate(new Entry(entry, true)));
+                };
+                return Convert.ToBoolean(Extern.vpkedit_extract_all_if(Handle, outputDir, Marshal.GetFunctionPointerForDelegate(predicateWrapper)));
             }
         }
 
