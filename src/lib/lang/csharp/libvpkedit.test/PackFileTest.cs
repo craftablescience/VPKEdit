@@ -54,8 +54,8 @@ namespace libvpkedit.test
         [TestMethod]
         public void GetSupportedFileTypes()
         {
-            // 16 as of v4.1.2
-            Assert.AreEqual(PackFile.GetSupportedFileTypes().Count, 16);
+            // 15 as of v4.1.2
+            Assert.AreEqual(PackFile.GetSupportedFileTypes().Count, 15);
         }
 
         [TestMethod]
