@@ -149,6 +149,39 @@ VPKEDIT_API bool vpkedit_bake(VPKEdit_PackFileHandle_t handle, const char* outpu
 	return ::getPackFile(handle)->bake(outputDir, nullptr);
 }
 
+VPKEDIT_API bool vpkedit_extract_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, const char* filePath) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(entry, false);
+	VPKEDIT_EARLY_RETURN_VALUE(filePath, false);
+
+	return ::getPackFile(handle)->extractEntry(*::getEntry(entry), filePath);
+}
+
+VPKEDIT_API bool vpkedit_extract_dir(VPKEdit_PackFileHandle_t handle, const char* dir, const char* outputDir) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(dir, false);
+	VPKEDIT_EARLY_RETURN_VALUE(outputDir, false);
+
+	return ::getPackFile(handle)->extractDir(dir, outputDir);
+}
+
+VPKEDIT_API bool vpkedit_extract_all(VPKEdit_PackFileHandle_t handle, const char* outputDir, bool createUnderPackFileDir) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(outputDir, false);
+
+	return ::getPackFile(handle)->extractAll(outputDir, createUnderPackFileDir);
+}
+
+VPKEDIT_API bool vpkedit_extract_all_if(VPKEdit_PackFileHandle_t handle, const char* outputDir, bool(*predicate)(VPKEdit_EntryHandle_t)) {
+	VPKEDIT_EARLY_RETURN_VALUE(handle, false);
+	VPKEDIT_EARLY_RETURN_VALUE(outputDir, false);
+	VPKEDIT_EARLY_RETURN_VALUE(predicate, false);
+
+	return ::getPackFile(handle)->extractAll(outputDir, [predicate](const Entry& entry) {
+		return predicate(reinterpret_cast<VPKEdit_EntryHandle_t>(const_cast<Entry*>(&entry)));
+	});
+}
+
 VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFileHandle_t handle) {
 	VPKEDIT_EARLY_RETURN_VALUE(handle, VPKEDIT_ENTRY_HANDLE_ARRAY_INVALID);
 
@@ -313,6 +346,12 @@ VPKEDIT_API void vpkedit_close(VPKEdit_PackFileHandle_t* handle) {
 
 	std::default_delete<PackFile>()(::getPackFile(*handle));
 	*handle = nullptr;
+}
+
+VPKEDIT_API VPKEdit_String_t vpkedit_escape_entry_path(const char* path) {
+	VPKEDIT_EARLY_RETURN_VALUE(path, VPKEDIT_STRING_INVALID);
+
+	return ::createString(PackFile::escapeEntryPath(path));
 }
 
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_get_supported_file_types() {

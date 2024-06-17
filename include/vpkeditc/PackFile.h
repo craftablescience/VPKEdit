@@ -59,6 +59,14 @@ VPKEDIT_API bool vpkedit_remove_entry(VPKEdit_PackFileHandle_t handle, const cha
 
 VPKEDIT_API bool vpkedit_bake(VPKEdit_PackFileHandle_t handle, const char* outputDir);
 
+VPKEDIT_API bool vpkedit_extract_entry(VPKEdit_PackFileHandle_t handle, VPKEdit_EntryHandle_t entry, const char* filePath);
+
+VPKEDIT_API bool vpkedit_extract_dir(VPKEdit_PackFileHandle_t handle, const char* dir, const char* outputDir);
+
+VPKEDIT_API bool vpkedit_extract_all(VPKEdit_PackFileHandle_t handle, const char* outputDir, bool createUnderPackFileDir);
+
+VPKEDIT_API bool vpkedit_extract_all_if(VPKEdit_PackFileHandle_t handle, const char* outputDir, bool(*predicate)(VPKEdit_EntryHandle_t));
+
 // REQUIRES MANUAL FREE: vpkedit_entry_array_free
 VPKEDIT_API VPKEdit_EntryHandleArray_t vpkedit_get_baked_entries(VPKEdit_PackFileHandle_t handle);
 
@@ -93,6 +101,9 @@ VPKEDIT_API size_t vpkedit_get_supported_entry_attributes(VPKEdit_PackFileHandle
 VPKEDIT_API size_t vpkedit_to_string(VPKEdit_PackFileHandle_t handle, char* buffer, size_t bufferLen);
 
 VPKEDIT_API void vpkedit_close(VPKEdit_PackFileHandle_t* handle);
+
+// REQUIRES MANUAL FREE: vpkedit_string_free
+VPKEDIT_API VPKEdit_String_t vpkedit_escape_entry_path(const char* path);
 
 // REQUIRES MANUAL FREE: vpkedit_string_array_free
 VPKEDIT_API VPKEdit_StringArray_t vpkedit_get_supported_file_types();
