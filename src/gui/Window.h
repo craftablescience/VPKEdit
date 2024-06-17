@@ -159,7 +159,7 @@ private:
 
 	void checkForUpdatesReply(QNetworkReply* reply);
 
-	void writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
+	bool writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
 
 	void resetStatusBar();
 };
@@ -199,7 +199,7 @@ public:
 
 signals:
 	void progressUpdated(int value);
-	void taskFinished();
+	void taskFinished(bool success);
 };
 
 class ScanSteamGamesWorker : public QObject {

@@ -1067,7 +1067,7 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 	QObject::connect(worker, &ExtractPackFileWorker::progressUpdated, this, [this](int value) {
 		this->statusProgressBar->setValue(value);
 	});
-	QObject::connect(worker, &ExtractPackFileWorker::taskFinished, this, [this] {
+	QObject::connect(worker, &ExtractPackFileWorker::taskFinished, this, [this, saveDir](bool noneFailed) {
 		// Kill thread
 		this->extractPackFileWorkerThread->quit();
 		this->extractPackFileWorkerThread->wait();
@@ -1077,6 +1077,10 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 		this->freezeActions(false);
 
 		this->resetStatusBar();
+
+		if (!noneFailed) {
+			QMessageBox::critical(this, tr("Error"), tr(R"(Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.)").arg(saveDir));
+		}
 	});
 	this->extractPackFileWorkerThread->start();
 }
@@ -1351,22 +1355,8 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 	});
 }
 
-void Window::writeEntryToFile(const QString& path, const Entry& entry) {
-	auto data = this->packFile->readEntry(entry);
-	if (!data) {
-		QMessageBox::critical(this, tr("Error"), tr("Failed to read data for \"%1\". Please ensure that a game or another application is not using the file.").arg(entry.path.c_str()));
-		return;
-	}
-	QFile file(path);
-	if (!file.open(QIODevice::WriteOnly)) {
-		QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
-		return;
-	}
-	auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), static_cast<std::streamsize>(entry.length));
-	if (bytesWritten != entry.length) {
-		QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(path));
-	}
-	file.close();
+bool Window::writeEntryToFile(const QString& path, const Entry& entry) {
+	return this->packFile->extractEntry(entry, path.toLocal8Bit().constData());
 }
 
 void Window::resetStatusBar() {
@@ -1407,67 +1397,17 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 
 void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
 	int currentEntry = 0;
+	bool noneFailed = true;
 	for (const auto& [directory, entries] : window->packFile->getBakedEntries()) {
 		QString dir(directory.c_str());
 		if (!predicate(dir)) {
 			continue;
 		}
-
-#ifdef _WIN32
-		// Remove bad characters from the filepath
-		dir.replace('<', "_LT_");
-		dir.replace('>', "_GT_");
-		dir.replace(':', "_COLON_");
-		dir.replace('"', "_QUOT_");
-		dir.replace('|', "_BAR_");
-		dir.replace('?', "_QMARK_");
-		dir.replace('*', "_AST_");
-#endif
-
-		QDir qDir;
-		if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
-			QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
-			return;
-		}
-
 		for (const auto& entry : entries) {
-			std::string filename{entry.getFilename()};
-#ifdef _WIN32
-			{
-				std::filesystem::path path{filename};
-				auto extension = path.extension().string();
-				QString stem = path.stem().string().c_str();
-				stem = stem.toUpper();
-
-				// Replace bad filenames
-				if (stem == "CON") {
-					filename = "_CON_" + extension;
-				} else if (stem == "PRN") {
-					filename = "_PRN_" + extension;
-				} else if (stem == "AUX") {
-					filename = "_AUX_" + extension;
-				} else if (stem == "NUL") {
-					filename = "_NUL_" + extension;
-				} else if (stem.startsWith("COM") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
-					filename = "_COM";
-					filename += stem[3].toLatin1();
-					filename += '_';
-					filename += extension;
-				} else if (stem.startsWith("LPT") && stem.length() == 4 && stem[3].isDigit() && stem[3] != '0') {
-					filename = "_LPT";
-					filename += stem[3].toLatin1();
-					filename += '_';
-					filename += extension;
-				}
-
-				// Files cannot end with a period - weird
-				if (extension == ".") {
-					filename.pop_back();
-				}
+			auto filePath = saveDir + QDir::separator() + PackFile::escapeEntryPath((dir + QDir::separator() + entry.getFilename().c_str()).toLocal8Bit().constData()).c_str();
+			if (!window->writeEntryToFile(filePath, entry)) {
+				noneFailed = false;
 			}
-#endif
-			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + filename.c_str();
-			window->writeEntryToFile(filePath, entry);
 			emit this->progressUpdated(++currentEntry);
 		}
 	}
@@ -1476,20 +1416,15 @@ void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const st
 		if (!predicate(dir)) {
 			continue;
 		}
-
-		QDir qDir;
-		if (!qDir.mkpath(saveDir + QDir::separator() + dir)) {
-			QMessageBox::critical(window, tr("Error"), tr("Failed to create directory."));
-			return;
-		}
-
 		for (const auto& entry : entries) {
-			auto filePath = saveDir + QDir::separator() + dir + QDir::separator() + entry.getFilename().c_str();
-			window->writeEntryToFile(filePath, entry);
+			auto filePath = saveDir + QDir::separator() + PackFile::escapeEntryPath((dir + QDir::separator() + entry.getFilename().c_str()).toLocal8Bit().constData()).c_str();
+			if (!window->writeEntryToFile(filePath, entry)) {
+				noneFailed = false;
+			}
 			emit this->progressUpdated(++currentEntry);
 		}
 	}
-	emit this->taskFinished();
+	emit this->taskFinished(noneFailed);
 }
 
 void ScanSteamGamesWorker::run() {
