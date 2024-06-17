@@ -1,13 +1,17 @@
 #include <vpkedit/PackFile.h>
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <filesystem>
+#include <sstream>
 #include <utility>
 
 #include <vpkedit/detail/CRC32.h>
+#include <vpkedit/detail/FileStream.h>
 #include <vpkedit/detail/Misc.h>
 #include <vpkedit/format/BSP.h>
+#include <vpkedit/format/FPX.h>
 #include <vpkedit/format/GCF.h>
 #include <vpkedit/format/GMA.h>
 #include <vpkedit/format/GRP.h>
@@ -18,6 +22,110 @@
 
 using namespace vpkedit;
 using namespace vpkedit::detail;
+
+namespace {
+
+std::string joinPath(const std::vector<std::string>& list) {
+	if (list.empty()) {
+		return "";
+	}
+	std::string result = list.front();
+	for (int i = 1; i < list.size(); ++i) {
+		result += '/' + list[i];
+	}
+	return result;
+}
+
+std::vector<std::string> splitPath(const std::string& string) {
+	std::vector<std::string> result;
+	std::stringstream stream{string};
+	std::string segment;
+	while (std::getline(stream, segment, '/')) {
+		result.push_back(segment);
+	}
+	return result;
+}
+
+#ifdef _WIN32
+
+void replace(std::string& line, const std::string& oldString, const std::string& newString) {
+	const auto oldSize = oldString.length();
+	if (oldSize > line.length()) {
+		return;
+	}
+
+	const auto newSize = newString.length();
+	std::size_t pos = 0;
+	while (true) {
+		pos = line.find(oldString, pos);
+		if (pos == std::string::npos) {
+			break;
+		}
+		if (oldSize == newSize) {
+			line.replace(pos, oldSize, newString);
+		} else {
+			line.erase(pos, oldSize);
+			line.insert(pos, newString);
+		}
+		pos += newSize;
+	}
+}
+
+void toUpper(std::string& line) {
+	for (char& c : line) {
+		c = static_cast<char>(std::toupper(c));
+	}
+}
+
+void fixFilePathForWindows(std::string& filePath) {
+	// Remove invalid characters
+	::replace(filePath, "<", "_LT_");
+	::replace(filePath, "<", "_LT_");
+	::replace(filePath, ">", "_GT_");
+	::replace(filePath, ":", "_COLON_");
+	::replace(filePath, "\"", "_QUOT_");
+	::replace(filePath, "|", "_BAR_");
+	::replace(filePath, "?", "_QMARK_");
+	::replace(filePath, "*", "_AST_");
+
+	std::filesystem::path path{filePath};
+	auto filename = path.filename().string();
+	auto extension = path.extension().string();
+	auto stem = path.stem().string();
+	::toUpper(stem);
+
+	// Replace bad filenames
+	if (stem == "CON") {
+		filename = "_CON_" + extension;
+	} else if (stem == "PRN") {
+		filename = "_PRN_" + extension;
+	} else if (stem == "AUX") {
+		filename = "_AUX_" + extension;
+	} else if (stem == "NUL") {
+		filename = "_NUL_" + extension;
+	} else if (stem.starts_with("COM") && stem.length() == 4 && std::isdigit(stem[3]) && stem[3] != '0') {
+		filename = "_COM";
+		filename += stem[3];
+		filename += '_';
+		filename += extension;
+	} else if (stem.starts_with("LPT") && stem.length() == 4 && std::isdigit(stem[3]) && stem[3] != '0') {
+		filename = "_LPT";
+		filename += stem[3];
+		filename += '_';
+		filename += extension;
+	}
+
+	// Files cannot end with a period - weird
+	if (extension == ".") {
+		filename.pop_back();
+	}
+
+	filePath = (path.parent_path() / filename).string();
+}
+
+#endif
+
+} // namespace
 
 PackFile::PackFile(std::string fullFilePath_, PackFileOptions options_)
 		: fullFilePath(std::move(fullFilePath_))
@@ -169,8 +277,9 @@ bool PackFile::removeEntry(const std::string& filename_) {
 	}
 
 	// If it's not in regular entries either you can't remove it!
-	if (!this->entries.contains(dir))
+	if (!this->entries.contains(dir)) {
 		return false;
+	}
 
 	for (auto it = this->entries.at(dir).begin(); it != this->entries.at(dir).end(); ++it) {
 		if (it->path == filename) {
@@ -179,6 +288,176 @@ bool PackFile::removeEntry(const std::string& filename_) {
 		}
 	}
 	return false;
+}
+
+bool PackFile::extractEntry(const Entry& entry, const std::string& filePath) const {
+	if (filePath.empty()) {
+		return false;
+	}
+
+	auto data = this->readEntry(entry);
+	if (!data) {
+		return false;
+	}
+
+	FileStream stream{filePath, FILESTREAM_OPT_WRITE | FILESTREAM_OPT_TRUNCATE | FILESTREAM_OPT_CREATE_IF_NONEXISTENT};
+	if (!stream) {
+		return false;
+	}
+
+	stream.writeBytes(*data);
+	return true;
+}
+
+bool PackFile::extractDir(const std::string& dir, const std::string& outputDir) const {
+	if (dir.empty() || dir == "/") {
+		return this->extractAll(outputDir, false);
+	}
+
+	auto testDir = dir;
+	if (testDir.starts_with('/')) {
+		testDir = testDir.substr(1);
+	}
+	if (testDir.ends_with('/')) {
+		testDir.pop_back();
+	}
+	auto outputDirPath = std::filesystem::path{outputDir} / std::filesystem::path{testDir}.filename();
+	bool noneFailed = true;
+	for (const auto& [dir_, bakedEntries_] : this->getBakedEntries()) {
+		if (!dir_.starts_with(testDir)) {
+			continue;
+		}
+		for (const auto& entry : bakedEntries_) {
+			std::string entryPath = entry.path.substr(testDir.length() + 1);
+#ifdef _WIN32
+			::fixFilePathForWindows(entryPath);
+#endif
+			if (!this->extractEntry(entry, (outputDirPath / entryPath).string())) {
+				noneFailed = false;
+			}
+		}
+	}
+	for (const auto& [dir_, unbakedEntries_] : this->getUnbakedEntries()) {
+		if (!dir_.starts_with(testDir)) {
+			continue;
+		}
+		for (const auto& entry : unbakedEntries_) {
+			std::string entryPath = entry.path.substr(testDir.length() + 1);
+#ifdef _WIN32
+			::fixFilePathForWindows(entryPath);
+#endif
+			if (!this->extractEntry(entry, (outputDirPath / entryPath).string())) {
+				noneFailed = false;
+			}
+		}
+	}
+	return noneFailed;
+}
+
+bool PackFile::extractAll(const std::string& outputDir, bool createUnderPackFileDir) const {
+	if (outputDir.empty()) {
+		return false;
+	}
+
+	std::filesystem::path outputDirPath{outputDir};
+	if (createUnderPackFileDir) {
+		outputDirPath /= this->getTruncatedFilestem();
+	}
+	bool noneFailed = true;
+	for (const auto& [dir, bakedEntries_] : this->getBakedEntries()) {
+		for (const auto& entry : bakedEntries_) {
+			std::string entryPath = entry.path;
+#ifdef _WIN32
+			::fixFilePathForWindows(entryPath);
+#endif
+			if (!this->extractEntry(entry, (outputDirPath / entryPath).string())) {
+				noneFailed = false;
+			}
+		}
+	}
+	for (const auto& [dir, unbakedEntries_] : this->getUnbakedEntries()) {
+		for (const auto& entry : unbakedEntries_) {
+			std::string entryPath = entry.path;
+#ifdef _WIN32
+			::fixFilePathForWindows(entryPath);
+#endif
+			if (!this->extractEntry(entry, (outputDirPath / entryPath).string())) {
+				noneFailed = false;
+			}
+		}
+	}
+	return noneFailed;
+}
+
+bool PackFile::extractAll(const std::string& outputDir, const std::function<bool(const Entry&)>& predicate) const {
+	if (outputDir.empty() || !predicate) {
+		return false;
+	}
+
+	// Get list of paths
+	std::vector<Entry> saveEntries;
+	for (const auto& [dir, bakedEntries_] : this->getBakedEntries()) {
+		for (const auto& entry : bakedEntries_) {
+			if (predicate(entry)) {
+				saveEntries.push_back(entry);
+			}
+		}
+	}
+	for (const auto& [dir, unbakedEntries_] : this->getUnbakedEntries()) {
+		for (const auto& entry : unbakedEntries_) {
+			if (predicate(entry)) {
+				saveEntries.push_back(entry);
+			}
+		}
+	}
+	if (saveEntries.empty()) {
+		return false;
+	}
+
+	// Strip shared directories until we have a root folder
+	std::vector<std::string> rootDirList;
+	{
+		std::vector<std::vector<std::string>> pathSplits;
+		for (const auto& entry : saveEntries) {
+			pathSplits.push_back(::splitPath(entry.path));
+		}
+		while (true) {
+			bool allTheSame = true;
+			const std::string& first = pathSplits[0][0];
+			for (const auto& path : pathSplits) {
+				if (path.size() == 1) {
+					allTheSame = false;
+					break;
+				}
+				if (path[0] != first) {
+					allTheSame = false;
+					break;
+				}
+			}
+			if (!allTheSame) {
+				break;
+			}
+			rootDirList.push_back(first);
+			for (auto& path : pathSplits) {
+				path.erase(path.begin());
+			}
+		}
+	}
+	auto rootDirLen = ::joinPath(rootDirList).length() + 1;
+
+	// Extract
+	std::filesystem::path outputDirPath{outputDir};
+	bool noneFailed = true;
+	for (const auto& entry : saveEntries) {
+		std::string entryPath = entry.path.substr(rootDirLen);
+#ifdef _WIN32
+		::fixFilePathForWindows(entryPath);
+#endif
+		if (!this->extractEntry(entry, (outputDirPath / entryPath).string())) {
+			noneFailed = false;
+		}
+	}
+	return noneFailed;
 }
 
 const std::unordered_map<std::string, std::vector<Entry>>& PackFile::getBakedEntries() const {
@@ -249,6 +528,16 @@ std::vector<Attribute> PackFile::getSupportedEntryAttributes() const {
 
 PackFile::operator std::string() const {
 	return this->getFilename();
+}
+
+std::string PackFile::escapeEntryPath(const std::string& path) {
+#ifdef _WIN32
+	auto copy = path;
+	::fixFilePathForWindows(copy);
+	return copy;
+#else
+	return path;
+#endif
 }
 
 std::vector<std::string> PackFile::getSupportedFileTypes() {

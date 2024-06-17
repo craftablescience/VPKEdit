@@ -6,6 +6,11 @@ using namespace vpkedit::detail;
 
 FileStream::FileStream(const std::string& filepath, int options) {
 	if ((options & FILESTREAM_OPT_CREATE_IF_NONEXISTENT) && !std::filesystem::exists(filepath)) {
+		if (!std::filesystem::exists(std::filesystem::path{filepath}.parent_path())) {
+			std::error_code ec;
+			std::filesystem::create_directories(std::filesystem::path{filepath}.parent_path(), ec);
+			ec.clear();
+		}
 		std::ofstream create(filepath, std::ios::trunc);
 	}
 	std::ios::openmode openMode = std::ios::binary;
