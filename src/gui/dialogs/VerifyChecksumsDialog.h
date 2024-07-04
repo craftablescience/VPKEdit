@@ -2,17 +2,17 @@
 
 #include <QMessageBox>
 
-namespace vpkedit {
+namespace vpkpp {
 
 class PackFile;
 
-} // namespace vpkedit
+} // namespace vpkpp
 
 class VerifyChecksumsDialog : public QMessageBox {
 	Q_OBJECT;
 
 public:
-	explicit VerifyChecksumsDialog(vpkedit::PackFile& packFile, QWidget* parent = nullptr);
+	explicit VerifyChecksumsDialog(vpkpp::PackFile& packFile, QWidget* parent = nullptr);
 
-	static void showDialog(vpkedit::PackFile& packFile, QWidget* parent = nullptr);
+	static void showDialog(vpkpp::PackFile& packFile, QWidget* parent = nullptr);
 };

@@ -1,17 +1,6 @@
 # discord-rpc
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/discord")
 
-# sourcepp
-set(SOURCEPP_USE_FGDPP OFF CACHE BOOL "" FORCE)
-set(SOURCEPP_USE_VMFPP OFF CACHE BOOL "" FORCE)
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/sourcepp")
-
-# SpeedyKeyV
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/speedykeyv")
-
-# SAPP
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/sapp")
-
 # Qt
 if(WIN32 AND NOT DEFINED QT_BASEDIR)
     message(FATAL_ERROR "Please define your QT install dir with -DQT_BASEDIR=\"C:/your/qt6/here\"")
@@ -124,15 +113,15 @@ qt_add_translations(${PROJECT_NAME}
 
 target_link_libraries(
         ${PROJECT_NAME} PRIVATE
-        lib${PROJECT_NAME}
         ${CMAKE_DL_LIBS}
         discord-rpc
         dmxpp
+        kvpp
         mdlpp
+        steampp
         vicepp
+        vpkpp
         vtfpp
-        keyvalues
-        SAPP
         Qt::Core
         Qt::Gui
         Qt::Widgets
@@ -142,6 +131,7 @@ target_link_libraries(
 
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/config"
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
         "${QT_INCLUDE}"
         "${QT_INCLUDE}/QtCore"

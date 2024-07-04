@@ -29,7 +29,7 @@
 	#include <windows.h>
 #endif
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 namespace {
 

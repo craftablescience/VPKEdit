@@ -5,12 +5,10 @@
 #include <QSurfaceFormat>
 #include <QTranslator>
 
-#include <vpkedit/Version.h>
+#include <Version.h>
 
 #include "utility/Options.h"
 #include "Window.h"
-
-using namespace vpkedit;
 
 int main(int argc, char** argv) {
 	QSurfaceFormat format;

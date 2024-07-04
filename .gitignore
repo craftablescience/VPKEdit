@@ -8,15 +8,3 @@ CMakeSettings.json
 build/
 cmake-build-*/
 out/
-
-# CSharp
-/src/lib/lang/csharp/**/bin
-/src/lib/lang/csharp/**/obj
-/src/lib/lang/csharp/**/TestResults
-/src/lib/lang/csharp/**/*.DotSettings.user
-
-# Generated
-generated/
-/include/vpkedit/Version.h
-/include/vpkeditc/Version.h
-/src/lib/lang/csharp/libvpkedit/libvpkedit.csproj

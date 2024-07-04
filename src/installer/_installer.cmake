@@ -1,11 +1,9 @@
 # Set up install rules
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME}cli
         DESTINATION .)
 
-if(VPKEDIT_BUILD_CLI)
-    install(TARGETS ${PROJECT_NAME}cli
-            DESTINATION .)
-endif()
+install(TARGETS ${PROJECT_NAME}
+        DESTINATION .)
 
 install(FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
@@ -162,15 +160,12 @@ else()
     set(CPACK_DEBIAN_COMPRESSION_TYPE "zstd")
 
     # Add symlinks so it can be ran from anywhere
-    if(VPKEDIT_BUILD_CLI)
-        install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli)")
-        install(FILES
-                "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli"
-                DESTINATION "/usr/bin")
-    endif()
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli)")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli"
+            DESTINATION "/usr/bin")
+
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME})")
-    install(FILES
-            "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}"
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}"
             DESTINATION "/usr/bin")
 endif()
 include(CPack)

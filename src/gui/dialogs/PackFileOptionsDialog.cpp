@@ -5,9 +5,9 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <vpkedit/format/VPK.h>
+#include <vpkpp/format/VPK.h>
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions options_, QWidget* parent)
 		: QDialog(parent)
@@ -55,7 +55,7 @@ PackFileOptions PackFileOptionsDialog::getPackFileOptions() {
 #ifdef VPKEDIT_ZIP_COMPRESSION
 			this->zip_useCompression ? MZ_COMPRESS_METHOD_LZMA :
 #endif
-			MZ_COMPRESS_METHOD_STORE;
+			0; // MZ_COMPRESS_METHOD_STORE
 	return this->options;
 }
 

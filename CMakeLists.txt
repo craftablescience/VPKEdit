@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
 # Create project
 project(vpkedit
-        DESCRIPTION "A library and CLI/GUI tool to create, read, and write several pack file formats."
+        DESCRIPTION "A CLI/GUI tool to create, read, and write several pack file formats."
         VERSION "4.2.2"
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(CMAKE_CXX_STANDARD 20)
@@ -31,12 +31,7 @@ set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 
 # Options
-option(VPKEDIT_BUILD_LIBC "Build VPKEdit C wrapper library" OFF)
-option(VPKEDIT_BUILD_CLI "Build VPKEdit CLI application" ON)
-option(VPKEDIT_BUILD_GUI "Build VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
-option(VPKEDIT_BUILD_EXAMPLE "Build library examples" OFF)
-option(VPKEDIT_BUILD_TESTS "Run library tests" OFF)
 option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
 option(VPKEDIT_USE_LTO "Build VPKEdit with link-time optimization enabled" OFF)
 
@@ -109,46 +104,22 @@ function(vpkedit_configure_target TARGET)
         # Don't show the console when running the executable
         if(MSVC AND TARGET_IS_GUI)
             target_link_options(
-                    ${PROJECT_NAME} PRIVATE
+                    ${TARGET} PRIVATE
                     "/ENTRY:mainCRTStartup")
         endif()
     endif()
 endfunction()
 
-# libvpkedit
-include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/_lib.cmake")
-
-# libvpkeditc
-if(VPKEDIT_BUILD_LIBC)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/c/_c.cmake")
-
-    # libvpkeditcs
-    configure_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/csharp/libvpkedit/libvpkedit.csproj.in"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/lang/csharp/libvpkedit/libvpkedit.csproj")
-endif()
+# Shared
+include("${CMAKE_CURRENT_SOURCE_DIR}/src/shared/_shared.cmake")
 
 # vpkeditcli
-if(VPKEDIT_BUILD_CLI)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/cli/_cli.cmake")
-endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/src/cli/_cli.cmake")
 
 # vpkedit
-if(VPKEDIT_BUILD_GUI)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
-endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 
-# Installer (GUI only, or CLI+GUI)
-if(VPKEDIT_BUILD_GUI AND VPKEDIT_BUILD_INSTALLER)
+# Installer
+if(VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
-endif()
-
-# vpkedit_example
-if (VPKEDIT_BUILD_EXAMPLE)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/example/_example.cmake")
-endif()
-
-# vpkedit_test
-if(VPKEDIT_BUILD_TESTS)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/test/_test.cmake")
 endif()

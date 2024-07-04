@@ -15,6 +15,10 @@ vpkedit_configure_target(${PROJECT_NAME}cli)
 
 target_link_libraries(
         ${PROJECT_NAME}cli PUBLIC
-        lib${PROJECT_NAME}
         argparse::argparse
-        indicators::indicators)
+        indicators::indicators
+        vpkpp)
+
+target_include_directories(
+        ${PROJECT_NAME}cli PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/config")

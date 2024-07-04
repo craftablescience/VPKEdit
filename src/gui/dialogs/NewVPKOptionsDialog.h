@@ -4,7 +4,7 @@
 #include <tuple>
 
 #include <QDialog>
-#include <vpkedit/Options.h>
+#include <vpkpp/Options.h>
 
 class QCheckBox;
 class QComboBox;
@@ -14,11 +14,11 @@ class NewVPKOptionsDialog : public QDialog {
 	Q_OBJECT;
 
 public:
-	explicit NewVPKOptionsDialog(bool fromDirectory, vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
+	explicit NewVPKOptionsDialog(bool fromDirectory, vpkpp::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
 
-	[[nodiscard]] vpkedit::PackFileOptions getPackFileOptions() const;
+	[[nodiscard]] vpkpp::PackFileOptions getPackFileOptions() const;
 
-	static std::optional<std::tuple<vpkedit::PackFileOptions, bool>> getNewVPKOptions(bool fromDirectory, vpkedit::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
+	static std::optional<std::tuple<vpkpp::PackFileOptions, bool>> getNewVPKOptions(bool fromDirectory, vpkpp::PackFileOptions options, bool singleFile, QWidget* parent = nullptr);
 
 private:
 	QComboBox* version;

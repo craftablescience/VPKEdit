@@ -4,7 +4,7 @@
 
 #include <QTreeWidget>
 
-#include <vpkedit/PackFile.h>
+#include <vpkpp/vpkpp.h>
 
 class QKeyEvent;
 class QMouseEvent;
@@ -21,7 +21,7 @@ class EntryTree : public QTreeWidget {
 public:
 	explicit EntryTree(Window* window_, QWidget* parent = nullptr);
 
-	void loadPackFile(vpkedit::PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback);
+	void loadPackFile(vpkpp::PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback);
 
 	[[nodiscard]] bool hasEntry(const QString& path) const;
 
@@ -81,7 +81,7 @@ class LoadPackFileWorker : public QObject {
 public:
 	LoadPackFileWorker() = default;
 
-	void run(EntryTree* tree, const vpkedit::PackFile& packFile);
+	void run(EntryTree* tree, const vpkpp::PackFile& packFile);
 
 signals:
 	void progressUpdated(int value);

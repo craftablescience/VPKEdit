@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <utility>
 
-#include <KeyValue.h>
+#include <kvpp/kvpp.h>
 #include <mdlpp/mdlpp.h>
 #include <QApplication>
 #include <QCheckBox>
@@ -19,40 +19,53 @@
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QtMath>
-#include <vpkedit/detail/Misc.h>
-#include <vpkedit/PackFile.h>
+#include <sourcepp/string/String.h>
+#include <vpkpp/vpkpp.h>
 #include <vtfpp/vtfpp.h>
 
 #include "../utility/ThemedIcon.h"
 #include "../FileViewer.h"
 #include "../Window.h"
 
+using namespace kvpp;
 using namespace mdlpp;
+using namespace sourcepp;
 using namespace std::literals;
-using namespace vpkedit::detail;
-using namespace vpkedit;
+using namespace vpkpp;
 using namespace vtfpp;
 
 namespace {
 
 std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
 	auto materialEntry = packFile.findEntry(materialPath);
-	if (!materialEntry) return nullptr;
+	if (!materialEntry) {
+		return nullptr;
+	}
 
 	auto materialFile = packFile.readEntryText(*materialEntry);
-	if (!materialFile) return nullptr;
+	if (!materialFile) {
+		return nullptr;
+	}
 
-	KeyValueRoot materialKV;
-	if (materialKV.Parse(materialFile->c_str()) != KeyValueErrorCode::NONE || !materialKV.HasChildren()) return nullptr;
+	KV1 materialKV{*materialFile};
+	if (materialKV.getChildCount() == 0) {
+		return nullptr;
+	}
 
-	auto& baseTexturePathKV = materialKV.At(0).Get("$basetexture");
-	if (!baseTexturePathKV.IsValid()) return nullptr;
+	auto& baseTexturePathKV = materialKV[0]["$basetexture"];
+	if (baseTexturePathKV.isInvalid()) {
+		return nullptr;
+	}
 
-	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.Value().string, baseTexturePathKV.Value().length} + ".vtf");
-	if (!textureEntry) return nullptr;
+	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.getValue()} + ".vtf");
+	if (!textureEntry) {
+		return nullptr;
+	}
 
 	auto textureFile = packFile.readEntry(*textureEntry);
-	if (!textureFile) return nullptr;
+	if (!textureFile) {
+		return nullptr;
+	}
 
 	VTF vtf{*textureFile};
 	return std::make_unique<MDLTextureData>(
@@ -654,7 +667,7 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		bool foundMaterial = false;
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
 			std::string vmtPath = "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt";
-			::normalizeSlashes(vmtPath);
+			string::normalizeSlashes(vmtPath);
 			if (auto data = getTextureDataForMaterial(packFile, vmtPath)) {
 				vtfs.push_back(std::move(data));
 

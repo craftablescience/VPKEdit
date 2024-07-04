@@ -7,13 +7,13 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QtGlobal>
-#include <vpkedit/format/VPK.h>
+#include <vpkpp/format/VPK.h>
 
 #include "../EntryContextMenuData.h"
 #include "../FileViewer.h"
 #include "../Window.h"
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 constexpr int KB_SIZE = 1024;
 

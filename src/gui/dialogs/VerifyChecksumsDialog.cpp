@@ -1,8 +1,8 @@
 #include "VerifyChecksumsDialog.h"
 
-#include <vpkedit/PackFile.h>
+#include <vpkpp/vpkpp.h>
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 VerifyChecksumsDialog::VerifyChecksumsDialog(PackFile& packFile, QWidget* parent)
 		: QMessageBox(parent) {

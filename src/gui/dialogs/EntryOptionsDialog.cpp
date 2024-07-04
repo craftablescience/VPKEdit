@@ -7,11 +7,11 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <vpkedit/format/VPK.h>
+#include <vpkpp/format/VPK.h>
 
 #include "../utility/Options.h"
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath,  PackFileType type, EntryOptions options, QWidget* parent)
 		: QDialog(parent) {
@@ -100,7 +100,7 @@ EntryOptions EntryOptionsDialog::getEntryOptions() const {
 	};
 }
 
-std::optional<std::tuple<QString, EntryOptions>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, vpkedit::PackFileType type, vpkedit::EntryOptions options, QWidget* parent) {
+std::optional<std::tuple<QString, EntryOptions>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, PackFileType type, EntryOptions options, QWidget* parent) {
 	auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, type, options, parent);
 	int ret = dialog->exec();
 	dialog->deleteLater();

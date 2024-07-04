@@ -2,11 +2,10 @@
 
 #include <QGridLayout>
 #include <QSpacerItem>
-#include <vpkedit/Version.h>
+
+#include <Version.h>
 
 #include "../utility/Options.h"
-
-using namespace vpkedit;
 
 NewUpdateDialog::NewUpdateDialog(const QString& releaseLink, const QString& version, const QString& details, QWidget* parent)
 		: QMessageBox(parent) {

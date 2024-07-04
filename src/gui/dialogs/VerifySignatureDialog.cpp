@@ -1,8 +1,8 @@
 #include "VerifySignatureDialog.h"
 
-#include <vpkedit/PackFile.h>
+#include <vpkpp/vpkpp.h>
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 VerifySignatureDialog::VerifySignatureDialog(PackFile& packFile, QWidget* parent)
 		: QMessageBox(parent) {

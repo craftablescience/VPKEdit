@@ -19,7 +19,7 @@
 #include "utility/ThemedIcon.h"
 #include "Window.h"
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 static QString stripSlashes(QString input) {
 	while (input.startsWith('/')) {
@@ -318,7 +318,7 @@ void FileViewer::displayDir(const QString& path, const QList<QString>& subfolder
 	this->showPreview<DirPreview>();
 }
 
-void FileViewer::addEntry(const vpkedit::PackFile& packFile, const QString& path) {
+void FileViewer::addEntry(const PackFile& packFile, const QString& path) {
 	this->getPreview<DirPreview>()->addEntry(packFile, path);
 }
 

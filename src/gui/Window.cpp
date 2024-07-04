@@ -3,7 +3,7 @@
 #include <chrono>
 #include <fstream>
 
-#include <KeyValue.h>
+#include <kvpp/kvpp.h>
 #include <QActionGroup>
 #include <QApplication>
 #include <QDesktopServices>
@@ -29,12 +29,13 @@
 #include <QStyleFactory>
 #include <QThread>
 #include <QTimer>
-#include <SAPP/SAPP.h>
-#include <vpkedit/format/VPK.h>
+#include <steampp/steampp.h>
+#include <vpkpp/format/VPK.h>
 #ifdef VPKEDIT_ZIP_COMPRESSION
-#include <vpkedit/format/ZIP.h>
+#include <vpkpp/format/ZIP.h>
 #endif
-#include <vpkedit/Version.h>
+
+#include <Version.h>
 
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
@@ -49,7 +50,9 @@
 #include "EntryTree.h"
 #include "FileViewer.h"
 
-using namespace vpkedit;
+using namespace kvpp;
+using namespace steampp;
+using namespace vpkpp;
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
@@ -1435,23 +1438,23 @@ void ScanSteamGamesWorker::run() {
 		return;
 	}
 
-	SAPP sapp;
-	if (!sapp) {
+	Steam steam;
+	if (!steam) {
 		emit this->taskFinished(sourceGames);
 		return;
 	}
 
 	// Add Steam games
-	for (auto appID : sapp.getInstalledApps()) {
-		if (!sapp.isAppUsingSourceEngine(appID) && !sapp.isAppUsingSource2Engine(appID)) {
+	for (auto appID : steam.getInstalledApps()) {
+		if (!steam.isAppUsingSourceEngine(appID) && !steam.isAppUsingSource2Engine(appID)) {
 			continue;
 		}
-		auto iconPath = sapp.getAppIconPath(appID);
-		sourceGames.emplace_back(sapp.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), sapp.getAppInstallDir(appID).c_str());
+		auto iconPath = steam.getAppIconPath(appID);
+		sourceGames.emplace_back(steam.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), steam.getAppInstallDir(appID).c_str());
 	}
 
 	// Add mods in the sourcemods directory
-	for (const auto& modDir : std::filesystem::directory_iterator{sapp.getSteamSourceModDir()}) {
+	for (const auto& modDir : std::filesystem::directory_iterator{steam.getSourceModDir()}) {
 		if (!modDir.is_directory()) {
 			continue;
 		}
@@ -1467,29 +1470,29 @@ void ScanSteamGamesWorker::run() {
 		gameInfoData.resize(gameInfoSize);
 		gameInfoFile.read(gameInfoData.data(), static_cast<std::streamsize>(gameInfoSize));
 
-		KeyValueRoot gameInfoRoot{gameInfoData.c_str()};
-		if (!gameInfoRoot.IsValid()) {
+		KV1 gameInfoRoot{gameInfoData};
+		if (gameInfoRoot.isInvalid()) {
 			continue;
 		}
-		auto& gameInfo = gameInfoRoot.Get("GameInfo");
-		if (!gameInfo.IsValid()) {
+		const auto& gameInfo = gameInfoRoot["GameInfo"];
+		if (gameInfo.isInvalid()) {
 			continue;
 		}
-		auto& gameInfoName = gameInfo.Get("game");
-		auto& gameInfoIconPath = gameInfo.Get("icon");
+		const auto& gameInfoName = gameInfo["game"];
+		const auto& gameInfoIconPath = gameInfo["icon"];
 
 		std::string modName;
-		if (gameInfoName.IsValid()) {
-			modName = gameInfoName.Value().string;
+		if (!gameInfoName.isInvalid()) {
+			modName = gameInfoName.getValue();
 		} else {
 			modName = std::filesystem::path{gameInfoPath}.parent_path().filename().string();
 		}
 
 		std::string modIconPath;
-		if (gameInfoIconPath.IsValid()) {
-			if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
+		if (!gameInfoIconPath.isInvalid()) {
+			if (auto modIconBigPath = (modDir.path() / (std::string{gameInfoIconPath.getValue()} + "_big.tga")); std::filesystem::exists(modIconBigPath)) {
 				modIconPath = modIconBigPath.string();
-			} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.Value().string} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
+			} else if (auto modIconRegularPath = (modDir.path() / (std::string{gameInfoIconPath.getValue()} + ".tga")); std::filesystem::exists(modIconRegularPath)) {
 				modIconPath = modIconRegularPath.string();
 			}
 		}

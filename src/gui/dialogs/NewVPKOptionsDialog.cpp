@@ -6,11 +6,11 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QSpinBox>
-#include <vpkedit/format/VPK.h>
+#include <vpkpp/format/VPK.h>
 
 #include "../utility/Options.h"
 
-using namespace vpkedit;
+using namespace vpkpp;
 
 NewVPKOptionsDialog::NewVPKOptionsDialog(bool fromDirectory, PackFileOptions options, bool singleFile, QWidget* parent)
 		: QDialog(parent) {

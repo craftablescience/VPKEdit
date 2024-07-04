@@ -1,8 +1,6 @@
 #include "EmptyPreview.h"
 
-#include <vpkedit/Version.h>
-
-using namespace vpkedit;
+#include <Version.h>
 
 EmptyPreview::EmptyPreview(QWidget* parent)
 		: InfoPreview({":/logo.png"}, PROJECT_TITLE.data(), parent) {

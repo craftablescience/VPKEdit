@@ -2,11 +2,11 @@
 
 #include <QTableWidget>
 
-namespace vpkedit {
+namespace vpkpp {
 
 class PackFile;
 
-} // namespace vpkedit
+} // namespace vpkpp
 
 class QKeyEvent;
 class QMouseEvent;
@@ -20,9 +20,9 @@ class DirPreview : public QTableWidget {
 public:
 	DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
 
-	void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
+	void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
-	void addEntry(const vpkedit::PackFile& packFile, const QString& path);
+	void addEntry(const vpkpp::PackFile& packFile, const QString& path);
 
 	void removeFile(const QString& path);
 
@@ -40,7 +40,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
-	void addRowForFile(const vpkedit::PackFile& packFile, const QString& path);
+	void addRowForFile(const vpkpp::PackFile& packFile, const QString& path);
 
 	void addRowForDir(const QString& name);
 

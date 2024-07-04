@@ -4,13 +4,12 @@
 
 #include <argparse/argparse.hpp>
 #include <indicators/indeterminate_progress_bar.hpp>
-#include <vpkedit/detail/Misc.h>
-#include <vpkedit/format/VPK.h>
-#include <vpkedit/Version.h>
+#include <vpkpp/format/VPK.h>
+
+#include <Version.h>
 
 using namespace std::literals::string_literals;
-using namespace vpkedit::detail;
-using namespace vpkedit;
+using namespace vpkpp;
 
 #define ARG_S(name, short_, long_)                          \
 	constexpr std::string_view ARG_##name##_SHORT = short_; \

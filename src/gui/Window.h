@@ -5,7 +5,7 @@
 
 #include <QDir>
 #include <QMainWindow>
-#include <vpkedit/PackFile.h>
+#include <vpkpp/vpkpp.h>
 
 class QAction;
 class QLabel;
@@ -142,7 +142,7 @@ private:
 	QThread* extractPackFileWorkerThread  = nullptr;
 	QThread* scanSteamGamesWorkerThread   = nullptr;
 
-	std::unique_ptr<vpkedit::PackFile> packFile;
+	std::unique_ptr<vpkpp::PackFile> packFile;
 	bool modified;
 
 	bool dropEnabled;
@@ -159,7 +159,7 @@ private:
 
 	void checkForUpdatesReply(QNetworkReply* reply);
 
-	bool writeEntryToFile(const QString& path, const vpkedit::Entry& entry);
+	bool writeEntryToFile(const QString& path, const vpkpp::Entry& entry);
 
 	void resetStatusBar();
 };

@@ -1,27 +1,15 @@
 [submodule "src/cli/thirdparty/argparse"]
 	path = src/cli/thirdparty/argparse
 	url = https://github.com/p-ranav/argparse
-[submodule "src/gui/thirdparty/sapp"]
-	path = src/gui/thirdparty/sapp
-	url = https://github.com/craftablescience/SteamAppPathProvider
-[submodule "src/gui/thirdparty/speedykeyv"]
-	path = src/gui/thirdparty/speedykeyv
-	url = https://github.com/ozxybox/SpeedyKeyV
-[submodule "src/gui/thirdparty/sourcepp"]
-	path = src/gui/thirdparty/sourcepp
-	url = https://github.com/craftablescience/sourcepp
-[submodule "src/lib/thirdparty/minizip-ng"]
-	path = src/lib/thirdparty/minizip-ng
-	url = https://github.com/zlib-ng/minizip-ng
-[submodule "src/gui/thirdparty/miniaudio"]
-	path = src/gui/thirdparty/miniaudio
-	url = https://github.com/mackron/miniaudio
-[submodule "src/gui/thirdparty/discord"]
-	path = src/gui/thirdparty/discord
-	url = https://github.com/craftablescience/discord-rpc-clean
 [submodule "src/cli/thirdparty/indicators"]
 	path = src/cli/thirdparty/indicators
 	url = https://github.com/p-ranav/indicators
-[submodule "src/lib/thirdparty/cryptopp"]
-	path = src/lib/thirdparty/cryptopp
-	url = https://github.com/abdes/cryptopp-cmake
+[submodule "src/gui/thirdparty/discord"]
+	path = src/gui/thirdparty/discord
+	url = https://github.com/craftablescience/discord-rpc-clean
+[submodule "src/gui/thirdparty/miniaudio"]
+	path = src/gui/thirdparty/miniaudio
+	url = https://github.com/mackron/miniaudio
+[submodule "src/shared/thirdparty/sourcepp"]
+	path = src/shared/thirdparty/sourcepp
+	url = https://github.com/craftablescience/sourcepp

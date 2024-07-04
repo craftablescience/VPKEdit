@@ -9,11 +9,11 @@ class QAction;
 class QLineEdit;
 class QToolButton;
 
-namespace vpkedit {
+namespace vpkpp {
 
 class PackFile;
 
-} // namespace vpkedit
+} // namespace vpkpp
 
 class Window;
 
@@ -74,11 +74,11 @@ public:
 
 	void requestNavigateNext();
 
-	void displayEntry(const QString& path, const vpkedit::PackFile& packFile);
+	void displayEntry(const QString& path, const vpkpp::PackFile& packFile);
 
-	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkedit::PackFile& packFile);
+	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
-	void addEntry(const vpkedit::PackFile& packFile, const QString& path);
+	void addEntry(const vpkpp::PackFile& packFile, const QString& path);
 
 	void removeFile(const QString& path);
 
