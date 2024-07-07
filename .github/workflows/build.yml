@@ -41,7 +41,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION_VPKEDIT}}
+          version: '${{env.QT_VERSION_VPKEDIT}}'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
@@ -54,7 +54,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION_STRATASOURCE}}
+          version: '${{env.QT_VERSION_STRATASOURCE}}'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
@@ -127,29 +127,12 @@ jobs:
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
 
-      - name: Build C Wrapper Library [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
-        run: |
-          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
-          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j%NUMBER_OF_PROCESSORS%
-
-      - name: Upload C Wrapper Library [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: '${{matrix.target}}-Windows-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}'
-          path: |
-            ${{env.BUILD_DIR}}/libvpkeditc.dll
-            ${{github.workspace}}/include/vpkeditc/
-          retention-days: 7
-
       - name: Upload Standalone PDBs [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
           name: '${{matrix.target}}-Windows-PDBs-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
-            ${{env.BUILD_DIR}}/libvpkeditc.pdb
             ${{env.BUILD_DIR}}/vpkeditcli.pdb
             ${{env.BUILD_DIR}}/vpkedit.pdb
           retention-days: 7
@@ -182,7 +165,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION_VPKEDIT}}
+          version: '${{env.QT_VERSION_VPKEDIT}}'
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
@@ -195,7 +178,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           aqtversion: '==3.1.*'
-          version: ${{env.QT_VERSION_STRATASOURCE}}
+          version: '${{env.QT_VERSION_STRATASOURCE}}'
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
@@ -286,22 +269,6 @@ jobs:
           name: '${{matrix.target}}-Linux-Installer-${{matrix.compiler}}-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
-          retention-days: 7
-
-      - name: Build C Wrapper Library [target:VPKEdit]
-        if: ${{matrix.target == 'VPKEdit'}}
-        run: |
-          cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_BUILD_LIBC=ON -DVPKEDIT_BUILD_CLI=OFF -DVPKEDIT_BUILD_GUI=OFF -DVPKEDIT_BUILD_INSTALLER=OFF
-          cmake --build "${{env.BUILD_DIR}}" --config ${{matrix.build_type}} -t libvpkeditc -- -j$(nproc)
-
-      - name: Upload C Wrapper Library [compiler:gcc][target:VPKEdit]
-        if: ${{matrix.compiler == 'gcc' && matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
-        with:
-          name: '${{matrix.target}}-Linux-C-Wrapper-Library-${{matrix.compiler}}-${{matrix.build_type}}'
-          path: |
-            ${{env.BUILD_DIR}}/libvpkeditc.so*
-            ${{github.workspace}}/include/vpkeditc/
           retention-days: 7
 
   deploy:

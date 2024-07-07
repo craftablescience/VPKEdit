@@ -131,7 +131,7 @@ target_link_libraries(
 
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/config"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/include"
         "${CMAKE_CURRENT_LIST_DIR}/thirdparty/miniaudio"
         "${QT_INCLUDE}"
         "${QT_INCLUDE}/QtCore"

@@ -45,7 +45,7 @@ QString attributeToQString(Attribute attribute) {
 			return QObject::tr("CRC32");
 		case PCK_MD5:
 			return QObject::tr("MD5");
-		case VPK_ARCHIVE_INDEX:
+		case ARCHIVE_INDEX:
 			return QObject::tr("Archive Index");
 		case VPK_PRELOADED_DATA_LENGTH:
 			return QObject::tr("Preloaded Size");
@@ -365,10 +365,9 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::VPK_PRELOADED_DATA_LENGTH, preloadedSizeItem);
 
 	// ARCHIVE INDEX
-	auto archiveIndex = entry->vpk_archiveIndex;
+	auto archiveIndex = entry->archiveIndex;
 	// If the archive index is the dir index, it's included in the directory VPK
-	auto* archiveIndexItem = new QTableWidgetItem(
-			archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
+	auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
 	this->setItem(this->rowCount() - 1, Column::VPK_ARCHIVE_INDEX, archiveIndexItem);
 
 	// CRC32

@@ -1,7 +1,7 @@
 # Configure version header
 configure_file(
-        "${CMAKE_CURRENT_LIST_DIR}/config/Version.h.in"
-        "${CMAKE_CURRENT_LIST_DIR}/config/Version.h")
+        "${CMAKE_CURRENT_LIST_DIR}/include/Version.h.in"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Version.h")
 
 
 # sourcepp

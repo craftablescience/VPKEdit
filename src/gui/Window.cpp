@@ -862,7 +862,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 
 		// Add new file with the same info and data at the new path
 		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
-			.vpk_saveToDirectory = entry->vpk_archiveIndex == VPK_DIR_INDEX,
+			.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 			.vpk_preloadBytes = static_cast<unsigned int>(entry->vpk_preloadedData.size()),
 		});
 		this->entryTree->addEntry(newEntryPath);

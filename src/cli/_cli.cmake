@@ -21,4 +21,4 @@ target_link_libraries(
 
 target_include_directories(
         ${PROJECT_NAME}cli PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/config")
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/include")
