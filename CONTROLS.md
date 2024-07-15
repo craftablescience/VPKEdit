@@ -79,16 +79,18 @@ Notes on mouse controls:
 | `Shift + Delete`     | Remove Selected File/Folder Without Confirmation |
 
 #### Image Preview
-| Key Combination | Action   |
-|-----------------|----------|
-| `MWheelUp`      | Zoom In  |
-| `MWheelDown`    | Zoom Out |
+| Key Combination | Action            |
+|-----------------|-------------------|
+| `RMB`           | Show Context Menu |
+| `MWheelUp`      | Zoom In           |
+| `MWheelDown`    | Zoom Out          |
 
 #### VTF Preview
-| Key Combination | Action   |
-|-----------------|----------|
-| `MWheelUp`      | Zoom In  |
-| `MWheelDown`    | Zoom Out |
+| Key Combination | Action            |
+|-----------------|-------------------|
+| `RMB`           | Show Context Menu |
+| `MWheelUp`      | Zoom In           |
+| `MWheelDown`    | Zoom Out          |
 
 #### MDL Preview
 | Key Combination                              | Action                               |
