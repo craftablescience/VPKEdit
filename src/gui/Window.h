@@ -79,8 +79,6 @@ public:
 
 	void selectSubItemInDir(const QString& path) const;
 
-	void extractVirtualFile(const QString& name, QString savePath = QString());
-
 	void extractFile(const QString& path, QString savePath = QString());
 
 	void extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath = QString());

@@ -965,46 +965,6 @@ void Window::selectSubItemInDir(const QString& path) const {
 	this->entryTree->selectSubItem(path);
 }
 
-void Window::extractVirtualFile(const QString& name, QString savePath) {
-	std::optional<std::vector<std::byte>> data = std::nullopt;
-	for (const auto& virtualEntry : this->packFile->getVirtualEntries()) {
-		if (virtualEntry.name == name.toLocal8Bit().constData()) {
-			data = this->packFile->readVirtualEntry(virtualEntry);
-			break;
-		}
-	}
-    if (!data) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to read data for virtual file named \"%1\".").arg(name));
-        return;
-    }
-
-    if (savePath.isEmpty()) {
-        QString filter;
-        if (auto index = name.lastIndexOf('.'); index >= 0) {
-            auto fileExt = name.sliced(index); // ".ext"
-            auto fileExtPretty = fileExt.toUpper();
-            fileExtPretty.remove('.');
-
-            filter = fileExtPretty + " (*" + fileExt + ");;All files (*.*)";
-        }
-        savePath = QFileDialog::getSaveFileName(this, tr("Extract as..."), name, filter);
-    }
-    if (savePath.isEmpty()) {
-        return;
-    }
-
-    QFile file(savePath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(savePath));
-        return;
-    }
-    auto bytesWritten = file.write(reinterpret_cast<const char*>(data->data()), static_cast<std::streamsize>(data->size()));
-    if (bytesWritten != data->size()) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to write to file at \"%1\".").arg(savePath));
-    }
-    file.close();
-}
-
 void Window::extractFile(const QString& path, QString savePath) {
 	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
 	if (!entry) {
