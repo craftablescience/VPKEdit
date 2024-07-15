@@ -28,15 +28,17 @@ SeekBar::SeekBar(QWidget* parent)
 	QObject::connect(this, &QProgressBar::valueChanged, this, [this](int value) {
 		QString formatter;
 		if (AudioPlayer::getLengthInSeconds() >= 60 * 60 * 24) {
-			formatter = "dd:hh:mm:ss";
+			formatter = "dd:hh:mm:ss.zzz";
 		} else if (AudioPlayer::getLengthInSeconds() >= 60 * 60) {
-			formatter = "hh:mm:ss";
+			formatter = "hh:mm:ss.zzz";
+		} else if (AudioPlayer::getLengthInSeconds() >= 60) {
+			formatter = "mm:ss.zzz";
 		} else {
-			formatter = "mm:ss";
+			formatter = "ss.zzz";
 		}
 		auto text = QString("%1 / %2").arg(
-				QTime(0,0).addSecs(static_cast<int>(AudioPlayer::getPositionInSeconds())).toString(formatter),
-				QTime(0,0).addSecs(static_cast<int>(AudioPlayer::getLengthInSeconds())).toString(formatter));
+				QTime(0,0).addMSecs(static_cast<int>(AudioPlayer::getPositionInSeconds() * 1000)).toString(formatter),
+				QTime(0,0).addMSecs(static_cast<int>(AudioPlayer::getLengthInSeconds() * 1000)).toString(formatter));
 		this->label->setText(text);
 	});
 	layout->addWidget(this->label);
