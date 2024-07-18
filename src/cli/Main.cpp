@@ -307,7 +307,7 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has six modes:\n"
+	cli.add_description("This program currently has seven modes:\n"
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
