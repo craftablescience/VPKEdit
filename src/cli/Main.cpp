@@ -143,7 +143,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		if (!std::filesystem::exists(args[0])) {
 			std::cerr << "File at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
 		} else {
-			packFile->addEntry(args[0], args[1], {});
+			packFile->addEntry(args[1], args[0], {});
 			packFile->bake("", nullptr);
 			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
 		}
