@@ -10,9 +10,9 @@ VerifyChecksumsDialog::VerifyChecksumsDialog(PackFile& packFile, QWidget* parent
 	this->setWindowTitle(tr("Verify Checksums"));
 
 	QString text;
-	if (!packFile.hasFileChecksum()) {
+	if (!packFile.hasPackFileChecksum()) {
 		text = tr("No overall file checksum present, moving on...");
-	} else if (packFile.verifyFileChecksum()) {
+	} else if (packFile.verifyPackFileChecksum()) {
 		text = u8"✅ " + tr("Overall file checksum matches the expected value.");
 	} else {
 		text = u8"❌ " + tr("Overall file checksum does not match the expected value!");
