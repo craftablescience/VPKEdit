@@ -22,6 +22,8 @@ ARG_L(NO_PROGRESS,            "--no-progress");
 ARG_S(VERSION,          "-v", "--version");
 ARG_S(CHUNKSIZE,        "-c", "--chunksize");
 ARG_L(GEN_MD5_ENTRIES,        "--gen-md5-entries");
+ARG_L(ADD_FILE,               "--add-file");
+ARG_L(REMOVE_FILE,            "--remove-file");
 ARG_S(PRELOAD,          "-p", "--preload");
 ARG_S(SINGLE_FILE,      "-s", "--single-file");
 ARG_S(EXTRACT,          "-e", "--extract");
@@ -74,7 +76,7 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 			std::cerr << "Output location must be an existing directory!" << std::endl;
 			return;
 		}
-		if (!packFile->extractDir(extractPath, outputPath)) {
+		if (!packFile->extractDirectory(extractPath, outputPath)) {
 			std::cerr
 					<< "Some or all files were unable to be extracted to \"" << outputPath << "\"!\n"
 					<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
@@ -118,6 +120,47 @@ void fileTree(const std::string& inputPath) {
 	}
 }
 
+/// Generate private/public key files
+void generateKeyPair(const std::string& inputPath) {
+	if (!VPK::generateKeyPairFiles(inputPath)) {
+		std::cerr << "Failed to generate public/private key files at \"" << inputPath << ".[private/public]key.vdf\"!" << std::endl;
+		return;
+	}
+	std::cout << "Generated private/public key files at \"" << inputPath << ".[private/public]key.vdf\"." << std::endl;
+	std::cout << "Remember to NEVER share a private key! The public key is fine to share." << std::endl;
+}
+
+/// Edit the contents of an existing pack file
+void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto packFile = PackFile::open(inputPath);
+	if (!packFile) {
+		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		return;
+	}
+
+	if (cli.is_used(ARG_L(ADD_FILE))) {
+		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
+		if (!std::filesystem::exists(args[0])) {
+			std::cerr << "File at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
+		} else {
+			packFile->addEntry(args[0], args[1], {});
+			packFile->bake("", nullptr);
+			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
+		}
+	}
+
+	if (cli.is_used(ARG_L(REMOVE_FILE))) {
+		auto path = cli.get(ARG_L(REMOVE_FILE));
+		if (!packFile->removeEntry(path)) {
+			std::cerr << "Unable to remove file at \"" << path << "\" from the pack file!\n" <<
+					"Check the file exists in the pack file and the path is spelled correctly." << std::endl;
+		} else {
+			packFile->bake("", nullptr);
+			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
+		}
+	}
+}
+
 /// Sign an existing VPK
 void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
@@ -147,9 +190,9 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 	if (cli.is_used(ARG_L(VERIFY_CHECKSUMS))) {
 		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "overall") {
-			if (!packFile->hasFileChecksum()) {
+			if (!packFile->hasPackFileChecksum()) {
 				std::cout << "This pack file has no overall checksum(s)." << std::endl;
-			} else if (packFile->verifyFileChecksum()) {
+			} else if (packFile->verifyPackFileChecksum()) {
 				std::cout << "Overall pack file checksums match their expected values." << std::endl;
 			} else {
 				std::cerr << "One or more of the pack file overall checksums do not match the expected value(s)!" << std::endl;
@@ -171,9 +214,9 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
-		if (!packFile->hasFileSignature()) {
+		if (!packFile->hasPackFileSignature()) {
 			std::cout << "Pack file does not have a signature." << std::endl;
-		} else if (packFile->verifyFileSignature()) {
+		} else if (packFile->verifyPackFileSignature()) {
 			std::cout << "Pack file signature is valid." << std::endl;
 		} else {
 			std::cerr << "Pack file signature is invalid!" << std::endl;
@@ -253,16 +296,6 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
 }
 
-/// Generate private/public key files
-void generateKeyPair(const std::string& inputPath) {
-	if (!VPK::generateKeyPairFiles(inputPath)) {
-		std::cerr << "Failed to generate public/private key files at \"" << inputPath << ".[private/public]key.vdf\"!" << std::endl;
-		return;
-	}
-	std::cout << "Generated private/public key files at \"" << inputPath << ".[private/public]key.vdf\"." << std::endl;
-	std::cout << "Remember to NEVER share a private key! The public key is fine to share." << std::endl;
-}
-
 } // namespace
 
 int main(int argc, const char* const* argv) {
@@ -278,6 +311,7 @@ int main(int argc, const char* const* argv) {
 	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
 	                    " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
+	                    " - Modify:   Edits the contents of the given pack file.\n"
 	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
 	                    "             with Pack mode to print the file tree of the new VPK.\n"
 	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
@@ -291,6 +325,7 @@ int main(int argc, const char* const* argv) {
 		.help("(Pack)     The directory to pack into a VPK.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
+		      "(Modify)   The path to the pack file to edit the contents of.\n"
 		      "(Preview)  The path to the pack file to print the file tree of.\n"
 		      "(Sign)     The path to the VPK to sign.\n"
 		      "(Verify)   The path to the pack file to verify the contents of.")
@@ -317,6 +352,14 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_L(GEN_MD5_ENTRIES))
 		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
 		.flag();
+
+	cli.add_argument(ARG_L(ADD_FILE))
+		.help("(Modify) Add the specified file to the pack file with the given path.")
+		.nargs(2);
+
+	cli.add_argument(ARG_L(REMOVE_FILE))
+		.help("(Modify) Remove the specified file at the given path from the pack file.")
+		.nargs(1);
 
 	cli.add_argument(ARG_P(PRELOAD))
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
@@ -400,6 +443,10 @@ int main(int argc, const char* const* argv) {
 				if (cli.is_used(ARG_L(FILE_TREE))) {
 					foundAction = true;
 					::fileTree(inputPath);
+				}
+				if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(REMOVE_FILE))) {
+					foundAction = true;
+					::edit(cli, inputPath);
 				}
 				if (cli.is_used(ARG_S(SIGN))) {
 					foundAction = true;
