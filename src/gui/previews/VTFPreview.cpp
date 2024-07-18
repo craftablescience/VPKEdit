@@ -158,7 +158,7 @@ int VTFWidget::getMaxSlice() const {
 }
 
 bool VTFWidget::hasAlpha() const {
-	return ImageFormatDetails::alpha(this->vtf->getFormat()) > 0;
+	return ImageFormatDetails::transparent(this->vtf->getFormat());
 }
 
 bool VTFWidget::getAlphaEnabled() const {
