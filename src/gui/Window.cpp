@@ -60,7 +60,6 @@ Window::Window(QWidget* parent)
 		, dropEnabled(true) {
 	this->setWindowTitle(PROJECT_TITLE.data());
 	this->setWindowIcon(QIcon(":/logo.png"));
-	this->setMinimumSize(900, 500);
 
 	const auto showRestartWarning = [this] {
 		static bool shownRestartMessage = false;

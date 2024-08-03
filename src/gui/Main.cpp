@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
 
 	auto* window = new Window();
 	if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
+		window->resize(900, 500);
 		window->show();
 	} else {
 		window->showMaximized();
