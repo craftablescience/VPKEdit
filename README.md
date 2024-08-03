@@ -69,7 +69,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 
-A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface. Currently it can only create VPK files.
+A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface.
 
 ## Planned Features
 
