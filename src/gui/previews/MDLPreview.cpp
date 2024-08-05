@@ -19,7 +19,7 @@
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QtMath>
-#include <sourcepp/string/String.h>
+#include <sourcepp/String.h>
 #include <vpkpp/vpkpp.h>
 #include <vtfpp/vtfpp.h>
 
@@ -127,28 +127,30 @@ MDLWidget::~MDLWidget() {
 	}
 }
 
-void MDLWidget::setVertices(const QList<MDLVertex>& vertices_) {
+void MDLWidget::setModel(const BakedModel& model) {
+	// Set vertex data
 	if (this->vertices.isCreated()) {
 		this->vertices.destroy();
 	}
-	this->vertexCount = static_cast<int>(vertices_.size());
+	this->vertexCount = static_cast<int>(model.vertices.size());
 	this->vertices.create();
 	this->vertices.bind();
 	this->vertices.setUsagePattern(QOpenGLBuffer::StaticDraw);
-	this->vertices.allocate(vertices_.constData(), static_cast<int>(this->vertexCount * sizeof(MDLVertex)));
+	this->vertices.allocate(model.vertices.data(), static_cast<int>(this->vertexCount * sizeof(BakedModel::Vertex)));
 	this->vertices.release();
-}
 
-void MDLWidget::addSubMesh(const QList<unsigned short>& indices, int textureIndex) {
-	auto& mesh = this->meshes.emplace_back();
+	// Add meshes
+	for (const auto& bakedMesh : model.meshes) {
+		auto& mesh = this->meshes.emplace_back();
 
-	mesh.textureIndex = textureIndex;
+		mesh.textureIndex = bakedMesh.materialIndex;
 
-	mesh.indexCount = static_cast<int>(indices.size());
-	mesh.ebo.create();
-	mesh.ebo.bind();
-	mesh.ebo.allocate(indices.constData(), static_cast<int>(mesh.indexCount * sizeof(unsigned short)));
-	mesh.ebo.release();
+		mesh.indexCount = static_cast<int>(bakedMesh.indices.size());
+		mesh.ebo.create();
+		mesh.ebo.bind();
+		mesh.ebo.allocate(bakedMesh.indices.data(), static_cast<int>(mesh.indexCount * sizeof(uint16_t)));
+		mesh.ebo.release();
+	}
 }
 
 void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& vtfData) {
@@ -348,17 +350,17 @@ void MDLWidget::paintGL() {
 		int offset = 0;
 		int vertexPosLocation = currentShaderProgram->attributeLocation("vPos");
 		currentShaderProgram->enableAttributeArray(vertexPosLocation);
-		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
+		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(BakedModel::Vertex));
+		offset += sizeof(math::Vec3f);
 
-		offset += sizeof(QVector3D);
 		int vertexNormalLocation = currentShaderProgram->attributeLocation("vNormal");
 		currentShaderProgram->enableAttributeArray(vertexNormalLocation);
-		currentShaderProgram->setAttributeBuffer(vertexNormalLocation, GL_FLOAT, offset, 3, sizeof(MDLVertex));
+		currentShaderProgram->setAttributeBuffer(vertexNormalLocation, GL_FLOAT, offset, 3, sizeof(BakedModel::Vertex));
+		offset += sizeof(math::Vec3f);
 
-		offset += sizeof(QVector3D);
 		int vertexUVLocation = currentShaderProgram->attributeLocation("vUV");
 		currentShaderProgram->enableAttributeArray(vertexUVLocation);
-		currentShaderProgram->setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(MDLVertex));
+		currentShaderProgram->setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(BakedModel::Vertex));
 
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
@@ -602,35 +604,9 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		return;
 	}
 
-	// Maybe we can add a setting for this...
-	constexpr int currentLOD = ROOT_LOD;
-
-	// According to my limited research, vertices stay constant (ignoring LOD fixups) but indices vary with LOD level
-	// For our purposes we're also going to split the model up by material, don't know how Valve renders models
-	QList<MDLVertex> vertices;
-	const auto convertVertexFormat = [](const VVD::Vertex& vertex) -> MDLVertex {
-		return {
-			QVector3D(vertex.position.x, vertex.position.y, vertex.position.z),
-			QVector3D(vertex.normal.x, vertex.normal.y, vertex.normal.z),
-			QVector2D(vertex.uv.x, vertex.uv.y),
-		};
-	};
-	if (mdlParser.vvd.fixups.empty()) {
-		for (const auto& vertex : mdlParser.vvd.vertices) {
-			vertices.push_back(convertVertexFormat(vertex));
-		}
-	} else {
-		for (const auto& fixup : mdlParser.vvd.fixups) {
-			if (fixup.LOD < currentLOD) {
-				continue;
-			}
-			std::span<VVD::Vertex> fixupVertices{mdlParser.vvd.vertices.begin() + fixup.sourceVertexID, static_cast<std::span<VVD::Vertex>::size_type>(fixup.vertexCount)};
-			for (const auto& vertex : fixupVertices) {
-				vertices.push_back(convertVertexFormat(vertex));
-			}
-		}
-	}
-	this->mdl->setVertices(vertices);
+	// Maybe we can add a setting for LOD...
+	auto bakedModel = mdlParser.processModelData(ROOT_LOD);
+	this->mdl->setModel(bakedModel);
 
 	this->skinSpinBox->setValue(0);
 	this->skinSpinBox->setMaximum(std::max(static_cast<int>(mdlParser.mdl.skins.size()) - 1, 0));
@@ -638,10 +614,11 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	this->mdl->setSkinLookupTable(mdlParser.mdl.skins);
 
 	this->mdl->setAABB({
-		{mdlParser.mdl.hullMin.x, mdlParser.mdl.hullMin.y, mdlParser.mdl.hullMin.z},
-		{mdlParser.mdl.hullMax.x, mdlParser.mdl.hullMax.y, mdlParser.mdl.hullMax.z},
+		{mdlParser.mdl.hullMin[0], mdlParser.mdl.hullMin[1], mdlParser.mdl.hullMin[2]},
+		{mdlParser.mdl.hullMax[0], mdlParser.mdl.hullMax[1], mdlParser.mdl.hullMax[2]},
 	});
 
+	// Add material directories and names to the material names panel
 	this->allMaterialsTab->clear();
 	auto* allMaterialDirsItem = new QTreeWidgetItem(this->allMaterialsTab);
 	allMaterialDirsItem->setText(0, tr("Folders"));
@@ -660,9 +637,10 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 	}
 	allMaterialNamesItem->setExpanded(true);
 
+	// Add the materials that actually exist to the found materials panel
 	this->materialsTab->clear();
-	QList<int> missingMaterialIndexes;
 	std::vector<std::unique_ptr<MDLTextureData>> vtfs;
+	bool foundAnyMaterials = false;
 	for (int materialIndex = 0; materialIndex < mdlParser.mdl.materials.size(); materialIndex++) {
 		bool foundMaterial = false;
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
@@ -681,63 +659,12 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		}
 		if (!foundMaterial) {
 			vtfs.emplace_back(nullptr);
-			missingMaterialIndexes.push_back(materialIndex);
 		}
+		foundAnyMaterials = foundAnyMaterials || foundMaterial;
 	}
 	this->mdl->setTextures(vtfs);
 
-	bool hasAMaterial = false;
-
-	for (int bodyPartIndex = 0; bodyPartIndex < mdlParser.mdl.bodyParts.size(); bodyPartIndex++) {
-		auto& mdlBodyPart = mdlParser.mdl.bodyParts.at(bodyPartIndex);
-		auto& vtxBodyPart = mdlParser.vtx.bodyParts.at(bodyPartIndex);
-
-		for (int modelIndex = 0; modelIndex < mdlBodyPart.models.size(); modelIndex++) {
-			auto& mdlModel = mdlBodyPart.models.at(modelIndex);
-			auto& vtxModel = vtxBodyPart.models.at(modelIndex);
-
-			if (mdlModel.verticesCount == 0) {
-				continue;
-			}
-
-			for (int meshIndex = 0; meshIndex < mdlModel.meshes.size(); meshIndex++) {
-				auto& mdlMesh = mdlModel.meshes.at(meshIndex);
-				auto& vtxMesh = vtxModel.modelLODs.at(currentLOD).meshes.at(meshIndex);
-
-				QList<unsigned short> indices;
-
-				for (const auto& stripGroup : vtxMesh.stripGroups) {
-					for (const auto& strip : stripGroup.strips) {
-						const auto addIndex = [&indices, &mdlMesh, &mdlModel, &stripGroup](int index) {
-							indices.push_back(stripGroup.vertices.at(index).meshVertexID + mdlMesh.verticesOffset + mdlModel.verticesOffset);
-						};
-
-						// Remember to flip the winding order
-						if (strip.flags & VTX::Strip::FLAG_IS_TRILIST) {
-							for (int i = 0; i < strip.indices.size(); i += 3) {
-								addIndex(strip.indices[ i ]);
-								addIndex(strip.indices[i+2]);
-								addIndex(strip.indices[i+1]);
-							}
-						} else {
-							for (auto i = strip.indices.size(); i >= 2; i -= 3) {
-								addIndex(strip.indices[ i ]);
-								addIndex(strip.indices[i-2]);
-								addIndex(strip.indices[i-1]);
-							}
-						}
-					}
-				}
-
-				this->mdl->addSubMesh(indices, mdlMesh.material);
-				if (mdlMesh.material < vtfs.size() && !missingMaterialIndexes.contains(mdlMesh.material)) {
-					hasAMaterial = true;
-				}
-			}
-		}
-	}
-
-	if (hasAMaterial) {
+	if (foundAnyMaterials) {
 		this->setShadingMode(MDLShadingMode::SHADED_TEXTURED);
 	} else {
 		this->setShadingMode(MDLShadingMode::SHADED_UNTEXTURED);

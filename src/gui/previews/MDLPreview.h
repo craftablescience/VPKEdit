@@ -12,6 +12,12 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 
+namespace mdlpp {
+
+struct BakedModel;
+
+} // namespace mdlpp
+
 namespace vpkpp {
 
 class PackFile;
@@ -29,19 +35,6 @@ class QTreeWidget;
 
 class FileViewer;
 class Window;
-
-#pragma pack(push, 1)
-struct MDLVertex {
-	MDLVertex(QVector3D pos_, QVector3D normal_, QVector2D uv_)
-			: pos(pos_)
-			, normal(normal_)
-			, uv(uv_) {}
-
-	QVector3D pos;
-	QVector3D normal;
-	QVector2D uv;
-};
-#pragma pack(pop)
 
 struct AABB {
 	[[nodiscard]] QList<QVector3D> getCorners() const;
@@ -83,9 +76,7 @@ public:
 
 	~MDLWidget() override;
 
-	void setVertices(const QList<MDLVertex>& vertices_);
-
-	void addSubMesh(const QList<unsigned short>& indices, int textureIndex);
+	void setModel(const mdlpp::BakedModel& model);
 
 	void setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& vtfData);
 
