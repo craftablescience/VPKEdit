@@ -69,7 +69,7 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 
 	VTF vtf{*textureFile};
 	return std::make_unique<MDLTextureData>(
-			vtf.getImageDataAsRGBA8888(),
+			vtf.getImageDataAs(ImageFormat::RGB888),
 			vtf.getWidth(),
 			vtf.getHeight()
 	);
@@ -162,7 +162,7 @@ void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& 
 		}
 		auto* texture = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
 		texture->create();
-		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.data()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), QImage::Format_RGBA8888));
+		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.data()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), QImage::Format_RGB888));
 		this->textures.push_back(texture);
 	}
 }

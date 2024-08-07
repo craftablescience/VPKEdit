@@ -8,3 +8,6 @@ CMakeSettings.json
 build/
 cmake-build-*/
 out/
+
+# Generated
+**/generated/
