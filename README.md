@@ -40,6 +40,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | GRP    | Game Resource Package (Build Engine)        |   ❌    |  ✅   |   ✅   |
   | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ❌    |  ✅   |   ✅   |
   | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ✅   |
+  | VPK    | Vampire PacK file (V:TMB)                   |   ❌    |  ✅   |   ✅   |
   | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
   | ZIP    | ZIP file (Uncompressed)                     |   ❌    |  ✅   |   ✅   |
 
@@ -56,16 +57,15 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 - Switch version of existing VPKs
 - Native Linux compatibility
 - User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):
-
-  ![Bosnian](https://img.shields.io/poeditor/progress/683443/bs?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Chinese (simplified)](https://img.shields.io/poeditor/progress/683443/zh-Hans?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Dutch](https://img.shields.io/poeditor/progress/683443/nl?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Italian](https://img.shields.io/poeditor/progress/683443/it?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Japanese](https://img.shields.io/poeditor/progress/683443/ja?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Polish](https://img.shields.io/poeditor/progress/683443/pl?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Russian](https://img.shields.io/poeditor/progress/683443/ru?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Spanish](https://img.shields.io/poeditor/progress/683443/es?token=bd5e1015742373e9f14f1a98d76c1386)
-  ![Swedish](https://img.shields.io/poeditor/progress/683443/sv?token=bd5e1015742373e9f14f1a98d76c1386)
+  - Bosnian
+  - Chinese (simplified)
+  - Dutch
+  - Italian
+  - Japanese
+  - Polish
+  - Russian
+  - Spanish
+  - Swedish
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 
