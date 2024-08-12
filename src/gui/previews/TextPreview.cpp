@@ -1,6 +1,7 @@
 #include "TextPreview.h"
 
 #include <QPainter>
+#include <QScrollBar>
 #include <QStyleOption>
 #include <QTextBlock>
 #include <QToolBar>
@@ -184,7 +185,7 @@ TextPreview::TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* pare
 	layout->setContentsMargins(0,0,0,0);
 
 	this->toolbar = new QToolBar(this);
-	this->toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	this->toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	auto* spacer = new QWidget(this->toolbar);
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	this->toolbar->addWidget(spacer);
@@ -200,12 +201,7 @@ TextPreview::TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* pare
 	this->saveAction = this->toolbar->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"));
 	QObject::connect(this->saveAction, &QAction::triggered, this, [this] {
 		this->setEditing(false);
-
-		auto path = this->fileViewer->getNavBar()->path();
-		this->window->editFileContents(path, this->editor->toPlainText());
-
-		// hack: reselect the entry to reload its contents
-		this->window->selectEntryInEntryTree(path);
+		this->window->editFileContents(this->fileViewer->getNavBar()->path(), this->editor->toPlainText());
 	});
 
 	this->cancelAction = this->toolbar->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Cancel"));
@@ -240,5 +236,9 @@ void TextPreview::setEditing(bool editing) const {
 
 void TextPreview::resizeEvent(QResizeEvent* event) {
 	QWidget::resizeEvent(event);
-	this->toolbar->setFixedWidth(this->width());
+	auto width = this->width();
+	if (auto* scrollbar = this->editor->verticalScrollBar()) {
+		width -= scrollbar->sizeHint().width();
+	}
+	this->toolbar->setFixedSize(width, 64);
 }
