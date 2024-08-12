@@ -49,6 +49,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Text files (any encoding)
   - KeyValues files (text files with syntax highlighting)
   - Images
+  - Source 1 DMX files
   - Source 1 Textures
   - Source 1 Models
 - Create VPKs of any version from scratch or an existing folder
