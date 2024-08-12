@@ -26,6 +26,8 @@ public:
 
 	explicit NavBar(Window* window_, QWidget* parent = nullptr);
 
+	[[nodiscard]] QString path() const;
+
 	void setPath(const QString& newPath);
 
 	void navigateBack();
@@ -118,9 +120,12 @@ public:
 		this->previews.at(std::type_index(typeid(T)))->hide();
 	}
 
+	[[nodiscard]] NavBar* getNavBar() {
+		return this->navbar;
+	}
+
 private:
 	Window* window;
-
 	NavBar* navbar;
 
 	std::unordered_map<std::type_index, QWidget*> previews;

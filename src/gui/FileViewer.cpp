@@ -89,6 +89,10 @@ NavBar::NavBar(Window* window_, QWidget* parent)
 	QObject::connect(this->window, &Window::themeUpdated, this, &NavBar::resetButtonIcons, Qt::QueuedConnection);
 }
 
+QString NavBar::path() const {
+	return this->currentPath->text();
+}
+
 void NavBar::setPath(const QString& newPath) {
 	this->currentPath->setText(newPath);
 	this->processPathChanged(newPath, true, false);
@@ -222,7 +226,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* mdlPreview = newPreview<MDLPreview>(this, this->window, this);
 	layout->addWidget(mdlPreview);
 
-	auto* textPreview = newPreview<TextPreview>(this);
+	auto* textPreview = newPreview<TextPreview>(this, this->window, this);
 	layout->addWidget(textPreview);
 
 	auto* texturePreview = newPreview<TexturePreview>(this);

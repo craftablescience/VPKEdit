@@ -815,6 +815,35 @@ void Window::editFile(const QString& oldPath) {
 	this->markModified(true);
 }
 
+void Window::editFileContents(const QString& path, std::vector<std::byte> data) {
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
+	if (!entry) {
+		return;
+	}
+
+	this->packFile->removeEntry(path.toLocal8Bit().constData());
+	this->packFile->addEntry(path.toLocal8Bit().constData(), std::move(data), {
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+	});
+	this->markModified(true);
+}
+
+void Window::editFileContents(const QString& path, const QString& data) {
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
+	if (!entry) {
+		return;
+	}
+	auto byteData = data.toLocal8Bit();
+
+	this->packFile->removeEntry(path.toLocal8Bit().constData());
+	this->packFile->addEntry(path.toLocal8Bit().constData(), {reinterpret_cast<std::byte*>(byteData.data()), reinterpret_cast<std::byte*>(byteData.data()) + byteData.size()}, {
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+	});
+	this->markModified(true);
+}
+
 void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	// Get new path
 	QString newPath = newPath_;
@@ -1134,6 +1163,37 @@ bool Window::clearContents() {
 	return true;
 }
 
+void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeFileViewer) const {
+	this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
+	this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
+	this->openAction->setDisabled(freeze && freezeCreationActions);
+	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
+	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
+	this->saveAction->setDisabled(freeze || !this->modified);
+	this->saveAsAction->setDisabled(freeze);
+	this->closeFileAction->setDisabled(freeze);
+	this->extractAllAction->setDisabled(freeze);
+	this->addFileAction->setDisabled(freeze);
+	this->addDirAction->setDisabled(freeze);
+	this->setPropertiesAction->setDisabled(freeze);
+	this->toolsGeneralMenu->setDisabled(freeze);
+	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::VPK));
+
+	this->searchBar->setDisabled(freeze);
+	this->entryTree->setDisabled(freeze);
+	this->fileViewer->setDisabled(freeze && freezeFileViewer);
+}
+
+void Window::freezeModifyActions(bool readOnly) const {
+	if (readOnly) {
+		this->saveAction->setDisabled(readOnly);
+		this->saveAsAction->setDisabled(readOnly);
+		this->addFileAction->setDisabled(readOnly);
+		this->addDirAction->setDisabled(readOnly);
+		this->setPropertiesAction->setDisabled(readOnly);
+	}
+}
+
 void Window::mousePressEvent(QMouseEvent* event) {
 	if (event->button() == Qt::BackButton) {
 		this->fileViewer->requestNavigateBack();
@@ -1174,37 +1234,6 @@ void Window::closeEvent(QCloseEvent* event) {
 		return;
 	}
 	event->accept();
-}
-
-void Window::freezeActions(bool freeze, bool freezeCreationActions) const {
-	this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
-	this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
-	this->openAction->setDisabled(freeze && freezeCreationActions);
-	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
-	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
-	this->saveAction->setDisabled(freeze || !this->modified);
-	this->saveAsAction->setDisabled(freeze);
-	this->closeFileAction->setDisabled(freeze);
-	this->extractAllAction->setDisabled(freeze);
-	this->addFileAction->setDisabled(freeze);
-	this->addDirAction->setDisabled(freeze);
-	this->setPropertiesAction->setDisabled(freeze);
-	this->toolsGeneralMenu->setDisabled(freeze);
-	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::VPK));
-
-	this->searchBar->setDisabled(freeze);
-	this->entryTree->setDisabled(freeze);
-	this->fileViewer->setDisabled(freeze);
-}
-
-void Window::freezeModifyActions(bool readOnly) const {
-	if (readOnly) {
-		this->saveAction->setDisabled(readOnly);
-		this->saveAsAction->setDisabled(readOnly);
-		this->addFileAction->setDisabled(readOnly);
-		this->addDirAction->setDisabled(readOnly);
-		this->setPropertiesAction->setDisabled(readOnly);
-	}
 }
 
 bool Window::loadPackFile(const QString& path) {

@@ -57,6 +57,10 @@ public:
 
 	void editFile(const QString& oldPath);
 
+	void editFileContents(const QString& path, std::vector<std::byte> data);
+
+	void editFileContents(const QString& path, const QString& data);
+
 	void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
 	void about();
@@ -98,6 +102,10 @@ public:
 	[[nodiscard]] bool promptUserToKeepModifications();
 
 	[[nodiscard]] bool clearContents();
+
+	void freezeActions(bool freeze, bool freezeCreationActions = true, bool freezeFileViewer = true) const;
+
+	void freezeModifyActions(bool readOnly) const;
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -144,10 +152,6 @@ private:
 	bool modified;
 
 	bool dropEnabled;
-
-	void freezeActions(bool freeze, bool freezeCreationActions = true) const;
-
-	void freezeModifyActions(bool readOnly) const;
 
 	bool loadPackFile(const QString& path);
 

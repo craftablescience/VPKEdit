@@ -3,19 +3,24 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <QTextBlock>
+#include <QToolBar>
+#include <QVBoxLayout>
+
+#include "../FileViewer.h"
+#include "../Window.h"
 
 constexpr int LINE_NUMBER_AREA_TEXT_MARGIN = 4;
 
-LineNumberArea::LineNumberArea(TextPreview* textPreview, QWidget* parent)
+LineNumberArea::LineNumberArea(TextEditor* textEditor, QWidget* parent)
 		: QWidget(parent)
-		, preview(textPreview) {}
+		, editor(textEditor) {}
 
 QSize LineNumberArea::sizeHint() const {
-	return {this->preview->getLineNumberAreaWidth(), 0};
+	return {this->editor->getLineNumberAreaWidth(), 0};
 }
 
 void LineNumberArea::paintEvent(QPaintEvent* event) {
-	this->preview->onLineNumberAreaPaintEvent(event);
+	this->editor->onLineNumberAreaPaintEvent(event);
 }
 
 KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
@@ -57,16 +62,14 @@ void KeyValuesHighlighter::highlightBlock(const QString& text) {
 	}
 }
 
-TextPreview::TextPreview(QWidget* parent)
+TextEditor::TextEditor(QWidget* parent)
 		: QPlainTextEdit(parent)
 		, keyValuesHighlighter(nullptr) {
-	this->setReadOnly(true);
-
 	this->lineNumberArea = new LineNumberArea(this, this);
 
-	QObject::connect(this, &TextPreview::blockCountChanged, this, &TextPreview::updateLineNumberAreaWidth);
-	QObject::connect(this, &TextPreview::updateRequest, this, &TextPreview::updateLineNumberArea);
-	QObject::connect(this, &TextPreview::cursorPositionChanged, this, &TextPreview::highlightCurrentLine);
+	QObject::connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateLineNumberAreaWidth);
+	QObject::connect(this, &TextEditor::updateRequest, this, &TextEditor::updateLineNumberArea);
+	QObject::connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
 
 	this->updateLineNumberAreaWidth(0);
 	this->highlightCurrentLine();
@@ -79,7 +82,7 @@ TextPreview::TextPreview(QWidget* parent)
 	this->lineNumberArea->setFont(monospace);
 }
 
-void TextPreview::setText(const QString& text, const QString& extension) {
+void TextEditor::setText(const QString& text, const QString& extension) {
 	this->document()->setPlainText(text);
 
 	// Copied from the header
@@ -97,7 +100,7 @@ void TextPreview::setText(const QString& text, const QString& extension) {
 	}
 }
 
-int TextPreview::getLineNumberAreaWidth() const {
+int TextEditor::getLineNumberAreaWidth() const {
 	int digits = 1;
 	int max = qMax(1, this->blockCount());
 	while (max >= 10) {
@@ -108,7 +111,7 @@ int TextPreview::getLineNumberAreaWidth() const {
 	return space;
 }
 
-void TextPreview::onLineNumberAreaPaintEvent(QPaintEvent* event) const {
+void TextEditor::onLineNumberAreaPaintEvent(QPaintEvent* event) const {
 	QStyleOption opt;
 	opt.initFrom(this);
 
@@ -133,18 +136,18 @@ void TextPreview::onLineNumberAreaPaintEvent(QPaintEvent* event) const {
 	}
 }
 
-void TextPreview::resizeEvent(QResizeEvent* event) {
+void TextEditor::resizeEvent(QResizeEvent* event) {
 	QPlainTextEdit::resizeEvent(event);
 
 	QRect cr = this->contentsRect();
 	this->lineNumberArea->setGeometry({cr.left(), cr.top(), this->getLineNumberAreaWidth(), cr.height()});
 }
 
-void TextPreview::updateLineNumberAreaWidth(int /*newBlockCount*/) {
+void TextEditor::updateLineNumberAreaWidth(int /*newBlockCount*/) {
 	this->setViewportMargins(this->getLineNumberAreaWidth(), 0, 0, 0);
 }
 
-void TextPreview::updateLineNumberArea(const QRect& rect, int dy) {
+void TextEditor::updateLineNumberArea(const QRect& rect, int dy) {
 	if (dy) {
 		this->lineNumberArea->scroll(0, dy);
 	} else {
@@ -156,7 +159,7 @@ void TextPreview::updateLineNumberArea(const QRect& rect, int dy) {
 	}
 }
 
-void TextPreview::highlightCurrentLine() {
+void TextEditor::highlightCurrentLine() {
 	QList<QTextEdit::ExtraSelection> extraSelections;
 	if (!this->isReadOnly()) {
 		QTextEdit::ExtraSelection selection;
@@ -171,4 +174,71 @@ void TextPreview::highlightCurrentLine() {
 		extraSelections.append(selection);
 	}
 	this->setExtraSelections(extraSelections);
+}
+
+TextPreview::TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent)
+		: QWidget(parent)
+		, fileViewer(fileViewer_)
+		, window(window_) {
+	auto* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0,0,0,0);
+
+	this->toolbar = new QToolBar(this);
+	this->toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	auto* spacer = new QWidget(this->toolbar);
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	this->toolbar->addWidget(spacer);
+
+	this->editor = new TextEditor(this);
+	layout->addWidget(this->editor);
+
+	this->editAction = this->toolbar->addAction(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Edit"));
+	QObject::connect(this->editAction, &QAction::triggered, this, [this] {
+		this->setEditing(true);
+	});
+
+	this->saveAction = this->toolbar->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"));
+	QObject::connect(this->saveAction, &QAction::triggered, this, [this] {
+		this->setEditing(false);
+
+		auto path = this->fileViewer->getNavBar()->path();
+		this->window->editFileContents(path, this->editor->toPlainText());
+
+		// hack: reselect the entry to reload its contents
+		this->window->selectEntryInEntryTree(path);
+	});
+
+	this->cancelAction = this->toolbar->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Cancel"));
+	QObject::connect(this->cancelAction, &QAction::triggered, this, [this] {
+		this->setEditing(false);
+
+		// hack: reselect the entry to reload its contents
+		this->window->selectEntryInEntryTree(this->fileViewer->getNavBar()->path());
+	});
+
+	this->toolbar->raise();
+
+	// Do this manually so we're not calling Window::freezeActions
+	this->editor->setReadOnly(true);
+	this->editAction->setVisible(true);
+	this->saveAction->setVisible(false);
+	this->cancelAction->setVisible(false);
+}
+
+void TextPreview::setText(const QString& text, const QString& extension) {
+	this->editor->setText(text, extension);
+}
+
+void TextPreview::setEditing(bool editing) const {
+	this->editor->setReadOnly(!editing);
+	this->editAction->setVisible(!editing);
+	this->saveAction->setVisible(editing);
+	this->cancelAction->setVisible(editing);
+	this->fileViewer->getNavBar()->setDisabled(editing);
+	this->window->freezeActions(editing, true, false);
+}
+
+void TextPreview::resizeEvent(QResizeEvent* event) {
+	QWidget::resizeEvent(event);
+	this->toolbar->setFixedWidth(this->width());
 }
