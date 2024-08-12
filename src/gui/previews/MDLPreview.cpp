@@ -466,6 +466,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		, shadingModeUnshadedTextured(nullptr)
 		, shadingModeShadedTextured(nullptr) {
 	auto* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0,0,0,0);
 
 	auto* controls = new QFrame(this);
 	controls->setFrameShape(QFrame::Shape::StyledPanel);

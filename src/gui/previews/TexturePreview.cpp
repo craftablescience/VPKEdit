@@ -233,6 +233,7 @@ void VTFWidget::decodeImage(int mip, int frame, int face, int slice, bool alpha)
 TexturePreview::TexturePreview(QWidget* parent)
 		: QWidget(parent) {
 	auto* layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0,0,0,0);
 
 	this->image = new ImageWidget(this);
 	layout->addWidget(this->image);

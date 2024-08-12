@@ -158,12 +158,12 @@ class MDLPreview : public QWidget {
 
 public:
 	static inline const QStringList EXTENSIONS {
-			".mdl",
-			".vtx",
-			".vvd",
-			".phy",
-			".ani",
-			".vta",
+		".mdl",
+		".vtx",
+		".vvd",
+		".phy",
+		".ani",
+		".vta",
 	};
 
 	explicit MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent = nullptr);

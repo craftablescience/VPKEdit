@@ -8,6 +8,7 @@ InfoPreview::InfoPreview(const QPixmap& icon, const QString& text, QWidget* pare
 	this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	auto* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0,0,0,0);
 
 	this->image = new QLabel(this);
 	this->image->setPixmap(icon.scaled(64, 64, Qt::KeepAspectRatio));
