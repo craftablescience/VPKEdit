@@ -44,6 +44,7 @@
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "dialogs/VerifySignatureDialog.h"
+#include "dialogs/VICEDialog.h"
 #include "utility/DiscordPresence.h"
 #include "utility/Options.h"
 #include "utility/TGADecoder.h"
@@ -837,10 +838,61 @@ void Window::editFileContents(const QString& path, const QString& data) {
 	auto byteData = data.toLocal8Bit();
 
 	this->packFile->removeEntry(path.toLocal8Bit().constData());
-	this->packFile->addEntry(path.toLocal8Bit().constData(), {reinterpret_cast<std::byte*>(byteData.data()), reinterpret_cast<std::byte*>(byteData.data()) + byteData.size()}, {
+	this->packFile->addEntry(path.toLocal8Bit().constData(), std::vector<std::byte>{
+		reinterpret_cast<std::byte*>(byteData.data()),
+		reinterpret_cast<std::byte*>(byteData.data()) + byteData.size(),
+	}, {
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
 	});
+	this->markModified(true);
+}
+
+void Window::encryptFile(const QString& path) {
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
+	if (!entry) {
+		return;
+	}
+
+	auto data = VICEDialog::encrypt(this, path, this);
+	if (!data) {
+		return;
+	}
+
+	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".txt" ? ".ctx" : ".nuc");
+	this->requestEntryRemoval(path);
+	this->requestEntryRemoval(newPath);
+
+	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+	});
+	this->entryTree->addEntry(newPath);
+	this->fileViewer->addEntry(*this->packFile, newPath);
+	this->markModified(true);
+}
+
+void Window::decryptFile(const QString& path) {
+	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
+	if (!entry) {
+		return;
+	}
+
+	auto data = VICEDialog::decrypt(this, path, this);
+	if (!data) {
+		return;
+	}
+
+	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".ctx" ? ".txt" : ".nut");
+	this->requestEntryRemoval(path);
+	this->requestEntryRemoval(newPath);
+
+	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+	});
+	this->entryTree->addEntry(newPath);
+	this->fileViewer->addEntry(*this->packFile, newPath);
 	this->markModified(true);
 }
 

@@ -48,6 +48,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VICEDialog.h"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VICEDialog.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"

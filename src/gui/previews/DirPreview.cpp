@@ -94,6 +94,19 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 	EntryContextMenuData contextMenuData(false, this);
 	QObject::connect(this, &QTableWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData.setReadOnly(this->window->isReadOnly());
+		if (this->selectedItems().length() == 1) {
+			auto path = this->getItemPath(this->selectedItems()[0]);
+			if (path.endsWith(".nuc") || path.endsWith(".ctx")) {
+				contextMenuData.setEncryptDecryptVisible(false, true);
+			} else if (path.endsWith(".nut") || path.endsWith(".txt")) {
+				contextMenuData.setEncryptDecryptVisible(true, false);
+			} else {
+				contextMenuData.setEncryptDecryptVisible(false, false);
+			}
+		} else {
+			contextMenuData.setEncryptDecryptVisible(false, false);
+		}
+
 		if (this->selectedItems().length() > this->columnCount()) {
 			// Show the selection context menu at the requested position
 			auto* selectedSelectionAction = contextMenuData.contextMenuSelection->exec(this->mapToGlobal(pos));
@@ -138,6 +151,10 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 					this->window->extractFile(path);
 				} else if (selectedFileAction == contextMenuData.editFileAction) {
 					this->window->editFile(path);
+				} else if (selectedFileAction == contextMenuData.encryptFileAction) {
+					this->window->encryptFile(path);
+				} else if (selectedFileAction == contextMenuData.decryptFileAction) {
+					this->window->decryptFile(path);
 				} else if (selectedFileAction == contextMenuData.copyFilePathAction) {
 					QGuiApplication::clipboard()->setText(path);
 				} else if (selectedFileAction == contextMenuData.removeFileAction) {

@@ -10,6 +10,8 @@ struct EntryContextMenuData {
 		this->extractFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract File..."));
 		this->contextMenuFile->addSeparator();
 		this->editFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move File..."));
+		this->encryptFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TitleBarUnshadeButton), QObject::tr("Encrypt File..."));
+		this->decryptFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TitleBarShadeButton), QObject::tr("Decrypt File..."));
 		this->copyFilePathAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), QObject::tr("Copy Path"));
 		this->contextMenuFile->addSeparator();
 		this->removeFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), QObject::tr("Remove File"));
@@ -58,9 +60,16 @@ struct EntryContextMenuData {
 		}
 	}
 
+	void setEncryptDecryptVisible(bool encrypt, bool decrypt) const {
+		this->encryptFileAction->setVisible(encrypt);
+		this->decryptFileAction->setVisible(decrypt);
+	}
+
 	QMenu* contextMenuFile = nullptr;
 	QAction* extractFileAction = nullptr;
 	QAction* editFileAction = nullptr;
+	QAction* encryptFileAction = nullptr;
+	QAction* decryptFileAction = nullptr;
 	QAction* copyFilePathAction = nullptr;
 	QAction* removeFileAction = nullptr;
 
