@@ -30,7 +30,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network OpenGL OpenGLWidgets LinguistTools Svg)
 
 # Add sources and create executable
 list(APPEND ${PROJECT_NAME}_SOURCES
@@ -57,16 +57,14 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/previews/ImagePreview.h"
-        "${CMAKE_CURRENT_LIST_DIR}/previews/ImagePreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/InfoPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/InfoPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/MDLPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/MDLPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/TextPreview.h"
         "${CMAKE_CURRENT_LIST_DIR}/previews/TextPreview.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/previews/VTFPreview.h"
-        "${CMAKE_CURRENT_LIST_DIR}/previews/VTFPreview.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/previews/TexturePreview.h"
+        "${CMAKE_CURRENT_LIST_DIR}/previews/TexturePreview.cpp"
 
         "$<$<CONFIG:Debug>:${CMAKE_CURRENT_LIST_DIR}/res/logo_alt.qrc>"
         "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_LIST_DIR}/res/logo.qrc>"
@@ -127,7 +125,8 @@ target_link_libraries(
         Qt::Widgets
         Qt::Network
         Qt::OpenGL
-        Qt::OpenGLWidgets)
+        Qt::OpenGLWidgets
+        Qt::Svg)
 
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
@@ -139,7 +138,8 @@ target_include_directories(
         "${QT_INCLUDE}/QtWidgets"
         "${QT_INCLUDE}/QtNetwork"
         "${QT_INCLUDE}/QtOpenGL"
-        "${QT_INCLUDE}/QtOpenGLWidgets")
+        "${QT_INCLUDE}/QtOpenGLWidgets"
+        "${QT_INCLUDE}/QtSvg")
 
 # Copy these next to the executable
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
@@ -155,6 +155,7 @@ if(WIN32)
     configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll"       COPYONLY)
     configure_file("${QT_BASEDIR}/bin/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        "${CMAKE_BINARY_DIR}/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        COPYONLY)
     configure_file("${QT_BASEDIR}/bin/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/bin/Qt6Svg${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Svg${QT_LIB_SUFFIX}.dll" COPYONLY)
 
     configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
     configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
@@ -173,6 +174,7 @@ elseif(UNIX AND DEFINED QT_BASEDIR)
     configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6"       "${CMAKE_BINARY_DIR}/libQt6Network.so.6"       COPYONLY)
     configure_file("${QT_BASEDIR}/lib/libQt6OpenGL.so.6"        "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"        COPYONLY)
     configure_file("${QT_BASEDIR}/lib/libQt6OpenGLWidgets.so.6" "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libQt6Svg.so.6"           "${CMAKE_BINARY_DIR}/libQt6Svg.so.6" COPYONLY)
 
     # Required by plugins
     configure_file("${QT_BASEDIR}/lib/libicudata.so.56"                         "${CMAKE_BINARY_DIR}/libicudata.so.56"                         COPYONLY)

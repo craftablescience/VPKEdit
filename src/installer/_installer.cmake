@@ -13,7 +13,7 @@ install(FILES
 
 if(WIN32)
     install(IMPORTED_RUNTIME_ARTIFACTS
-            Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets
+            Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
             RUNTIME DESTINATION .
             LIBRARY DESTINATION .)
 
@@ -46,6 +46,7 @@ elseif(UNIX)
                 "${CMAKE_BINARY_DIR}/libQt6Network.so.6"
                 "${CMAKE_BINARY_DIR}/libQt6OpenGL.so.6"
                 "${CMAKE_BINARY_DIR}/libQt6OpenGLWidgets.so.6"
+                "${CMAKE_BINARY_DIR}/libQt6Svg.so.6"
 
                 # Required by plugins
                 "${CMAKE_BINARY_DIR}/libicudata.so.56"
@@ -74,7 +75,7 @@ elseif(UNIX)
                 DESTINATION .)
     else()
         install(IMPORTED_RUNTIME_ARTIFACTS
-                Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets
+                Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
                 RUNTIME DESTINATION .
                 LIBRARY DESTINATION .)
     endif()

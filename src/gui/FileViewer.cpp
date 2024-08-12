@@ -11,11 +11,10 @@
 #include "previews/DirPreview.h"
 #include "previews/DMXPreview.h"
 #include "previews/EmptyPreview.h"
-#include "previews/ImagePreview.h"
 #include "previews/InfoPreview.h"
 #include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
-#include "previews/VTFPreview.h"
+#include "previews/TexturePreview.h"
 #include "utility/ThemedIcon.h"
 #include "Window.h"
 
@@ -217,9 +216,6 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* emptyPreview = newPreview<EmptyPreview>(this);
 	layout->addWidget(emptyPreview);
 
-	auto* imagePreview = newPreview<ImagePreview>(this);
-	layout->addWidget(imagePreview);
-
 	auto* infoPreview = newPreview<InfoPreview>(this);
 	layout->addWidget(infoPreview);
 
@@ -229,8 +225,8 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* textPreview = newPreview<TextPreview>(this);
 	layout->addWidget(textPreview);
 
-	auto* vtfPreview = newPreview<VTFPreview>(this);
-	layout->addWidget(vtfPreview);
+	auto* texturePreview = newPreview<TexturePreview>(this);
+	layout->addWidget(texturePreview);
 
 	this->clearContents(true);
 }
@@ -269,15 +265,6 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 		}
 		this->showPreview<DMXPreview>();
 		this->getPreview<DMXPreview>()->setData(*binary);
-	} else if (ImagePreview::EXTENSIONS.contains(extension)) {
-		// Image
-		auto binary = this->window->readBinaryEntry(path);
-		if (!binary) {
-			this->showFileLoadErrorPreview();
-			return;
-		}
-		this->showPreview<ImagePreview>();
-		this->getPreview<ImagePreview>()->setData(*binary);
 	} else if (MDLPreview::EXTENSIONS.contains(extension)) {
 		// MDL (model)
 		auto binary = this->window->readBinaryEntry(path);
@@ -287,15 +274,33 @@ void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
 		}
 		this->showPreview<MDLPreview>();
 		this->getPreview<MDLPreview>()->setMesh(path, packFile);
-	} else if (VTFPreview::EXTENSIONS.contains(extension)) {
+	} else if (TexturePreview::EXTENSIONS_IMAGE.contains(extension)) {
+		// Image
+		auto binary = this->window->readBinaryEntry(path);
+		if (!binary) {
+			this->showFileLoadErrorPreview();
+			return;
+		}
+		this->showPreview<TexturePreview>();
+		this->getPreview<TexturePreview>()->setImageData(*binary);
+	} else if (TexturePreview::EXTENSIONS_SVG.contains(extension)) {
+		// SVG
+		auto binary = this->window->readBinaryEntry(path);
+		if (!binary) {
+			this->showFileLoadErrorPreview();
+			return;
+		}
+		this->showPreview<TexturePreview>();
+		this->getPreview<TexturePreview>()->setSVGData(*binary);
+	} else if (TexturePreview::EXTENSIONS_VTF.contains(extension)) {
 		// VTF (texture)
 		auto binary = this->window->readBinaryEntry(path);
 		if (!binary) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<VTFPreview>();
-		this->getPreview<VTFPreview>()->setData(*binary);
+		this->showPreview<TexturePreview>();
+		this->getPreview<TexturePreview>()->setVTFData(*binary);
 	} else if (TextPreview::EXTENSIONS.contains(extension)) {
 		// Text
 		auto text = this->window->readTextEntry(path);

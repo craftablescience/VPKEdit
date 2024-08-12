@@ -1,0 +1,236 @@
+#pragma once
+
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+#include <QImage>
+#include <QMetaEnum>
+#include <QWidget>
+#include <vtfpp/vtfpp.h>
+
+class QCheckBox;
+class QLabel;
+class QSlider;
+class QSpinBox;
+
+class ITextureWidget : public QWidget {
+	Q_OBJECT;
+
+public:
+	explicit ITextureWidget(QWidget* parent = nullptr);
+
+	virtual void setData(const std::vector<std::byte>& data) = 0;
+
+	void setShowEverythingEnabled(bool show) { this->showEverything = show; }
+
+	virtual void setMip(int mip) = 0;
+
+	virtual void setFrame(int frame) = 0;
+
+	virtual void setFace(int face) = 0;
+
+	virtual void setSlice(int slice) = 0;
+
+	virtual void setAlphaEnabled(bool alpha) = 0;
+
+	void setTileEnabled(bool tile) { this->tileEnabled = tile; }
+
+	void setZoom(int zoom_);
+
+	[[nodiscard]] virtual uint16_t getCurrentImageWidth() const = 0;
+
+	[[nodiscard]] virtual uint16_t getCurrentImageHeight() const = 0;
+
+	[[nodiscard]] bool getShowEverythingEnabled() const { return this->showEverything; }
+
+	[[nodiscard]] virtual int getMaxMip() const = 0;
+
+	[[nodiscard]] virtual int getMaxFrame() const = 0;
+
+	[[nodiscard]] virtual int getMaxFace() const = 0;
+
+	[[nodiscard]] virtual int getMaxSlice() const = 0;
+
+	[[nodiscard]] virtual bool hasAlpha() const = 0;
+
+	[[nodiscard]] bool getAlphaEnabled() const { return this->alphaEnabled; }
+
+	[[nodiscard]] bool getTileEnabled() const { return this->tileEnabled; }
+
+	[[nodiscard]] float getZoom() const { return this->zoom; }
+
+	[[nodiscard]] virtual QString getVersion() const = 0;
+
+	[[nodiscard]] virtual QString getFormat() const = 0;
+
+	[[nodiscard]] virtual int getAuxCompression() const = 0;
+
+protected:
+	std::vector<std::byte> imageData;
+	QImage image;
+
+	bool showEverything = false;
+	int currentMip = 0;
+	int currentFrame = 0;
+	int currentFace = 0;
+	int currentSlice = 0;
+	bool alphaEnabled = false;
+	bool tileEnabled = false;
+	float zoom = 1.f;
+};
+
+class ImageWidget : public ITextureWidget {
+Q_OBJECT;
+
+public:
+	using ITextureWidget::ITextureWidget;
+
+	void setData(const std::vector<std::byte>& data) override;
+
+	void setMip(int) override {}
+
+	void setFrame(int) override {}
+
+	void setFace(int) override {}
+
+	void setSlice(int) override {}
+
+	void setAlphaEnabled(bool alpha) override { this->alphaEnabled = alpha; }
+
+	[[nodiscard]] uint16_t getCurrentImageWidth() const override { return this->image.width(); }
+
+	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->image.height(); }
+
+	[[nodiscard]] int getMaxMip() const override { return 1; }
+
+	[[nodiscard]] int getMaxFrame() const override { return 1; }
+
+	[[nodiscard]] int getMaxFace() const override { return 1; }
+
+	[[nodiscard]] int getMaxSlice() const override { return 1; }
+
+	[[nodiscard]] bool hasAlpha() const override { return this->image.hasAlphaChannel(); }
+
+	[[nodiscard]] QString getVersion() const override { return "N/A"; }
+
+	[[nodiscard]] QString getFormat() const override;
+
+	[[nodiscard]] int getAuxCompression() const override { return 0; }
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+};
+
+class SVGWidget : public ImageWidget {
+	Q_OBJECT;
+
+public:
+	using ImageWidget::ImageWidget;
+
+	void setData(const std::vector<std::byte>& data) override;
+
+	[[nodiscard]] QString getFormat() const override { return "SVG"; }
+};
+
+class VTFWidget : public ITextureWidget {
+	Q_OBJECT;
+
+public:
+	using ITextureWidget::ITextureWidget;
+
+	void setData(const std::vector<std::byte>& data) override;
+
+	void setMip(int mip) override { this->decodeImage(mip, this->currentFrame, this->currentFace, this->currentSlice, this->alphaEnabled); }
+
+	void setFrame(int frame) override { this->decodeImage(this->currentMip, frame, this->currentFace, this->currentSlice, this->alphaEnabled); }
+
+	void setFace(int face) override { this->decodeImage(this->currentMip, this->currentFrame, face, this->currentSlice, this->alphaEnabled); }
+
+	void setSlice(int slice) override { this->decodeImage(this->currentMip, this->currentFrame, this->currentFace, slice, this->alphaEnabled); }
+
+	void setAlphaEnabled(bool alpha) override { this->decodeImage(this->currentMip, this->currentFrame, this->currentFace, this->currentSlice, alpha); }
+
+	[[nodiscard]] uint16_t getCurrentImageWidth() const override { return this->vtf->getWidth(this->currentMip); }
+
+	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->vtf->getHeight(this->currentMip); }
+
+	[[nodiscard]] int getMaxMip() const override { return static_cast<int>(this->vtf->getMipCount()); }
+
+	[[nodiscard]] int getMaxFrame() const override { return static_cast<int>(this->vtf->getFrameCount()); }
+
+	[[nodiscard]] int getMaxFace() const override { return static_cast<int>(this->vtf->getFaceCount()); }
+
+	[[nodiscard]] int getMaxSlice() const override { return static_cast<int>(this->vtf->getSliceCount()); }
+
+	[[nodiscard]] bool hasAlpha() const override;
+
+	[[nodiscard]] QString getVersion() const override;
+
+	[[nodiscard]] QString getFormat() const override;
+
+	[[nodiscard]] int getAuxCompression() const override;
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+
+private:
+	std::unique_ptr<vtfpp::VTF> vtf;
+
+	void decodeImage(int mip, int frame, int face, int slice, bool alpha);
+};
+
+class TexturePreview : public QWidget {
+	Q_OBJECT;
+
+public:
+	static inline const QStringList EXTENSIONS_IMAGE {
+		".tga",
+		".jpg",
+		".jpeg",
+		".jfif",
+		".png",
+		".webp",
+		".bmp",
+	};
+
+	static inline const QStringList EXTENSIONS_SVG {
+		".svg",
+	};
+
+	static inline const QStringList EXTENSIONS_VTF {
+		".vtf",
+	};
+
+	explicit TexturePreview(QWidget* parent = nullptr);
+
+	void setImageData(const std::vector<std::byte>& data) const;
+
+	void setSVGData(const std::vector<std::byte>& data) const;
+
+	void setVTFData(const std::vector<std::byte>& data) const;
+
+protected:
+	void setData(ITextureWidget* widget) const;
+
+	[[nodiscard]] ITextureWidget* getVisibleWidget() const;
+
+	void wheelEvent(QWheelEvent* event) override;
+
+private:
+	ITextureWidget* image;
+	ITextureWidget* svg;
+	ITextureWidget* vtf;
+	QCheckBox* showEverythingCheckBox;
+	QSpinBox* mipSpin;
+	QSpinBox* frameSpin;
+	QSpinBox* faceSpin;
+	QSpinBox* sliceSpin;
+	QCheckBox* alphaCheckBox;
+	QCheckBox* tileCheckBox;
+	QSlider* zoomSlider;
+	QLabel* sizeLabel;
+	QLabel* versionLabel;
+	QLabel* imageFormatLabel;
+	QLabel* compressionLevelLabel;
+};
