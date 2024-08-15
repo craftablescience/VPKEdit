@@ -1,5 +1,6 @@
 #include "Window.h"
 
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 
@@ -1257,13 +1258,41 @@ void Window::mousePressEvent(QMouseEvent* event) {
 }
 
 void Window::dragEnterEvent(QDragEnterEvent* event) {
-	if (event->mimeData()->hasUrls() && this->fileViewer->isDirPreviewVisible()) {
+	if (!event->mimeData()->hasUrls()) {
+		return;
+	}
+
+	for (auto& url : event->mimeData()->urls()) {
+		if (!url.isLocalFile()) {
+			return;
+		}
+	}
+
+	if (this->fileViewer->isDirPreviewVisible()) {
+		// If file viewer is open, it'll just add the files to the open pack file
 		event->acceptProposedAction();
+	} else if (!this->packFile) {
+		// If we don't have a pack file open, and the path is a pack file, we can load it instead
+		auto path = event->mimeData()->urls()[0].path();
+		auto fileTypes = PackFile::getSupportedFileTypes();
+		if (std::any_of(fileTypes.begin(), fileTypes.end(), [&path](const std::string& extension) { return path.endsWith(extension.c_str()); })) {
+			event->acceptProposedAction();
+		}
 	}
 }
 
 void Window::dropEvent(QDropEvent* event) {
-	if (!this->dropEnabled || !event->mimeData()->hasUrls() || !this->fileViewer->isDirPreviewVisible()) {
+	if (!event->mimeData()->hasUrls()) {
+		return;
+	}
+
+	if (!this->packFile) {
+		// If we don't have a pack file open, try loading the one given (extension's already been verified)
+		this->loadPackFile(event->mimeData()->urls()[0].toLocalFile());
+		return;
+	}
+
+	if (!this->dropEnabled || !this->fileViewer->isDirPreviewVisible()) {
 		return;
 	}
 	for(const QUrl& url : event->mimeData()->urls()) {
