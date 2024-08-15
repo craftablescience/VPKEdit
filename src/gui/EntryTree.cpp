@@ -444,15 +444,17 @@ void EntryTree::extractEntries(const QStringList& paths, const QString& destinat
 }
 
 void EntryTree::createDrag(const QStringList& paths) {
+	TempDir tempDir;
+
 	auto* drag = new QDrag(this);
 	auto* mimeData = new QMimeData();
 
-	this->extractEntries(paths, TempDir::get().path());
+	this->extractEntries(paths, tempDir.path());
 
 	QList<QUrl> extractedPaths;
-	QStringList extractedRawPaths = TempDir::get().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+	QStringList extractedRawPaths = tempDir.dir().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
 	for (const auto& rawPath : extractedRawPaths) {
-		extractedPaths.push_back(QUrl::fromLocalFile(TempDir::get().path() + QDir::separator() + rawPath));
+		extractedPaths.push_back(QUrl::fromLocalFile(tempDir.path() + QDir::separator() + rawPath));
 	}
 
 	// Set up drag
@@ -461,7 +463,6 @@ void EntryTree::createDrag(const QStringList& paths) {
 	mimeData->setUrls(extractedPaths);
 	drag->setMimeData(mimeData);
 	drag->exec(Qt::MoveAction);
-	TempDir::clear();
 
 	this->window->setDropEnabled(true);
 }

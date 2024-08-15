@@ -2,17 +2,25 @@
 
 #include <string_view>
 
-constexpr std::string_view VPKEDIT_TMP_DIR = ".vpkedit_tmp";
+#include <sourcepp/String.h>
 
-void TempDir::create() {
-	QDir::temp().mkdir(VPKEDIT_TMP_DIR.data());
+using namespace sourcepp;
+
+constexpr std::string_view TMP_DIR_BASE = ".vpkedit-";
+
+TempDir::TempDir()
+		: uuid(string::generateUUIDv4().c_str()) {
+	QDir::temp().mkdir(TMP_DIR_BASE.data() + this->uuid);
 }
 
-QDir TempDir::get() {
-	create();
-	return QDir::tempPath() + QDir::separator() + VPKEDIT_TMP_DIR.data();
+TempDir::~TempDir() {
+	this->dir().removeRecursively();
 }
 
-void TempDir::clear() {
-	get().removeRecursively();
+QDir TempDir::dir() const {
+	return QDir::tempPath() + QDir::separator() + TMP_DIR_BASE.data() + this->uuid;
+}
+
+QString TempDir::path() const {
+	return this->dir().path();
 }

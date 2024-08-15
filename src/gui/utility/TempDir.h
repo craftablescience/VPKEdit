@@ -2,12 +2,18 @@
 
 #include <QDir>
 
-namespace TempDir {
+/// Creates a new temporary directory. On destruction the contents of the directory are
+/// attempted to be deleted (although deletion won't happen for any files in use).
+class TempDir {
+public:
+	TempDir();
 
-void create();
+	~TempDir();
 
-QDir get();
+	[[nodiscard]] QDir dir() const;
 
-void clear();
+	[[nodiscard]] QString path() const;
 
-} // namespace Temp
+private:
+	QString uuid;
+};
