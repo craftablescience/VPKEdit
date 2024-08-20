@@ -44,15 +44,6 @@
         <glob pattern="*.gma"/>
         <glob pattern="*.GMA"/>
     </mime-type>
-    <mime-type type="application/x-vpkedit-grp">
-        <comment>Game Resource Package</comment>
-        <icon name="application-x-vpkedit"/>
-        <acronym>GRP</acronym>
-        <expanded-acronym>Game Resource Package</expanded-acronym>
-        <glob-deleteall/>
-        <glob pattern="*.grp"/>
-        <glob pattern="*.grp"/>
-    </mime-type>
     <mime-type type="application/x-vpkedit-pak">
         <comment>Pack File</comment>
         <icon name="application-x-vpkedit"/>

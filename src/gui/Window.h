@@ -165,7 +165,7 @@ private:
 
 	void checkForUpdatesReply(QNetworkReply* reply);
 
-	bool writeEntryToFile(const QString& path, const vpkpp::Entry& entry);
+	bool writeEntryToFile(const QString& entryPath, const QString& filepath);
 
 	void resetStatusBar();
 };

@@ -37,12 +37,7 @@ using namespace vtfpp;
 namespace {
 
 std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
-	auto materialEntry = packFile.findEntry(materialPath);
-	if (!materialEntry) {
-		return nullptr;
-	}
-
-	auto materialFile = packFile.readEntryText(*materialEntry);
+	auto materialFile = packFile.readEntryText(materialPath);
 	if (!materialFile) {
 		return nullptr;
 	}
@@ -57,12 +52,7 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 		return nullptr;
 	}
 
-	auto textureEntry = packFile.findEntry("materials/" + std::string{baseTexturePathKV.getValue()} + ".vtf");
-	if (!textureEntry) {
-		return nullptr;
-	}
-
-	auto textureFile = packFile.readEntry(*textureEntry);
+	auto textureFile = packFile.readEntry("materials/" + std::string{baseTexturePathKV.getValue()} + ".vtf");
 	if (!textureFile) {
 		return nullptr;
 	}
@@ -557,27 +547,27 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		basePath = std::filesystem::path{basePath}.replace_extension().string();
 	}
 
-	auto mdlEntry = packFile.findEntry(basePath + ".mdl");
-	auto vvdEntry = packFile.findEntry(basePath + ".vvd");
-	auto vtxEntry = packFile.findEntry(basePath + ".vtx");
-	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath + ".dx90.vtx");
+	auto mdlData = packFile.readEntry(basePath + ".mdl");
+	auto vvdData = packFile.readEntry(basePath + ".vvd");
+	auto vtxData = packFile.readEntry(basePath + ".vtx");
+	if (!vtxData) {
+		vtxData = packFile.readEntry(basePath + ".dx90.vtx");
 	}
-	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath + ".dx80.vtx");
+	if (!vtxData) {
+		vtxData = packFile.readEntry(basePath + ".dx80.vtx");
 	}
-	if (!vtxEntry) {
-		vtxEntry = packFile.findEntry(basePath + ".sw.vtx");
+	if (!vtxData) {
+		vtxData = packFile.readEntry(basePath + ".sw.vtx");
 	}
-	if (!mdlEntry || !vvdEntry || !vtxEntry) {
+	if (!mdlData || !vvdData || !vtxData) {
 		QString error{tr("Unable to find all the required files the model is composed of!") + '\n'};
-		if (!mdlEntry) {
+		if (!mdlData) {
 			error += "\n- " + basePath + ".mdl";
 		}
-		if (!vvdEntry) {
+		if (!vvdData) {
 			error += "\n- " + basePath + ".vvd";
 		}
-		if (!vtxEntry) {
+		if (!vtxData) {
 			error += "\n- " + tr("One of the following:") +
 					 "\n  - " + basePath.c_str() + ".vtx" +
 					 "\n  - " + basePath.c_str() + ".dx90.vtx" +
@@ -586,13 +576,6 @@ void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
 		}
 
 		this->fileViewer->showGenericErrorPreview(error);
-		return;
-	}
-	auto mdlData = packFile.readEntry(*mdlEntry);
-	auto vvdData = packFile.readEntry(*vvdEntry);
-	auto vtxData = packFile.readEntry(*vtxEntry);
-	if (!mdlData || !vvdData || !vtxData) {
-		this->fileViewer->showFileLoadErrorPreview();
 		return;
 	}
 

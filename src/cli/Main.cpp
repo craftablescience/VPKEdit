@@ -94,7 +94,7 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 			std::cerr << "Could not find file at \"" << extractPath << "\" in the pack file!" << std::endl;
 			return;
 		}
-		if (!packFile->extractEntry(*entry, outputPath)) {
+		if (!packFile->extractEntry(extractPath, outputPath)) {
 			std::cerr
 				<< "Could not extract file at \"" << extractPath << "\" to \"" << outputPath << "\"!\n"
 				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
@@ -112,12 +112,9 @@ void fileTree(const std::string& inputPath) {
 	}
 
 	// todo: make this more tree-like
-	for (const auto& [directory, entries] : packFile->getBakedEntries()) {
-		std::cout << directory << std::endl;
-		for (const auto& entry : entries) {
-			std::cout << "- " << entry.getFilename() << std::endl;
-		}
-	}
+	const_cast<const PackFile&>(*packFile).runForAllEntries([](const std::string& path, const Entry& entry) {
+		std::cout << path << std::endl;
+	});
 }
 
 /// Generate private/public key files

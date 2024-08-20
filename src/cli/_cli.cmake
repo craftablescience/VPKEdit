@@ -17,7 +17,7 @@ target_link_libraries(
         ${PROJECT_NAME}cli PUBLIC
         argparse::argparse
         indicators::indicators
-        vpkpp)
+        sourcepp::vpkpp)
 
 target_include_directories(
         ${PROJECT_NAME}cli PUBLIC

@@ -24,6 +24,7 @@
 #include <QMouseEvent>
 #include <QNetworkReply>
 #include <QProgressBar>
+#include <QProgressDialog>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStringDecoder>
@@ -788,13 +789,8 @@ void Window::requestEntryRemoval(const QString& path) const {
 }
 
 void Window::editFile(const QString& oldPath) {
-	// Get file information and data
-	auto entry = this->packFile->findEntry(oldPath.toLocal8Bit().constData());
-	if (!entry) {
-		QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not find file!").arg(oldPath));
-		return;
-	}
-	auto data = this->packFile->readEntry(*entry);
+	// Get file data
+	auto data = this->packFile->readEntry(oldPath.toLocal8Bit().constData());
 	if (!data) {
 		QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not read file data!").arg(oldPath));
 		return;
@@ -826,7 +822,7 @@ void Window::editFileContents(const QString& path, std::vector<std::byte> data) 
 	this->packFile->removeEntry(path.toLocal8Bit().constData());
 	this->packFile->addEntry(path.toLocal8Bit().constData(), std::move(data), {
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->markModified(true);
 }
@@ -844,7 +840,7 @@ void Window::editFileContents(const QString& path, const QString& data) {
 		reinterpret_cast<std::byte*>(byteData.data()) + byteData.size(),
 	}, {
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->markModified(true);
 }
@@ -866,7 +862,7 @@ void Window::encryptFile(const QString& path) {
 
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
@@ -890,7 +886,7 @@ void Window::decryptFile(const QString& path) {
 
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->vpk_preloadedData.size()),
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
@@ -908,46 +904,44 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		}
 	}
 
-	QStringList paths;
-	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
-		if (QString(directory.c_str()).startsWith(oldPath)) {
-			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
-			}
-		}
-	}
-	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
-		if (QString(directory.c_str()).startsWith(oldPath)) {
-			for (const auto& entry : entries) {
-				paths.push_back(QString(directory.c_str()) + '/' + entry.getFilename().c_str());
-			}
-		}
-	}
+	// todo: use the new PackFile::renameDirectory method it'll be way faster
 
-	for (const auto& path : paths) {
-		// Get data
-		auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-		if (!entry) {
-			continue;
+	QList<std::pair<std::string, Entry>> entriesToRename;
+	const_cast<const PackFile&>(*this->packFile).runForAllEntries([&oldPath, &entriesToRename](const std::string& path, const Entry& entry) {
+		if (path.starts_with((oldPath + '/').toLocal8Bit().constData())) {
+			entriesToRename.emplace_back(path, entry);
 		}
-		auto entryData = this->packFile->readEntry(*entry);
+	});
+
+	QProgressDialog progressDialog(tr("Renaming directory... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, entriesToRename.size(), this);
+	progressDialog.setWindowTitle(tr("Rename Directory"));
+	progressDialog.setWindowModality(Qt::WindowModal);
+	for (const auto& [path, entry] : entriesToRename) {
+		if (progressDialog.wasCanceled()) {
+			break;
+		}
+
+		// Get data
+		auto entryData = this->packFile->readEntry(path);
 		if (!entryData) {
 			continue;
 		}
 
 		// Remove file
-		this->requestEntryRemoval(path);
+		this->requestEntryRemoval(path.c_str());
 
 		// Calculate new path
-		QString newEntryPath = newPath + path.sliced(oldPath.length());
+		QString newEntryPath = newPath + path.substr(oldPath.length()).c_str();
 
 		// Add new file with the same info and data at the new path
 		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
-			.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-			.vpk_preloadBytes = static_cast<unsigned int>(entry->vpk_preloadedData.size()),
+			.vpk_saveToDirectory = entry.archiveIndex == VPK_DIR_INDEX,
+			.vpk_preloadBytes = static_cast<unsigned int>(entry.extraData.size()),
 		});
 		this->entryTree->addEntry(newEntryPath);
 		this->fileViewer->addEntry(*this->packFile, newEntryPath);
+
+		progressDialog.setValue(progressDialog.value() + 1);
 	}
 	this->markModified(true);
 }
@@ -1001,19 +995,11 @@ void Window::signPackFile(const QString& privateKeyLocation) {
 }
 
 std::optional<std::vector<std::byte>> Window::readBinaryEntry(const QString& path) const {
-	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-	if (!entry) {
-		return std::nullopt;
-	}
-	return this->packFile->readEntry(*entry);
+	return this->packFile->readEntry(path.toLocal8Bit().constData());
 }
 
 std::optional<QString> Window::readTextEntry(const QString& path) const {
-	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-	if (!entry) {
-		return std::nullopt;
-	}
-	auto binData = this->packFile->readEntry(*entry);
+	auto binData = this->packFile->readEntry(path.toLocal8Bit().constData());
 	if (!binData) {
 		return std::nullopt;
 	}
@@ -1046,28 +1032,22 @@ void Window::selectSubItemInDir(const QString& path) const {
 	this->entryTree->selectSubItem(path);
 }
 
-void Window::extractFile(const QString& path, QString savePath) {
-	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-	if (!entry) {
-		QMessageBox::critical(this, tr("Error"), tr("Failed to find file at \"%1\".").arg(path));
-		return;
-	}
-
+void Window::extractFile(const QString& entryPath, QString savePath) {
 	if (savePath.isEmpty()) {
 		QString filter;
-		if (auto index = path.lastIndexOf('.'); index >= 0) {
-			auto fileExt = path.sliced(index); // ".ext"
+		if (auto index = entryPath.lastIndexOf('.'); index >= 0) {
+			auto fileExt = entryPath.sliced(index); // ".ext"
 			auto fileExtPretty = fileExt.toUpper();
 			fileExtPretty.remove('.');
 
 			filter = fileExtPretty + " (*" + fileExt + ");;All files (*.*)";
 		}
-		savePath = QFileDialog::getSaveFileName(this, tr("Extract as..."), path, filter);
+		savePath = QFileDialog::getSaveFileName(this, tr("Extract as..."), entryPath, filter);
 	}
 	if (savePath.isEmpty()) {
 		return;
 	}
-	this->writeEntryToFile(savePath, *entry);
+	this->writeEntryToFile(entryPath, savePath);
 }
 
 void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate, const QString& savePath) {
@@ -1085,16 +1065,11 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 
 	// Get progress bar maximum
 	int progressBarMax = 0;
-	for (const auto& [directory, entries] : this->packFile->getBakedEntries()) {
-		if (predicate(QString(directory.c_str()))) {
-			progressBarMax += static_cast<int>(entries.size());
+	const_cast<const PackFile&>(*this->packFile).runForAllEntries([&predicate, &progressBarMax](const std::string& path, const Entry& entry) {
+		if (predicate(QString(path.c_str()))) {
+			progressBarMax++;
 		}
-	}
-	for (const auto& [directory, entries] : this->packFile->getUnbakedEntries()) {
-		if (predicate(QString(directory.c_str()))) {
-			progressBarMax += static_cast<int>(entries.size());
-		}
-	}
+	});
 
 	this->statusProgressBar->setRange(0, progressBarMax);
 	this->statusProgressBar->setValue(0);
@@ -1130,7 +1105,7 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 }
 
 void Window::extractDir(const QString& path, const QString& saveDir) {
-	this->extractFilesIf([path](const QString& dir) { return dir.startsWith(path); }, saveDir);
+	this->extractFilesIf([path](const QString& entryPath) { return entryPath.startsWith(path + '/'); }, saveDir);
 }
 
 void Window::extractPaths(const QStringList& paths, const QString& saveDir) {
@@ -1427,8 +1402,8 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 	});
 }
 
-bool Window::writeEntryToFile(const QString& path, const Entry& entry) {
-	return this->packFile->extractEntry(entry, path.toLocal8Bit().constData());
+bool Window::writeEntryToFile(const QString& entryPath, const QString& filepath) {
+	return this->packFile->extractEntry(entryPath.toLocal8Bit().constData(), filepath.toLocal8Bit().constData());
 }
 
 void Window::resetStatusBar() {
@@ -1469,34 +1444,11 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 
 void ExtractPackFileWorker::run(Window* window, const QString& saveDir, const std::function<bool(const QString&)>& predicate) {
 	int currentEntry = 0;
-	bool noneFailed = true;
-	for (const auto& [directory, entries] : window->packFile->getBakedEntries()) {
-		QString dir(directory.c_str());
-		if (!predicate(dir)) {
-			continue;
-		}
-		for (const auto& entry : entries) {
-			auto filePath = saveDir + QDir::separator() + PackFile::escapeEntryPath((dir + QDir::separator() + entry.getFilename().c_str()).toLocal8Bit().constData()).c_str();
-			if (!window->writeEntryToFile(filePath, entry)) {
-				noneFailed = false;
-			}
-			emit this->progressUpdated(++currentEntry);
-		}
-	}
-	for (const auto& [directory, entries] : window->packFile->getUnbakedEntries()) {
-		QString dir(directory.c_str());
-		if (!predicate(dir)) {
-			continue;
-		}
-		for (const auto& entry : entries) {
-			auto filePath = saveDir + QDir::separator() + PackFile::escapeEntryPath((dir + QDir::separator() + entry.getFilename().c_str()).toLocal8Bit().constData()).c_str();
-			if (!window->writeEntryToFile(filePath, entry)) {
-				noneFailed = false;
-			}
-			emit this->progressUpdated(++currentEntry);
-		}
-	}
-	emit this->taskFinished(noneFailed);
+	bool out = window->packFile->extractAll(saveDir.toLocal8Bit().constData(), [this, &predicate, &currentEntry](const std::string& path, const Entry& entry) -> bool {
+		emit this->progressUpdated(++currentEntry);
+		return predicate(path.c_str());
+	}, false);
+	emit this->taskFinished(out);
 }
 
 void ScanSteamGamesWorker::run() {

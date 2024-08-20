@@ -37,7 +37,6 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | FPX    | VPK modification (Tactical Intervention)    |   ❌    |  ✅   |   ✅   |
   | GCF    | Game Cache File (Pre-SteamPipe Steam games) |   ❌    |  ✅   |   ❌   |
   | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
-  | GRP    | Game Resource Package (Build Engine)        |   ❌    |  ✅   |   ✅   |
   | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ❌    |  ✅   |   ✅   |
   | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ✅   |
   | VPK    | Vampire PacK file (V:TMB)                   |   ❌    |  ✅   |   ✅   |
@@ -49,9 +48,9 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Text files (any encoding)
   - KeyValues files (text files with syntax highlighting)
   - Images
-  - Source 1 DMX files
   - Source 1 Textures
   - Source 1 Models
+  - Source 1 DMX files (particles, SFM sessions, etc.)
 - Create VPKs of any version from scratch or an existing folder
 - Add and remove files and folders from writable pack files
 - Extract files and folders from readable pack files

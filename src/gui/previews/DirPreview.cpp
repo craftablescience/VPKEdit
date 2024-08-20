@@ -26,7 +26,7 @@ enum Column : int {
 	TYPE,
 	LENGTH,
 	VPK_PRELOADED_DATA_LENGTH,
-	VPK_ARCHIVE_INDEX,
+	ARCHIVE_INDEX,
 	CRC32,
 	PCK_MD5,
 	COLUMN_COUNT,
@@ -39,6 +39,9 @@ namespace {
 QString attributeToQString(Attribute attribute) {
 	switch (attribute) {
 		using enum Attribute;
+		default:
+		case NONE:
+			break;
 		case LENGTH:
 			return QObject::tr("Size");
 		case CRC32:
@@ -47,25 +50,29 @@ QString attributeToQString(Attribute attribute) {
 			return QObject::tr("MD5");
 		case ARCHIVE_INDEX:
 			return QObject::tr("Archive Index");
-		case VPK_PRELOADED_DATA_LENGTH:
+		case VPK_PRELOADED_DATA:
 			return QObject::tr("Preloaded Size");
-		default:
-			break;
 	}
 	return QObject::tr("Unknown");
 }
 
 void hideUnsupportedAttributes(DirPreview* dirPreview, const PackFile& packFile) {
 	auto attributes = packFile.getSupportedEntryAttributes();
-	for (int i = 0; i < static_cast<int>(Attribute::ATTRIBUTE_COUNT); i++) {
-		dirPreview->setColumnHidden(i + 2, std::find(attributes.begin(), attributes.end(), static_cast<Attribute>(i)) == attributes.end());
-	}
+	dirPreview->setColumnHidden(Column::LENGTH, !static_cast<bool>(attributes & Attribute::LENGTH));
+	dirPreview->setColumnHidden(Column::VPK_PRELOADED_DATA_LENGTH, !static_cast<bool>(attributes & Attribute::VPK_PRELOADED_DATA));
+	dirPreview->setColumnHidden(Column::ARCHIVE_INDEX, !static_cast<bool>(attributes & Attribute::ARCHIVE_INDEX));
+	dirPreview->setColumnHidden(Column::CRC32, !static_cast<bool>(attributes & Attribute::CRC32));
+	dirPreview->setColumnHidden(Column::PCK_MD5, !static_cast<bool>(attributes & Attribute::PCK_MD5));
 
-	// dunno why the fuck this has to be here and not in the ctor but okay then
-	QStringList header{QObject::tr("Name"), QObject::tr("Type")};
-	for (int i = 0; i < static_cast<int>(Attribute::ATTRIBUTE_COUNT); i++) {
-		header.append(::attributeToQString(static_cast<Attribute>(i)));
-	}
+	QStringList header{
+		QObject::tr("Name"),
+		QObject::tr("Type"),
+		::attributeToQString(Attribute::LENGTH),
+		::attributeToQString(Attribute::VPK_PRELOADED_DATA),
+		::attributeToQString(Attribute::ARCHIVE_INDEX),
+		::attributeToQString(Attribute::CRC32),
+		::attributeToQString(Attribute::PCK_MD5),
+	};
 	dirPreview->setHorizontalHeaderLabels(header);
 }
 
@@ -75,12 +82,12 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 		: QTableWidget(parent)
 		, fileViewer(fileViewer_)
 		, window(window_) {
-	this->setColumnCount(static_cast<int>(Attribute::ATTRIBUTE_COUNT) + 2);
+	this->setColumnCount(7);
 	this->setColumnWidth(Column::NAME, 250);
 	this->setColumnWidth(Column::TYPE, 55);
 	this->setColumnWidth(Column::LENGTH, 80);
 	this->setColumnWidth(Column::VPK_PRELOADED_DATA_LENGTH, 90);
-	this->setColumnWidth(Column::VPK_ARCHIVE_INDEX, 100);
+	this->setColumnWidth(Column::ARCHIVE_INDEX, 100);
 	this->setColumnWidth(Column::CRC32, 95);
 	this->setColumnWidth(Column::PCK_MD5, 200);
 	this->horizontalHeader()->setStretchLastSection(true);
@@ -342,7 +349,8 @@ void DirPreview::mouseMoveEvent(QMouseEvent* event) {
 
 void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	// Note: does not check if the path is inside the directory being previewed
-	auto entry = packFile.findEntry(path.toLocal8Bit().constData());
+	const auto fsPath = std::filesystem::path{path.toLocal8Bit().constData()};
+	auto entry = packFile.findEntry(fsPath.string());
 	if (!entry) {
 		return;
 	}
@@ -350,11 +358,15 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setRowCount(this->rowCount() + 1);
 
 	// NAME
-	auto* nameItem = new QTableWidgetItem(entry->getFilename().c_str());
+	auto* nameItem = new QTableWidgetItem(fsPath.filename().string().c_str());
 	this->setItem(this->rowCount() - 1, Column::NAME, nameItem);
 
 	// TYPE
-	auto* typeItem = new QTableWidgetItem(QString(entry->getExtension().c_str()).toUpper());
+	auto ext = fsPath.extension().string();
+	if (ext.starts_with('.')) {
+		ext = ext.substr(1);
+	}
+	auto* typeItem = new QTableWidgetItem(QString(ext.c_str()).toUpper());
 	this->setItem(this->rowCount() - 1, Column::TYPE, typeItem);
 
 	// LENGTH
@@ -378,14 +390,14 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::LENGTH, sizeItem);
 
 	// PRELOADED DATA LENGTH
-	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->vpk_preloadedData.size()) + ' ' + tr("bytes"));
+	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->extraData.size()) + ' ' + tr("bytes"));
 	this->setItem(this->rowCount() - 1, Column::VPK_PRELOADED_DATA_LENGTH, preloadedSizeItem);
 
 	// ARCHIVE INDEX
 	auto archiveIndex = entry->archiveIndex;
 	// If the archive index is the dir index, it's included in the directory VPK
 	auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
-	this->setItem(this->rowCount() - 1, Column::VPK_ARCHIVE_INDEX, archiveIndexItem);
+	this->setItem(this->rowCount() - 1, Column::ARCHIVE_INDEX, archiveIndexItem);
 
 	// CRC32
 	QByteArray crc32{reinterpret_cast<const char*>(&entry->crc32), sizeof(entry->crc32)};
@@ -393,7 +405,7 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::CRC32, crc32Item);
 
 	// MD5
-	QByteArray md5{reinterpret_cast<const char*>(entry->pck_md5.data()), static_cast<qsizetype>(entry->pck_md5.size())};
+	QByteArray md5{reinterpret_cast<const char*>(entry->extraData.data()), static_cast<qsizetype>(entry->extraData.size())};
 	auto* md5Item = new QTableWidgetItem("0x" + md5.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::PCK_MD5, md5Item);
 }

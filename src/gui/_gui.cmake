@@ -115,20 +115,20 @@ target_link_libraries(
         ${PROJECT_NAME} PRIVATE
         ${CMAKE_DL_LIBS}
         discord-rpc
-        dmxpp
-        kvpp
-        mdlpp
-        steampp
-        vicepp
-        vpkpp
-        vtfpp
         Qt::Core
         Qt::Gui
         Qt::Widgets
         Qt::Network
         Qt::OpenGL
         Qt::OpenGLWidgets
-        Qt::Svg)
+        Qt::Svg
+        sourcepp::dmxpp
+        sourcepp::kvpp
+        sourcepp::mdlpp
+        sourcepp::steampp
+        sourcepp::vicepp
+        sourcepp::vpkpp
+        sourcepp::vtfpp)
 
 target_include_directories(
         ${PROJECT_NAME} PRIVATE
