@@ -907,7 +907,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	// todo: use the new PackFile::renameDirectory method it'll be way faster
 
 	QList<std::pair<std::string, Entry>> entriesToRename;
-	const_cast<const PackFile&>(*this->packFile).runForAllEntries([&oldPath, &entriesToRename](const std::string& path, const Entry& entry) {
+	this->packFile->runForAllEntries([&oldPath, &entriesToRename](const std::string& path, const Entry& entry) {
 		if (path.starts_with((oldPath + '/').toLocal8Bit().constData())) {
 			entriesToRename.emplace_back(path, entry);
 		}
@@ -1065,7 +1065,7 @@ void Window::extractFilesIf(const std::function<bool(const QString&)>& predicate
 
 	// Get progress bar maximum
 	int progressBarMax = 0;
-	const_cast<const PackFile&>(*this->packFile).runForAllEntries([&predicate, &progressBarMax](const std::string& path, const Entry& entry) {
+	this->packFile->runForAllEntries([&predicate, &progressBarMax](const std::string& path, const Entry& entry) {
 		if (predicate(QString(path.c_str()))) {
 			progressBarMax++;
 		}

@@ -112,7 +112,7 @@ void fileTree(const std::string& inputPath) {
 	}
 
 	// todo: make this more tree-like
-	const_cast<const PackFile&>(*packFile).runForAllEntries([](const std::string& path, const Entry& entry) {
+	packFile->runForAllEntries([](const std::string& path, const Entry& entry) {
 		std::cout << path << std::endl;
 	});
 }
