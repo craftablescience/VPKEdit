@@ -32,17 +32,17 @@
 #include <QThread>
 #include <QTimer>
 #include <steampp/steampp.h>
+#include <vpkpp/format/FPX.h>
+#include <vpkpp/format/PAK.h>
+#include <vpkpp/format/PCK.h>
 #include <vpkpp/format/VPK.h>
-#ifdef VPKEDIT_ZIP_COMPRESSION
 #include <vpkpp/format/ZIP.h>
-#endif
 
 #include <Version.h>
 
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
-#include "dialogs/NewVPKOptionsDialog.h"
 #include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "dialogs/VerifySignatureDialog.h"
@@ -74,12 +74,47 @@ Window::Window(QWidget* parent)
 
 	// File menu
 	auto* fileMenu = this->menuBar()->addMenu(tr("File"));
-	this->createEmptyVPKAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create Empty VPK..."), Qt::CTRL | Qt::Key_N, [this] {
+
+	this->createEmptyMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create..."));
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "BMZ", [this] {
+		this->newBMZ(false);
+	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX", [this] {
+		this->newFPX(false);
+	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "PAK", [this] {
+		this->newPAK(false);
+	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "PCK", [this] {
+		this->newPCK(false);
+	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(false);
 	});
-	this->createVPKFromDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create VPK From Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_N, [this] {
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "ZIP", [this] {
+		this->newZIP(false);
+	});
+
+	this->createFromDirMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create from Folder..."));
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "BMZ", [this] {
+		this->newBMZ(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX", [this] {
+		this->newFPX(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "PAK", [this] {
+		this->newPAK(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "PCK", [this] {
+		this->newPCK(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(true);
 	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "ZIP", [this] {
+		this->newZIP(true);
+	});
+
 	this->openAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open..."), Qt::CTRL | Qt::Key_O, [this] {
 		this->openPackFile();
 	});
@@ -356,16 +391,16 @@ Window::Window(QWidget* parent)
 		NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", "sample description", this);
 	});
 	debugDialogsMenu->addAction("Create Empty VPK Options Dialog", [this] {
-		(void) NewVPKOptionsDialog::getNewVPKOptions(false, {}, false, this);
+		(void) PackFileOptionsDialog::getForNew(PackFileType::VPK, false, this);
 	});
 	debugDialogsMenu->addAction("Create VPK From Folder Options Dialog", [this] {
-		(void) NewVPKOptionsDialog::getNewVPKOptions(true, {}, false, this);
+		(void) PackFileOptionsDialog::getForNew(PackFileType::VPK, true, this);
 	});
 	debugDialogsMenu->addAction("PackFile Options Dialog [VPK]", [this] {
-		(void) PackFileOptionsDialog::getPackFileOptions(PackFileType::VPK, {}, this);
+		(void) PackFileOptionsDialog::getForEdit(PackFileType::VPK, {}, this);
 	});
 	debugDialogsMenu->addAction("PackFile Options Dialog [ZIP/BSP]", [this] {
-		(void) PackFileOptionsDialog::getPackFileOptions(PackFileType::ZIP, {}, this);
+		(void) PackFileOptionsDialog::getForEdit(PackFileType::ZIP, {}, this);
 	});
 #endif
 
@@ -437,74 +472,126 @@ Window::Window(QWidget* parent)
 	}
 }
 
-void Window::newVPK(bool fromDirectory, const QString& startPath) {
-	if (this->modified && this->promptUserToKeepModifications()) {
+template<PackFileType Type>
+static void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
+	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::ZIP);
+
+	if (window->isModified() && window->promptUserToKeepModifications()) {
 		return;
 	}
 
-	auto vpkOptions = NewVPKOptionsDialog::getNewVPKOptions(fromDirectory, {}, false, this);
-	if (!vpkOptions) {
+	auto options = PackFileOptionsDialog::getForNew(Type, fromDirectory, window);
+	if (!options) {
 		return;
 	}
-	auto [options, singleFile] = *vpkOptions;
 
-	auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, tr("Use This Folder"), startPath) : "";
+	auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(window, QObject::tr("Use This Folder"), startPath) : "";
 	if (fromDirectory && dirPath.isEmpty()) {
 		return;
 	}
 
-	QString vpkSaveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
-	vpkSaveFilePath += QDir::separator();
-	vpkSaveFilePath += (std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string() + (singleFile || dirPath.endsWith("_dir") ? ".vpk" : "_dir.vpk")).c_str();
-	auto vpkPath = QFileDialog::getSaveFileName(this, tr("Save New VPK"), fromDirectory ? vpkSaveFilePath : startPath, "Valve Pack File (*.vpk)");
-	if (vpkPath.isEmpty()) {
+	QString saveFilePath;
+	if (fromDirectory) {
+		saveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
+		saveFilePath += QDir::separator();
+		if constexpr (Type == PackFileType::FPX || Type == PackFileType::VPK) {
+			saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + (((options->vpk_saveSingleFile || dirPath.endsWith("_dir")) ? "" : "_dir") + extension);
+		} else {
+			saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + extension;
+		}
+	}
+	auto packFilePath = QFileDialog::getSaveFileName(window, QObject::tr("Save New Pack File"), fromDirectory ? saveFilePath : startPath, name + " (*" + extension + ")");
+	if (packFilePath.isEmpty()) {
 		return;
 	}
 
-	if (fromDirectory) {
-		// Set up progress bar
-		this->statusText->hide();
-		this->statusProgressBar->show();
-		this->statusBar()->show();
-
-		// Show progress bar is busy
-		this->statusProgressBar->setValue(0);
-		this->statusProgressBar->setRange(0, 0);
-
-		this->freezeActions(true);
-
-		// Set up thread
-		this->createVPKFromDirWorkerThread = new QThread(this);
-		auto* worker = new IndeterminateProgressWorker();
-		worker->moveToThread(this->createVPKFromDirWorkerThread);
-		// Cringe compiler moment in the lambda capture list
-		QObject::connect(this->createVPKFromDirWorkerThread, &QThread::started, worker, [worker, vpkPath, dirPath, singleFile_=singleFile, options_=options] {
-			worker->run([vpkPath, dirPath, singleFile_, options_] {
-				(void) VPK::createFromDirectory(vpkPath.toLocal8Bit().constData(), dirPath.toLocal8Bit().constData(), singleFile_, options_);
-			});
-		});
-		QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, this, [this, vpkPath] {
-			// Kill thread
-			this->createVPKFromDirWorkerThread->quit();
-			this->createVPKFromDirWorkerThread->wait();
-			delete this->createVPKFromDirWorkerThread;
-			this->createVPKFromDirWorkerThread = nullptr;
-
-			// loadVPK freezes them right away again
-			// this->freezeActions(false);
-			this->loadPackFile(vpkPath);
-		});
-		this->createVPKFromDirWorkerThread->start();
+	if constexpr (Type == PackFileType::FPX) {
+		FPX::create(packFilePath.toLocal8Bit().constData());
+	} else if constexpr (Type == PackFileType::PAK) {
+		PAK::create(packFilePath.toLocal8Bit().constData());
+	} else if constexpr (Type == PackFileType::PCK) {
+		PCK::create(packFilePath.toLocal8Bit().constData());
+	} else if constexpr (Type == PackFileType::VPK) {
+		VPK::create(packFilePath.toLocal8Bit().constData(), options->vpk_version);
+	} else if constexpr (Type == PackFileType::ZIP) {
+		ZIP::create(packFilePath.toLocal8Bit().constData());
 	} else {
-		(void) VPK::createEmpty(vpkPath.toLocal8Bit().constData(), options);
-		this->loadPackFile(vpkPath);
+		return;
 	}
+
+	if (!fromDirectory) {
+		window->loadPackFile(packFilePath);
+		return;
+	}
+
+	// Set up progress bar
+	window->statusText->hide();
+	window->statusProgressBar->show();
+	window->statusBar()->show();
+
+	// Show progress bar is busy
+	window->statusProgressBar->setValue(0);
+	window->statusProgressBar->setRange(0, 0);
+
+	window->freezeActions(true);
+
+	// Set up thread
+	window->createPackFileFromDirWorkerThread = new QThread(window);
+	auto* worker = new IndeterminateProgressWorker();
+	worker->moveToThread(window->createPackFileFromDirWorkerThread);
+	QObject::connect(window->createPackFileFromDirWorkerThread, &QThread::started, worker, [worker, packFilePath, dirPath, options_=*options] {
+		worker->run([packFilePath, dirPath, options_] {
+			if (auto packFile = PackFile::open(packFilePath.toLocal8Bit().constData())) {
+				packFile->addDirectory("", dirPath.toLocal8Bit().constData(), {
+					.vpk_saveToDirectory = options_.vpk_saveSingleFile,
+					.vpk_preloadBytes = 0,
+				});
+				packFile->bake("", {}, nullptr);
+			}
+		});
+	});
+	QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, window, [window, packFilePath] {
+		// Kill thread
+		window->createPackFileFromDirWorkerThread->quit();
+		window->createPackFileFromDirWorkerThread->wait();
+		delete window->createPackFileFromDirWorkerThread;
+		window->createPackFileFromDirWorkerThread = nullptr;
+
+		// loadPackFile freezes them right away again
+		// this->freezeActions(false);
+		window->loadPackFile(packFilePath);
+	});
+	window->createPackFileFromDirWorkerThread->start();
+}
+
+void Window::newBMZ(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::ZIP>(this, fromDirectory, startPath, "BMZ", ".bmz");
+}
+
+void Window::newFPX(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::FPX>(this, fromDirectory, startPath, "FPX", ".fpx");
+}
+
+void Window::newPAK(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::PAK>(this, fromDirectory, startPath, "PAK", ".pak");
+}
+
+void Window::newPCK(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::PCK>(this, fromDirectory, startPath, "PCK", ".pck");
+}
+
+void Window::newVPK(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::VPK>(this, fromDirectory, startPath, "VPK", ".vpk");
+}
+
+void Window::newZIP(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::ZIP>(this, fromDirectory, startPath, "ZIP", ".zip");
 }
 
 void Window::openPackFile(const QString& startPath, const QString& filePath) {
 	auto path = filePath;
 	if (path.isEmpty()) {
-		auto supportedExtensions = PackFile::getSupportedFileTypes();
+		auto supportedExtensions = PackFile::getOpenableExtensions();
 		QString filter = "Supported Files (";
 		for (int i = 0; i < supportedExtensions.size(); i++) {
 			if (i != 0) {
@@ -667,7 +754,17 @@ bool Window::isReadOnly() const {
 }
 
 void Window::setProperties() {
-	auto options = PackFileOptionsDialog::getPackFileOptions(this->packFile->getType(), this->packFile->getOptions(), this);
+	auto version = 0u;
+	auto chunkSize = 0u;
+	if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
+		version = vpk->getVersion();
+		chunkSize = vpk->getChunkSize();
+	}
+
+	auto options = PackFileOptionsDialog::getForEdit(this->packFile->getType(), {
+		.vpk_version = version,
+		.vpk_chunkSize = chunkSize,
+	}, this);
 	if (!options) {
 		return;
 	}
@@ -675,13 +772,8 @@ void Window::setProperties() {
 	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
 		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
 		vpk.setVersion(options->vpk_version);
+		vpk.setChunkSize(options->vpk_chunkSize);
 	}
-#ifdef VPKEDIT_ZIP_COMPRESSION
-	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
-		auto& zip = dynamic_cast<ZIP&>(*this->packFile);
-		zip.setCompressionMethod(options->zip_compressionMethod);
-	}
-#endif
 
 	this->resetStatusBar();
 
@@ -1192,8 +1284,8 @@ bool Window::clearContents() {
 }
 
 void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeFileViewer) const {
-	this->createEmptyVPKAction->setDisabled(freeze && freezeCreationActions);
-	this->createVPKFromDirAction->setDisabled(freeze && freezeCreationActions);
+	this->createEmptyMenu->setDisabled(freeze && freezeCreationActions);
+	this->createFromDirMenu->setDisabled(freeze && freezeCreationActions);
 	this->openAction->setDisabled(freeze && freezeCreationActions);
 	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
 	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
@@ -1220,6 +1312,10 @@ void Window::freezeModifyActions(bool readOnly) const {
 		this->addDirAction->setDisabled(readOnly);
 		this->setPropertiesAction->setDisabled(readOnly);
 	}
+}
+
+bool Window::isModified() const {
+	return this->modified;
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {
@@ -1249,7 +1345,7 @@ void Window::dragEnterEvent(QDragEnterEvent* event) {
 	} else if (!this->packFile) {
 		// If we don't have a pack file open, and the path is a pack file, we can load it instead
 		auto path = event->mimeData()->urls()[0].path();
-		auto fileTypes = PackFile::getSupportedFileTypes();
+		auto fileTypes = PackFile::getOpenableExtensions();
 		if (std::any_of(fileTypes.begin(), fileTypes.end(), [&path](const std::string& extension) { return path.endsWith(extension.c_str()); })) {
 			event->acceptProposedAction();
 		}
@@ -1433,7 +1529,7 @@ void SavePackFileWorker::run(Window* window, const QString& savePath, bool async
 		loop = std::make_unique<QEventLoop>();
 	}
 	int currentEntry = 0;
-	bool success = window->packFile->bake(savePath.toLocal8Bit().constData(), [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
+	bool success = window->packFile->bake(savePath.toLocal8Bit().constData(), {}, [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
 		emit this->progressUpdated(++currentEntry);
 		if (loop_) {
 			loop_->processEvents();

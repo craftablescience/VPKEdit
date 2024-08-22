@@ -32,16 +32,18 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 
   | Format | Description                                 | Create | Read | Write |
   |--------|---------------------------------------------|:------:|:----:|:-----:|
-  | BMZ    | Bonus Map Zip (Source Engine)               |   ❌    |  ✅   |   ✅   |
+  | BMZ    | Bonus Map Zip (Source Engine)               |   ✅    |  ✅   |   ✅   |
   | BSP    | Source 1 Map                                |  N/A   |  ✅   |   ✅   |
-  | FPX    | VPK modification (Tactical Intervention)    |   ❌    |  ✅   |   ✅   |
+  | FPX    | VPK modification (Tactical Intervention)    |   ✅    |  ✅   |   ✅   |
   | GCF    | Game Cache File (Pre-SteamPipe Steam games) |   ❌    |  ✅   |   ❌   |
   | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
-  | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ❌    |  ✅   |   ✅   |
-  | PCK    | Godot PaCK file (Standalone or embedded)    |   ❌    |  ✅   |   ✅   |
-  | VPK    | Vampire PacK file (V:TMB)                   |   ❌    |  ✅   |   ✅   |
+  | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ✅    |  ✅   |   ✅   |
+  | PCK    | Godot PaCK file (Standalone or embedded)    |   ✅    |  ✅   |   ✅   |
+  | VPK    | Vampire PacK file (V:TMB)                   | 〰️[^1] |  ✅   |   ✅   |
   | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
-  | ZIP    | ZIP file (Uncompressed)                     |   ❌    |  ✅   |   ✅   |
+  | ZIP    | ZIP file (Uncompressed)                     |   ✅    |  ✅   |   ✅   |
+
+  [^1]: Only supported in the CLI interface.
 
 - Preview files contained within the pack file without extracting them:
   - Audio

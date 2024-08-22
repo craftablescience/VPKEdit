@@ -5,42 +5,37 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
+#include <QMessageBox>
+#include <QSpinBox>
 #include <vpkpp/format/VPK.h>
 
 using namespace vpkpp;
 
-PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions options_, QWidget* parent)
-		: QDialog(parent)
-		, options(options_) {
+PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent)
+		: QDialog(parent) {
 	this->setModal(true);
-	this->setWindowTitle(tr("Properties"));
+	this->setWindowTitle(tr("Pack File Properties"));
 
 	auto* layout = new QFormLayout(this);
 
-	this->vpk_version = nullptr;
-#ifdef VPKEDIT_ZIP_COMPRESSION
-	this->zip_useCompression = nullptr;
-#endif
-	if (type == PackFileType::VPK) {
-		auto* versionLabel = new QLabel(tr("Version:"), this);
-		this->vpk_version = new QComboBox(this);
-		this->vpk_version->addItem("v1");
-		this->vpk_version->addItem("v2");
-		this->vpk_version->setCurrentIndex(static_cast<int>(this->options.vpk_version) - 1);
-		layout->addRow(versionLabel, this->vpk_version);
+	this->version = new QComboBox(this);
+	this->version->addItem("v1");
+	this->version->addItem("v2");
+	this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
+	layout->addRow(tr("Version:"), this->version);
+
+	this->singleFile = nullptr;
+	if (!editing && createFromDir) {
+		this->singleFile = new QCheckBox(this);
+		this->singleFile->setChecked(options.vpk_saveSingleFile);
+		layout->addRow(tr("Save to single file:\nBreaks the VPK if its size will be >= 4gb!"), this->singleFile);
 	}
-#ifdef VPKEDIT_ZIP_COMPRESSION
-	else if (type == PackFileType::BSP || type == PackFileType::ZIP) {
-		auto* useCompressionLabel = new QLabel(tr("Use LZMA Compression:"), this);
-		this->zip_useCompression = new QCheckBox(this);
-		this->zip_useCompression->setChecked(this->options.zip_compressionMethod == MZ_COMPRESS_METHOD_LZMA);
-		layout->addRow(useCompressionLabel, this->zip_useCompression);
-	}
-#endif
-	else {
-		auto* nothingLabel = new QLabel(tr("There are no properties available for this file type."), this);
-		layout->addWidget(nothingLabel);
-	}
+
+	this->preferredChunkSize = new QSpinBox(this);
+	this->preferredChunkSize->setMinimum(1); // 1mb
+	this->preferredChunkSize->setMaximum(4000); // 4gb
+	this->preferredChunkSize->setValue(static_cast<int>(options.vpk_chunkSize / 1024 / 1024));
+	layout->addRow(tr("Preferred chunk size (MB):"), this->preferredChunkSize);
 
 	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 	layout->addWidget(buttonBox);
@@ -49,18 +44,35 @@ PackFileOptionsDialog::PackFileOptionsDialog(PackFileType type, PackFileOptions 
 	QObject::connect(buttonBox, &QDialogButtonBox::rejected, this, &PackFileOptionsDialog::reject);
 }
 
-PackFileOptions PackFileOptionsDialog::getPackFileOptions() {
-	this->options.vpk_version = this->vpk_version ? this->vpk_version->currentIndex() + 1 : 2;
-	this->options.zip_compressionMethod =
-#ifdef VPKEDIT_ZIP_COMPRESSION
-			this->zip_useCompression ? MZ_COMPRESS_METHOD_LZMA :
-#endif
-			0; // MZ_COMPRESS_METHOD_STORE
-	return this->options;
+PackFileOptions PackFileOptionsDialog::getPackFileOptions() const {
+	return {
+		.vpk_version = static_cast<std::uint32_t>(this->version->currentIndex() + 1), // VPK v1, v2
+		.vpk_saveSingleFile = this->singleFile && this->singleFile->isChecked(),
+		.vpk_chunkSize = this->preferredChunkSize ? this->preferredChunkSize->value() * 1024 * 1024 : VPK_DEFAULT_CHUNK_SIZE,
+	};
 }
 
-std::optional<PackFileOptions> PackFileOptionsDialog::getPackFileOptions(PackFileType type, PackFileOptions options, QWidget* parent) {
-	auto* dialog = new PackFileOptionsDialog(type, options, parent);
+std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(vpkpp::PackFileType type, bool createFromDir, QWidget* parent) {
+	if (type != PackFileType::VPK) {
+		return PackFileOptions{};
+	}
+
+	auto* dialog = new PackFileOptionsDialog(type, false, createFromDir, {}, parent);
+	int ret = dialog->exec();
+	dialog->deleteLater();
+	if (ret != QDialog::Accepted) {
+		return std::nullopt;
+	}
+	return dialog->getPackFileOptions();
+}
+
+std::optional<PackFileOptions> PackFileOptionsDialog::getForEdit(vpkpp::PackFileType type, PackFileOptions options, QWidget* parent) {
+	if (type != PackFileType::VPK) {
+		QMessageBox::information(parent, tr("Pack File Properties"), tr("No properties available for this file type."));
+		return std::nullopt;
+	}
+
+	auto* dialog = new PackFileOptionsDialog(type, false, false, options, parent);
 	int ret = dialog->exec();
 	dialog->deleteLater();
 	if (ret != QDialog::Accepted) {

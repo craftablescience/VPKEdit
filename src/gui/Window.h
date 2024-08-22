@@ -26,10 +26,23 @@ class Window : public QMainWindow {
 	friend class SavePackFileWorker;
 	friend class ExtractPackFileWorker;
 
+	template<vpkpp::PackFileType Type>
+	friend void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension);
+
 public:
 	explicit Window(QWidget* parent = nullptr);
 
+	void newBMZ(bool fromDirectory, const QString& startPath = QString());
+
+	void newFPX(bool fromDirectory, const QString& startPath = QString());
+
+	void newPAK(bool fromDirectory, const QString& startPath = QString());
+
+	void newPCK(bool fromDirectory, const QString& startPath = QString());
+
 	void newVPK(bool fromDirectory, const QString& startPath = QString());
+
+	void newZIP(bool fromDirectory, const QString& startPath = QString());
 
 	void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
 
@@ -111,6 +124,8 @@ public:
 
 	void freezeModifyActions(bool readOnly) const;
 
+	[[nodiscard]] bool isModified() const;
+
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 
@@ -130,8 +145,8 @@ private:
 	EntryTree* entryTree;
 	FileViewer* fileViewer;
 
-	QAction* createEmptyVPKAction;
-	QAction* createVPKFromDirAction;
+	QMenu*   createEmptyMenu;
+	QMenu*   createFromDirMenu;
 	QAction* openAction;
 	QMenu*   openRelativeToMenu;
 	QMenu*   openRecentMenu;
@@ -147,10 +162,10 @@ private:
 
 	QNetworkAccessManager* checkForNewUpdateNetworkManager;
 
-	QThread* createVPKFromDirWorkerThread = nullptr;
-	QThread* savePackFileWorkerThread     = nullptr;
-	QThread* extractPackFileWorkerThread  = nullptr;
-	QThread* scanSteamGamesWorkerThread   = nullptr;
+	QThread* createPackFileFromDirWorkerThread = nullptr;
+	QThread* savePackFileWorkerThread          = nullptr;
+	QThread* extractPackFileWorkerThread       = nullptr;
+	QThread* scanSteamGamesWorkerThread        = nullptr;
 
 	std::unique_ptr<vpkpp::PackFile> packFile;
 	bool modified;

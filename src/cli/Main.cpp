@@ -4,7 +4,12 @@
 
 #include <argparse/argparse.hpp>
 #include <indicators/indeterminate_progress_bar.hpp>
+#include <vpkpp/format/FPX.h>
+#include <vpkpp/format/PAK.h>
+#include <vpkpp/format/PCK.h>
+#include <vpkpp/format/VPK_VTMB.h>
 #include <vpkpp/format/VPK.h>
+#include <vpkpp/format/ZIP.h>
 
 #include <Version.h>
 
@@ -18,6 +23,7 @@ using namespace vpkpp;
 	constexpr std::string_view ARG_##name##_LONG  = long_
 
 ARG_S(OUTPUT,           "-o", "--output");
+ARG_S(TYPE,             "-t", "--type");
 ARG_L(NO_PROGRESS,            "--no-progress");
 ARG_S(VERSION,          "-v", "--version");
 ARG_S(CHUNKSIZE,        "-c", "--chunksize");
@@ -135,13 +141,17 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		return;
 	}
 
+	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
+
 	if (cli.is_used(ARG_L(ADD_FILE))) {
 		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
 		if (!std::filesystem::exists(args[0])) {
 			std::cerr << "File at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
 		} else {
 			packFile->addEntry(args[1], args[0], {});
-			packFile->bake("", nullptr);
+			packFile->bake("", {
+				.vpk_generateMD5Entries = generateMD5Entries,
+			}, nullptr);
 			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
 		}
 	}
@@ -152,7 +162,9 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 			std::cerr << "Unable to remove file at \"" << path << "\" from the pack file!\n" <<
 					"Check the file exists in the pack file and the path is spelled correctly." << std::endl;
 		} else {
-			packFile->bake("", nullptr);
+			packFile->bake("", {
+				.vpk_generateMD5Entries = generateMD5Entries,
+			}, nullptr);
 			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
 		}
 	}
@@ -221,17 +233,24 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 }
 
-/// Pack contents of a directory into a VPK
+/// Pack contents of a directory into a new pack file
 void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto outputPath = inputPath + (cli.get<bool>(ARG_S(SINGLE_FILE)) || inputPath.ends_with("_dir") ? ".vpk" : "_dir.vpk");
+	auto type = cli.get<std::string>(ARG_S(TYPE));
+	std::string extension = '.' + type;
+	if (type == "vpk_vtmb") {
+		extension = ".vpk";
+	}
+
+	auto outputPath = inputPath + (cli.get<bool>(ARG_S(SINGLE_FILE)) || inputPath.ends_with("_dir") ? "" : "_dir") + extension;
 	if (cli.is_used(ARG_S(OUTPUT))) {
-		if (!cli.get(ARG_S(OUTPUT)).ends_with(".vpk")) {
-			throw std::runtime_error{"Output path must be a VPK file!"};
-		}
 		outputPath = cli.get(ARG_S(OUTPUT));
-		if (!cli.get<bool>(ARG_S(SINGLE_FILE)) && !outputPath.ends_with("_dir.vpk")) {
-			std::cerr << "Warning: multichunk VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
-			             "This VPK may not be able to be loaded by the Source engine or other VPK browsers!\n" << std::endl;
+		if (!outputPath.ends_with(extension)) {
+			const auto fsPath = std::filesystem::path{outputPath};
+			outputPath = (fsPath.parent_path() / fsPath.stem()).string() + extension;
+		}
+		if ((type == "fpx" || type == "vpk") && !cli.get<bool>(ARG_S(SINGLE_FILE)) && !outputPath.ends_with("_dir" + extension)) {
+			std::cerr << "Warning: multichunk FPX/VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
+			             "The Source engine may not be able to load this file!" << std::endl;
 		}
 	}
 
@@ -257,23 +276,53 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		);
 	}
 
-	auto vpk = VPK::createFromDirectoryProcedural(outputPath, inputPath, [saveToDir, &preloadExtensions, noProgressBar, &bar](const std::string& fullEntryPath) {
-		int preloadBytes = 0;
+	std::unique_ptr<PackFile> packFile;
+	if (type == "bmz" || type == "zip") {
+		packFile = ZIP::create(outputPath);
+	} else if (type == "fpx") {
+		packFile = FPX::create(outputPath);
+		if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
+			fpx->setChunkSize(preferredChunkSize);
+		}
+	} else if (type == "pak") {
+		packFile = PAK::create(outputPath);
+	} else if (type == "pck") {
+		packFile = PCK::create(outputPath, version);
+	} else if (type == "vpk_vtmb") {
+		packFile = VPK_VTMB::create(outputPath);
+	} else if (type == "vpk") {
+		packFile = VPK::create(outputPath, version);
+		if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
+			vpk->setChunkSize(preferredChunkSize);
+		}
+	}
+	if (!packFile) {
+		std::cerr << "Failed to create pack file!" << std::endl;
+		if (!noProgressBar) {
+			bar->mark_as_completed();
+		}
+		return;
+	}
+
+	packFile->addDirectory("", inputPath, [saveToDir, &preloadExtensions](const std::string& path) -> EntryOptions {
+		uint32_t preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
-			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path{fullEntryPath}.extension().string().ends_with(preloadExtension)) ||
-				std::filesystem::path{fullEntryPath}.filename().string() == preloadExtension) {
+			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path{path}.extension().string().ends_with(preloadExtension)) || std::filesystem::path{path}.filename().string() == preloadExtension) {
 				preloadBytes = VPK_MAX_PRELOAD_BYTES;
 				break;
 			}
 		}
+		return {
+			.vpk_saveToDirectory = saveToDir,
+			.vpk_preloadBytes = preloadBytes,
+		};
+	});
+	packFile->bake("", {
+		.vpk_generateMD5Entries = generateMD5Entries,
+	}, [noProgressBar, &bar](const std::string& path, const Entry& entry) {
 		if (!noProgressBar) {
 			bar->tick();
 		}
-		return std::make_tuple(saveToDir, preloadBytes);
-	}, {
-		.vpk_version = version,
-		.vpk_preferredChunkSize = preferredChunkSize,
-		.vpk_generateMD5Entries = generateMD5Entries,
 	});
 
 	if (!noProgressBar) {
@@ -290,7 +339,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		::verify(cli, outputPath);
 	}
 
-	std::cout << "Successfully created VPK at \"" << vpk->getFilepath() << "\"." << std::endl;
+	std::cout << "Successfully created pack file at \"" << packFile->getFilepath() << "\"." << std::endl;
 }
 
 } // namespace
@@ -305,21 +354,21 @@ int main(int argc, const char* const* argv) {
 #endif
 
 	cli.add_description("This program currently has seven modes:\n"
-	                    " - Pack:     Packs the contents of a given directory into a VPK.\n"
+	                    " - Pack:     Packs the contents of a given directory into a new pack file.\n"
 	                    " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
 	                    " - Modify:   Edits the contents of the given pack file.\n"
 	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
-	                    "             with Pack mode to print the file tree of the new VPK.\n"
+	                    "             with Pack mode to print the file tree of the new pack file.\n"
 	                    " - Sign:     Signs an existing VPK. Can also be combined with Pack mode to sign the new VPK.\n"
 	                    " - Verify:   Verify the given pack file's checksums and/or signature. If used together with\n"
-	                    "             Pack or Sign modes, it will verify the VPK after the other modes are finished.\n"
+	                    "             Pack or Sign modes, it will verify the pack file after the other modes are finished.\n"
 	                    "Modes are automatically determined by the <path> argument, as well as the other given arguments\n"
 	                    "when it is still unclear. Almost all modes are compatible with each other, and will run in the\n"
 	                    "most logical sequence possible.");
 
 	cli.add_argument("<path>")
-		.help("(Pack)     The directory to pack into a VPK.\n"
+		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Modify)   The path to the pack file to edit the contents of.\n"
@@ -329,14 +378,20 @@ int main(int argc, const char* const* argv) {
 		.required();
 
 	cli.add_argument(ARG_P(OUTPUT))
-		.help("The path to the output VPK, directory, or file. If unspecified, will default next to the input path.");
+		.help("The path to the output pack file, directory, or file. If unspecified, will default next to the input path.");
+
+	cli.add_argument(ARG_P(TYPE))
+		.help("(Pack) The type of the output pack file.")
+		.default_value("vpk")
+		.choices("bmz", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "zip")
+		.nargs(1);
 
 	cli.add_argument(ARG_L(NO_PROGRESS))
 		.help("Hide all progress bars.")
 		.flag();
 
 	cli.add_argument(ARG_P(VERSION))
-		.help("(Pack) The version of the VPK. Can be 1 or 2.")
+		.help("(Pack) The version of the PCK/VPK.")
 		.default_value("2")
 		.choices("1", "2")
 		.nargs(1);
@@ -347,7 +402,7 @@ int main(int argc, const char* const* argv) {
 		.nargs(1);
 
 	cli.add_argument(ARG_L(GEN_MD5_ENTRIES))
-		.help("(Pack) Generate MD5 hashes for each file (v2 only).")
+		.help("(Pack) Generate MD5 hashes for each file (VPK v2 only).")
 		.flag();
 
 	cli.add_argument(ARG_L(ADD_FILE))
@@ -360,15 +415,15 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_P(PRELOAD))
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
-		      "preloaded in the directory VPK. Full file names are also supported here\n"
+		      "preloaded in the directory FPX/VPK. Full file names are also supported here\n"
 		      "(i.e. this would preload any files named README.md or files ending in vmt:\n"
 		      "\"-p README.md vmt\"). It preloads materials by default to match Valve behavior.")
 		.default_value(std::vector<std::string>{"vmt"})
 		.remaining();
 
 	cli.add_argument(ARG_P(SINGLE_FILE))
-		.help("(Pack) Pack all files into the directory VPK (single-file build).\n"
-		      "Breaks the VPK if its size will be >= 4gb!")
+		.help("(Pack) Pack all files into the directory FPX/VPK (single-file build).\n"
+		      "Breaks the pack file if its size will be >= 4gb!")
 		.flag();
 
 	cli.add_argument(ARG_P(EXTRACT))
