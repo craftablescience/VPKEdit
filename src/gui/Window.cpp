@@ -505,22 +505,29 @@ static void newPackFile(Window* window, bool fromDirectory, const QString& start
 		return;
 	}
 
+	std::unique_ptr<PackFile> packFile;
 	if constexpr (Type == PackFileType::FPX) {
-		FPX::create(packFilePath.toLocal8Bit().constData());
+		packFile = FPX::create(packFilePath.toLocal8Bit().constData());
+		if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
+			fpx->setChunkSize(options->vpk_chunkSize);
+		}
 	} else if constexpr (Type == PackFileType::PAK) {
-		PAK::create(packFilePath.toLocal8Bit().constData());
+		packFile = PAK::create(packFilePath.toLocal8Bit().constData());
 	} else if constexpr (Type == PackFileType::PCK) {
-		PCK::create(packFilePath.toLocal8Bit().constData());
+		packFile = PCK::create(packFilePath.toLocal8Bit().constData());
 	} else if constexpr (Type == PackFileType::VPK) {
-		VPK::create(packFilePath.toLocal8Bit().constData(), options->vpk_version);
+		packFile = VPK::create(packFilePath.toLocal8Bit().constData(), options->vpk_version);
+		if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
+			vpk->setChunkSize(options->vpk_chunkSize);
+		}
 	} else if constexpr (Type == PackFileType::ZIP) {
-		ZIP::create(packFilePath.toLocal8Bit().constData());
+		packFile = ZIP::create(packFilePath.toLocal8Bit().constData());
 	} else {
 		return;
 	}
 
 	if (!fromDirectory) {
-		window->loadPackFile(packFilePath);
+		window->loadPackFile(packFilePath, std::move(packFile));
 		return;
 	}
 
@@ -542,6 +549,15 @@ static void newPackFile(Window* window, bool fromDirectory, const QString& start
 	QObject::connect(window->createPackFileFromDirWorkerThread, &QThread::started, worker, [worker, packFilePath, dirPath, options_=*options] {
 		worker->run([packFilePath, dirPath, options_] {
 			if (auto packFile = PackFile::open(packFilePath.toLocal8Bit().constData())) {
+				if (packFile->getType() == PackFileType::FPX) {
+					if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
+						fpx->setChunkSize(options_.vpk_chunkSize);
+					}
+				} else if (packFile->getType() == PackFileType::VPK) {
+					if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
+						vpk->setChunkSize(options_.vpk_chunkSize);
+					}
+				}
 				packFile->addDirectory("", dirPath.toLocal8Bit().constData(), {
 					.vpk_saveToDirectory = options_.vpk_saveSingleFile,
 					.vpk_preloadBytes = 0,
@@ -550,7 +566,7 @@ static void newPackFile(Window* window, bool fromDirectory, const QString& start
 			}
 		});
 	});
-	QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, window, [window, packFilePath] {
+	QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, window, [window, packFilePath, options_=*options] {
 		// Kill thread
 		window->createPackFileFromDirWorkerThread->quit();
 		window->createPackFileFromDirWorkerThread->wait();
@@ -560,6 +576,17 @@ static void newPackFile(Window* window, bool fromDirectory, const QString& start
 		// loadPackFile freezes them right away again
 		// this->freezeActions(false);
 		window->loadPackFile(packFilePath);
+		if (window->packFile) {
+			if (window->packFile->getType() == PackFileType::FPX) {
+				if (auto* fpx = dynamic_cast<FPX*>(window->packFile.get())) {
+					fpx->setChunkSize(options_.vpk_chunkSize);
+				}
+			} else if (window->packFile->getType() == PackFileType::VPK) {
+				if (auto* vpk = dynamic_cast<VPK*>(window->packFile.get())) {
+					vpk->setChunkSize(options_.vpk_chunkSize);
+				}
+			}
+		}
 	});
 	window->createPackFileFromDirWorkerThread->start();
 }
@@ -756,9 +783,16 @@ bool Window::isReadOnly() const {
 void Window::setProperties() {
 	auto version = 0u;
 	auto chunkSize = 0u;
-	if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
-		version = vpk->getVersion();
-		chunkSize = vpk->getChunkSize();
+
+	if (this->packFile->getType() == PackFileType::FPX) {
+		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
+			chunkSize = fpx->getChunkSize();
+		}
+	} else if (this->packFile->getType() == PackFileType::FPX) {
+		if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
+			version = vpk->getVersion();
+			chunkSize = vpk->getChunkSize();
+		}
 	}
 
 	auto options = PackFileOptionsDialog::getForEdit(this->packFile->getType(), {
@@ -769,10 +803,15 @@ void Window::setProperties() {
 		return;
 	}
 
-	if (auto type = this->packFile->getType(); type == PackFileType::VPK) {
-		auto& vpk = dynamic_cast<VPK&>(*this->packFile);
-		vpk.setVersion(options->vpk_version);
-		vpk.setChunkSize(options->vpk_chunkSize);
+	if (this->packFile->getType() == PackFileType::FPX) {
+		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
+			fpx->setChunkSize(options->vpk_chunkSize);
+		}
+	} else if (this->packFile->getType() == PackFileType::FPX) {
+		if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
+			vpk->setVersion(options->vpk_version);
+			vpk->setChunkSize(options->vpk_chunkSize);
+		}
 	}
 
 	this->resetStatusBar();
@@ -1389,6 +1428,10 @@ void Window::closeEvent(QCloseEvent* event) {
 }
 
 bool Window::loadPackFile(const QString& path) {
+	return this->loadPackFile(path, PackFile::open(path.toLocal8Bit().constData()));
+}
+
+bool Window::loadPackFile(const QString& path, std::unique_ptr<vpkpp::PackFile>&& newPackFile) {
 	if (!this->clearContents()) {
 		return false;
 	}
@@ -1399,7 +1442,7 @@ bool Window::loadPackFile(const QString& path) {
 	QString fixedPath = QDir(path).absolutePath();
 	fixedPath.replace('\\', '/');
 
-	this->packFile = PackFile::open(fixedPath.toLocal8Bit().constData());
+	this->packFile = std::move(newPackFile);
 	if (!this->packFile) {
 		// Remove from recent paths if it's there
 		if (recentPaths.contains(fixedPath)) {
@@ -1433,7 +1476,7 @@ bool Window::loadPackFile(const QString& path) {
 	this->statusProgressBar->show();
 	this->statusBar()->show();
 
-	this->entryTree->loadPackFile(*this->packFile, this->statusProgressBar, [this, path] {
+	this->entryTree->loadPackFile(*this->packFile, this->statusProgressBar, [this] {
 		this->freezeActions(false);
 		this->freezeModifyActions(this->isReadOnly());
 

@@ -174,6 +174,8 @@ private:
 
 	bool loadPackFile(const QString& path);
 
+	bool loadPackFile(const QString& path, std::unique_ptr<vpkpp::PackFile>&& newPackFile);
+
 	void rebuildOpenInMenu();
 
 	void rebuildOpenRecentMenu(const QStringList& paths);

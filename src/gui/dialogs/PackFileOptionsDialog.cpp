@@ -18,17 +18,20 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 
 	auto* layout = new QFormLayout(this);
 
-	this->version = new QComboBox(this);
-	this->version->addItem("v1");
-	this->version->addItem("v2");
-	this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
-	layout->addRow(tr("Version:"), this->version);
+	this->version = nullptr;
+	if (type == PackFileType::VPK) {
+		this->version = new QComboBox(this);
+		this->version->addItem("v1");
+		this->version->addItem("v2");
+		this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
+		layout->addRow(tr("Version:"), this->version);
+	}
 
 	this->singleFile = nullptr;
 	if (!editing && createFromDir) {
 		this->singleFile = new QCheckBox(this);
 		this->singleFile->setChecked(options.vpk_saveSingleFile);
-		layout->addRow(tr("Save to single file:\nBreaks the VPK if its size will be >= 4gb!"), this->singleFile);
+		layout->addRow(tr("Save to single file:\nBreaks if the file's size will be >= 4gb!"), this->singleFile);
 	}
 
 	this->preferredChunkSize = new QSpinBox(this);
@@ -46,14 +49,14 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 
 PackFileOptions PackFileOptionsDialog::getPackFileOptions() const {
 	return {
-		.vpk_version = static_cast<std::uint32_t>(this->version->currentIndex() + 1), // VPK v1, v2
+		.vpk_version = this->version ? static_cast<std::uint32_t>(this->version->currentIndex() + 1) : 2,
 		.vpk_saveSingleFile = this->singleFile && this->singleFile->isChecked(),
 		.vpk_chunkSize = this->preferredChunkSize ? this->preferredChunkSize->value() * 1024 * 1024 : VPK_DEFAULT_CHUNK_SIZE,
 	};
 }
 
 std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(vpkpp::PackFileType type, bool createFromDir, QWidget* parent) {
-	if (type != PackFileType::VPK) {
+	if (type != PackFileType::FPX && type != PackFileType::VPK) {
 		return PackFileOptions{};
 	}
 
@@ -67,7 +70,7 @@ std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(vpkpp::PackFileT
 }
 
 std::optional<PackFileOptions> PackFileOptionsDialog::getForEdit(vpkpp::PackFileType type, PackFileOptions options, QWidget* parent) {
-	if (type != PackFileType::VPK) {
+	if (type != PackFileType::FPX && type != PackFileType::VPK) {
 		QMessageBox::information(parent, tr("Pack File Properties"), tr("No properties available for this file type."));
 		return std::nullopt;
 	}
