@@ -241,7 +241,12 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		extension = ".vpk";
 	}
 
-	auto outputPath = inputPath + (cli.get<bool>(ARG_S(SINGLE_FILE)) || inputPath.ends_with("_dir") ? "" : "_dir") + extension;
+	std::string outputPath = inputPath;
+	if (type == "fpx" || type == "vpk") {
+		outputPath += (cli.get<bool>(ARG_S(SINGLE_FILE)) || inputPath.ends_with("_dir") ? "" : "_dir") + extension;
+	} else {
+		outputPath += extension;
+	}
 	if (cli.is_used(ARG_S(OUTPUT))) {
 		outputPath = cli.get(ARG_S(OUTPUT));
 		if (!outputPath.ends_with(extension)) {
