@@ -1,6 +1,8 @@
 name: Translation Error
 description: Report any translation errors here
 labels: [bug]
+assignees:
+- craftablescience
 body:
 - type: textarea
   attributes:
