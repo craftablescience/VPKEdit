@@ -24,6 +24,12 @@ body:
     required: true
 - type: input
   attributes:
+    label: VPKEdit Version
+    placeholder: Latest, or specific number e.g. "1.2.3".
+  validations:
+    required: true
+- type: input
+  attributes:
     label: Operating System
     placeholder: Windows/Linux, plus version info if known.
   validations:
