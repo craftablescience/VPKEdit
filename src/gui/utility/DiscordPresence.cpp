@@ -24,12 +24,18 @@ void DiscordPresence::init(std::string_view appID) {
 	if (g_DiscordInitialized) {
 		return;
 	}
-	g_DiscordInitialized = true;
 
+#ifdef _WIN32
+	__try {
+#endif
 	DiscordEventHandlers handlers;
 	std::memset(&handlers, 0, sizeof(handlers));
 	Discord_Initialize(appID.data(), &handlers, 1, nullptr);
 	std::atexit(&DiscordPresence::shutdown);
+	g_DiscordInitialized = true;
+#ifdef _WIN32
+	} __except (1 /*EXCEPTION_EXECUTE_HANDLER*/) {}
+#endif
 }
 
 void DiscordPresence::setState(std::string state_) {
