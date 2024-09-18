@@ -243,7 +243,7 @@ void FileViewer::requestNavigateNext() {
 	this->navbar->navigateNext();
 }
 
-void FileViewer::displayEntry(const QString& path, const PackFile& packFile) {
+void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 	// Get extension
 	std::filesystem::path helperPath(path.toLower().toLocal8Bit().constData());
 	QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());

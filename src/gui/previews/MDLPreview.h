@@ -168,7 +168,7 @@ public:
 
 	explicit MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent = nullptr);
 
-	void setMesh(const QString& path, const vpkpp::PackFile& packFile) const;
+	void setMesh(const QString& path, vpkpp::PackFile& packFile) const;
 
 private:
 	void setShadingMode(MDLShadingMode mode) const;

@@ -4,7 +4,9 @@
 #include <QFileInfo>
 #include <QMetaType>
 #include <QStyle>
-#include <vicepp/vicepp.h>
+#include <vcryptpp/vcryptpp.h>
+
+using namespace vcryptpp;
 
 Q_DECLARE_METATYPE(QStringList)
 
@@ -77,7 +79,7 @@ void Options::setupOptions(QSettings& options) {
 	}
 
 	if (!options.contains(STR_VICE_CODE_VALUE)) {
-		options.setValue(STR_VICE_CODE_VALUE, QString(vicepp::KnownCodes::DEFAULT.data()));
+		options.setValue(STR_VICE_CODE_VALUE, QString(VICE::KnownCodes::DEFAULT.data()));
 	}
 
 	opts = &options;

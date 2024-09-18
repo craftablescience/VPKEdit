@@ -124,7 +124,7 @@ target_link_libraries(
         sourcepp::kvpp
         sourcepp::mdlpp
         sourcepp::steampp
-        sourcepp::vicepp
+        sourcepp::vcryptpp
         sourcepp::vpkpp
         sourcepp::vtfpp)
 

@@ -22,22 +22,23 @@ using namespace vpkpp;
 #define ARG_L(name, long_) \
 	constexpr std::string_view ARG_##name##_LONG  = long_
 
-ARG_S(OUTPUT,           "-o", "--output");
-ARG_S(TYPE,             "-t", "--type");
-ARG_L(NO_PROGRESS,            "--no-progress");
-ARG_S(VERSION,          "-v", "--version");
-ARG_S(CHUNKSIZE,        "-c", "--chunksize");
-ARG_L(GEN_MD5_ENTRIES,        "--gen-md5-entries");
-ARG_L(ADD_FILE,               "--add-file");
-ARG_L(REMOVE_FILE,            "--remove-file");
-ARG_S(PRELOAD,          "-p", "--preload");
-ARG_S(SINGLE_FILE,      "-s", "--single-file");
-ARG_S(EXTRACT,          "-e", "--extract");
-ARG_L(GEN_KEYPAIR,            "--gen-keypair");
-ARG_L(FILE_TREE,              "--file-tree");
-ARG_S(SIGN,             "-k", "--sign");
-ARG_L(VERIFY_CHECKSUMS,       "--verify-checksums");
-ARG_L(VERIFY_SIGNATURE,       "--verify-signature");
+ARG_S(OUTPUT,            "-o", "--output");
+ARG_S(TYPE,              "-t", "--type");
+ARG_L(NO_PROGRESS,             "--no-progress");
+ARG_S(VERSION,           "-v", "--version");
+ARG_S(CHUNKSIZE,         "-c", "--chunksize");
+ARG_S(COMPRESSION_LEVEL, "-x", "--compression-level");
+ARG_L(GEN_MD5_ENTRIES,         "--gen-md5-entries");
+ARG_L(ADD_FILE,                "--add-file");
+ARG_L(REMOVE_FILE,             "--remove-file");
+ARG_S(PRELOAD,           "-p", "--preload");
+ARG_S(SINGLE_FILE,       "-s", "--single-file");
+ARG_S(EXTRACT,           "-e", "--extract");
+ARG_L(GEN_KEYPAIR,             "--gen-keypair");
+ARG_L(FILE_TREE,               "--file-tree");
+ARG_S(SIGN,              "-k", "--sign");
+ARG_L(VERIFY_CHECKSUMS,        "--verify-checksums");
+ARG_L(VERIFY_SIGNATURE,        "--verify-signature");
 
 #undef ARG_S
 #undef ARG_L
@@ -141,6 +142,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		return;
 	}
 
+	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
 	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 
 	if (cli.is_used(ARG_L(ADD_FILE))) {
@@ -150,6 +152,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		} else {
 			packFile->addEntry(args[1], args[0], {});
 			packFile->bake("", {
+				.zip_compressionStrength = compressionLevel,
 				.vpk_generateMD5Entries = generateMD5Entries,
 			}, nullptr);
 			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
@@ -163,6 +166,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 					"Check the file exists in the pack file and the path is spelled correctly." << std::endl;
 		} else {
 			packFile->bake("", {
+				.zip_compressionStrength = compressionLevel,
 				.vpk_generateMD5Entries = generateMD5Entries,
 			}, nullptr);
 			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
@@ -262,6 +266,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
+	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
 	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
 	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
@@ -323,6 +328,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		};
 	});
 	packFile->bake("", {
+		.zip_compressionStrength = compressionLevel,
 		.vpk_generateMD5Entries = generateMD5Entries,
 	}, [noProgressBar, &bar](const std::string& path, const Entry& entry) {
 		if (!noProgressBar) {
@@ -406,8 +412,12 @@ int main(int argc, const char* const* argv) {
 		.default_value("200")
 		.nargs(1);
 
+	cli.add_argument(ARG_P(COMPRESSION_LEVEL))
+		.help("(Pack) The level of compression to apply. (BSP, VPK v54, and ZIP only).")
+		.flag();
+
 	cli.add_argument(ARG_L(GEN_MD5_ENTRIES))
-		.help("(Pack) Generate MD5 hashes for each file (VPK v2 only).")
+		.help("(Pack) Generate MD5 hashes for each file (VPK v2, v54 only).")
 		.flag();
 
 	cli.add_argument(ARG_L(ADD_FILE))

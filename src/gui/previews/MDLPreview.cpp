@@ -36,7 +36,7 @@ using namespace vtfpp;
 
 namespace {
 
-std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(PackFile& packFile, const std::string& materialPath) {
 	auto materialFile = packFile.readEntryText(materialPath);
 	if (!materialFile) {
 		return nullptr;
@@ -538,7 +538,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 	layout->addWidget(this->tabs);
 }
 
-void MDLPreview::setMesh(const QString& path, const PackFile& packFile) const {
+void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 	this->mdl->clearMeshes();
 
 	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();

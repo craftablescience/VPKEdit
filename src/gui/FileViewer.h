@@ -76,7 +76,7 @@ public:
 
 	void requestNavigateNext();
 
-	void displayEntry(const QString& path, const vpkpp::PackFile& packFile);
+	void displayEntry(const QString& path, vpkpp::PackFile& packFile);
 
 	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
