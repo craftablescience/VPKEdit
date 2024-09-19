@@ -473,7 +473,7 @@ Window::Window(QWidget* parent)
 }
 
 template<PackFileType Type>
-static void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
+void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
 	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::ZIP);
 
 	if (window->isModified() && window->promptUserToKeepModifications()) {
