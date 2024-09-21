@@ -296,6 +296,15 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 		}
 		this->showPreview<TexturePreview>();
 		this->getPreview<TexturePreview>()->setSVGData(*binary);
+	} else if (TexturePreview::EXTENSIONS_PPL.contains(extension)) {
+		// PPL (texture)
+		auto binary = this->window->readBinaryEntry(path);
+		if (!binary) {
+			this->showFileLoadErrorPreview();
+			return;
+		}
+		this->showPreview<TexturePreview>();
+		this->getPreview<TexturePreview>()->setPPLData(*binary);
 	} else if (TexturePreview::EXTENSIONS_VTF.contains(extension)) {
 		// VTF (texture)
 		auto binary = this->window->readBinaryEntry(path);

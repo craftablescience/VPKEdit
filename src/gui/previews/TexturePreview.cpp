@@ -1,5 +1,6 @@
 #include "TexturePreview.h"
 
+#include <cstdint>
 #include <utility>
 
 #include <QApplication>
@@ -136,6 +137,89 @@ void SVGWidget::setData(const std::vector<std::byte>& data) {
 	this->zoom = 1.f;
 }
 
+void PPLWidget::setData(const std::vector<std::byte>& data) {
+	this->ppl = std::make_unique<PPL>(data);
+	if (this->ppl) {
+		this->decodeImage();
+	}
+	this->zoom = 1.f;
+}
+
+bool PPLWidget::hasAlpha() const {
+	return false;
+}
+
+QString PPLWidget::getVersion() const {
+	return QString::number(this->ppl->getVersion());
+}
+
+QString PPLWidget::getFormat() const {
+	return ::vtfFormatToString(this->ppl->getFormat());
+}
+
+void PPLWidget::paintEvent(QPaintEvent*) {
+	QPainter painter(this);
+
+	if (!this->ppl) {
+		return;
+	}
+
+	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
+
+	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(this->getCurrentImageWidth()) * realZoom)) / 2;
+	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2;
+	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
+	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
+
+	QRect sourceRect(0, 0, this->image.width(), this->image.height());
+
+	if (this->showEverything && (this->getMaxFrame() > 1 || this->getMaxFace() > 1)) {
+		int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
+		int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
+		for (int face = 0; face < this->getMaxFace(); face++) {
+			for (int frame = 0; frame < this->getMaxFrame(); frame++) {
+				auto imageData = this->ppl->getImageAsRGB888(this->currentFrame);
+				if (imageData) {
+					QImage currentImage(reinterpret_cast<uchar*>(imageData->data.data()), static_cast<int>(this->getCurrentImageWidth()), static_cast<int>(this->getCurrentImageHeight()), QImage::Format_RGB888);
+					painter.drawImage(QRect(zoomedXPos + (zoomedWidth * face) - (totalZoomedWidth / 2), zoomedYPos + (zoomedHeight * frame) - (totalZoomedHeight / 2), zoomedWidth, zoomedHeight), currentImage, sourceRect);
+				}
+			}
+		}
+	} else if (this->tileEnabled) {
+		for (int i = -zoomedWidth; i <= zoomedWidth; i += zoomedWidth) {
+			for (int j = -zoomedHeight; j <= zoomedHeight; j += zoomedHeight) {
+				painter.drawImage(QRect(zoomedXPos + i, zoomedYPos + j, zoomedWidth, zoomedHeight), this->image, sourceRect);
+			}
+		}
+	} else {
+		painter.drawImage(QRect(zoomedXPos, zoomedYPos, zoomedWidth, zoomedHeight), this->image, sourceRect);
+	}
+}
+
+void PPLWidget::decodeImage() {
+	if (!this->ppl) {
+		return;
+	}
+
+	uint32_t lowestLOD = UINT32_MAX;
+	for (auto lod : this->ppl->getImageLODs()) {
+		if (lod < lowestLOD) {
+			lowestLOD = lod;
+		}
+	}
+	auto image_ = this->ppl->getImageAsRGB888(lowestLOD);
+	if (!image_) {
+		this->image = QImage();
+		return;
+	}
+	this->imageData = image_->data;
+	if (this->imageData.empty()) {
+		this->image = QImage();
+		return;
+	}
+	this->image = QImage(reinterpret_cast<uchar*>(this->imageData.data()), static_cast<int>(image_->width), static_cast<int>(image_->height), QImage::Format_RGB888);
+}
+
 void VTFWidget::setData(const std::vector<std::byte>& data) {
 	this->vtf = std::make_unique<VTF>(data);
 	this->decodeImage(0, 0, 0, 0, this->alphaEnabled);
@@ -241,6 +325,9 @@ TexturePreview::TexturePreview(QWidget* parent)
 	this->svg = new SVGWidget(this);
 	layout->addWidget(this->svg);
 
+	this->ppl = new PPLWidget(this);
+	layout->addWidget(this->ppl);
+
 	this->vtf = new VTFWidget(this);
 	layout->addWidget(this->vtf);
 
@@ -326,6 +413,7 @@ TexturePreview::TexturePreview(QWidget* parent)
 	QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
 		this->image->setAlphaEnabled(this->alphaCheckBox->isChecked());
 		this->svg->setAlphaEnabled(this->alphaCheckBox->isChecked());
+		this->ppl->setAlphaEnabled(this->alphaCheckBox->isChecked());
 		this->vtf->setAlphaEnabled(this->alphaCheckBox->isChecked());
 		this->getVisibleWidget()->repaint();
 	});
@@ -340,6 +428,7 @@ TexturePreview::TexturePreview(QWidget* parent)
 	QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
 		this->image->setTileEnabled(this->tileCheckBox->isChecked());
 		this->svg->setTileEnabled(this->tileCheckBox->isChecked());
+		this->ppl->setTileEnabled(this->tileCheckBox->isChecked());
 		this->vtf->setTileEnabled(this->tileCheckBox->isChecked());
 		this->getVisibleWidget()->repaint();
 	});
@@ -357,6 +446,7 @@ TexturePreview::TexturePreview(QWidget* parent)
 	QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
 		this->image->setZoom(this->zoomSlider->value());
 		this->svg->setZoom(this->zoomSlider->value());
+		this->ppl->setZoom(this->zoomSlider->value());
 		this->vtf->setZoom(this->zoomSlider->value());
 		this->getVisibleWidget()->repaint();
 	});
@@ -383,6 +473,7 @@ TexturePreview::TexturePreview(QWidget* parent)
 void TexturePreview::setImageData(const std::vector<std::byte>& data) const {
 	this->image->show();
 	this->svg->hide();
+	this->ppl->hide();
 	this->vtf->hide();
 
 	this->image->setData(data);
@@ -392,15 +483,27 @@ void TexturePreview::setImageData(const std::vector<std::byte>& data) const {
 void TexturePreview::setSVGData(const std::vector<std::byte>& data) const {
 	this->image->hide();
 	this->svg->show();
+	this->ppl->hide();
 	this->vtf->hide();
 
 	this->svg->setData(data);
 	this->setData(this->svg);
 }
 
+void TexturePreview::setPPLData(const std::vector<std::byte>& data) const {
+	this->image->hide();
+	this->svg->hide();
+	this->ppl->show();
+	this->vtf->hide();
+
+	this->ppl->setData(data);
+	this->setData(this->ppl);
+}
+
 void TexturePreview::setVTFData(const std::vector<std::byte>& data) const {
 	this->image->hide();
 	this->svg->hide();
+	this->ppl->hide();
 	this->vtf->show();
 
 	this->vtf->setData(data);
@@ -454,6 +557,9 @@ ITextureWidget* TexturePreview::getVisibleWidget() const {
 	}
 	if (this->svg->isVisible()) {
 		return this->svg;
+	}
+	if (this->ppl->isVisible()) {
+		return this->ppl;
 	}
 	return this->vtf;
 }

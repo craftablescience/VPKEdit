@@ -82,9 +82,9 @@ elseif(UNIX)
 
     # Desktop file
     configure_file(
-            "${CMAKE_CURRENT_LIST_DIR}/deb/desktop.in"
-            "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}.desktop")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}.desktop"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop"
             DESTINATION "/usr/share/applications/")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
             DESTINATION "/usr/share/pixmaps/"
@@ -92,9 +92,9 @@ elseif(UNIX)
 
     # MIME type info
     configure_file(
-            "${CMAKE_CURRENT_LIST_DIR}/deb/mime-type.xml.in"
-            "${CMAKE_CURRENT_LIST_DIR}/deb/generated/mime-type.xml")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/mime-type.xml"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/mime-type.xml.in"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml"
             DESTINATION "/usr/share/mime/packages/"
             RENAME "${PROJECT_NAME}.xml")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
@@ -165,12 +165,12 @@ else()
     set(CPACK_DEBIAN_COMPRESSION_TYPE "zstd")
 
     # Add symlinks so it can be ran from anywhere
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli)")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}cli"
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME}cli ${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}cli)")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}cli"
             DESTINATION "/usr/bin")
 
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME})")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/deb/generated/${PROJECT_NAME}"
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink /opt/${PROJECT_NAME}/${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME})")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}"
             DESTINATION "/usr/bin")
 endif()
 include(CPack)

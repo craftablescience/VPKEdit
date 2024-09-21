@@ -133,6 +133,53 @@ public:
 	[[nodiscard]] QString getFormat() const override { return "SVG"; }
 };
 
+class PPLWidget : public ITextureWidget {
+	Q_OBJECT;
+
+public:
+	using ITextureWidget::ITextureWidget;
+
+	void setData(const std::vector<std::byte>& data) override;
+
+	void setMip(int) override {}
+
+	void setFrame(int) override {}
+
+	void setFace(int) override {}
+
+	void setSlice(int) override {}
+
+	void setAlphaEnabled(bool alpha) override {}
+
+	[[nodiscard]] uint16_t getCurrentImageWidth() const override { return this->ppl ? this->ppl->getImageRaw(this->currentFrame)->width : 0; }
+
+	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->ppl ? this->ppl->getImageRaw(this->currentFrame)->height : 0; }
+
+	[[nodiscard]] int getMaxMip() const override { return 1; }
+
+	[[nodiscard]] int getMaxFrame() const override { return 1; }
+
+	[[nodiscard]] int getMaxFace() const override { return 1; }
+
+	[[nodiscard]] int getMaxSlice() const override { return 1; }
+
+	[[nodiscard]] bool hasAlpha() const override;
+
+	[[nodiscard]] QString getVersion() const override;
+
+	[[nodiscard]] QString getFormat() const override;
+
+	[[nodiscard]] int getAuxCompression() const override { return 0; }
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+
+private:
+	std::unique_ptr<vtfpp::PPL> ppl;
+
+	void decodeImage();
+};
+
 class VTFWidget : public ITextureWidget {
 	Q_OBJECT;
 
@@ -198,6 +245,10 @@ public:
 		".svg",
 	};
 
+	static inline const QStringList EXTENSIONS_PPL {
+		".ppl",
+	};
+
 	static inline const QStringList EXTENSIONS_VTF {
 		".vtf",
 	};
@@ -207,6 +258,8 @@ public:
 	void setImageData(const std::vector<std::byte>& data) const;
 
 	void setSVGData(const std::vector<std::byte>& data) const;
+
+	void setPPLData(const std::vector<std::byte>& data) const;
 
 	void setVTFData(const std::vector<std::byte>& data) const;
 
@@ -220,6 +273,7 @@ protected:
 private:
 	ITextureWidget* image;
 	ITextureWidget* svg;
+	ITextureWidget* ppl;
 	ITextureWidget* vtf;
 	QCheckBox* showEverythingCheckBox;
 	QSpinBox* mipSpin;
