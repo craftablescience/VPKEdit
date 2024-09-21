@@ -127,6 +127,67 @@ jobs:
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
 
+      - name: Create Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        working-directory: ${{env.BUILD_DIR}}
+        run: |
+          curl -L -o "__qt__.7z" "https://github.com/crystalidea/qt6windows7/releases/download/v${{env.QT_VERSION_VPKEDIT}}/qt6_x64_to_run_on_windows7.7z"
+          7z x __qt__.7z -o__qt__ -y
+          REM Overwrite the already copied binaries for standalone version
+          copy /Y __qt__\imageformats\qjpeg.dll        imageformats\qjpeg.dll
+          copy /Y __qt__\imageformats\qtga.dll         imageformats\qtga.dll
+          copy /Y __qt__\imageformats\qwebp.dll        imageformats\qwebp.dll
+          copy /Y __qt__\platforms\qwindows.dll        platforms\qwindows.dll
+          copy /Y __qt__\styles\qwindowsvistastyle.dll styles\qwindowsvistastyle.dll
+          copy /Y __qt__\Qt6Core.dll                   Qt6Core.dll
+          copy /Y __qt__\Qt6Gui.dll                    Qt6Gui.dll
+          copy /Y __qt__\Qt6Network.dll                Qt6Network.dll
+          copy /Y __qt__\Qt6OpenGL.dll                 Qt6OpenGL.dll
+          copy /Y __qt__\Qt6OpenGLWidgets.dll          Qt6OpenGLWidgets.dll
+          copy /Y __qt__\Qt6Widgets.dll                Qt6Widgets.dll
+          REM Overwrite the source of the binaries for installer version
+          copy /Y __qt__\imageformats\qjpeg.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qjpeg.dll"
+          copy /Y __qt__\imageformats\qtga.dll         "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qtga.dll"
+          copy /Y __qt__\imageformats\qwebp.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qwebp.dll"
+          copy /Y __qt__\platforms\qwindows.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\platforms\qwindows.dll"
+          copy /Y __qt__\styles\qwindowsvistastyle.dll "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\styles\qwindowsvistastyle.dll"
+          copy /Y __qt__\Qt6Core.dll                   "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Core.dll"
+          copy /Y __qt__\Qt6Gui.dll                    "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Gui.dll"
+          copy /Y __qt__\Qt6Network.dll                "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Network.dll"
+          copy /Y __qt__\Qt6OpenGL.dll                 "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6OpenGL.dll"
+          copy /Y __qt__\Qt6OpenGLWidgets.dll          "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6OpenGLWidgets.dll"
+          copy /Y __qt__\Qt6Widgets.dll                "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Widgets.dll"
+
+      - name: Upload Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Windows-Standalone-GUI-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS.md
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/imageformats/*.dll
+            ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/styles/*.dll
+            ${{env.BUILD_DIR}}/tls/*.dll
+          retention-days: 7
+
+      - name: Create Compatibility Installer [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Compatibility Installer [build_type:Release][target:VPKEdit]
+        if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-Windows-Installer-Compatibility-${{matrix.compiler}}-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
+          retention-days: 7
+
       - name: Upload Standalone PDBs [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
