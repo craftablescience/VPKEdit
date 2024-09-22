@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 
 #include <kvpp/kvpp.h>
@@ -47,6 +48,7 @@
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "dialogs/VerifySignatureDialog.h"
 #include "dialogs/VICEDialog.h"
+#include "extensions/Folder.h"
 #include "utility/DiscordPresence.h"
 #include "utility/Options.h"
 #include "utility/TGADecoder.h"
@@ -117,6 +119,10 @@ Window::Window(QWidget* parent)
 
 	this->openAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open..."), Qt::CTRL | Qt::Key_O, [this] {
 		this->openPackFile();
+	});
+
+	this->openDirAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DirIcon), tr("Open Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_O, [this] {
+		this->openDir();
 	});
 
 	this->openRelativeToMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Open In..."));
@@ -613,6 +619,17 @@ void Window::newVPK(bool fromDirectory, const QString& startPath) {
 
 void Window::newZIP(bool fromDirectory, const QString& startPath) {
 	return ::newPackFile<PackFileType::ZIP>(this, fromDirectory, startPath, "ZIP", ".zip");
+}
+
+void Window::openDir(const QString& startPath, const QString& dirPath) {
+	auto path = dirPath;
+	if (path.isEmpty()) {
+		path = QFileDialog::getExistingDirectory(this, tr("Open Folder"), startPath);
+	}
+	if (path.isEmpty()) {
+		return;
+	}
+	this->loadDir(path);
 }
 
 void Window::openPackFile(const QString& startPath, const QString& filePath) {
@@ -1326,6 +1343,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeF
 	this->createEmptyMenu->setDisabled(freeze && freezeCreationActions);
 	this->createFromDirMenu->setDisabled(freeze && freezeCreationActions);
 	this->openAction->setDisabled(freeze && freezeCreationActions);
+	this->openDirAction->setDisabled(freeze && freezeCreationActions);
 	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
 	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
 	this->saveAction->setDisabled(freeze || !this->modified);
@@ -1425,6 +1443,10 @@ void Window::closeEvent(QCloseEvent* event) {
 		return;
 	}
 	event->accept();
+}
+
+bool Window::loadDir(const QString& path) {
+	return this->loadPackFile(path, Folder::open(path.toLocal8Bit().constData()));
 }
 
 bool Window::loadPackFile(const QString& path) {
@@ -1531,7 +1553,11 @@ void Window::rebuildOpenRecentMenu(const QStringList& paths) {
 	}
 	for (int i = 0; i < paths.size(); i++) {
 		this->openRecentMenu->addAction(("&%1: \"" + paths[i] + "\"").arg((i + 1) % 10), [this, path=paths[i]] {
-			this->loadPackFile(path);
+			if (std::filesystem::is_directory(path.toLocal8Bit().constData())) {
+				this->loadDir(path);
+			} else {
+				this->loadPackFile(path);
+			}
 		});
 	}
 	this->openRecentMenu->addSeparator();

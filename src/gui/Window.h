@@ -44,6 +44,8 @@ public:
 
 	void newZIP(bool fromDirectory, const QString& startPath = QString());
 
+	void openDir(const QString& startPath = QString(), const QString& dirPath = QString());
+
 	void openPackFile(const QString& startPath = QString(), const QString& filePath = QString());
 
 	void savePackFile(bool saveAs = false, bool async = true);
@@ -148,6 +150,7 @@ private:
 	QMenu*   createEmptyMenu;
 	QMenu*   createFromDirMenu;
 	QAction* openAction;
+	QAction* openDirAction;
 	QMenu*   openRelativeToMenu;
 	QMenu*   openRecentMenu;
 	QAction* saveAction;
@@ -171,6 +174,8 @@ private:
 	bool modified;
 
 	bool dropEnabled;
+
+	bool loadDir(const QString& path);
 
 	bool loadPackFile(const QString& path);
 
