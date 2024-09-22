@@ -135,7 +135,7 @@ Window::Window(QWidget* parent)
 	});
 	this->saveAsAction->setDisabled(true);
 
-	this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), Qt::CTRL | Qt::Key_X, [this] {
+	this->closeFileAction = fileMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Close"), Qt::CTRL | Qt::Key_W, [this] {
 		this->closePackFile();
 	});
 	this->closeFileAction->setDisabled(true);
