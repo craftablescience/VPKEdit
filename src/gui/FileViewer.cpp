@@ -356,6 +356,10 @@ void FileViewer::setSearchQuery(const QString& query) {
 	this->getPreview<DirPreview>()->setSearchQuery(query);
 }
 
+void FileViewer::setReadOnly(bool readOnly) {
+	this->getPreview<TextPreview>()->setReadOnly(readOnly);
+}
+
 void FileViewer::selectSubItemInDir(const QString& name) const {
 	this->window->selectSubItemInDir(name);
 }

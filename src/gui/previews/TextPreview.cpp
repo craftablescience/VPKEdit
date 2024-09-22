@@ -216,9 +216,6 @@ TextPreview::TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* pare
 
 	// Do this manually so we're not calling Window::freezeActions
 	this->editor->setReadOnly(true);
-	this->editAction->setVisible(true);
-	this->saveAction->setVisible(false);
-	this->cancelAction->setVisible(false);
 }
 
 void TextPreview::setText(const QString& text, const QString& extension) {
@@ -232,6 +229,12 @@ void TextPreview::setEditing(bool editing) const {
 	this->cancelAction->setVisible(editing);
 	this->fileViewer->getNavBar()->setDisabled(editing);
 	this->window->freezeActions(editing, true, false);
+}
+
+void TextPreview::setReadOnly(bool readOnly) const {
+	this->editAction->setVisible(!readOnly);
+	this->saveAction->setVisible(false);
+	this->cancelAction->setVisible(false);
 }
 
 void TextPreview::resizeEvent(QResizeEvent* event) {

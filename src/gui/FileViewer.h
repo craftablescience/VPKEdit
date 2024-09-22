@@ -88,6 +88,8 @@ public:
 
 	void setSearchQuery(const QString& query);
 
+	void setReadOnly(bool readOnly);
+
 	void selectSubItemInDir(const QString& name) const;
 
 	[[nodiscard]] bool isDirPreviewVisible();

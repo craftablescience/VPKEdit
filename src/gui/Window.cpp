@@ -1505,6 +1505,8 @@ bool Window::loadPackFile(const QString& path, std::unique_ptr<vpkpp::PackFile>&
 		this->resetStatusBar();
 	});
 
+	this->fileViewer->setReadOnly(this->packFile->isReadOnly());
+
 	return true;
 }
 

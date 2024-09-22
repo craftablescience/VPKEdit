@@ -97,6 +97,8 @@ public:
 
 	void setEditing(bool editing) const;
 
+	void setReadOnly(bool readOnly) const;
+
 protected:
 	void resizeEvent(QResizeEvent* event) override;
 
