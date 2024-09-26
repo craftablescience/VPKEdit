@@ -805,7 +805,7 @@ void Window::setProperties() {
 		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
 			chunkSize = fpx->getChunkSize();
 		}
-	} else if (this->packFile->getType() == PackFileType::FPX) {
+	} else if (this->packFile->getType() == PackFileType::VPK) {
 		if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
 			version = vpk->getVersion();
 			chunkSize = vpk->getChunkSize();
