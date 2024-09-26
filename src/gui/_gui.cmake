@@ -51,6 +51,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/extensions/Folder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/extensions/Folder.h"
+        "${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.h"

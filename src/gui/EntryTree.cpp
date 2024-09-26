@@ -19,6 +19,7 @@
 #include <QStyle>
 #include <QThread>
 
+#include "extensions/SingleFile.h"
 #include "previews/TextPreview.h"
 #include "utility/Options.h"
 #include "utility/TempDir.h"
@@ -245,7 +246,7 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 	QObject::connect(worker, &LoadPackFileWorker::progressUpdated, this, [progressBar](int value) {
 		progressBar->setValue(value);
 	});
-	QObject::connect(worker, &LoadPackFileWorker::taskFinished, this, [this, finishCallback] {
+	QObject::connect(worker, &LoadPackFileWorker::taskFinished, this, [this, isSingleFile=static_cast<bool>(dynamic_cast<SingleFile*>(&packFile)), finishCallback] {
 		// Kill thread
 		this->workerThread->quit();
 		this->workerThread->wait();
@@ -260,6 +261,15 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 		this->root->setSelected(true);
 		this->onCurrentItemChanged(this->root);
 		this->root->setExpanded(true);
+
+		// Select the file inside if we're loading that specifically
+		if (isSingleFile && this->root->childCount() == 1) {
+			this->root->setSelected(false);
+			auto* child = this->root->child(0);
+			child->setSelected(true);
+			this->onCurrentItemChanged(child);
+			child->setExpanded(true);
+		}
 
 		finishCallback();
 	});

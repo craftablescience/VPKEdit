@@ -136,6 +136,10 @@ if(WIN32)
             WriteRegStr HKCR '.pak' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.dmx' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.pcf' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.ppl' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.mdl' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
             WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
@@ -151,6 +155,10 @@ if(WIN32)
             DeleteRegKey HKCR '.pak'
             DeleteRegKey HKCR '.pck'
             DeleteRegKey HKCR '.vpk'
+            DeleteRegKey HKCR '.dmx'
+            DeleteRegKey HKCR '.pcf'
+            DeleteRegKey HKCR '.ppl'
+            DeleteRegKey HKCR '.mdl'
             DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
         ")
 else()

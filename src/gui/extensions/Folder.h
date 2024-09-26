@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sourcepp/parser/Binary.h>
 #include <vpkpp/vpkpp.h>
 
 class Folder : public vpkpp::PackFileReadOnly {
