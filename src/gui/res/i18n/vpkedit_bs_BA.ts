@@ -14,7 +14,7 @@
     <message>
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Delete Entry</source>
-      <translation>Izbriši unos</translation>
+      <translation>Izbriši Unos</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="453"/>
@@ -27,7 +27,7 @@
       <location filename="../../previews/DirPreview.cpp" line="375"/>
       <location filename="../../previews/DirPreview.cpp" line="393"/>
       <source>bytes</source>
-      <translation>Bajtova</translation>
+      <translation>bajtova</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="378"/>
@@ -48,19 +48,19 @@
   <context>
     <name>EntryTree</name>
     <message>
-      <location filename="../../EntryTree.cpp" line="502"/>
+      <location filename="../../EntryTree.cpp" line="512"/>
       <source>Delete Entry</source>
-      <translation>Izbriši unos</translation>
+      <translation>Izbriši Unos</translation>
     </message>
     <message>
-      <location filename="../../EntryTree.cpp" line="502"/>
+      <location filename="../../EntryTree.cpp" line="512"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
       <translation>Jeste li sigurni da želite izbrisati "%1"?
 (Držite Shift da preskočite ovaj skočni prozor.)</translation>
     </message>
     <message>
-      <location filename="../../EntryTree.cpp" line="389"/>
+      <location filename="../../EntryTree.cpp" line="399"/>
       <source>Extract to...</source>
       <translation>Ekstraktuj na...</translation>
     </message>
@@ -73,7 +73,7 @@
       <translation>Nema dostupnog pregleda za ovaj fajl.</translation>
     </message>
     <message>
-      <location filename="../../FileViewer.cpp" line="390"/>
+      <location filename="../../FileViewer.cpp" line="394"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
       <translation>Nije uspjelo čitanje sadržaja datoteke!
@@ -85,7 +85,7 @@ Molim vas provjerite da li neka igra ili druga aplikacija koristi datoteku.</tra
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="479"/>
       <source>Backface Culling</source>
-      <translation>Isključivanje pozadinskog lica</translation>
+      <translation>Isključivanje Pozadinskog Lica</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="563"/>
@@ -105,7 +105,7 @@ Molim vas provjerite da li neka igra ili druga aplikacija koristi datoteku.</tra
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="469"/>
       <source>Toggle Info Panel</source>
-      <translation>Togluj Info panel</translation>
+      <translation>Togluj Info Panel</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="488"/>
@@ -120,7 +120,7 @@ Molim vas provjerite da li neka igra ili druga aplikacija koristi datoteku.</tra
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="536"/>
       <source>All Materials</source>
-      <translation>Svi materijali</translation>
+      <translation>Svi Materijali</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="608"/>
@@ -130,7 +130,7 @@ Molim vas provjerite da li neka igra ili druga aplikacija koristi datoteku.</tra
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="616"/>
       <source>Material Names</source>
-      <translation>Ime materijala</translation>
+      <translation>Ime Materijala</translation>
     </message>
   </context>
   <context>
@@ -214,7 +214,7 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="10"/>
       <source>Verify Checksums</source>
-      <translation>Verifikuj checksum</translation>
+      <translation>Verifikuj Checksum</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="16"/>
@@ -259,460 +259,462 @@ Pogledajte ispod za više informacija.</translation>
   <context>
     <name>Window</name>
     <message>
-      <location filename="../../Window.cpp" line="357"/>
+      <location filename="../../Window.cpp" line="363"/>
       <source>Controls</source>
       <translation>Kontrole</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="630"/>
+      <location filename="../../Window.cpp" line="647"/>
       <source>Open Pack File</source>
       <translation>Otvori Pack Fajl</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="641"/>
+      <location filename="../../Window.cpp" line="658"/>
       <source>Save to...</source>
       <translation>Spremi u...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="699"/>
+      <location filename="../../Window.cpp" line="716"/>
       <source>Could not save!</source>
       <translation>Nije bilo moguće spremiti!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="734"/>
-      <location filename="../../Window.cpp" line="740"/>
-      <location filename="../../Window.cpp" line="926"/>
-      <location filename="../../Window.cpp" line="1124"/>
-      <location filename="../../Window.cpp" line="1232"/>
-      <location filename="../../Window.cpp" line="1454"/>
+      <location filename="../../Window.cpp" line="751"/>
+      <location filename="../../Window.cpp" line="757"/>
+      <location filename="../../Window.cpp" line="943"/>
+      <location filename="../../Window.cpp" line="1141"/>
+      <location filename="../../Window.cpp" line="1249"/>
+      <location filename="../../Window.cpp" line="1476"/>
       <source>Error</source>
       <translation>Error</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="734"/>
+      <location filename="../../Window.cpp" line="751"/>
       <source>Error occurred checking for updates!</source>
       <translation>Došlo je do greške prilikom provjere ažuriranja!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="740"/>
+      <location filename="../../Window.cpp" line="757"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
       <translation>Dobiven je nevažeći JSON odgovor prilikom provjere ažuriranja!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="772"/>
+      <location filename="../../Window.cpp" line="789"/>
       <source>No New Updates</source>
-      <translation>Nema novih ažuriranja</translation>
+      <translation>Nema Novih Ažuriranja</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="772"/>
+      <location filename="../../Window.cpp" line="789"/>
       <source>You are using the latest version of the software.</source>
       <translation>Koristite najnoviju verziju softvera.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="825"/>
+      <location filename="../../Window.cpp" line="842"/>
       <source>Open File</source>
       <translation>Otvori Fajl</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="863"/>
+      <location filename="../../Window.cpp" line="627"/>
+      <location filename="../../Window.cpp" line="880"/>
       <source>Open Folder</source>
       <translation>Otvori Folder</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="906"/>
+      <location filename="../../Window.cpp" line="923"/>
       <source>Error Removing File</source>
-      <translation>Greška pri uklanjanju fajla</translation>
+      <translation>Greška Pri Uklanjanju Fajla</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="906"/>
+      <location filename="../../Window.cpp" line="923"/>
       <source>There was an error removing the file at "%1"!</source>
       <translation>Došlo je do greške prilikom uklanjanja datoteke na lokaciji "%1"!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="926"/>
+      <location filename="../../Window.cpp" line="943"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
       <translation>Nije moguće editovati fajl na "%1": nemoguće pročitati podatke!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1032"/>
+      <location filename="../../Window.cpp" line="1049"/>
+      <location filename="../../Window.cpp" line="1065"/>
       <source>Rename Folder</source>
       <translation>Preimenuj Folder</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1032"/>
+      <location filename="../../Window.cpp" line="1049"/>
       <source>The new path:</source>
-      <translation>Nova Lokacija:</translation>
+      <translation>Nova lokacija:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="351"/>
-      <location filename="../../Window.cpp" line="1092"/>
+      <location filename="../../Window.cpp" line="357"/>
+      <location filename="../../Window.cpp" line="1109"/>
       <source>About</source>
       <translation>O Softveru</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1176"/>
+      <location filename="../../Window.cpp" line="1193"/>
       <source>Extract as...</source>
-      <translation>Izvući kao...</translation>
+      <translation>Ekstraktuj kao...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1187"/>
-      <location filename="../../Window.cpp" line="1252"/>
+      <location filename="../../Window.cpp" line="1204"/>
+      <location filename="../../Window.cpp" line="1269"/>
       <source>Extract to...</source>
-      <translation>Izvući na...</translation>
+      <translation>Ekstraktuj na...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1285"/>
+      <location filename="../../Window.cpp" line="1302"/>
       <source>Save changes?</source>
       <translation>Pohranti promjen?</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1286"/>
+      <location filename="../../Window.cpp" line="1303"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
       <translation>Ovaj falj ima promjene koje nisu pohranjene! Dali želite da ih pohranite prvo?</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1454"/>
+      <location filename="../../Window.cpp" line="1476"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
       <translation>Nemoguče otvortit ovaj fajl. Molimo vas da potvrdite da igrica ili druga aplikacija ne koristi ovaj fajl u trenutku.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1528"/>
+      <location filename="../../Window.cpp" line="1552"/>
       <source>No recent files.</source>
       <translation>Nema nedavnih fajlova.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="70"/>
+      <location filename="../../Window.cpp" line="72"/>
       <source>Restart Required</source>
-      <translation>Ponovno pokretanje je neophodno</translation>
+      <translation>Ponovno Pokretanje Je Neophodno</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="70"/>
+      <location filename="../../Window.cpp" line="72"/>
       <source>The application must be restarted for these settings to take effect.</source>
       <translation>Aplikacija se mora restartovati da bi se promjene mogle koristiti.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="76"/>
+      <location filename="../../Window.cpp" line="78"/>
       <source>File</source>
       <translation>Fajl</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="118"/>
+      <location filename="../../Window.cpp" line="120"/>
       <source>Open...</source>
       <translation>Otvori...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="122"/>
+      <location filename="../../Window.cpp" line="128"/>
       <source>Open In...</source>
       <translation>Otvori u...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="125"/>
+      <location filename="../../Window.cpp" line="131"/>
       <source>Open Recent...</source>
       <translation>Otvori Prijašne...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="128"/>
+      <location filename="../../Window.cpp" line="134"/>
       <source>Save</source>
       <translation>Pohrani</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="133"/>
+      <location filename="../../Window.cpp" line="139"/>
       <source>Save As...</source>
       <translation>Pohrani Kao...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="138"/>
+      <location filename="../../Window.cpp" line="144"/>
       <source>Close</source>
       <translation>Zatvori</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="151"/>
+      <location filename="../../Window.cpp" line="157"/>
       <source>Check For Updates...</source>
       <translation>Provjera Za Aužuriranje...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="155"/>
+      <location filename="../../Window.cpp" line="161"/>
       <source>Exit</source>
       <translation>Izadži</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="160"/>
+      <location filename="../../Window.cpp" line="166"/>
       <source>Edit</source>
       <translation>Edituj</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="161"/>
+      <location filename="../../Window.cpp" line="167"/>
       <source>Extract All</source>
       <translation>Ekstraktuj Sve</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="167"/>
+      <location filename="../../Window.cpp" line="173"/>
       <source>Add File...</source>
       <translation>Dodaj Fajl...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="172"/>
+      <location filename="../../Window.cpp" line="178"/>
       <source>Add Folder...</source>
       <translation>Dodaj Folder...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="178"/>
+      <location filename="../../Window.cpp" line="184"/>
       <source>Properties...</source>
       <translation>Svojstva...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="184"/>
+      <location filename="../../Window.cpp" line="190"/>
       <source>Options</source>
       <translation>Postavke</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="306"/>
+      <location filename="../../Window.cpp" line="312"/>
       <source>Entry Tree...</source>
       <translation>Entry Tree...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="307"/>
+      <location filename="../../Window.cpp" line="313"/>
       <source>Expand Folder When Selected</source>
       <translation>Raširi Folder kad je selektovan</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="314"/>
+      <location filename="../../Window.cpp" line="320"/>
       <source>Start Collapsed</source>
       <translation>Pocni Smanjeno</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="321"/>
+      <location filename="../../Window.cpp" line="327"/>
       <source>Hide Icons</source>
-      <translation>Sakrije ikone</translation>
+      <translation>Sakrije Ikone</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="247"/>
+      <location filename="../../Window.cpp" line="253"/>
       <source>Theme...</source>
       <translation>Stajl...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="214"/>
+      <location filename="../../Window.cpp" line="220"/>
       <source>Language...</source>
       <translation>Jezik...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="187"/>
+      <location filename="../../Window.cpp" line="193"/>
       <source>Advanced File Properties</source>
-      <translation>Napredna svojstva fajla</translation>
+      <translation>Napredna Svojstva Fajla</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="208"/>
+      <location filename="../../Window.cpp" line="214"/>
       <source>Start Maximized</source>
       <translation>Pocni Povecano</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="350"/>
+      <location filename="../../Window.cpp" line="356"/>
       <source>Help</source>
       <translation>Pomoć</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="354"/>
+      <location filename="../../Window.cpp" line="360"/>
       <source>About Qt</source>
       <translation>O Qt-u</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="329"/>
+      <location filename="../../Window.cpp" line="335"/>
       <source>Tools</source>
       <translation>Alati</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="331"/>
+      <location filename="../../Window.cpp" line="337"/>
       <source>General</source>
       <translation>Generalno</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="332"/>
+      <location filename="../../Window.cpp" line="338"/>
       <source>Verify Checksums</source>
       <translation>Verifikuj Checksum</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="363"/>
+      <location filename="../../Window.cpp" line="369"/>
       <source>Debug</source>
       <translation>Odklanjane Greški</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="365"/>
+      <location filename="../../Window.cpp" line="371"/>
       <source>Dialogs</source>
       <translation>Dialozi</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="420"/>
+      <location filename="../../Window.cpp" line="426"/>
       <source>Search...</source>
       <translation>Pretraži...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1538"/>
+      <location filename="../../Window.cpp" line="1566"/>
       <source>Clear</source>
       <translation>Očisti</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1551"/>
+      <location filename="../../Window.cpp" line="1579"/>
       <source>AppID</source>
       <translation>AppID</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1552"/>
+      <location filename="../../Window.cpp" line="1580"/>
       <source>App Version</source>
       <translation>Verzija Aplikacije</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1553"/>
+      <location filename="../../Window.cpp" line="1581"/>
       <source>Godot Version</source>
       <translation>Verzija Godot-a</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1554"/>
+      <location filename="../../Window.cpp" line="1582"/>
       <source>Version</source>
       <translation>Verzija</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1555"/>
+      <location filename="../../Window.cpp" line="1583"/>
       <source>Map Revision</source>
       <translation>Revizija Karte</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1556"/>
+      <location filename="../../Window.cpp" line="1584"/>
       <source>Addon Name:</source>
-      <translation>Ime dodatka:</translation>
+      <translation>Ime Dodatka:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1559"/>
+      <location filename="../../Window.cpp" line="1587"/>
       <source>Loaded</source>
       <translation>Učitano</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1082"/>
+      <location filename="../../Window.cpp" line="1099"/>
       <source>Created by %1</source>
       <translation>Izradio %1</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="144"/>
+      <location filename="../../Window.cpp" line="150"/>
       <source>Donate On Ko-fi...</source>
-      <translation>Doniraj na Ko-fi...</translation>
+      <translation>Doniraj Na Ko-fi...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="218"/>
+      <location filename="../../Window.cpp" line="224"/>
       <source>System Language</source>
       <translation>Jezik Sistema</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="288"/>
+      <location filename="../../Window.cpp" line="294"/>
       <source>Enable Rich Presence</source>
       <translation>Omogući Rich Presence</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="201"/>
+      <location filename="../../Window.cpp" line="207"/>
       <source>Disable Startup Update Check</source>
-      <translation>Onemogući provjeru ažuriranja pri pokretanju</translation>
+      <translation>Onemogući Provjeru Ažuriranja Pri Pokretanju</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1557"/>
+      <location filename="../../Window.cpp" line="1585"/>
       <source>Embedded</source>
       <translation>Ugrađeno</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1558"/>
+      <location filename="../../Window.cpp" line="1586"/>
       <source>Encrypted</source>
       <translation>Enkriptovano</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="341"/>
+      <location filename="../../Window.cpp" line="347"/>
       <source>Generate Public/Private Key Files...</source>
-      <translation>Generiši javni/privatni ključ datoteke...</translation>
+      <translation>Generiši Javni/Privatni Ključ Datoteke...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="344"/>
+      <location filename="../../Window.cpp" line="350"/>
       <source>Sign File...</source>
-      <translation>Potpiši datoteku...</translation>
+      <translation>Potpiši Datoteku...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1102"/>
+      <location filename="../../Window.cpp" line="1119"/>
       <source>Keypair Filename</source>
-      <translation>Naziv fajla para ključeva</translation>
+      <translation>Naziv Fajla para Ključeva</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1102"/>
+      <location filename="../../Window.cpp" line="1119"/>
       <source>Name of the keypair files to generate:</source>
       <translation>Naziv fajla para ključeva koje treba generisati:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1114"/>
+      <location filename="../../Window.cpp" line="1131"/>
       <source>Open Private Key File</source>
-      <translation>Otvori fajl Privatnog Ključa</translation>
+      <translation>Otvori Fajl Privatnog Ključa</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1122"/>
+      <location filename="../../Window.cpp" line="1139"/>
       <source>Success</source>
       <translation>Uspjeh</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1122"/>
+      <location filename="../../Window.cpp" line="1139"/>
       <source>Successfully signed the pack file.</source>
       <translation>Uspješno potpisan pack fajl.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1124"/>
+      <location filename="../../Window.cpp" line="1141"/>
       <source>Failed to sign the pack file! Check the file contains both the private key and public key.</source>
       <translation>Nije uspjelo potpisivanje pack fajla! Provjerite da li fajl sadrži i privatni i javni ključ.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="335"/>
+      <location filename="../../Window.cpp" line="341"/>
       <source>Verify Signature</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="700"/>
+      <location filename="../../Window.cpp" line="717"/>
       <source>An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="194"/>
+      <location filename="../../Window.cpp" line="200"/>
       <source>Disable Open In Menu</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="78"/>
+      <location filename="../../Window.cpp" line="80"/>
       <source>Create...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="98"/>
+      <location filename="../../Window.cpp" line="100"/>
       <source>Create from Folder...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1047"/>
-      <source>Renaming directory... Aborting this process will not roll back changes made so far.</source>
-      <translation></translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="1047"/>
+      <location filename="../../Window.cpp" line="1064"/>
       <source>Abort</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1048"/>
-      <source>Rename Directory</source>
-      <translation></translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="1232"/>
+      <location filename="../../Window.cpp" line="1249"/>
       <source>Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1491"/>
+      <location filename="../../Window.cpp" line="1515"/>
       <source>Loading installed games...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1512"/>
+      <location filename="../../Window.cpp" line="1536"/>
       <source>No games detected.</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="124"/>
+      <source>Open Folder...</source>
+      <translation>Otvori Folder...</translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="1064"/>
+      <source>Renaming folder... Aborting this process will not roll back changes made so far.</source>
       <translation></translation>
     </message>
   </context>
@@ -722,7 +724,7 @@ Pogledajte ispod za više informacija.</translation>
       <location filename="../../previews/AudioPreview.cpp" line="117"/>
       <source>Sample Rate: %1hz
 Channels: %2</source>
-      <translation>brzina uzorkovanja: %1hz
+      <translation>Brzina Uzorkovanja: %1hz
 Kanali: %2</translation>
     </message>
   </context>
@@ -773,7 +775,7 @@ Kanali: %2</translation>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="62"/>
       <source>The path of the folder:
 (e.g. "%1")</source>
-      <translation>Putanja Foldera: 
+      <translation>Putanja foldera: 
 (npr. "%1")</translation>
     </message>
     <message>
@@ -859,12 +861,12 @@ Umjesto Foldera u koje se nalazi VPK:</translation>
       <translation>Greška pri otvaranju komponente za playback.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="488"/>
+      <location filename="../../Window.cpp" line="494"/>
       <source>Use This Folder</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="503"/>
+      <location filename="../../Window.cpp" line="509"/>
       <source>Save New Pack File</source>
       <translation></translation>
     </message>
@@ -889,7 +891,7 @@ Umjesto Foldera u koje se nalazi VPK:</translation>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="25"/>
       <source>Failed to parse DMX file.</source>
-      <translation>Greška pri čitanju DMX fajla</translation>
+      <translation>Greška pri čitanju DMX fajla.</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="40"/>
@@ -943,12 +945,12 @@ Umjesto Foldera u koje se nalazi VPK:</translation>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="196"/>
       <source>Edit</source>
-      <translation></translation>
+      <translation>Edituj</translation>
     </message>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="201"/>
       <source>Save</source>
-      <translation></translation>
+      <translation>Pohrani</translation>
     </message>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="207"/>
@@ -1001,7 +1003,7 @@ Umjesto Foldera u koje se nalazi VPK:</translation>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="546"/>
       <source>Version: %1</source>
-      <translation></translation>
+      <translation>Verzija: %1</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="548"/>
@@ -1034,7 +1036,7 @@ Umjesto Foldera u koje se nalazi VPK:</translation>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="60"/>
       <source>Value:</source>
-      <translation></translation>
+      <translation>Vrijednost:</translation>
     </message>
   </context>
 </TS>

@@ -1061,8 +1061,8 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		}
 	});
 
-	QProgressDialog progressDialog(tr("Renaming directory... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, entriesToRename.size(), this);
-	progressDialog.setWindowTitle(tr("Rename Directory"));
+	QProgressDialog progressDialog(tr("Renaming folder... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, entriesToRename.size(), this);
+	progressDialog.setWindowTitle(tr("Rename Folder"));
 	progressDialog.setWindowModality(Qt::WindowModal);
 	for (const auto& [path, entry] : entriesToRename) {
 		if (progressDialog.wasCanceled()) {
