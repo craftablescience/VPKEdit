@@ -53,6 +53,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Source 1 Textures
   - Source 1 Models
   - Source 1 DMX files (particles, SFM sessions, etc.)
+  - Source 1 Prop Lightmaps (`PPL` files)
 - Create VPKs of any version from scratch or an existing folder
 - Add and remove files and folders from writable pack files
 - Extract files and folders from readable pack files
