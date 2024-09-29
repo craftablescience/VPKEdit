@@ -205,13 +205,6 @@ Window::Window(QWidget* parent)
 	optionDisableStartupCheck->setCheckable(true);
 	optionDisableStartupCheck->setChecked(Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK));
 
-	generalMenu->addSeparator();
-	auto* optionStartMaximized = generalMenu->addAction(tr("Start Maximized"), [] {
-		Options::invert(OPT_START_MAXIMIZED);
-	});
-	optionStartMaximized->setCheckable(true);
-	optionStartMaximized->setChecked(Options::get<bool>(OPT_START_MAXIMIZED));
-
 	auto* languageMenu = optionsMenu->addMenu(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Language..."));
 	auto* languageMenuGroup = new QActionGroup(languageMenu);
 	languageMenuGroup->setExclusive(true);
@@ -1524,6 +1517,19 @@ void Window::closeEvent(QCloseEvent* event) {
 		event->ignore();
 		return;
 	}
+
+	// Write location and sizing
+	auto* settings = Options::getOptions();
+	settings->beginGroup("main_window");
+	settings->setValue("geometry", this->saveGeometry());
+	settings->setValue("state", this->saveState());
+	settings->setValue("maximized", this->isMaximized());
+	if (!this->isMaximized()) {
+		settings->setValue("position", this->pos());
+		settings->setValue("size", this->size());
+	}
+	settings->endGroup();
+
 	event->accept();
 }
 

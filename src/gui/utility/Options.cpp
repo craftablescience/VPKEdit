@@ -46,10 +46,6 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(OPT_ADVANCED_FILE_PROPS, false);
 	}
 
-	if (!options.contains(OPT_START_MAXIMIZED)) {
-		options.setValue(OPT_START_MAXIMIZED, false);
-	}
-
 	if (!options.contains(OPT_LANGUAGE_OVERRIDE)) {
 		options.setValue(OPT_LANGUAGE_OVERRIDE, QString());
 	}

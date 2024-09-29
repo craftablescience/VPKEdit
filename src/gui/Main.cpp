@@ -43,12 +43,19 @@ int main(int argc, char** argv) {
 	}
 
 	auto* window = new Window();
-	if (!Options::get<bool>(OPT_START_MAXIMIZED)) {
-		window->resize(900, 500);
-		window->show();
-	} else {
-		window->showMaximized();
+	options->beginGroup("main_window");
+	window->restoreGeometry(options->value("geometry", window->saveGeometry()).toByteArray());
+	window->restoreState(options->value("state", window->saveState()).toByteArray());
+	if (options->contains("position")) {
+		window->move(options->value("position", window->pos()).toPoint());
 	}
+	window->resize(options->value("size", QSize{900, 500}).toSize());
+	if (options->value("maximized", window->isMaximized()).toBool()) {
+		window->showMaximized();
+	} else {
+		window->show();
+	}
+	options->endGroup();
 
 	return QApplication::exec();
 }

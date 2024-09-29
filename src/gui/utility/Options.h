@@ -10,7 +10,6 @@ constexpr std::string_view OPT_ENTRY_TREE_AUTO_EXPAND = "entry_list_auto_expand"
 constexpr std::string_view OPT_ENTRY_TREE_AUTO_COLLAPSE = "entry_list_auto_collapse";
 constexpr std::string_view OPT_ENTRY_TREE_HIDE_ICONS = "entry_tree_hide_icons";
 constexpr std::string_view OPT_ADVANCED_FILE_PROPS = "adv_mode";
-constexpr std::string_view OPT_START_MAXIMIZED = "start_maximized";
 constexpr std::string_view OPT_LANGUAGE_OVERRIDE = "language_override";
 constexpr std::string_view OPT_DISABLE_STARTUP_UPDATE_CHECK = "disable_startup_update_check";
 constexpr std::string_view OPT_ENABLE_DISCORD_RICH_PRESENCE = "enable_discord_rich_presence";
