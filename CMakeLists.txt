@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 # Create project
 project(vpkedit
         DESCRIPTION "A CLI/GUI tool to create, read, and write several pack file formats."
-        VERSION "4.2.3"
+        VERSION "4.3.0"
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
