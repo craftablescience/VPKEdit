@@ -9,6 +9,7 @@
 #include <vpkpp/PackFileType.h>
 
 class QCheckBox;
+class QComboBox;
 class QLineEdit;
 class QSpinBox;
 
@@ -24,6 +25,10 @@ public:
 
 private:
 	QLineEdit* path;
+
+	// BSP/ZIP
+	QComboBox* compressionType;
+	QSpinBox* compressionStrength;
 
 	// VPK
 	QCheckBox* useArchiveVPK;

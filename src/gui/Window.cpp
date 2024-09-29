@@ -33,18 +33,13 @@
 #include <QThread>
 #include <QTimer>
 #include <steampp/steampp.h>
-#include <vpkpp/format/FPX.h>
-#include <vpkpp/format/PAK.h>
-#include <vpkpp/format/PCK.h>
-#include <vpkpp/format/VPK.h>
-#include <vpkpp/format/ZIP.h>
+#include <vpkpp/vpkpp.h>
 
 #include <Version.h>
 
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
-#include "dialogs/PackFileOptionsDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "dialogs/VerifySignatureDialog.h"
 #include "dialogs/VICEDialog.h"
@@ -680,7 +675,10 @@ void Window::savePackFile(bool saveAs, bool async) {
 		this->savePackFileWorkerThread = new QThread(this);
 		worker->moveToThread(this->savePackFileWorkerThread);
 		QObject::connect(this->savePackFileWorkerThread, &QThread::started, worker, [this, worker, savePath] {
-			worker->run(this, savePath);
+			worker->run(this, savePath, {
+				.zip_compressionTypeOverride = this->packFileOptions.compressionType,
+				.zip_compressionStrength = this->packFileOptions.compressionStrength,
+			});
 		});
 	}
 	QObject::connect(worker, &SavePackFileWorker::progressUpdated, this, [this, progressBarMax](int value) {
@@ -723,7 +721,10 @@ void Window::savePackFile(bool saveAs, bool async) {
 	if (async) {
 		this->savePackFileWorkerThread->start();
 	} else {
-		worker->run(this, savePath, false);
+		worker->run(this, savePath, {
+			.zip_compressionTypeOverride = this->packFileOptions.compressionType,
+			.zip_compressionStrength = this->packFileOptions.compressionStrength,
+		}, false);
 	}
 }
 
@@ -813,12 +814,17 @@ void Window::setProperties() {
 	}
 
 	auto options = PackFileOptionsDialog::getForEdit(this->packFile->getType(), {
+		.compressionType = this->packFileOptions.compressionType,
+		.compressionStrength = this->packFileOptions.compressionStrength,
 		.vpk_version = version,
 		.vpk_chunkSize = chunkSize,
 	}, this);
 	if (!options) {
 		return;
 	}
+
+	this->packFileOptions.compressionType = options->compressionType;
+	this->packFileOptions.compressionStrength = options->compressionStrength;
 
 	if (this->packFile->getType() == PackFileType::FPX) {
 		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
@@ -938,14 +944,30 @@ void Window::requestEntryRemoval(const QString& path) const {
 
 void Window::editFile(const QString& oldPath) {
 	// Get file data
+	auto entry = this->packFile->findEntry(oldPath.toLocal8Bit().constData());
 	auto data = this->packFile->readEntry(oldPath.toLocal8Bit().constData());
-	if (!data) {
+	if (!entry || !data) {
 		QMessageBox::critical(this, tr("Error"), tr("Unable to edit file at \"%1\": could not read file data!").arg(oldPath));
 		return;
 	}
 
+	// Load existing properties
+	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
+		}
+	}
+
 	// Get new properties
-	const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType(), {}, this);
+	const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType(), {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
+	}, this);
 	if (!options) {
 		return;
 	}
@@ -967,8 +989,20 @@ void Window::editFileContents(const QString& path, std::vector<std::byte> data) 
 		return;
 	}
 
+	// Load existing properties
+	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
+		}
+	}
+
 	this->packFile->removeEntry(path.toLocal8Bit().constData());
 	this->packFile->addEntry(path.toLocal8Bit().constData(), std::move(data), {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
@@ -982,11 +1016,23 @@ void Window::editFileContents(const QString& path, const QString& data) {
 	}
 	auto byteData = data.toLocal8Bit();
 
+	// Load existing properties
+	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
+		}
+	}
+
 	this->packFile->removeEntry(path.toLocal8Bit().constData());
 	this->packFile->addEntry(path.toLocal8Bit().constData(), std::vector<std::byte>{
 		reinterpret_cast<std::byte*>(byteData.data()),
 		reinterpret_cast<std::byte*>(byteData.data()) + byteData.size(),
 	}, {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
@@ -1004,11 +1050,23 @@ void Window::encryptFile(const QString& path) {
 		return;
 	}
 
+	// Load existing properties
+	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
+		}
+	}
+
 	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".txt" ? ".ctx" : ".nuc");
 	this->requestEntryRemoval(path);
 	this->requestEntryRemoval(newPath);
 
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
@@ -1028,11 +1086,23 @@ void Window::decryptFile(const QString& path) {
 		return;
 	}
 
+	// Load existing properties
+	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
+		}
+	}
+
 	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".ctx" ? ".txt" : ".nut");
 	this->requestEntryRemoval(path);
 	this->requestEntryRemoval(newPath);
 
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
@@ -1075,6 +1145,16 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 			continue;
 		}
 
+		// Load existing properties
+		EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
+		int16_t compressionStrength = 5;
+		if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+			if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+				compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
+				compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
+			}
+		}
+
 		// Remove file
 		this->requestEntryRemoval(path.c_str());
 
@@ -1083,6 +1163,8 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 
 		// Add new file with the same info and data at the new path
 		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
+			.zip_compressionType = compressionType,
+			.zip_compressionStrength = compressionStrength,
 			.vpk_saveToDirectory = entry.archiveIndex == VPK_DIR_INDEX,
 			.vpk_preloadBytes = static_cast<unsigned int>(entry.extraData.size()),
 		});
@@ -1478,6 +1560,10 @@ bool Window::loadPackFile(const QString& path, std::unique_ptr<vpkpp::PackFile>&
 		return false;
 	}
 
+	// Reset properties that we care about
+	this->packFileOptions.compressionType = EntryCompressionType::NO_COMPRESS;
+	this->packFileOptions.compressionStrength = 5;
+
 	// Add to recent paths
 	QString loadedPath{this->packFile->getFilepath().data()};
 	if (!recentPaths.contains(loadedPath)) {
@@ -1594,13 +1680,13 @@ void IndeterminateProgressWorker::run(const std::function<void()>& fn) {
 	emit this->taskFinished();
 }
 
-void SavePackFileWorker::run(Window* window, const QString& savePath, bool async) {
+void SavePackFileWorker::run(Window* window, const QString& savePath, BakeOptions options, bool async) {
 	std::unique_ptr<QEventLoop> loop;
 	if (!async) {
 		loop = std::make_unique<QEventLoop>();
 	}
 	int currentEntry = 0;
-	bool success = window->packFile->bake(savePath.toLocal8Bit().constData(), {}, [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
+	bool success = window->packFile->bake(savePath.toLocal8Bit().constData(), options, [this, loop_=loop.get(), &currentEntry](const std::string&, const Entry&) {
 		emit this->progressUpdated(++currentEntry);
 		if (loop_) {
 			loop_->processEvents();

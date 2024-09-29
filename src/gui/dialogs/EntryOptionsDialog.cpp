@@ -1,6 +1,7 @@
 #include "EntryOptionsDialog.h"
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFormLayout>
@@ -12,6 +13,35 @@
 #include "../utility/Options.h"
 
 using namespace vpkpp;
+
+namespace {
+
+int compressionTypeToComboIndex(EntryCompressionType type) {
+	switch (type) {
+		case EntryCompressionType::NO_COMPRESS: return 0;
+		case EntryCompressionType::DEFLATE:     return 2;
+		case EntryCompressionType::BZIP2:       return 3;
+		case EntryCompressionType::LZMA:        return 1;
+		case EntryCompressionType::ZSTD:        return 4;
+		case EntryCompressionType::XZ:          return 5;
+		default: break;
+	}
+	return 0;
+}
+
+EntryCompressionType comboIndexToCompressionType(int index) {
+	switch (index) {
+		case 0: return EntryCompressionType::NO_COMPRESS;
+		case 2: return EntryCompressionType::DEFLATE;
+		case 3: return EntryCompressionType::BZIP2;
+		case 1: return EntryCompressionType::LZMA;
+		case 4: return EntryCompressionType::ZSTD;
+		case 5: return EntryCompressionType::XZ;
+	}
+	return EntryCompressionType::NO_COMPRESS;
+}
+
+} // namespace
 
 EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath,  PackFileType type, EntryOptions options, QWidget* parent)
 		: QDialog(parent) {
@@ -64,13 +94,32 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 	this->path->setText(prefilledPath);
 	layout->addRow(pathLineEditLabel, this->path);
 
+	this->compressionType = nullptr;
+	this->compressionStrength = nullptr;
 	this->useArchiveVPK = nullptr;
 	this->preloadBytes = nullptr;
 	if (advancedFileProps) {
-		if (type == PackFileType::VPK) {
+		if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+			this->compressionType = new QComboBox(this);
+			this->compressionType->addItem(tr("None"));
+			this->compressionType->addItem("LZMA");
+			if (type == PackFileType::ZIP) {
+				this->compressionType->addItem("DEFLATE");
+				this->compressionType->addItem("BZIP2");
+				this->compressionType->addItem("ZSTD");
+				this->compressionType->addItem("XZ");
+			}
+			layout->addRow(tr("Compression Type:"), this->compressionType);
+
+			this->compressionStrength = new QSpinBox(this);
+			this->compressionStrength->setMinimum(0);
+			this->compressionStrength->setMaximum(9);
+			this->compressionStrength->setValue(options.zip_compressionStrength);
+			layout->addRow(tr("Compression Strength Override:"), this->compressionStrength);
+		} else if (type == PackFileType::FPX || type == PackFileType::VPK) {
 			auto* useArchiveVPKLabel = new QLabel(isDir ?
-					tr("Save each file to a new numbered archive\ninstead of the directory VPK:") :
-					tr("Save the file to a new numbered archive\ninstead of the directory VPK:"), this);
+					tr("Save each file to a new numbered archive\ninstead of the directory:") :
+					tr("Save the file to a new numbered archive\ninstead of the directory:"), this);
 			this->useArchiveVPK = new QCheckBox(this);
 			this->useArchiveVPK->setCheckState(options.vpk_saveToDirectory ? Qt::CheckState::Unchecked : Qt::CheckState::Checked);
 			layout->addRow(useArchiveVPKLabel, this->useArchiveVPK);
@@ -95,6 +144,8 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 
 EntryOptions EntryOptionsDialog::getEntryOptions() const {
 	return {
+		.zip_compressionType = this->compressionType ? ::comboIndexToCompressionType(this->compressionType->currentIndex()) : EntryCompressionType::NO_COMPRESS,
+		.zip_compressionStrength = static_cast<int16_t>(this->compressionStrength ? this->compressionStrength->value() : 5),
 		.vpk_saveToDirectory = this->useArchiveVPK && !this->useArchiveVPK->isChecked(),
 		.vpk_preloadBytes = this->preloadBytes ? static_cast<std::uint32_t>(this->preloadBytes->value()) : 0,
 	};

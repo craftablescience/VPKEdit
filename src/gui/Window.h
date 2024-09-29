@@ -7,6 +7,8 @@
 #include <QMainWindow>
 #include <vpkpp/vpkpp.h>
 
+#include "dialogs/PackFileOptionsDialog.h"
+
 class QAction;
 class QLabel;
 class QLineEdit;
@@ -171,6 +173,7 @@ private:
 	QThread* scanSteamGamesWorkerThread        = nullptr;
 
 	std::unique_ptr<vpkpp::PackFile> packFile;
+	PackFileOptions packFileOptions;
 	bool modified;
 
 	bool dropEnabled;
@@ -210,7 +213,7 @@ class SavePackFileWorker : public QObject {
 public:
 	SavePackFileWorker() = default;
 
-	void run(Window* window, const QString& savePath, bool async = true);
+	void run(Window* window, const QString& savePath, vpkpp::BakeOptions options, bool async = true);
 
 signals:
 	void progressUpdated(int value);
