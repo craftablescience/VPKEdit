@@ -19,7 +19,7 @@ struct EntryContextMenuData {
 		this->contextMenuDir = new QMenu(parent);
 		this->extractDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract Folder..."));
 		this->contextMenuDir->addSeparator();
-		this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+		this->addFileToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add Files..."));
 		this->addDirToDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
 		this->contextMenuDir->addSeparator();
 		this->renameDirAction = this->contextMenuDir->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), QObject::tr("Rename/Move Folder..."));
@@ -36,7 +36,7 @@ struct EntryContextMenuData {
 			this->contextMenuAll = new QMenu(parent);
 			this->extractAllAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), QObject::tr("Extract All..."));
 			this->contextMenuAll->addSeparator();
-			this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add File..."));
+			this->addFileToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_FileLinkIcon), QObject::tr("Add Files..."));
 			this->addDirToRootAction = this->contextMenuAll->addAction(parent->style()->standardIcon(QStyle::SP_DirLinkIcon), QObject::tr("Add Folder..."));
 		}
 	}

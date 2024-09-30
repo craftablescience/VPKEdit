@@ -64,6 +64,8 @@ public:
 
 	void addFile(bool showOptions, const QString& startDir = QString(), const QString& filePath = QString());
 
+	void addFiles(bool showOptions, const QString& startDir = QString());
+
 	void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString());
 
 	bool removeFile(const QString& path);
