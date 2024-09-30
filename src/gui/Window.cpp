@@ -88,6 +88,9 @@ Window::Window(QWidget* parent)
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(false);
 	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "WAD3", [this] {
+		this->newWAD3(false);
+	});
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "ZIP", [this] {
 		this->newZIP(false);
 	});
@@ -107,6 +110,9 @@ Window::Window(QWidget* parent)
 	});
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "WAD3", [this] {
+		this->newWAD3(true);
 	});
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "ZIP", [this] {
 		this->newZIP(true);
@@ -468,7 +474,7 @@ Window::Window(QWidget* parent)
 
 template<PackFileType Type>
 void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
-	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::ZIP);
+	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::WAD3 || Type == PackFileType::ZIP);
 
 	if (window->isModified() && window->promptUserToKeepModifications()) {
 		return;
@@ -514,6 +520,8 @@ void newPackFile(Window* window, bool fromDirectory, const QString& startPath, c
 		if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
 			vpk->setChunkSize(options->vpk_chunkSize);
 		}
+	} else if constexpr (Type == PackFileType::WAD3) {
+		packFile = WAD3::create(packFilePath.toLocal8Bit().constData());
 	} else if constexpr (Type == PackFileType::ZIP) {
 		packFile = ZIP::create(packFilePath.toLocal8Bit().constData());
 	} else {
@@ -603,6 +611,10 @@ void Window::newPCK(bool fromDirectory, const QString& startPath) {
 
 void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	return ::newPackFile<PackFileType::VPK>(this, fromDirectory, startPath, "VPK", ".vpk");
+}
+
+void Window::newWAD3(bool fromDirectory, const QString& startPath) {
+	return ::newPackFile<PackFileType::WAD3>(this, fromDirectory, startPath, "WAD3", ".wad");
 }
 
 void Window::newZIP(bool fromDirectory, const QString& startPath) {

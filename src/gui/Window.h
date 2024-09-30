@@ -44,6 +44,8 @@ public:
 
 	void newVPK(bool fromDirectory, const QString& startPath = QString());
 
+	void newWAD3(bool fromDirectory, const QString& startPath = QString());
+
 	void newZIP(bool fromDirectory, const QString& startPath = QString());
 
 	void openDir(const QString& startPath = QString(), const QString& dirPath = QString());
