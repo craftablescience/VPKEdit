@@ -562,10 +562,14 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 	if (!mdlData || !vvdData || !vtxData) {
 		QString error{tr("Unable to find all the required files the model is composed of!") + '\n'};
 		if (!mdlData) {
-			error += "\n- " + basePath + ".mdl";
+			error += "\n- ";
+			error += basePath.c_str();
+			error += ".mdl";
 		}
 		if (!vvdData) {
-			error += "\n- " + basePath + ".vvd";
+			error += "\n- ";
+			error += basePath.c_str();
+			error += ".vvd";
 		}
 		if (!vtxData) {
 			error += "\n- " + tr("One of the following:") +
