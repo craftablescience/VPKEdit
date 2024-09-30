@@ -9,6 +9,7 @@
 #include <vpkpp/format/PCK.h>
 #include <vpkpp/format/VPK_VTMB.h>
 #include <vpkpp/format/VPK.h>
+#include <vpkpp/format/WAD3.h>
 #include <vpkpp/format/ZIP.h>
 
 #include <Version.h>
@@ -305,6 +306,8 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
 			vpk->setChunkSize(preferredChunkSize);
 		}
+	} else if (type == "wad") {
+		packFile = WAD3::create(outputPath);
 	}
 	if (!packFile) {
 		std::cerr << "Failed to create pack file!" << std::endl;
@@ -394,7 +397,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_P(TYPE))
 		.help("(Pack) The type of the output pack file.")
 		.default_value("vpk")
-		.choices("bmz", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "zip")
+		.choices("bmz", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "wad", "zip")
 		.nargs(1);
 
 	cli.add_argument(ARG_L(NO_PROGRESS))
