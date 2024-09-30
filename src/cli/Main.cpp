@@ -4,12 +4,7 @@
 
 #include <argparse/argparse.hpp>
 #include <indicators/indeterminate_progress_bar.hpp>
-#include <vpkpp/format/FPX.h>
-#include <vpkpp/format/PAK.h>
-#include <vpkpp/format/PCK.h>
-#include <vpkpp/format/VPK_VTMB.h>
-#include <vpkpp/format/VPK.h>
-#include <vpkpp/format/ZIP.h>
+#include <vpkpp/vpkpp.h>
 
 #include <Version.h>
 

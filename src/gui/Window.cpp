@@ -873,7 +873,6 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	this->markModified(true);
 }
 
-
 void Window::addFiles(bool showOptions, const QString &startDir) {
 	// Add multiple files using the multiple file selector
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Files"));
