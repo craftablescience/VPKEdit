@@ -138,7 +138,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 				if (selectedDirAction == contextMenuData.extractDirAction) {
 					this->window->extractDir(path);
 				} else if (selectedDirAction == contextMenuData.addFileToDirAction) {
-					this->window->addFile(false, path);
+					this->window->addFiles(false, path);
 				} else if (selectedDirAction == contextMenuData.addDirToDirAction) {
 					this->window->addDir(false, path);
 				} else if (selectedDirAction == contextMenuData.renameDirAction) {

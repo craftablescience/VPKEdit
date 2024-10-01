@@ -171,8 +171,8 @@ Window::Window(QWidget* parent)
 	this->extractAllAction->setDisabled(true);
 
 	editMenu->addSeparator();
-	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add File..."), Qt::CTRL | Qt::Key_A, [this] {
-		this->addFile(true);
+	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add Files..."), Qt::CTRL | Qt::Key_A, [this] {
+		this->addFiles(true);
 	});
 	this->addFileAction->setDisabled(true);
 
@@ -883,6 +883,14 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	this->entryTree->addEntry(entryPath);
 	this->fileViewer->addEntry(*this->packFile, entryPath);
 	this->markModified(true);
+}
+
+void Window::addFiles(bool showOptions, const QString &startDir) {
+	// Add multiple files using the multiple file selector
+	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Files"));
+	for (const QString& path : files) {
+		this->addFile(showOptions, startDir, path);
+	}
 }
 
 void Window::addDir(bool showOptions, const QString& startDir, const QString& dirPath) {
