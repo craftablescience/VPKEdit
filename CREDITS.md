@@ -3,6 +3,7 @@
 - [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, VPK file association for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Nbc66](https://github.com/Nbc66): added some extra info to the installation guide
+- [OzxyBox](https://github.com/ozxybox): WAD3 file format parser
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
 - [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
 
@@ -15,11 +16,11 @@
 - Swedish: TheDudeWhosNameIsAce
 
 ## Acknowledgements
-- GUI
+- [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors
+- GUI-specific:
   - [Discord RPC](https://github.com/craftablescience/discord-rpc-clean) - Discord Inc. and contributors
   - [MiniAudio](https://github.com/mackron/miniaudio) - David Reid and contributors
   - [Qt](https://www.qt.io) - The Qt Company
-  - [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors
   - Default MatCap texture is from [nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
-- CLI
+- CLI-specific:
   - [argparse](https://github.com/p-ranav/argparse) & [indicators](https://github.com/p-ranav/indicators) - P-ranav and contributors

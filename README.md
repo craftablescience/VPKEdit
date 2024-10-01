@@ -40,6 +40,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | PCK    | Godot PaCK file (Standalone or embedded)    |   ✅    |  ✅   |   ✅   |
   | VPK    | Vampire PacK file (V:TMB)                   | 〰️[^1] |  ✅   |   ✅   |
   | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
+  | WAD    | Where's All the Data (GoldSrc Engine)       |   ✅    |  ✅   |   ✅   |
   | ZIP    | ZIP file                                    |   ✅    |  ✅   |   ✅   |
 
   [^1]: Only supported in the CLI interface.
