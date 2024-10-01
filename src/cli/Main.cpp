@@ -409,7 +409,8 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_P(COMPRESSION_LEVEL))
 		.help("(Pack) The level of compression to apply. (BSP, VPK v54, and ZIP only).")
-		.flag();
+		.default_value("5")
+		.nargs(1);
 
 	cli.add_argument(ARG_L(GEN_MD5_ENTRIES))
 		.help("(Pack) Generate MD5 hashes for each file (VPK v2, v54 only).")
