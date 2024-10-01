@@ -182,30 +182,50 @@ Nieuwste versie: v%2
   <context>
     <name>PackFileOptionsDialog</name>
     <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="27"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="80"/>
       <source>Version:</source>
       <translation>Versie:</translation>
     </message>
     <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="17"/>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="74"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="47"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="132"/>
       <source>Pack File Properties</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="34"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="89"/>
       <source>Save to single file:
 Breaks if the file's size will be &gt;= 4gb!</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="41"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="96"/>
       <source>Preferred chunk size (MB):</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="74"/>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="132"/>
       <source>No properties available for this file type.</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="55"/>
+      <source>None</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="56"/>
+      <source>Per-entry</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="65"/>
+      <source>Compression Type Override:</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="71"/>
+      <source>Compression Strength:</source>
       <translation></translation>
     </message>
   </context>
@@ -259,462 +279,462 @@ Kijk hieronder voor meer infomatie.</translation>
   <context>
     <name>Window</name>
     <message>
-      <location filename="../../Window.cpp" line="363"/>
+      <location filename="../../Window.cpp" line="351"/>
       <source>Controls</source>
       <translation>Besturing</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="647"/>
+      <location filename="../../Window.cpp" line="635"/>
       <source>Open Pack File</source>
       <translation>Open Pack Bestand</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="658"/>
+      <location filename="../../Window.cpp" line="646"/>
       <source>Save to...</source>
       <translation>Opslaan als...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="716"/>
+      <location filename="../../Window.cpp" line="707"/>
       <source>Could not save!</source>
       <translation>Kan niet opgeslagen worden!</translation>
     </message>
     <message>
+      <location filename="../../Window.cpp" line="745"/>
       <location filename="../../Window.cpp" line="751"/>
-      <location filename="../../Window.cpp" line="757"/>
-      <location filename="../../Window.cpp" line="943"/>
-      <location filename="../../Window.cpp" line="1141"/>
-      <location filename="../../Window.cpp" line="1249"/>
-      <location filename="../../Window.cpp" line="1476"/>
+      <location filename="../../Window.cpp" line="951"/>
+      <location filename="../../Window.cpp" line="1224"/>
+      <location filename="../../Window.cpp" line="1332"/>
+      <location filename="../../Window.cpp" line="1572"/>
       <source>Error</source>
       <translation>Foutmelding</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="751"/>
+      <location filename="../../Window.cpp" line="745"/>
       <source>Error occurred checking for updates!</source>
       <translation>Er is een fout opgetreden tijdens het zoeken voor updates!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="757"/>
+      <location filename="../../Window.cpp" line="751"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
       <translation>Ongeldige JSON antwoord ontvangen tijdens het zoeken naar updates!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="789"/>
+      <location filename="../../Window.cpp" line="783"/>
       <source>No New Updates</source>
       <translation>Geen Nieuwe Updates</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="789"/>
+      <location filename="../../Window.cpp" line="783"/>
       <source>You are using the latest version of the software.</source>
       <translation>Je gebruikt de nieuwste versie van deze software.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="842"/>
+      <location filename="../../Window.cpp" line="841"/>
       <source>Open File</source>
       <translation>Open Bestand</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="627"/>
-      <location filename="../../Window.cpp" line="880"/>
+      <location filename="../../Window.cpp" line="615"/>
+      <location filename="../../Window.cpp" line="887"/>
       <source>Open Folder</source>
       <translation>Open Folder</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="923"/>
+      <location filename="../../Window.cpp" line="930"/>
       <source>Error Removing File</source>
       <translation>Foudmelding Tijdens Bestand Verwijdering</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="923"/>
+      <location filename="../../Window.cpp" line="930"/>
       <source>There was an error removing the file at "%1"!</source>
       <translation>Er was een foutmelding tijdens het verwijderen van het bestand in "%1"!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="943"/>
+      <location filename="../../Window.cpp" line="951"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
       <translation>Kan bestand "1%" niet aanpassen: Kan bestand data niet lezen!</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1049"/>
-      <location filename="../../Window.cpp" line="1065"/>
+      <location filename="../../Window.cpp" line="1120"/>
+      <location filename="../../Window.cpp" line="1136"/>
       <source>Rename Folder</source>
       <translation>Folder Hernoemen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1049"/>
+      <location filename="../../Window.cpp" line="1120"/>
       <source>The new path:</source>
       <translation>Het nieuwe pad:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="357"/>
-      <location filename="../../Window.cpp" line="1109"/>
+      <location filename="../../Window.cpp" line="345"/>
+      <location filename="../../Window.cpp" line="1192"/>
       <source>About</source>
       <translation>Over</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1193"/>
+      <location filename="../../Window.cpp" line="1276"/>
       <source>Extract as...</source>
       <translation>Uitpakken als...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1204"/>
-      <location filename="../../Window.cpp" line="1269"/>
+      <location filename="../../Window.cpp" line="1287"/>
+      <location filename="../../Window.cpp" line="1352"/>
       <source>Extract to...</source>
       <translation>Uitpakken naar...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1302"/>
+      <location filename="../../Window.cpp" line="1385"/>
       <source>Save changes?</source>
       <translation>Wijzigingen toepassen?</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1303"/>
+      <location filename="../../Window.cpp" line="1386"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
       <translation>Dit bestand heeft niet-opgeslagen wijzigingen! Wil je deze wijzigingen toepassen?</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1476"/>
+      <location filename="../../Window.cpp" line="1572"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
       <translation>Dit bestand kan niet geladen worden.  Zorg ervoor dat een spel of een andere applicatie dit bestand niet in gebruik heeft.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1552"/>
+      <location filename="../../Window.cpp" line="1652"/>
       <source>No recent files.</source>
       <translation>Geen recente bestanden.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="72"/>
+      <location filename="../../Window.cpp" line="67"/>
       <source>Restart Required</source>
       <translation>Opnieuw Opstarten Vereist</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="72"/>
+      <location filename="../../Window.cpp" line="67"/>
       <source>The application must be restarted for these settings to take effect.</source>
       <translation>De applicatie moet opnieuw worden opgestart voordat deze instellingen van kracht worden.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="78"/>
+      <location filename="../../Window.cpp" line="73"/>
       <source>File</source>
       <translation>Bestand</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="120"/>
+      <location filename="../../Window.cpp" line="115"/>
       <source>Open...</source>
       <translation>Open...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="128"/>
+      <location filename="../../Window.cpp" line="123"/>
       <source>Open In...</source>
       <translation>Open In...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="131"/>
+      <location filename="../../Window.cpp" line="126"/>
       <source>Open Recent...</source>
       <translation>Open Recente...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="134"/>
+      <location filename="../../Window.cpp" line="129"/>
       <source>Save</source>
       <translation>Opslaan</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="139"/>
+      <location filename="../../Window.cpp" line="134"/>
       <source>Save As...</source>
       <translation>Opslaan Als...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="144"/>
+      <location filename="../../Window.cpp" line="139"/>
       <source>Close</source>
       <translation>Sluit Bestand</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="157"/>
+      <location filename="../../Window.cpp" line="152"/>
       <source>Check For Updates...</source>
       <translation>Controleer Voor Updates...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="161"/>
+      <location filename="../../Window.cpp" line="156"/>
       <source>Exit</source>
       <translation>Sluit Applicatie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="166"/>
+      <location filename="../../Window.cpp" line="161"/>
       <source>Edit</source>
       <translation>Bewerken</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="167"/>
+      <location filename="../../Window.cpp" line="162"/>
       <source>Extract All</source>
       <translation>Alles Uitpakken</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="173"/>
-      <source>Add File...</source>
-      <translation>Bestand Toevoegen...</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="178"/>
       <source>Add Folder...</source>
       <translation>Folder Toevoegen...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="184"/>
+      <location filename="../../Window.cpp" line="179"/>
       <source>Properties...</source>
       <translation>Eigenschappen...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="190"/>
+      <location filename="../../Window.cpp" line="185"/>
       <source>Options</source>
       <translation>Opties</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="312"/>
+      <location filename="../../Window.cpp" line="300"/>
       <source>Entry Tree...</source>
       <translation>Artikel Boom...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="313"/>
+      <location filename="../../Window.cpp" line="301"/>
       <source>Expand Folder When Selected</source>
       <translation>Folder Uitbreiden Bij Selectie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="320"/>
+      <location filename="../../Window.cpp" line="308"/>
       <source>Start Collapsed</source>
       <translation>Begin Geminimaliseerd</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="327"/>
+      <location filename="../../Window.cpp" line="315"/>
       <source>Hide Icons</source>
       <translation>Verberg Iconen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="253"/>
+      <location filename="../../Window.cpp" line="241"/>
       <source>Theme...</source>
       <translation>Thema...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="220"/>
+      <location filename="../../Window.cpp" line="208"/>
       <source>Language...</source>
       <translation>Taal...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="193"/>
+      <location filename="../../Window.cpp" line="188"/>
       <source>Advanced File Properties</source>
       <translation>Geavanceerde Bestand Eigenschappen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="214"/>
-      <source>Start Maximized</source>
-      <translation>Begin Gemaximaliseerd</translation>
-    </message>
-    <message>
-      <location filename="../../Window.cpp" line="356"/>
+      <location filename="../../Window.cpp" line="344"/>
       <source>Help</source>
       <translation>Help</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="360"/>
+      <location filename="../../Window.cpp" line="348"/>
       <source>About Qt</source>
       <translation>Over Qt</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="335"/>
+      <location filename="../../Window.cpp" line="323"/>
       <source>Tools</source>
       <translation>Gereedschap</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="337"/>
+      <location filename="../../Window.cpp" line="325"/>
       <source>General</source>
       <translation>Algemeen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="338"/>
+      <location filename="../../Window.cpp" line="326"/>
       <source>Verify Checksums</source>
       <translation>Controlesommen Verifiëren</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="369"/>
+      <location filename="../../Window.cpp" line="357"/>
       <source>Debug</source>
       <translation>Foutopsporing</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="371"/>
+      <location filename="../../Window.cpp" line="359"/>
       <source>Dialogs</source>
       <translation>Dialogen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="426"/>
+      <location filename="../../Window.cpp" line="414"/>
       <source>Search...</source>
       <translation>Zoeken...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1566"/>
+      <location filename="../../Window.cpp" line="1666"/>
       <source>Clear</source>
       <translation>Leegmaken</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1579"/>
+      <location filename="../../Window.cpp" line="1679"/>
       <source>AppID</source>
       <translation>AppID</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1580"/>
+      <location filename="../../Window.cpp" line="1680"/>
       <source>App Version</source>
       <translation>Applicatie Versie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1581"/>
+      <location filename="../../Window.cpp" line="1681"/>
       <source>Godot Version</source>
       <translation>Godot Versie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1582"/>
+      <location filename="../../Window.cpp" line="1682"/>
       <source>Version</source>
       <translation>Versie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1583"/>
+      <location filename="../../Window.cpp" line="1683"/>
       <source>Map Revision</source>
       <translation>Map Revisie</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1584"/>
+      <location filename="../../Window.cpp" line="1684"/>
       <source>Addon Name:</source>
       <translation>Addon Naam:</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1587"/>
+      <location filename="../../Window.cpp" line="1687"/>
       <source>Loaded</source>
       <translation>Geladen</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1099"/>
+      <location filename="../../Window.cpp" line="1182"/>
       <source>Created by %1</source>
       <translation>Gemaakt door %1</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="150"/>
+      <location filename="../../Window.cpp" line="145"/>
       <source>Donate On Ko-fi...</source>
       <translation>Doneer Op Ko-Fi...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="224"/>
+      <location filename="../../Window.cpp" line="212"/>
       <source>System Language</source>
       <translation>Systeem Taal</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="294"/>
+      <location filename="../../Window.cpp" line="282"/>
       <source>Enable Rich Presence</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="207"/>
+      <location filename="../../Window.cpp" line="202"/>
       <source>Disable Startup Update Check</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1585"/>
+      <location filename="../../Window.cpp" line="1685"/>
       <source>Embedded</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1586"/>
+      <location filename="../../Window.cpp" line="1686"/>
       <source>Encrypted</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="347"/>
+      <location filename="../../Window.cpp" line="335"/>
       <source>Generate Public/Private Key Files...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="350"/>
+      <location filename="../../Window.cpp" line="338"/>
       <source>Sign File...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1119"/>
+      <location filename="../../Window.cpp" line="1202"/>
       <source>Keypair Filename</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1119"/>
+      <location filename="../../Window.cpp" line="1202"/>
       <source>Name of the keypair files to generate:</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1131"/>
+      <location filename="../../Window.cpp" line="1214"/>
       <source>Open Private Key File</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1139"/>
+      <location filename="../../Window.cpp" line="1222"/>
       <source>Success</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1139"/>
+      <location filename="../../Window.cpp" line="1222"/>
       <source>Successfully signed the pack file.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1141"/>
+      <location filename="../../Window.cpp" line="1224"/>
       <source>Failed to sign the pack file! Check the file contains both the private key and public key.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="341"/>
+      <location filename="../../Window.cpp" line="329"/>
       <source>Verify Signature</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="717"/>
+      <location filename="../../Window.cpp" line="708"/>
       <source>An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="200"/>
+      <location filename="../../Window.cpp" line="195"/>
       <source>Disable Open In Menu</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="80"/>
+      <location filename="../../Window.cpp" line="75"/>
       <source>Create...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="100"/>
+      <location filename="../../Window.cpp" line="95"/>
       <source>Create from Folder...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1064"/>
+      <location filename="../../Window.cpp" line="1135"/>
       <source>Abort</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1249"/>
+      <location filename="../../Window.cpp" line="1332"/>
       <source>Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1515"/>
+      <location filename="../../Window.cpp" line="1615"/>
       <source>Loading installed games...</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1536"/>
+      <location filename="../../Window.cpp" line="1636"/>
       <source>No games detected.</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="124"/>
+      <location filename="../../Window.cpp" line="119"/>
       <source>Open Folder...</source>
       <translation>Open Folder...</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="1064"/>
+      <location filename="../../Window.cpp" line="1135"/>
       <source>Renaming folder... Aborting this process will not roll back changes made so far.</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="168"/>
+      <source>Add Files...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../Window.cpp" line="878"/>
+      <source>Open Files</source>
       <translation></translation>
     </message>
   </context>
@@ -731,80 +751,93 @@ Kanalen: %2</translation>
   <context>
     <name>EntryOptionsDialog</name>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="27"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="57"/>
       <source>(Advanced) Edit Folder</source>
       <translation>(Geavanceerd) Bewerk Folder</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="29"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="59"/>
       <source>(Advanced) Edit File</source>
       <translation>(Geavanceerd) Bewerk Bestand</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="33"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="63"/>
       <source>(Advanced) New Folder</source>
       <translation>(Geavanceerd) Nieuwe Folder</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="35"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="65"/>
       <source>(Advanced) New File</source>
       <translation>(Geavanceerd) Nieuw Bestand</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="41"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="71"/>
       <source>Edit Folder</source>
       <translation>Bewerk Folder</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="43"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="73"/>
       <source>Edit File</source>
       <translation>Bewerk Bestand</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="47"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="77"/>
       <source>New Folder</source>
       <translation>Nieuwe Folder</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="49"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="79"/>
       <source>New File</source>
       <translation>Nieuw Bestand</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="61"/>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="62"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="91"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="92"/>
       <source>The path of the folder:
 (e.g. "%1")</source>
       <translation>Het pad naar de folder:
 (bijv. "%1")</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="72"/>
-      <source>Save each file to a new numbered archive
-instead of the directory VPK:</source>
-      <translation>Sla elk bestand op in een nieuw genummerd archief
-in plaats van het hoofd VPK archief:</translation>
-    </message>
-    <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="73"/>
-      <source>Save the file to a new numbered archive
-instead of the directory VPK:</source>
-      <translation>Sla elk bestand op in een nieuw genummerd archief
-in plaats van het hoofd VPK archief:</translation>
-    </message>
-    <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="79"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="128"/>
       <source>Set the bytes of each file to preload:
 (From 0 to %1 bytes)</source>
       <translation>Zet de bytes van alle bestanden om voor te laden:
 (Van 0 naar %1 bytes)</translation>
     </message>
     <message>
-      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="80"/>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="129"/>
       <source>Set the bytes of the file to preload:
 (From 0 to %1 bytes)</source>
       <translation>Zet de bytes van alle bestanden om voor te laden:
 (Van 0 naar %1 bytes)</translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="104"/>
+      <source>None</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="112"/>
+      <source>Compression Type:</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="118"/>
+      <source>Compression Strength Override:</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="121"/>
+      <source>Save each file to a new numbered archive
+instead of the directory:</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../dialogs/EntryOptionsDialog.cpp" line="122"/>
+      <source>Save the file to a new numbered archive
+instead of the directory:</source>
+      <translation></translation>
     </message>
   </context>
   <context>
@@ -861,12 +894,12 @@ in plaats van het hoofd VPK archief:</translation>
       <translation>Kan terugspeel apparaat niet openen.</translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="494"/>
+      <location filename="../../Window.cpp" line="482"/>
       <source>Use This Folder</source>
       <translation></translation>
     </message>
     <message>
-      <location filename="../../Window.cpp" line="509"/>
+      <location filename="../../Window.cpp" line="497"/>
       <source>Save New Pack File</source>
       <translation></translation>
     </message>
