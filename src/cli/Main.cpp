@@ -17,23 +17,24 @@ using namespace vpkpp;
 #define ARG_L(name, long_) \
 	constexpr std::string_view ARG_##name##_LONG  = long_
 
-ARG_S(OUTPUT,            "-o", "--output");
-ARG_S(TYPE,              "-t", "--type");
-ARG_L(NO_PROGRESS,             "--no-progress");
-ARG_S(VERSION,           "-v", "--version");
-ARG_S(CHUNKSIZE,         "-c", "--chunksize");
-ARG_S(COMPRESSION_LEVEL, "-x", "--compression-level");
-ARG_L(GEN_MD5_ENTRIES,         "--gen-md5-entries");
-ARG_L(ADD_FILE,                "--add-file");
-ARG_L(REMOVE_FILE,             "--remove-file");
-ARG_S(PRELOAD,           "-p", "--preload");
-ARG_S(SINGLE_FILE,       "-s", "--single-file");
-ARG_S(EXTRACT,           "-e", "--extract");
-ARG_L(GEN_KEYPAIR,             "--gen-keypair");
-ARG_L(FILE_TREE,               "--file-tree");
-ARG_S(SIGN,              "-k", "--sign");
-ARG_L(VERIFY_CHECKSUMS,        "--verify-checksums");
-ARG_L(VERIFY_SIGNATURE,        "--verify-signature");
+ARG_S(OUTPUT,             "-o", "--output");
+ARG_S(TYPE,               "-t", "--type");
+ARG_L(NO_PROGRESS,              "--no-progress");
+ARG_S(VERSION,            "-v", "--version");
+ARG_S(CHUNKSIZE,          "-c", "--chunksize");
+ARG_S(COMPRESSION_METHOD, "-m", "--compression-method");
+ARG_S(COMPRESSION_LEVEL,  "-x", "--compression-level");
+ARG_L(GEN_MD5_ENTRIES,          "--gen-md5-entries");
+ARG_L(ADD_FILE,                 "--add-file");
+ARG_L(REMOVE_FILE,              "--remove-file");
+ARG_S(PRELOAD,            "-p", "--preload");
+ARG_S(SINGLE_FILE,        "-s", "--single-file");
+ARG_S(EXTRACT,            "-e", "--extract");
+ARG_L(GEN_KEYPAIR,              "--gen-keypair");
+ARG_L(FILE_TREE,                "--file-tree");
+ARG_S(SIGN,               "-k", "--sign");
+ARG_L(VERIFY_CHECKSUMS,         "--verify-checksums");
+ARG_L(VERIFY_SIGNATURE,         "--verify-signature");
 
 #undef ARG_S
 #undef ARG_L
@@ -42,6 +43,24 @@ ARG_L(VERIFY_SIGNATURE,        "--verify-signature");
 #define ARG_P(name) ARG_S(name), ARG_L(name)
 
 namespace {
+
+/// Convert compression method to type enum
+[[nodiscard]] EntryCompressionType compressionMethodStringToCompressionType(std::string_view in) {
+	using enum EntryCompressionType;
+	if (in == "deflate") {
+		return DEFLATE;
+	} else if (in == "bzip2") {
+		return BZIP2;
+	} else if (in == "lzma") {
+		return LZMA;
+	} else if (in == "zstd") {
+		return ZSTD;
+	} else if (in == "xz") {
+		return XZ;
+	}
+	// "none"
+	return NO_COMPRESS;
+}
 
 /// Extract file(s) from an existing pack file
 void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
@@ -137,6 +156,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		return;
 	}
 
+	auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
 	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
 	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 
@@ -147,6 +167,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		} else {
 			packFile->addEntry(args[1], args[0], {});
 			packFile->bake("", {
+				.zip_compressionTypeOverride = compressionMethod,
 				.zip_compressionStrength = compressionLevel,
 				.vpk_generateMD5Entries = generateMD5Entries,
 			}, nullptr);
@@ -261,6 +282,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
 	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
 	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
+	auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
 	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
 	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
@@ -323,6 +345,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		};
 	});
 	packFile->bake("", {
+		.zip_compressionTypeOverride = compressionMethod,
 		.zip_compressionStrength = compressionLevel,
 		.vpk_generateMD5Entries = generateMD5Entries,
 	}, [noProgressBar, &bar](const std::string& path, const Entry& entry) {
@@ -405,6 +428,13 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_P(CHUNKSIZE))
 		.help("(Pack) The size of each archive in mb.")
 		.default_value("200")
+		.nargs(1);
+
+	cli.add_argument(ARG_P(COMPRESSION_METHOD))
+		.help("(Pack) The method of compression to apply. BSP only supports \"none\" and \"lzma\".\n"
+		      "ZIP supports all options. Option is unused for all other pack file types.")
+		.choices("none", "deflate", "bzip2", "lzma", "zstd", "xz")
+		.default_value("none")
 		.nargs(1);
 
 	cli.add_argument(ARG_P(COMPRESSION_LEVEL))
