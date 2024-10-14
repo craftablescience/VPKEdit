@@ -239,6 +239,12 @@ public:
 		".png",
 		".webp",
 		".bmp",
+		".psd",
+		".gif",
+		".hdr",
+		".pic",
+		".ppm",
+		".pgm",
 	};
 
 	static inline const QStringList EXTENSIONS_SVG {

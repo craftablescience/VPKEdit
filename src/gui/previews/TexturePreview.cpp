@@ -16,6 +16,8 @@
 #include <QSvgRenderer>
 #include <QWheelEvent>
 
+#include "../utility/ImageLoader.h"
+
 using namespace vtfpp;
 
 namespace {
@@ -90,7 +92,7 @@ void ITextureWidget::setZoom(int zoom_) {
 }
 
 void ImageWidget::setData(const std::vector<std::byte>& data) {
-	this->image.loadFromData(data);
+	this->image = ImageLoader::load(data);
 	this->zoom = 1.f;
 }
 
