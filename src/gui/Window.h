@@ -132,8 +132,6 @@ public:
 
 	void freezeModifyActions(bool readOnly) const;
 
-	[[nodiscard]] bool isModified() const;
-
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 
@@ -178,7 +176,6 @@ private:
 
 	std::unique_ptr<vpkpp::PackFile> packFile;
 	PackFileOptions packFileOptions;
-	bool modified;
 
 	bool dropEnabled;
 

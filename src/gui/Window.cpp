@@ -56,9 +56,8 @@ using namespace vpkpp;
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
-		, modified(false)
 		, dropEnabled(true) {
-	this->setWindowTitle(PROJECT_TITLE.data());
+	this->setWindowTitle(QString{PROJECT_TITLE.data()} + "[*]");
 	this->setWindowIcon(QIcon(":/logo.png"));
 
 	const auto showRestartWarning = [this] {
@@ -476,7 +475,7 @@ template<PackFileType Type>
 void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
 	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::WAD3 || Type == PackFileType::ZIP);
 
-	if (window->isModified() && window->promptUserToKeepModifications()) {
+	if (window->isWindowModified() && window->promptUserToKeepModifications()) {
 		return;
 	}
 
@@ -1381,15 +1380,8 @@ void Window::markModified(bool modified_) {
 		return;
 	}
 
-	this->modified = modified_;
-
-	if (this->modified) {
-		this->setWindowTitle(PROJECT_TITLE.data() + QString(" (*)"));
-	} else {
-		this->setWindowTitle(PROJECT_TITLE.data());
-	}
-
-	this->saveAction->setDisabled(!this->modified);
+	this->setWindowModified(modified_);
+	this->saveAction->setDisabled(!this->isWindowModified());
 }
 
 bool Window::promptUserToKeepModifications() {
@@ -1412,7 +1404,7 @@ bool Window::promptUserToKeepModifications() {
 }
 
 bool Window::clearContents() {
-	if (this->modified && this->promptUserToKeepModifications()) {
+	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
 		return false;
 	}
 
@@ -1441,7 +1433,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeF
 	this->openDirAction->setDisabled(freeze && freezeCreationActions);
 	this->openRelativeToMenu->setDisabled(freeze && freezeCreationActions);
 	this->openRecentMenu->setDisabled(freeze && freezeCreationActions);
-	this->saveAction->setDisabled(freeze || !this->modified);
+	this->saveAction->setDisabled(freeze || !this->isWindowModified());
 	this->saveAsAction->setDisabled(freeze);
 	this->closeFileAction->setDisabled(freeze);
 	this->extractAllAction->setDisabled(freeze);
@@ -1464,10 +1456,6 @@ void Window::freezeModifyActions(bool readOnly) const {
 		this->addDirAction->setDisabled(readOnly);
 		this->setPropertiesAction->setDisabled(readOnly);
 	}
-}
-
-bool Window::isModified() const {
-	return this->modified;
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {
@@ -1533,7 +1521,7 @@ void Window::dropEvent(QDropEvent* event) {
 }
 
 void Window::closeEvent(QCloseEvent* event) {
-	if (this->modified && this->promptUserToKeepModifications()) {
+	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
 		event->ignore();
 		return;
 	}
