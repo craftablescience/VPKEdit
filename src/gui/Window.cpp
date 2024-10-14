@@ -45,8 +45,8 @@
 #include "dialogs/VICEDialog.h"
 #include "extensions/Folder.h"
 #include "utility/DiscordPresence.h"
+#include "utility/ImageLoader.h"
 #include "utility/Options.h"
-#include "utility/TGADecoder.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -1749,12 +1749,14 @@ void ScanSteamGamesWorker::run() {
 		if (!steam.isAppUsingSourceEngine(appID) && !steam.isAppUsingSource2Engine(appID)) {
 			continue;
 		}
-		auto iconPath = steam.getAppIconPath(appID);
-		sourceGames.emplace_back(steam.getAppName(appID).data(), iconPath.empty() ? QIcon(":/icons/missing_app.png") : QIcon(iconPath.c_str()), steam.getAppInstallDir(appID).c_str());
+		sourceGames.emplace_back(
+				steam.getAppName(appID).data(),
+				QIcon{QPixmap::fromImage(ImageLoader::load(steam.getAppIconPath(appID).c_str()))},
+				steam.getAppInstallDir(appID).c_str());
 	}
 
 	// Add mods in the sourcemods directory
-	for (const auto& modDir : std::filesystem::directory_iterator{steam.getSourceModDir()}) {
+	for (const auto& modDir : std::filesystem::directory_iterator{steam.getSourceModDir(), std::filesystem::directory_options::skip_permission_denied | std::filesystem::directory_options::follow_directory_symlink}) {
 		if (!modDir.is_directory()) {
 			continue;
 		}
@@ -1797,8 +1799,10 @@ void ScanSteamGamesWorker::run() {
 			}
 		}
 
-		std::optional<QImage> modIconTGA = modIconPath.empty() ? std::nullopt : TGADecoder::decodeImage(modIconPath.c_str());
-		sourceGames.emplace_back(modName.c_str(), modIconTGA ? QIcon(QPixmap::fromImage(*modIconTGA)) : QIcon(":/icons/missing_app.png"), modDir.path().string().c_str());
+		sourceGames.emplace_back(
+				modName.c_str(),
+				QIcon{QPixmap::fromImage(ImageLoader::load(modIconPath.c_str()))},
+				modDir.path().string().c_str());
 	}
 
 	// Replace & with && in game names
