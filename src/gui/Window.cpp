@@ -171,12 +171,12 @@ Window::Window(QWidget* parent)
 	this->extractAllAction->setDisabled(true);
 
 	editMenu->addSeparator();
-	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add Files..."), Qt::CTRL | Qt::Key_A, [this] {
+	this->addFileAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileLinkIcon), tr("Add Files..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
 		this->addFiles(true);
 	});
 	this->addFileAction->setDisabled(true);
 
-	this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add Folder..."), Qt::CTRL | Qt::SHIFT | Qt::Key_A, [this] {
+	this->addDirAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_DirLinkIcon), tr("Add Folder..."), Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_A, [this] {
 		this->addDir(true);
 	});
 	this->addDirAction->setDisabled(true);
