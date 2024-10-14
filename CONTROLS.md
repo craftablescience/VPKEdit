@@ -13,24 +13,23 @@ Notes on mouse controls:
 ## Global Menus
 
 #### File
-| Key Combination    | Action             |
-|--------------------|--------------------|
-| `Ctrl + N`         | Create Empty       |
-| `Ctrl + Shift + N` | Create From Folder |
-| `Ctrl + O`         | Open               |
-| `Ctrl + S`         | Save               |
-| `Ctrl + Shift + S` | Save As            |
-| `Ctrl + X`         | Close              |
-| `Ctrl + U`         | Check For Updates  |
-| `Alt + F4`         | Exit               |
-
-#### Edit
 | Key Combination    | Action            |
 |--------------------|-------------------|
-| `Ctrl + E`         | Extract All       |
-| `Ctrl + A`         | Add File          |
-| `Ctrl + Shift + A` | Add Folder        |
-| `Ctrl + Alt + V`   | Change Version    |
+| `Ctrl + O`         | Open              |
+| `Ctrl + Shift + O` | Open Folder       |
+| `Ctrl + S`         | Save              |
+| `Ctrl + Shift + S` | Save As           |
+| `Ctrl + W`         | Close             |
+| `Ctrl + U`         | Check For Updates |
+| `Alt + F4`         | Exit              |
+
+#### Edit
+| Key Combination          | Action      |
+|--------------------------|-------------|
+| `Ctrl + E`               | Extract All |
+| `Ctrl + Shift + A`       | Add File    |
+| `Ctrl + Shift + Alt + A` | Add Folder  |
+| `Ctrl + P`               | Properties  |
 
 #### Help
 | Key Combination  | Action         |
