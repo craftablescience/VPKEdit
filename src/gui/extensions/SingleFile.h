@@ -111,6 +111,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".tres", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".import", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".remap", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".pop", &SingleFile::open);
 
 	// Textures
 	VPKPP_REGISTER_PACKFILE_OPEN(".tga", &SingleFile::open);

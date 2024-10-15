@@ -77,18 +77,19 @@ class TextPreview : public QWidget {
 public:
 	// Reminder if you add a format that should be highlighted to change that list too!
 	static inline const QStringList EXTENSIONS {
-		".txt", ".md",                                             // Text
-		".nut", ".lua", ".gm", ".py", ".js", ".ts",                // Scripts
-		".vmf", ".vmm", ".vmx", ".vmt",                            // Assets (1)
-		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd",             // Assets (2)
-		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",             // KeyValues (1)
-		".zpc", ".zpdata",                                         // KeyValues (2)
-		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",             // Valve formats
-		".ini", ".yml", ".yaml", ".toml", ".json",                 // Config
-		".html", ".htm", ".xml", ".css", ".scss", ".sass",         // Web
-		"authors", "credits", "license", "readme",                 // Info
-		".gitignore", ".gitattributes", ".gitmodules",             // Git
-		".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap", // Godot
+		".txt", ".md",															// Text
+		".nut", ".lua", ".gm", ".py", ".js", ".ts",					// Scripts
+		".vmf", ".vmm", ".vmx", ".vmt",									// Assets (1)
+		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd",				// Assets (2)
+		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",				// KeyValues (1)
+		".zpc", ".zpdata",														// KeyValues (2)
+		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",				// Valve formats
+		".ini", ".yml", ".yaml", ".toml", ".json",						// Config
+		".html", ".htm", ".xml", ".css", ".scss", ".sass",			// Web
+		"authors", "credits", "license", "readme",							// Info
+		".gitignore", ".gitattributes", ".gitmodules",						// Git
+		".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap",	// Godot
+		".pop",																	// TF2
 	};
 
 	TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
