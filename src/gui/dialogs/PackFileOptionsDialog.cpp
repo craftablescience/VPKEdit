@@ -74,9 +74,12 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 	this->version = nullptr;
 	if (type == PackFileType::VPK) {
 		this->version = new QComboBox(this);
+		this->version->addItem("v0");
 		this->version->addItem("v1");
 		this->version->addItem("v2");
-		this->version->setCurrentIndex(static_cast<int>(options.vpk_version) - 1);
+		if (options.vpk_version <= 2) {
+			this->version->setCurrentIndex(static_cast<int>(options.vpk_version));
+		}
 		layout->addRow(tr("Version:"), this->version);
 	}
 
@@ -107,7 +110,7 @@ PackFileOptions PackFileOptionsDialog::getPackFileOptions() const {
 	return {
 		.compressionType = this->compressionType ? ::comboIndexToCompressionType(this->compressionType->currentIndex()) : EntryCompressionType::NO_OVERRIDE,
 		.compressionStrength = static_cast<short>(this->compressionStrength ? this->compressionStrength->value() : 5),
-		.vpk_version = this->version ? static_cast<std::uint32_t>(this->version->currentIndex() + 1) : 2,
+		.vpk_version = this->version ? static_cast<std::uint32_t>(this->version->currentIndex()) : 2,
 		.vpk_saveSingleFile = this->singleFile && this->singleFile->isChecked(),
 		.vpk_chunkSize = this->preferredChunkSize ? this->preferredChunkSize->value() * 1024 * 1024 : VPK_DEFAULT_CHUNK_SIZE,
 	};

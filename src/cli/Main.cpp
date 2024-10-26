@@ -424,7 +424,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_P(VERSION))
 		.help("(Pack) The version of the PCK/VPK.")
 		.default_value("2")
-		.choices("1", "2")
+		.choices("0", "1", "2", "54")
 		.nargs(1);
 
 	cli.add_argument(ARG_P(CHUNKSIZE))
