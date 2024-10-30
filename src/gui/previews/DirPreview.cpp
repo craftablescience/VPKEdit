@@ -372,7 +372,7 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	// LENGTH
 	QTableWidgetItem* sizeItem;
 	if (entry->length < KB_SIZE) {
-		sizeItem = new QTableWidgetItem(QString::number(entry->length) + ' ' + tr("bytes"));
+		sizeItem = new QTableWidgetItem(QString::number(entry->length) + ' ' + tr("b"));
 	} else {
 		auto size = static_cast<double>(entry->length) / KB_SIZE;
 		QString extension(' ' + tr("kb"));
@@ -390,7 +390,7 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::LENGTH, sizeItem);
 
 	// PRELOADED DATA LENGTH
-	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->extraData.size()) + ' ' + tr("bytes"));
+	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->extraData.size()) + ' ' + tr("b"));
 	this->setItem(this->rowCount() - 1, Column::VPK_PRELOADED_DATA_LENGTH, preloadedSizeItem);
 
 	// ARCHIVE INDEX
