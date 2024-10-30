@@ -8,6 +8,14 @@
 
 #include <Version.h>
 
+#include "Tree.h"
+
+#ifdef _WIN32
+#include <cstdio>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 using namespace std::literals::string_literals;
 using namespace vpkpp;
 
@@ -131,11 +139,7 @@ void fileTree(const std::string& inputPath) {
 	if (!packFile) {
 		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 	}
-
-	// todo: make this more tree-like
-	packFile->runForAllEntries([](const std::string& path, const Entry& entry) {
-		std::cout << path << std::endl;
-	});
+	::prettyPrintPackFile(packFile);
 }
 
 /// Generate private/public key files
@@ -376,6 +380,11 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 } // namespace
 
 int main(int argc, const char* const* argv) {
+#ifdef _WIN32
+	SetConsoleOutputCP(CP_UTF8); // Set up console to show UTF-8 characters
+	setvbuf(stdout, nullptr, _IOFBF, 1000); // Enable buffering so VS terminal won't chop up UTF-8 byte sequences
+#endif
+
 	argparse::ArgumentParser cli{std::string{PROJECT_NAME} + "cli", PROJECT_VERSION_PRETTY.data(), argparse::default_arguments::help};
 
 #ifdef _WIN32

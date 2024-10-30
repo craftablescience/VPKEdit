@@ -9,7 +9,10 @@ set(INDICATORS_SAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/thirdparty/indicators")
 
 # Create executable
-add_executable(${PROJECT_NAME}cli "${CMAKE_CURRENT_LIST_DIR}/Main.cpp")
+add_executable(${PROJECT_NAME}cli
+        "${CMAKE_CURRENT_LIST_DIR}/Main.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Tree.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Tree.h")
 
 vpkedit_configure_target(${PROJECT_NAME}cli)
 
