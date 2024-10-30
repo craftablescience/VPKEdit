@@ -242,6 +242,7 @@ public:
 		".psd",
 		".gif",
 		".hdr",
+		".exr",
 		".pic",
 		".ppm",
 		".pgm",

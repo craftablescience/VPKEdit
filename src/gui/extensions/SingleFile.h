@@ -124,6 +124,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".psd", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".gif", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".hdr", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".exr", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".pic", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".ppm", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".pgm", &SingleFile::open);
