@@ -217,7 +217,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not open then pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
 		return;
 	}
 
