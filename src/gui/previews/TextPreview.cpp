@@ -91,7 +91,7 @@ void TextEditor::setText(const QString& text, const QString& extension) {
 		".vmf", ".vmm", ".vmx", ".vmt",                // Assets (1)
 		".vcd", ".fgd", ".qc", ".smd",                 // Assets (2)
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues (1)
-		".zpc", ".zpdata",                             // KeyValues (1)
+		".zpc", ".zpdata", ".edt",                     // KeyValues (1)
 		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg", // Valve formats
 	};
 	if (keyValuesLikeFormats.contains(extension)) {
