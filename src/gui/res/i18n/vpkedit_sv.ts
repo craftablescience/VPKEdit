@@ -19,9 +19,9 @@
     <message>
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Are you sure you want to delete "%1"?
-(Hold Shift to skip this popup.)
-      <!--extracomment>The original wasn't long enough to make it sound natural so i had to shorten it quite a bit</extracomment -->
-      <translation type="unfinished">Säker att du vill ta bort "%1"?
+(Hold Shift to skip this popup.)</source>
+      <!--extracomment>The original wasn't long enough to make it sound natural so i had to shorten it quite a bit</extracomment -->>
+      <translation type="unfinished">Är du säker på att du vill ta bort "%1"?
 (Håll Skift för att inte visa denna popup.)</translation>
     </message>
     <message>
