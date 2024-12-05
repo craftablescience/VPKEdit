@@ -253,13 +253,13 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="25"/>
       <source>All file checksums match their expected values.</source>
-      <translation>Alla filers kontrolsummor matchar sina förväntade värden.</translation>
+      <translation>Alla filers kontrollsummor matchar sina förväntade värden.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="27"/>
       <source>Some file checksums do not match their expected values!
 See below for more information.</source>
-      <translation>Några filers kontrolsummor matchar inte sina förväntade värden!
+      <translation>Några filers kontrollsummor matchar inte sina förväntade värden!
   Se nedan för mer information.</translation>
     </message>
     <message>
@@ -589,7 +589,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1683"/>
       <source>Map Revision</source>
-      <translation>Banas-version</translation>
+      <translation>Banans version</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1684"/>
@@ -1070,7 +1070,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="52"/>
       <source>Code:</source>
-      <translation>Kod: </translation>
+      <translation>Kod:</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="60"/>
