@@ -20,7 +20,6 @@
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <!--extracomment>The original wasn't long enough to make it sound natural so i had to shorten it quite a bit</extracomment -->>
       <translation type="unfinished">Är du säker på att du vill ta bort "%1"?
 (Håll Skift för att inte visa denna popup.)</translation>
     </message>
@@ -77,7 +76,6 @@
       <location filename="../../FileViewer.cpp" line="394"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
-      <!-- extracomment>just seems a bit off, touch this up later.</extracomment -->
       <translation type="unfinished">Kunde inte läsa innehållet i den här filen!
 Se vänligen till att inget annat spel eller program använder filen.</translation>
     </message>
@@ -172,7 +170,6 @@ Current version:  v%1
 Latest version:  %2
 
 [Click here to go to the release on GitHub.](%3)</source>
-      <!-- extracomment>I'm not entirely sure how to translate the last bit</extracomment -->
       <translation type="unfinished">Det finns en ny version tillgänglig!
 
 Nuvarande version: v%1
