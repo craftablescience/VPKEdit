@@ -16,6 +16,7 @@ using namespace vcryptpp;
 
 QList<std::pair<QString, std::string_view>> VICEDialog::CODES{
 	{"Default",                          VICE::KnownCodes::DEFAULT},
+	{"Bloody Good Time",                 VICE::KnownCodes::BLOODY_GOOD_TIME},
 	{"Contagion Weapons",                VICE::KnownCodes::CONTAGION_WEAPONS},
 	{"Contagion Scripts",                VICE::KnownCodes::CONTAGION_SCRIPTS},
 	{"Counter-Strike: Source",           VICE::KnownCodes::COUNTER_STRIKE_SOURCE},
