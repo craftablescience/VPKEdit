@@ -124,34 +124,34 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 	this->root = nullptr;
 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
-	EntryContextMenuData contextMenuData(true, this);
+	auto* contextMenuData = new EntryContextMenuData{true, this};
 	QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
-		contextMenuData.setReadOnly(this->window->isReadOnly());
+		contextMenuData->setReadOnly(this->window->isReadOnly());
 		if (this->selectedItems().length() == 1) {
 			auto path = this->getItemPath(this->selectedItems()[0]);
 			if (path.endsWith(".nuc") || path.endsWith(".ctx")) {
-				contextMenuData.setEncryptDecryptVisible(false, true);
+				contextMenuData->setEncryptDecryptVisible(false, true);
 			} else if (path.endsWith(".nut") || path.endsWith(".txt")) {
-				contextMenuData.setEncryptDecryptVisible(true, false);
+				contextMenuData->setEncryptDecryptVisible(true, false);
 			} else {
-				contextMenuData.setEncryptDecryptVisible(false, false);
+				contextMenuData->setEncryptDecryptVisible(false, false);
 			}
 		} else {
-			contextMenuData.setEncryptDecryptVisible(false, false);
+			contextMenuData->setEncryptDecryptVisible(false, false);
 		}
 
 		if (this->selectedItems().length() > 1) {
 			// Show the selection context menu at the requested position
-			auto* selectedSelectionAction = contextMenuData.contextMenuSelection->exec(this->mapToGlobal(pos));
+			auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos));
 
 			// Handle the selected action
-			if (selectedSelectionAction == contextMenuData.extractSelectedAction) {
+			if (selectedSelectionAction == contextMenuData->extractSelectedAction) {
 				QStringList paths;
 				for (auto* item : this->selectedItems()) {
 					paths.push_back(this->getItemPath(item));
 				}
 				this->extractEntries(paths);
-			} else if (selectedSelectionAction == contextMenuData.removeSelectedAction) {
+			} else if (selectedSelectionAction == contextMenuData->removeSelectedAction) {
 				for (auto* item : this->selectedItems()) {
 					if (item == this->root) {
 						continue;
@@ -163,50 +163,50 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 			QString path = this->getItemPath(selectedItem);
 			if (path.isEmpty()) {
 				// Show the root context menu at the requested position
-				auto* selectedAllAction = contextMenuData.contextMenuAll->exec(this->mapToGlobal(pos));
+				auto* selectedAllAction = contextMenuData->contextMenuAll->exec(this->mapToGlobal(pos));
 
 				// Handle the selected action
-				if (selectedAllAction == contextMenuData.extractAllAction) {
+				if (selectedAllAction == contextMenuData->extractAllAction) {
 					this->window->extractAll();
-				} else if (selectedAllAction == contextMenuData.addFileToRootAction) {
+				} else if (selectedAllAction == contextMenuData->addFileToRootAction) {
 					this->window->addFiles(false);
-				} else if (selectedAllAction == contextMenuData.addDirToRootAction) {
+				} else if (selectedAllAction == contextMenuData->addDirToRootAction) {
 					this->window->addDir(false);
 				}
 			} else if (selectedItem->childCount() > 0) {
 				// Show the directory context menu at the requested position
-				auto* selectedDirAction = contextMenuData.contextMenuDir->exec(this->mapToGlobal(pos));
+				auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos));
 
 				// Handle the selected action
-				if (selectedDirAction == contextMenuData.extractDirAction) {
+				if (selectedDirAction == contextMenuData->extractDirAction) {
 					this->window->extractDir(path);
-				} else if (selectedDirAction == contextMenuData.addFileToDirAction) {
+				} else if (selectedDirAction == contextMenuData->addFileToDirAction) {
 					this->window->addFiles(false, path);
-				} else if (selectedDirAction == contextMenuData.addDirToDirAction) {
+				} else if (selectedDirAction == contextMenuData->addDirToDirAction) {
 					this->window->addDir(false, path);
-				} else if (selectedDirAction == contextMenuData.renameDirAction) {
+				} else if (selectedDirAction == contextMenuData->renameDirAction) {
 					this->window->renameDir(path);
-				} else if (selectedDirAction == contextMenuData.copyDirPathAction) {
+				} else if (selectedDirAction == contextMenuData->copyDirPathAction) {
 					QGuiApplication::clipboard()->setText(path);
-				} else if (selectedDirAction == contextMenuData.removeDirAction) {
+				} else if (selectedDirAction == contextMenuData->removeDirAction) {
 					this->removeEntry(selectedItem);
 				}
 			} else {
 				// Show the file context menu at the requested position
-				auto* selectedFileAction = contextMenuData.contextMenuFile->exec(this->mapToGlobal(pos));
+				auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos));
 
 				// Handle the selected action
-				if (selectedFileAction == contextMenuData.extractFileAction) {
+				if (selectedFileAction == contextMenuData->extractFileAction) {
 					this->window->extractFile(path);
-				} else if (selectedFileAction == contextMenuData.editFileAction) {
+				} else if (selectedFileAction == contextMenuData->editFileAction) {
 					this->window->editFile(path);
-				} else if (selectedFileAction == contextMenuData.encryptFileAction) {
+				} else if (selectedFileAction == contextMenuData->encryptFileAction) {
 					this->window->encryptFile(path);
-				} else if (selectedFileAction == contextMenuData.decryptFileAction) {
+				} else if (selectedFileAction == contextMenuData->decryptFileAction) {
 					this->window->decryptFile(path);
-				} else if (selectedFileAction == contextMenuData.copyFilePathAction) {
+				} else if (selectedFileAction == contextMenuData->copyFilePathAction) {
 					QGuiApplication::clipboard()->setText(path);
-				} else if (selectedFileAction == contextMenuData.removeFileAction) {
+				} else if (selectedFileAction == contextMenuData->removeFileAction) {
 					this->removeEntry(selectedItem);
 				}
 			}

@@ -98,73 +98,73 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 	this->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
-	EntryContextMenuData contextMenuData(false, this);
+	auto* contextMenuData = new EntryContextMenuData{false, this};
 	QObject::connect(this, &QTableWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
-		contextMenuData.setReadOnly(this->window->isReadOnly());
+		contextMenuData->setReadOnly(this->window->isReadOnly());
 		if (this->selectedItems().length() == 1) {
 			auto path = this->getItemPath(this->selectedItems()[0]);
 			if (path.endsWith(".nuc") || path.endsWith(".ctx")) {
-				contextMenuData.setEncryptDecryptVisible(false, true);
+				contextMenuData->setEncryptDecryptVisible(false, true);
 			} else if (path.endsWith(".nut") || path.endsWith(".txt")) {
-				contextMenuData.setEncryptDecryptVisible(true, false);
+				contextMenuData->setEncryptDecryptVisible(true, false);
 			} else {
-				contextMenuData.setEncryptDecryptVisible(false, false);
+				contextMenuData->setEncryptDecryptVisible(false, false);
 			}
 		} else {
-			contextMenuData.setEncryptDecryptVisible(false, false);
+			contextMenuData->setEncryptDecryptVisible(false, false);
 		}
 
 		if (this->selectedItems().length() > this->columnCount()) {
 			// Show the selection context menu at the requested position
-			auto* selectedSelectionAction = contextMenuData.contextMenuSelection->exec(this->mapToGlobal(pos));
+			auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos));
 
 			// Handle the selected action
-			if (selectedSelectionAction == contextMenuData.extractSelectedAction) {
+			if (selectedSelectionAction == contextMenuData->extractSelectedAction) {
 				QStringList paths;
 				for (auto* item : this->selectedItems()) {
 					paths.push_back(this->getItemPath(item));
 				}
 				this->window->extractPaths(paths);
-			} else if (selectedSelectionAction == contextMenuData.removeSelectedAction) {
+			} else if (selectedSelectionAction == contextMenuData->removeSelectedAction) {
 				this->removeSelectedRows(false);
 			}
 		} else if (auto* selectedItem = this->itemAt(pos)) {
 			QString path = this->getItemPath(selectedItem);
 			if (this->item(selectedItem->row(), Column::TYPE)->text() == DIR_TYPE_NAME) {
 				// Show the directory context menu at the requested position
-				auto* selectedDirAction = contextMenuData.contextMenuDir->exec(this->mapToGlobal(pos));
+				auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos));
 
 				// Handle the selected action
-				if (selectedDirAction == contextMenuData.extractDirAction) {
+				if (selectedDirAction == contextMenuData->extractDirAction) {
 					this->window->extractDir(path);
-				} else if (selectedDirAction == contextMenuData.addFileToDirAction) {
+				} else if (selectedDirAction == contextMenuData->addFileToDirAction) {
 					this->window->addFiles(false, path);
-				} else if (selectedDirAction == contextMenuData.addDirToDirAction) {
+				} else if (selectedDirAction == contextMenuData->addDirToDirAction) {
 					this->window->addDir(false, path);
-				} else if (selectedDirAction == contextMenuData.renameDirAction) {
+				} else if (selectedDirAction == contextMenuData->renameDirAction) {
 					this->window->renameDir(path);
-				} else if (selectedDirAction == contextMenuData.copyDirPathAction) {
+				} else if (selectedDirAction == contextMenuData->copyDirPathAction) {
 					QGuiApplication::clipboard()->setText(path);
-				} else if (selectedDirAction == contextMenuData.removeDirAction) {
+				} else if (selectedDirAction == contextMenuData->removeDirAction) {
 					this->window->requestEntryRemoval(path);
 					this->removeDir(path);
 				}
 			} else {
 				// Show the file context menu at the requested position
-				auto* selectedFileAction = contextMenuData.contextMenuFile->exec(this->mapToGlobal(pos));
+				auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos));
 
 				// Handle the selected action
-				if (selectedFileAction == contextMenuData.extractFileAction) {
+				if (selectedFileAction == contextMenuData->extractFileAction) {
 					this->window->extractFile(path);
-				} else if (selectedFileAction == contextMenuData.editFileAction) {
+				} else if (selectedFileAction == contextMenuData->editFileAction) {
 					this->window->editFile(path);
-				} else if (selectedFileAction == contextMenuData.encryptFileAction) {
+				} else if (selectedFileAction == contextMenuData->encryptFileAction) {
 					this->window->encryptFile(path);
-				} else if (selectedFileAction == contextMenuData.decryptFileAction) {
+				} else if (selectedFileAction == contextMenuData->decryptFileAction) {
 					this->window->decryptFile(path);
-				} else if (selectedFileAction == contextMenuData.copyFilePathAction) {
+				} else if (selectedFileAction == contextMenuData->copyFilePathAction) {
 					QGuiApplication::clipboard()->setText(path);
-				} else if (selectedFileAction == contextMenuData.removeFileAction) {
+				} else if (selectedFileAction == contextMenuData->removeFileAction) {
 					this->window->requestEntryRemoval(path);
 				}
 			}

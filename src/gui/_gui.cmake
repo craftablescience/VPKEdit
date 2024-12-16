@@ -88,6 +88,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
 
+        "${CMAKE_CURRENT_LIST_DIR}/EntryContextMenuData.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/EntryContextMenuData.h"
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/EntryTree.h"
         "${CMAKE_CURRENT_LIST_DIR}/FileViewer.cpp"
