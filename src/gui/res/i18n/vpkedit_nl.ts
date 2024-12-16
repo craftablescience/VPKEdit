@@ -1072,4 +1072,80 @@ instead of the directory:</source>
       <translation></translation>
     </message>
   </context>
+  <context>
+    <name>EntryContextMenuData</name>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="6"/>
+      <source>Extract File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="8"/>
+      <source>Rename/Move File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="9"/>
+      <source>Encrypt File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="10"/>
+      <source>Decrypt File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="11"/>
+      <location filename="../../EntryContextMenuData.cpp" line="22"/>
+      <source>Copy Path</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="13"/>
+      <source>Remove File</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="16"/>
+      <source>Extract Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="18"/>
+      <location filename="../../EntryContextMenuData.cpp" line="35"/>
+      <source>Add Files...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="19"/>
+      <location filename="../../EntryContextMenuData.cpp" line="36"/>
+      <source>Add Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="21"/>
+      <source>Rename/Move Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="24"/>
+      <source>Remove Folder</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="27"/>
+      <source>Extract Selected...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="29"/>
+      <source>Remove Selected...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="33"/>
+      <source>Extract All...</source>
+      <translation></translation>
+    </message>
+  </context>
 </TS>

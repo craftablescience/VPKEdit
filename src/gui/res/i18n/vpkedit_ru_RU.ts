@@ -6,7 +6,7 @@
     <message>
       <location filename="../../dialogs/ControlsDialog.cpp" line="26"/>
       <source>Controls</source>
-      <translation>Контролирует</translation>
+      <translation>Управление</translation>
     </message>
   </context>
   <context>
@@ -26,23 +26,23 @@
     <message>
       <location filename="../../previews/DirPreview.cpp" line="378"/>
       <source>kb</source>
-      <translation>килобайты</translation>
+      <translation>кб</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="382"/>
       <source>mb</source>
-      <translation>мегабайты</translation>
+      <translation>мб</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="386"/>
       <source>gb</source>
-      <translation>гигабайты</translation>
+      <translation>гб</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="375"/>
       <location filename="../../previews/DirPreview.cpp" line="393"/>
       <source>b</source>
-      <translation>байты</translation>
+      <translation>б</translation>
     </message>
   </context>
   <context>
@@ -62,7 +62,7 @@
     <message>
       <location filename="../../EntryTree.cpp" line="399"/>
       <source>Extract to...</source>
-      <translation>Извлеките...</translation>
+      <translation>Извлечь в...</translation>
     </message>
   </context>
   <context>
@@ -85,7 +85,7 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="479"/>
       <source>Backface Culling</source>
-      <translation>Выбраковка заднего плана</translation>
+      <translation>Отсечение задней поверхности</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="563"/>
@@ -105,32 +105,32 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="469"/>
       <source>Toggle Info Panel</source>
-      <translation></translation>
+      <translation>Переключить инфо-панель</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="488"/>
       <source>Skin</source>
-      <translation></translation>
+      <translation>Скин</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="532"/>
       <source>Materials Found</source>
-      <translation></translation>
+      <translation>Найденные материалы</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="536"/>
       <source>All Materials</source>
-      <translation></translation>
+      <translation>Все материалы</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="612"/>
       <source>Folders</source>
-      <translation></translation>
+      <translation>Папки</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="620"/>
       <source>Material Names</source>
-      <translation></translation>
+      <translation>Имена материалов</translation>
     </message>
   </context>
   <context>
@@ -151,7 +151,7 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../FileViewer.cpp" line="85"/>
       <source>Navigate...</source>
-      <translation>Перейдите...</translation>
+      <translation>Перейти...</translation>
     </message>
   </context>
   <context>
@@ -190,43 +190,44 @@ Latest version:  %2
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="47"/>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="135"/>
       <source>Pack File Properties</source>
-      <translation></translation>
+      <translation>Свойства файла пакета</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="92"/>
       <source>Save to single file:
 Breaks if the file's size will be &gt;= 4gb!</source>
-      <translation></translation>
+      <translation>Сохранить в один файл:
+Будет поврежден, если размер файла будет &gt;= 4ГБ!</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="99"/>
       <source>Preferred chunk size (MB):</source>
-      <translation></translation>
+      <translation>Предпочтительный размер блока (МБ):</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="135"/>
       <source>No properties available for this file type.</source>
-      <translation></translation>
+      <translation>Для данного типа файла нет доступных свойств.</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="55"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Нет</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="56"/>
       <source>Per-entry</source>
-      <translation></translation>
+      <translation>Для каждой записи</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="65"/>
       <source>Compression Type Override:</source>
-      <translation></translation>
+      <translation>Переопределение типа сжатия:</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="71"/>
       <source>Compression Strength:</source>
-      <translation></translation>
+      <translation>Степень сжатия:</translation>
     </message>
   </context>
   <context>
@@ -268,12 +269,12 @@ See below for more information.</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="14"/>
       <source>No overall file checksum present, moving on...</source>
-      <translation></translation>
+      <translation>Отсутствует общая контрольная сумма файла, идем дальше...</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="23"/>
       <source>This pack file format does not store checksums for contained files.</source>
-      <translation></translation>
+      <translation>Этот формат файла пакета не хранит контрольные суммы для содержимого.</translation>
     </message>
   </context>
   <context>
@@ -281,7 +282,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="356"/>
       <source>Controls</source>
-      <translation>Контролирует</translation>
+      <translation>Управление</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="646"/>
@@ -369,18 +370,18 @@ See below for more information.</source>
       <location filename="../../Window.cpp" line="350"/>
       <location filename="../../Window.cpp" line="1203"/>
       <source>About</source>
-      <translation>О сайте</translation>
+      <translation>О программе</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1287"/>
       <source>Extract as...</source>
-      <translation>Извлеките как...</translation>
+      <translation>Извлечь как...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1298"/>
       <location filename="../../Window.cpp" line="1363"/>
       <source>Extract to...</source>
-      <translation>Извлеките...</translation>
+      <translation>Извлечь в...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1389"/>
@@ -400,12 +401,12 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1652"/>
       <source>No recent files.</source>
-      <translation>Нет последних файлов.</translation>
+      <translation>Нет недавних файлов.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="66"/>
       <source>Restart Required</source>
-      <translation>Требуется рестарт</translation>
+      <translation>Требуется перезапуск</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="66"/>
@@ -420,7 +421,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="120"/>
       <source>Open...</source>
-      <translation>Откройте...</translation>
+      <translation>Открыть...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="128"/>
@@ -430,7 +431,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="131"/>
       <source>Open Recent...</source>
-      <translation>Открытые недавние...</translation>
+      <translation>Открыть недавние...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="134"/>
@@ -450,7 +451,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="157"/>
       <source>Check For Updates...</source>
-      <translation>Проверьте обновления...</translation>
+      <translation>Проверить обновления...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="161"/>
@@ -460,7 +461,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="166"/>
       <source>Edit</source>
-      <translation>Редактировать</translation>
+      <translation>Правка</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="167"/>
@@ -485,7 +486,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="305"/>
       <source>Entry Tree...</source>
-      <translation>Входное дерево...</translation>
+      <translation>Дерево записей...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="306"/>
@@ -495,7 +496,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="313"/>
       <source>Start Collapsed</source>
-      <translation>Начало Разрушено</translation>
+      <translation>Изначально свернуто</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="320"/>
@@ -615,7 +616,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="287"/>
       <source>Enable Rich Presence</source>
-      <translation>Включите богатое присутствие</translation>
+      <translation>Включите Rich Presence</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="207"/>
@@ -635,87 +636,87 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="340"/>
       <source>Generate Public/Private Key Files...</source>
-      <translation></translation>
+      <translation>Сгенерировать публичный/приватный файл ключа...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="343"/>
       <source>Sign File...</source>
-      <translation></translation>
+      <translation>Подписать файл...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1213"/>
       <source>Keypair Filename</source>
-      <translation></translation>
+      <translation>Название файла связки ключей</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1213"/>
       <source>Name of the keypair files to generate:</source>
-      <translation></translation>
+      <translation>Имя генерируемых файлов связки ключей:</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1225"/>
       <source>Open Private Key File</source>
-      <translation></translation>
+      <translation>Открыть файл приватного ключа</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1233"/>
       <source>Success</source>
-      <translation></translation>
+      <translation>Успешно</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1233"/>
       <source>Successfully signed the pack file.</source>
-      <translation></translation>
+      <translation>Файл пакета успешно подписан.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1235"/>
       <source>Failed to sign the pack file! Check the file contains both the private key and public key.</source>
-      <translation></translation>
+      <translation>Не удалось подписать файл пакета! Проверьте, содержит ли файл приватный и публичный ключ.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="334"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Проверить подпись</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="719"/>
       <source>An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it.</source>
-      <translation></translation>
+      <translation>Произошла ошибка при сохранении изменений в файле. Убедитесь, что у вас есть достаточно прав для записи, а также никакие другие приложения не используют его.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="200"/>
       <source>Disable Open In Menu</source>
-      <translation></translation>
+      <translation>Отключить меню 'Открыть в'</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="74"/>
       <source>Create...</source>
-      <translation></translation>
+      <translation>Создать...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="97"/>
       <source>Create from Folder...</source>
-      <translation></translation>
+      <translation>Создать из папки...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1146"/>
       <source>Abort</source>
-      <translation></translation>
+      <translation>Прервать</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1343"/>
       <source>Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.</source>
-      <translation></translation>
+      <translation>Не удалось записать некоторые или все файлы в "%1". Убедитесь, что игра или другое приложение не использует этот файл, а также, что у вас есть достаточно прав для записи в место сохранения.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1615"/>
       <source>Loading installed games...</source>
-      <translation></translation>
+      <translation>Загрузка установленных игр...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1636"/>
       <source>No games detected.</source>
-      <translation></translation>
+      <translation>Игр не обнаружено.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="124"/>
@@ -725,17 +726,17 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1146"/>
       <source>Renaming folder... Aborting this process will not roll back changes made so far.</source>
-      <translation></translation>
+      <translation>Переименование папки... Прерывание этого процесса не приведет к откату всех ранее внесённые изменений.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="173"/>
       <source>Add Files...</source>
-      <translation></translation>
+      <translation>Добавить файлы...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="889"/>
       <source>Open Files</source>
-      <translation></translation>
+      <translation>Открыть файлы</translation>
     </message>
   </context>
   <context>
@@ -815,29 +816,31 @@ Channels: %2</source>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="104"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Нет</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="112"/>
       <source>Compression Type:</source>
-      <translation></translation>
+      <translation>Тип сжатия:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="118"/>
       <source>Compression Strength Override:</source>
-      <translation></translation>
+      <translation>Переопределение степени сжатия:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="121"/>
       <source>Save each file to a new numbered archive
 instead of the directory:</source>
-      <translation></translation>
+      <translation>Сохранить каждый файл в новом пронумерованном
+архиве вместо каталога:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="122"/>
       <source>Save the file to a new numbered archive
 instead of the directory:</source>
-      <translation></translation>
+      <translation>Сохранить файл в новом пронумерованном архиве
+вместо каталога:</translation>
     </message>
   </context>
   <context>
@@ -896,12 +899,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../Window.cpp" line="487"/>
       <source>Use This Folder</source>
-      <translation></translation>
+      <translation>Использовать эту папку</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="502"/>
       <source>Save New Pack File</source>
-      <translation></translation>
+      <translation>Сохранить новый файл пакета</translation>
     </message>
   </context>
   <context>
@@ -909,22 +912,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Key</source>
-      <translation></translation>
+      <translation>Ключ</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value Type</source>
-      <translation></translation>
+      <translation>Тип значения</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value</source>
-      <translation></translation>
+      <translation>Значение</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="25"/>
       <source>Failed to parse DMX file.</source>
-      <translation></translation>
+      <translation>Ошибка разбора DMX файла.</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="40"/>
@@ -934,12 +937,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="44"/>
       <source>GUID</source>
-      <translation></translation>
+      <translation>GUID</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="49"/>
       <source>Attributes</source>
-      <translation></translation>
+      <translation>Атрибуты</translation>
     </message>
   </context>
   <context>
@@ -947,22 +950,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="10"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Проверка подписи</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="13"/>
       <source>File does not have a signature.</source>
-      <translation></translation>
+      <translation>Файл не имеет подписи.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="15"/>
       <source>File signature is valid.</source>
-      <translation></translation>
+      <translation>Подпись файла действительна.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="17"/>
       <source>File signature is invalid!</source>
-      <translation></translation>
+      <translation>Подпись файла недействительна!</translation>
     </message>
   </context>
   <context>
@@ -970,7 +973,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="77"/>
       <source>Copy Image</source>
-      <translation></translation>
+      <translation>Скопировать изображение</translation>
     </message>
   </context>
   <context>
@@ -988,7 +991,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="207"/>
       <source>Cancel</source>
-      <translation></translation>
+      <translation>Отменить</translation>
     </message>
   </context>
   <context>
@@ -996,42 +999,46 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="344"/>
       <source>Lay Flat</source>
-      <translation></translation>
+      <extracomment>In English, this expression sounds understandable, but in Russian, many have translated it directly like 'Флэтлэй', although even the Adobe article uses this variant. But I think the 'Раскладка' will be more clearer.
+
+This needs to be discussed</extracomment>
+      <translation>Раскладка</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="359"/>
       <source>Mip</source>
-      <translation></translation>
+      <extracomment>I think it's better to leave the English variant of the term. In Russian, it will be 'МИП', but no one uses this variant, more often you can find something like 'MIP-текстурирование' which means 'MIP-mapping'.</extracomment>
+      <translation>Mip</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="373"/>
       <source>Frame</source>
-      <translation></translation>
+      <translation>Кадр</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="386"/>
       <source>Face</source>
-      <translation></translation>
+      <translation>Сторона</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="399"/>
       <source>Slice</source>
-      <translation></translation>
+      <translation>Слой</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="412"/>
       <source>Alpha</source>
-      <translation></translation>
+      <translation>Прозрачность</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="427"/>
       <source>Tile</source>
-      <translation></translation>
+      <translation>Тайлинг</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="442"/>
       <source>Zoom</source>
-      <translation></translation>
+      <translation>Масштаб</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="548"/>
@@ -1041,12 +1048,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="550"/>
       <source>Format: %1</source>
-      <translation></translation>
+      <translation>Формат: %1</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="552"/>
       <source>Compression: %1</source>
-      <translation></translation>
+      <translation>Сжатие: %1</translation>
     </message>
   </context>
   <context>
@@ -1054,22 +1061,98 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="48"/>
       <source>Encrypt File</source>
-      <translation></translation>
+      <translation>Зашифровать файл</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="48"/>
       <source>Decrypt File</source>
-      <translation></translation>
+      <translation>Расшифровать файл</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="52"/>
       <source>Code:</source>
-      <translation></translation>
+      <translation>Код:</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="60"/>
       <source>Value:</source>
-      <translation></translation>
+      <translation>Значение:</translation>
+    </message>
+  </context>
+  <context>
+    <name>EntryContextMenuData</name>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="6"/>
+      <source>Extract File...</source>
+      <translation>Извлечь файл...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="8"/>
+      <source>Rename/Move File...</source>
+      <translation>Переименовать/Переместить файл...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="9"/>
+      <source>Encrypt File...</source>
+      <translation>Зашифровать файл...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="10"/>
+      <source>Decrypt File...</source>
+      <translation>Расшифровать файл...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="11"/>
+      <location filename="../../EntryContextMenuData.cpp" line="22"/>
+      <source>Copy Path</source>
+      <translation>Скопировать путь</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="13"/>
+      <source>Remove File</source>
+      <translation>Удалить файл</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="16"/>
+      <source>Extract Folder...</source>
+      <translation>Извлечь папку...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="18"/>
+      <location filename="../../EntryContextMenuData.cpp" line="35"/>
+      <source>Add Files...</source>
+      <translation>Добавить файлы...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="19"/>
+      <location filename="../../EntryContextMenuData.cpp" line="36"/>
+      <source>Add Folder...</source>
+      <translation>Добавить папку...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="21"/>
+      <source>Rename/Move Folder...</source>
+      <translation>Переименовать/Переместить папку...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="24"/>
+      <source>Remove Folder</source>
+      <translation>Удалить папку</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="27"/>
+      <source>Extract Selected...</source>
+      <translation>Извлечь выбранное...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="29"/>
+      <source>Remove Selected...</source>
+      <translation>Удалить выбранное...</translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="33"/>
+      <source>Extract All...</source>
+      <translation>Извлечь всё...</translation>
     </message>
   </context>
 </TS>

@@ -14,30 +14,30 @@
     <message>
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Delete Entry</source>
-      <translation></translation>
+      <translation>Radera artikel</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
       <extracomment>The original wasn't long enough to make it sound natural so i had to shorten it quite a bit</extracomment>
-      <translation type="unfinished">Säker att du vill ta bort "%1"?
-(Håll Shift för att hoppa över detta.)</translation>
+      <translation>Är du säker på att du vill ta bort "%1"?
+(Håll Skift för att inte visa denna notis.)</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="378"/>
       <source>kb</source>
-      <translation>kb</translation>
+      <translation>kB</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="382"/>
       <source>mb</source>
-      <translation>mb</translation>
+      <translation>MB</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="386"/>
       <source>gb</source>
-      <translation>gb</translation>
+      <translation>GB</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="375"/>
@@ -51,19 +51,19 @@
     <message>
       <location filename="../../EntryTree.cpp" line="512"/>
       <source>Delete Entry</source>
-      <translation></translation>
+      <translation>Radera artikel</translation>
     </message>
     <message>
       <location filename="../../EntryTree.cpp" line="512"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <translation>Säker att du vill ta bort "%1"?
-(Håll Shift för att hoppa över detta.)</translation>
+      <translation>Är du säker på att du vill ta bort "%1"?
+(Håll Skift för att inte visa denna notis.)</translation>
     </message>
     <message>
       <location filename="../../EntryTree.cpp" line="399"/>
       <source>Extract to...</source>
-      <translation></translation>
+      <translation>Extrahera till...</translation>
     </message>
   </context>
   <context>
@@ -71,15 +71,15 @@
     <message>
       <location filename="../../FileViewer.cpp" line="327"/>
       <source>No available preview.</source>
-      <translation>Ingen preview tillgänglig.</translation>
+      <translation>Ingen förhandsgranskning tillgänglig.</translation>
     </message>
     <message>
       <location filename="../../FileViewer.cpp" line="394"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
       <extracomment>just seems a bit off, touch this up later.</extracomment>
-      <translation type="unfinished">Kunde inte läsa den här filen!
-Snälla se till att inget annat spel eller program använder filen.</translation>
+      <translation type="unfinished">Kunde inte läsa filens innehåll!
+Vänligen se till att inget spel eller något program använder filen.</translation>
     </message>
   </context>
   <context>
@@ -87,52 +87,52 @@ Snälla se till att inget annat spel eller program använder filen.</translation
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="479"/>
       <source>Backface Culling</source>
-      <translation></translation>
+      <translation>Undanta baksidan</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="563"/>
       <source>Unable to find all the required files the model is composed of!</source>
-      <translation></translation>
+      <translation>Kunde inte hitta alla nödvändiga filer som modellen byggs upp av!</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="591"/>
       <source>This model is invalid, it cannot be previewed!</source>
-      <translation type="unfinished">Den här modelen är felaktig, den kan inte bli preview-ad!</translation>
+      <translation type="unfinished">Den här modellen är felaktig, den kan inte förhandsgranskas!</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="575"/>
       <source>One of the following:</source>
-      <translation></translation>
+      <translation>En av de följande:</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="469"/>
       <source>Toggle Info Panel</source>
-      <translation></translation>
+      <translation>Växla infopanel</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="488"/>
       <source>Skin</source>
-      <translation></translation>
+      <translation>Skin</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="532"/>
       <source>Materials Found</source>
-      <translation></translation>
+      <translation>Texturmaterial funna</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="536"/>
       <source>All Materials</source>
-      <translation></translation>
+      <translation>Alla texturmaterial</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="612"/>
       <source>Folders</source>
-      <translation></translation>
+      <translation>Mappar</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="620"/>
       <source>Material Names</source>
-      <translation></translation>
+      <translation>Texturmaterials namn</translation>
     </message>
   </context>
   <context>
@@ -140,12 +140,12 @@ Snälla se till att inget annat spel eller program använder filen.</translation
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="231"/>
       <source>Error</source>
-      <translation>Error</translation>
+      <translation>Fel</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="231"/>
       <source>Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models.</source>
-      <translation>Kunde inte starta OpenGL 3.2 Core context! Snälla upgradera din dator för at preview-a dessa modeler.</translation>
+      <translation>Kunde inte starta OpenGL 3.2 Core context! Vänligen uppgradera din dator för att förhandsgranska modellerna.</translation>
     </message>
   </context>
   <context>
@@ -161,7 +161,7 @@ Snälla se till att inget annat spel eller program använder filen.</translation
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="12"/>
       <source>New Update Available</source>
-      <translation></translation>
+      <translation>Ny uppdatering tillgänglig</translation>
     </message>
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="14"/>
@@ -179,7 +179,7 @@ Nuvarande version: v%1
 
 Senaste version: %2
 
-[Klicka här för att komma till den nyaste versionen.](%3)</translation>
+[Klicka här för att gå till den nyaste versionen på GitHub.](%3)</translation>
     </message>
   </context>
   <context>
@@ -193,43 +193,45 @@ Senaste version: %2
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="47"/>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="135"/>
       <source>Pack File Properties</source>
-      <translation></translation>
+      <translation>Arkivfilsegenskaper</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="92"/>
       <source>Save to single file:
 Breaks if the file's size will be &gt;= 4gb!</source>
-      <translation></translation>
+      <extracomment>Could call it "förstörs" otherwise.</extracomment>
+      <translation>Spara till en enda fil:
+Fungerar inte om filens storlek blir &gt;= 4 GB!</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="99"/>
       <source>Preferred chunk size (MB):</source>
-      <translation></translation>
+      <translation>Föredragen bitstorlek (MB)</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="135"/>
       <source>No properties available for this file type.</source>
-      <translation></translation>
+      <translation>Inga egenskaper tillgängliga för denna filtyp.</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="55"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Inget</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="56"/>
       <source>Per-entry</source>
-      <translation></translation>
+      <translation>Per artikel</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="65"/>
       <source>Compression Type Override:</source>
-      <translation></translation>
+      <translation>Åsidosätt komprimeringstyp:</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="71"/>
       <source>Compression Strength:</source>
-      <translation></translation>
+      <translation>Komprimeringsstyrka:</translation>
     </message>
   </context>
   <context>
@@ -237,44 +239,45 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="10"/>
       <source>Verify Checksums</source>
-      <translation></translation>
+      <translation>Verifiera kontrollsummor</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="16"/>
       <source>Overall file checksum matches the expected value.</source>
-      <translation></translation>
+      <translation>Filens övergripande kontrollsumma matchar det förväntade värdet.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="18"/>
       <source>Overall file checksum does not match the expected value!</source>
-      <translation></translation>
+      <translation>Filens övergripande kontrollsumma matchar inte det förväntade värdet!</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="25"/>
       <source>All file checksums match their expected values.</source>
-      <translation></translation>
+      <translation>Alla filers kontrollsummor matchar sina förväntade värden.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="27"/>
       <source>Some file checksums do not match their expected values!
 See below for more information.</source>
-      <translation></translation>
+      <translation>Några filers kontrollsummor matchar inte sina förväntade värden!
+Se nedan för mer information.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="29"/>
       <source>Files that failed to validate:
 </source>
-      <translation></translation>
+      <translation>Filer som inte kunde valideras:</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="14"/>
       <source>No overall file checksum present, moving on...</source>
-      <translation></translation>
+      <translation>Ingen övergripande kontrollsumma för filer funnen, fortsätter...</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="23"/>
       <source>This pack file format does not store checksums for contained files.</source>
-      <translation></translation>
+      <translation>Detta arkivfilformat bevarar inte kontrollsummor för bevarade filer.</translation>
     </message>
   </context>
   <context>
@@ -282,22 +285,22 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="356"/>
       <source>Controls</source>
-      <translation></translation>
+      <translation>Kontroller</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="646"/>
       <source>Open Pack File</source>
-      <translation></translation>
+      <translation>Öppna arkivfil</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="657"/>
       <source>Save to...</source>
-      <translation></translation>
+      <translation>Spara till...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="718"/>
       <source>Could not save!</source>
-      <translation></translation>
+      <translation>Kunde inte spara!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="756"/>
@@ -307,276 +310,276 @@ See below for more information.</source>
       <location filename="../../Window.cpp" line="1343"/>
       <location filename="../../Window.cpp" line="1572"/>
       <source>Error</source>
-      <translation>Error</translation>
+      <translation>Fel</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="756"/>
       <source>Error occurred checking for updates!</source>
-      <translation></translation>
+      <translation>Fel uppstod under sökningen efter uppdateringar!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="762"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
-      <translation></translation>
+      <translation>Ogiltig JSON-respons hämtades under sökningen efter uppdateringar!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="794"/>
       <source>No New Updates</source>
-      <translation></translation>
+      <translation>Inga nya uppdateringar</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="794"/>
       <source>You are using the latest version of the software.</source>
-      <translation></translation>
+      <translation>Du använder den senaste versionen av mjukvaran.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="852"/>
       <source>Open File</source>
-      <translation></translation>
+      <translation>Öppna fil</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="626"/>
       <location filename="../../Window.cpp" line="898"/>
       <source>Open Folder</source>
-      <translation></translation>
+      <translation>Öppna mapp</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="941"/>
       <source>Error Removing File</source>
-      <translation></translation>
+      <translation>Fel med att radera filen</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="941"/>
       <source>There was an error removing the file at "%1"!</source>
-      <translation></translation>
+      <translation>Det uppstod ett fel med att ta bort filen på "%1"!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="962"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
-      <translation></translation>
+      <translation>Kunde inte ändra filen på "%1": kunde inte läsa filens data!</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1131"/>
       <location filename="../../Window.cpp" line="1147"/>
       <source>Rename Folder</source>
-      <translation></translation>
+      <translation>Döp om mapp</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1131"/>
       <source>The new path:</source>
-      <translation></translation>
+      <translation>Ny väg:</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="350"/>
       <location filename="../../Window.cpp" line="1203"/>
       <source>About</source>
-      <translation></translation>
+      <translation>Om</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1287"/>
       <source>Extract as...</source>
-      <translation></translation>
+      <translation>Extrahera som...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1298"/>
       <location filename="../../Window.cpp" line="1363"/>
       <source>Extract to...</source>
-      <translation></translation>
+      <translation>Extrahera till...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1389"/>
       <source>Save changes?</source>
-      <translation></translation>
+      <translation>Spara ändringar?</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1390"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
-      <translation></translation>
+      <translation>Den här filen har osparade ändringar! Vill du först spara dessa ändringar?</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1572"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
-      <translation></translation>
+      <translation>Kunde inte ladda den här filen. Vänligen se till att inget spel eller program använder filen.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1652"/>
       <source>No recent files.</source>
-      <translation></translation>
+      <translation>Inga tidigare filer.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="66"/>
       <source>Restart Required</source>
-      <translation></translation>
+      <translation>Omstart krävs</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="66"/>
       <source>The application must be restarted for these settings to take effect.</source>
-      <translation></translation>
+      <translation>Programmet måste startas om för att dessa inställningar ska verkställas.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="72"/>
       <source>File</source>
-      <translation></translation>
+      <translation>Fil</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="120"/>
       <source>Open...</source>
-      <translation></translation>
+      <translation>Öppna...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="128"/>
       <source>Open In...</source>
-      <translation></translation>
+      <translation>Öppna i...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="131"/>
       <source>Open Recent...</source>
-      <translation></translation>
+      <translation>Öppna tidigare...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="134"/>
       <source>Save</source>
-      <translation></translation>
+      <translation>Spara</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="139"/>
       <source>Save As...</source>
-      <translation></translation>
+      <translation>Spara som...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="144"/>
       <source>Close</source>
-      <translation></translation>
+      <translation>Stäng</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="157"/>
       <source>Check For Updates...</source>
-      <translation></translation>
+      <translation>Sök efter uppdateringar...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="161"/>
       <source>Exit</source>
-      <translation></translation>
+      <translation>Avsluta</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="166"/>
       <source>Edit</source>
-      <translation></translation>
+      <translation>Redigera</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="167"/>
       <source>Extract All</source>
-      <translation></translation>
+      <translation>Extrahera allt</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="178"/>
       <source>Add Folder...</source>
-      <translation></translation>
+      <translation>Lägg till mapp...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="184"/>
       <source>Properties...</source>
-      <translation></translation>
+      <translation>Egenskaper...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="190"/>
       <source>Options</source>
-      <translation></translation>
+      <translation>Inställningar</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="305"/>
       <source>Entry Tree...</source>
-      <translation></translation>
+      <translation>Artikelträd...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="306"/>
       <source>Expand Folder When Selected</source>
-      <translation></translation>
+      <translation>Expandera mapp vid val</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="313"/>
       <source>Start Collapsed</source>
-      <translation></translation>
+      <translation>Börja stängd</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="320"/>
       <source>Hide Icons</source>
-      <translation></translation>
+      <translation>Dölj ikoner</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="246"/>
       <source>Theme...</source>
-      <translation></translation>
+      <translation>Tema...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="213"/>
       <source>Language...</source>
-      <translation></translation>
+      <translation>Språk...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="193"/>
       <source>Advanced File Properties</source>
-      <translation></translation>
+      <translation>Avancerade filegenskaper</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="349"/>
       <source>Help</source>
-      <translation></translation>
+      <translation>Hjälp</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="353"/>
       <source>About Qt</source>
-      <translation></translation>
+      <translation>Om Qt</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="328"/>
       <source>Tools</source>
-      <translation></translation>
+      <translation>Verktyg</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="330"/>
       <source>General</source>
-      <translation></translation>
+      <translation>Allmänt</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="331"/>
       <source>Verify Checksums</source>
-      <translation></translation>
+      <translation>Verifiera kontrollsummor</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="362"/>
       <source>Debug</source>
-      <translation></translation>
+      <translation>Felsökning</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="364"/>
       <source>Dialogs</source>
-      <translation></translation>
+      <translation>Dialoger</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="419"/>
       <source>Search...</source>
-      <translation></translation>
+      <translation>Sök...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1666"/>
       <source>Clear</source>
-      <translation></translation>
+      <translation>Rensa</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1679"/>
       <source>AppID</source>
-      <translation></translation>
+      <translation>App-ID</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1680"/>
       <source>App Version</source>
-      <translation></translation>
+      <translation>App-version</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1681"/>
       <source>Godot Version</source>
-      <translation></translation>
+      <translation>Godot-version</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1682"/>
@@ -586,157 +589,157 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1683"/>
       <source>Map Revision</source>
-      <translation></translation>
+      <translation>Banans</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1684"/>
       <source>Addon Name:</source>
-      <translation></translation>
+      <translation>Tilläggets namn:</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1687"/>
       <source>Loaded</source>
-      <translation></translation>
+      <translation>Laddad</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1193"/>
       <source>Created by %1</source>
-      <translation></translation>
+      <translation>Skapad av %1</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="150"/>
       <source>Donate On Ko-fi...</source>
-      <translation></translation>
+      <translation>Donera på Ko-fi...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="217"/>
       <source>System Language</source>
-      <translation></translation>
+      <translation>Systemets språk</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="287"/>
       <source>Enable Rich Presence</source>
-      <translation></translation>
+      <translation>Akrivera Rich Presence</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="207"/>
       <source>Disable Startup Update Check</source>
-      <translation></translation>
+      <translation>Sök inte efter uppdateringar vid start</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1685"/>
       <source>Embedded</source>
-      <translation></translation>
+      <translation>Inbäddad</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1686"/>
       <source>Encrypted</source>
-      <translation></translation>
+      <translation>Inkrypterad</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="340"/>
       <source>Generate Public/Private Key Files...</source>
-      <translation></translation>
+      <translation>Generera offentliga/privata nyckelfiler...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="343"/>
       <source>Sign File...</source>
-      <translation></translation>
+      <translation>Signera fil...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1213"/>
       <source>Keypair Filename</source>
-      <translation></translation>
+      <translation>Nyckelpara filnamn</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1213"/>
       <source>Name of the keypair files to generate:</source>
-      <translation></translation>
+      <translation>Namnet på nyckelparade filer att generera:</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1225"/>
       <source>Open Private Key File</source>
-      <translation></translation>
+      <translation>Öppna fil med privat nyckel</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1233"/>
       <source>Success</source>
-      <translation></translation>
+      <translation>Lyckades</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1233"/>
       <source>Successfully signed the pack file.</source>
-      <translation></translation>
+      <translation>Lyckades signera arkivfilen.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1235"/>
       <source>Failed to sign the pack file! Check the file contains both the private key and public key.</source>
-      <translation></translation>
+      <translation>Kunde inte signera arkivfilen! Se till att filen innehåller både den privata och offentliga nyckeln.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="334"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Verifiera signatur</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="719"/>
       <source>An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it.</source>
-      <translation></translation>
+      <translation>Ett fel uppstod under sparningen av filens ändringar. Se till att du har tillstånd att skriva till det och att inget annat program använder det.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="200"/>
       <source>Disable Open In Menu</source>
-      <translation></translation>
+      <translation>Avaktivera öppna i meny</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="74"/>
       <source>Create...</source>
-      <translation></translation>
+      <translation>Skapa...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="97"/>
       <source>Create from Folder...</source>
-      <translation></translation>
+      <translation>Skapa från mapp...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1146"/>
       <source>Abort</source>
-      <translation></translation>
+      <translation>Avbryt</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1343"/>
       <source>Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.</source>
-      <translation></translation>
+      <translation>Kunde inte skriva några eller alla filer till "%1". Vänligen se till att inget spel eller något annat program använder filen, samt att du har tillräckliga rättigheter att skriva till målet för sparning.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1615"/>
       <source>Loading installed games...</source>
-      <translation></translation>
+      <translation>Laddar installerade spel...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1636"/>
       <source>No games detected.</source>
-      <translation></translation>
+      <translation>Inga spel funna.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="124"/>
       <source>Open Folder...</source>
-      <translation></translation>
+      <translation>Öppna mapp...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1146"/>
       <source>Renaming folder... Aborting this process will not roll back changes made so far.</source>
-      <translation></translation>
+      <translation>Döper om mapp... Avbryts denna process återkallas inte ändringarna som gjorts så här långt.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="173"/>
       <source>Add Files...</source>
-      <translation></translation>
+      <translation>Lägg till filer...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="889"/>
       <source>Open Files</source>
-      <translation></translation>
+      <translation>Öppna filer</translation>
     </message>
   </context>
   <context>
@@ -745,7 +748,8 @@ See below for more information.</source>
       <location filename="../../previews/AudioPreview.cpp" line="117"/>
       <source>Sample Rate: %1hz
 Channels: %2</source>
-      <translation></translation>
+      <translation>Samplingsfrekvens: %1 Hz
+Kanaler: %2</translation>
     </message>
   </context>
   <context>
@@ -753,88 +757,93 @@ Channels: %2</source>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="57"/>
       <source>(Advanced) Edit Folder</source>
-      <translation></translation>
+      <translation>(Avancerat) Redigera mapp</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="59"/>
       <source>(Advanced) Edit File</source>
-      <translation></translation>
+      <translation>(Avancerat) Redigera fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="63"/>
       <source>(Advanced) New Folder</source>
-      <translation></translation>
+      <translation>(Avancerat) Ny mapp</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="65"/>
       <source>(Advanced) New File</source>
-      <translation></translation>
+      <translation>(Avancerat) Ny fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="71"/>
       <source>Edit Folder</source>
-      <translation></translation>
+      <translation>Redigera mapp</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="73"/>
       <source>Edit File</source>
-      <translation></translation>
+      <translation>Redigera fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="77"/>
       <source>New Folder</source>
-      <translation></translation>
+      <translation>Ny mapp</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="79"/>
       <source>New File</source>
-      <translation></translation>
+      <translation>Ny fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="91"/>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="92"/>
       <source>The path of the folder:
 (e.g. "%1")</source>
-      <translation></translation>
+      <translation>Vägen till mappen:
+(t.ex. "%1")</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="128"/>
       <source>Set the bytes of each file to preload:
 (From 0 to %1 bytes)</source>
-      <translation></translation>
+      <translation>Ställ in hur många bytes som varje fil ska ladda i förväg:
+(Från 0 till %1 bytes)</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="129"/>
       <source>Set the bytes of the file to preload:
 (From 0 to %1 bytes)</source>
-      <translation></translation>
+      <translation>Ställ in hur många bytes som filen ska ladda i förväg:
+(Från 0 till %1 bytes)</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="104"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Ingen</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="112"/>
       <source>Compression Type:</source>
-      <translation></translation>
+      <translation>Komprimeringstyp:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="118"/>
       <source>Compression Strength Override:</source>
-      <translation></translation>
+      <translation>Åsidosätt komprimeringsstyrkan:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="121"/>
       <source>Save each file to a new numbered archive
 instead of the directory:</source>
-      <translation></translation>
+      <translation>Spara varje fil till en nytt numrerat arkiv
+istället för mappen:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="122"/>
       <source>Save the file to a new numbered archive
 instead of the directory:</source>
-      <translation></translation>
+      <translation>Save the file to a new numbered archive
+instead of the directory:</translation>
     </message>
   </context>
   <context>
@@ -842,63 +851,63 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="46"/>
       <source>Size</source>
-      <translation></translation>
+      <translation>Storlek</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="48"/>
       <source>CRC32</source>
-      <translation></translation>
+      <translation>CRC32</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="50"/>
       <source>MD5</source>
-      <translation></translation>
+      <translation>MD5</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="52"/>
       <source>Archive Index</source>
-      <translation></translation>
+      <translation>Arkivets index</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="54"/>
       <source>Preloaded Size</source>
-      <translation></translation>
+      <translation>Förladdningsstorlek</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="56"/>
       <location filename="../../previews/TexturePreview.cpp" line="65"/>
       <source>Unknown</source>
-      <translation></translation>
+      <translation>Okänt</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="68"/>
       <source>Name</source>
-      <translation></translation>
+      <translation>Namn</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="69"/>
       <source>Type</source>
-      <translation></translation>
+      <translation>Typ</translation>
     </message>
     <message>
       <location filename="../../utility/AudioPlayer.cpp" line="50"/>
       <source>Failed to initialize decoder.</source>
-      <translation></translation>
+      <translation>Kunde inte starta avkodare.</translation>
     </message>
     <message>
       <location filename="../../utility/AudioPlayer.cpp" line="62"/>
       <source>Failed to open playback device.</source>
-      <translation></translation>
+      <translation>Kunde inte öppna uppspelningsenheten.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="487"/>
       <source>Use This Folder</source>
-      <translation></translation>
+      <translation>Använd denna mapp</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="502"/>
       <source>Save New Pack File</source>
-      <translation></translation>
+      <translation>Spara ny arkivfil</translation>
     </message>
   </context>
   <context>
@@ -906,37 +915,37 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Key</source>
-      <translation></translation>
+      <translation>Nyckel</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value Type</source>
-      <translation></translation>
+      <translation>Värdetyp</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value</source>
-      <translation></translation>
+      <translation>Värde</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="25"/>
       <source>Failed to parse DMX file.</source>
-      <translation></translation>
+      <translation>Kunde inte parsa DMX-fil.</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="40"/>
       <source>Type</source>
-      <translation></translation>
+      <translation>Typ</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="44"/>
       <source>GUID</source>
-      <translation></translation>
+      <translation>GU-ID</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="49"/>
       <source>Attributes</source>
-      <translation></translation>
+      <translation>Attribut</translation>
     </message>
   </context>
   <context>
@@ -944,22 +953,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="10"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Verifiera signatur</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="13"/>
       <source>File does not have a signature.</source>
-      <translation></translation>
+      <translation>Filen har ingen signatur.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="15"/>
       <source>File signature is valid.</source>
-      <translation></translation>
+      <translation>Filens signatur är giltig.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="17"/>
       <source>File signature is invalid!</source>
-      <translation></translation>
+      <translation>Filens signatur är ogiltig!</translation>
     </message>
   </context>
   <context>
@@ -967,7 +976,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="77"/>
       <source>Copy Image</source>
-      <translation></translation>
+      <translation>Kopiera bild</translation>
     </message>
   </context>
   <context>
@@ -975,17 +984,17 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="196"/>
       <source>Edit</source>
-      <translation></translation>
+      <translation>Redigera</translation>
     </message>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="201"/>
       <source>Save</source>
-      <translation></translation>
+      <translation>Spara</translation>
     </message>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="207"/>
       <source>Cancel</source>
-      <translation></translation>
+      <translation>Avbryt</translation>
     </message>
   </context>
   <context>
@@ -993,42 +1002,42 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="344"/>
       <source>Lay Flat</source>
-      <translation></translation>
+      <translation>Lägg platt</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="359"/>
       <source>Mip</source>
-      <translation></translation>
+      <translation>Mip</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="373"/>
       <source>Frame</source>
-      <translation></translation>
+      <translation>Bild</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="386"/>
       <source>Face</source>
-      <translation></translation>
+      <translation>Face</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="399"/>
       <source>Slice</source>
-      <translation></translation>
+      <translation>Slice</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="412"/>
       <source>Alpha</source>
-      <translation></translation>
+      <translation>Alfa</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="427"/>
       <source>Tile</source>
-      <translation></translation>
+      <translation>Tile</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="442"/>
       <source>Zoom</source>
-      <translation></translation>
+      <translation>Zoom</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="548"/>
@@ -1038,12 +1047,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="550"/>
       <source>Format: %1</source>
-      <translation></translation>
+      <translation>Format: %1</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="552"/>
       <source>Compression: %1</source>
-      <translation></translation>
+      <translation>Komprimering: %1</translation>
     </message>
   </context>
   <context>
@@ -1051,21 +1060,97 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="48"/>
       <source>Encrypt File</source>
-      <translation></translation>
+      <translation>Inkryptera fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="48"/>
       <source>Decrypt File</source>
-      <translation></translation>
+      <translation>Dekryptera fil</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="52"/>
       <source>Code:</source>
-      <translation></translation>
+      <translation>Kod:</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="60"/>
       <source>Value:</source>
+      <translation>Värde:</translation>
+    </message>
+  </context>
+  <context>
+    <name>EntryContextMenuData</name>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="6"/>
+      <source>Extract File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="8"/>
+      <source>Rename/Move File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="9"/>
+      <source>Encrypt File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="10"/>
+      <source>Decrypt File...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="11"/>
+      <location filename="../../EntryContextMenuData.cpp" line="22"/>
+      <source>Copy Path</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="13"/>
+      <source>Remove File</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="16"/>
+      <source>Extract Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="18"/>
+      <location filename="../../EntryContextMenuData.cpp" line="35"/>
+      <source>Add Files...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="19"/>
+      <location filename="../../EntryContextMenuData.cpp" line="36"/>
+      <source>Add Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="21"/>
+      <source>Rename/Move Folder...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="24"/>
+      <source>Remove Folder</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="27"/>
+      <source>Extract Selected...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="29"/>
+      <source>Remove Selected...</source>
+      <translation></translation>
+    </message>
+    <message>
+      <location filename="../../EntryContextMenuData.cpp" line="33"/>
+      <source>Extract All...</source>
       <translation></translation>
     </message>
   </context>

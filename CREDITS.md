@@ -1,19 +1,21 @@
 ## Contributors
 - [bt](https://github.com/caatge) and [ymgve](https://github.com/ymgve): GCF file format parser
-- [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, VPK file association for Linux
+- [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, file associations for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Nbc66](https://github.com/Nbc66): added some extra info to the installation guide
 - [OzxyBox](https://github.com/ozxybox): WAD3 file format parser
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
-- [Trico Everfire](https://github.com/Trico-Everfire): open VPKs based on Steam game install location
+- [Trico Everfire](https://github.com/Trico-Everfire): open pack files based on Steam game install locations
 
 ## Translators
 - Bosnian: Nbc66
 - Chinese (Simplified): lysenty-jay
 - Dutch: Trico Everfire
 - Italian: Enderzombi102
-- Polish: Enderek
-- Swedish: TheDudeWhosNameIsAce
+- Japanese: craftablescience
+- Polish: Enderek, Patrxgt
+- Russian: Michael Soyka
+- Swedish: BreakinBenny, TheDudeWhosNameIsAce
 
 ## Acknowledgements
 - [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors
