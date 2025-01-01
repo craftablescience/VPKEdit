@@ -36,6 +36,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | FPX    | VPK modification (Tactical Intervention)    |   ✅    |  ✅   |   ✅   |
   | GCF    | Game Cache File (Pre-SteamPipe Steam games) |   ❌    |  ✅   |   ❌   |
   | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
+  | ORE    | Unknown acronym (Narbacular Drop)           |   ❌    |  ✅   |   ❌   |
   | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ✅    |  ✅   |   ✅   |
   | PCK    | Godot PaCK file (Standalone or embedded)    |   ✅    |  ✅   |   ✅   |
   | VPK    | Vampire PacK file (V:TMB)                   | 〰️[^1] |  ✅   |   ✅   |
