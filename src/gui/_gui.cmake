@@ -127,6 +127,7 @@ target_link_libraries(
         Qt::OpenGL
         Qt::OpenGLWidgets
         Qt::Svg
+        sourcepp::bsppp
         sourcepp::dmxpp
         sourcepp::kvpp
         sourcepp::mdlpp

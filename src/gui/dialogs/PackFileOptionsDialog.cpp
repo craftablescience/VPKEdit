@@ -1,5 +1,6 @@
 #include "PackFileOptionsDialog.h"
 
+#include <bsppp/PakLump.h>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -7,7 +8,9 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QSpinBox>
+#include <vpkpp/format/FPX.h>
 #include <vpkpp/format/VPK.h>
+#include <vpkpp/format/ZIP.h>
 
 using namespace vpkpp;
 
@@ -41,7 +44,7 @@ EntryCompressionType comboIndexToCompressionType(int index) {
 
 } // namespace
 
-PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent)
+PackFileOptionsDialog::PackFileOptionsDialog(std::string_view typeGUID, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent)
 		: QDialog(parent) {
 	this->setModal(true);
 	this->setWindowTitle(tr("Pack File Properties"));
@@ -50,12 +53,12 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 
 	this->compressionType = nullptr;
 	this->compressionStrength = nullptr;
-	if (type == PackFileType::BSP || type == PackFileType::ZIP) {
+	if (typeGUID == bsppp::PakLump::GUID || typeGUID == ZIP::GUID) {
 		this->compressionType = new QComboBox(this);
 		this->compressionType->addItem(tr("None"));
 		this->compressionType->addItem(tr("Per-entry"));
 		this->compressionType->addItem("LZMA");
-		if (type == PackFileType::ZIP) {
+		if (typeGUID == ZIP::GUID) {
 			this->compressionType->addItem("DEFLATE");
 			this->compressionType->addItem("BZIP2");
 			this->compressionType->addItem("ZSTD");
@@ -72,7 +75,7 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 	}
 
 	this->version = nullptr;
-	if (type == PackFileType::VPK) {
+	if (typeGUID == VPK::GUID) {
 		this->version = new QComboBox(this);
 		this->version->addItem("v0");
 		this->version->addItem("v1");
@@ -85,7 +88,7 @@ PackFileOptionsDialog::PackFileOptionsDialog(vpkpp::PackFileType type, bool edit
 
 	this->singleFile = nullptr;
 	this->preferredChunkSize = nullptr;
-	if (type == PackFileType::FPX || type == PackFileType::VPK) {
+	if (typeGUID == FPX::GUID || typeGUID == VPK::GUID) {
 		if (!editing && createFromDir) {
 			this->singleFile = new QCheckBox(this);
 			this->singleFile->setChecked(options.vpk_saveSingleFile);
@@ -116,12 +119,12 @@ PackFileOptions PackFileOptionsDialog::getPackFileOptions() const {
 	};
 }
 
-std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(vpkpp::PackFileType type, bool createFromDir, QWidget* parent) {
-	if (type != PackFileType::BSP && type != PackFileType::FPX && type != PackFileType::VPK && type != PackFileType::ZIP) {
+std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(std::string_view typeGUID, bool createFromDir, QWidget* parent) {
+	if (typeGUID != bsppp::PakLump::GUID && typeGUID != FPX::GUID && typeGUID != VPK::GUID && typeGUID != ZIP::GUID) {
 		return PackFileOptions{};
 	}
 
-	auto* dialog = new PackFileOptionsDialog(type, false, createFromDir, {}, parent);
+	auto* dialog = new PackFileOptionsDialog(typeGUID, false, createFromDir, {}, parent);
 	int ret = dialog->exec();
 	dialog->deleteLater();
 	if (ret != QDialog::Accepted) {
@@ -130,13 +133,13 @@ std::optional<PackFileOptions> PackFileOptionsDialog::getForNew(vpkpp::PackFileT
 	return dialog->getPackFileOptions();
 }
 
-std::optional<PackFileOptions> PackFileOptionsDialog::getForEdit(vpkpp::PackFileType type, PackFileOptions options, QWidget* parent) {
-	if (type != PackFileType::BSP && type != PackFileType::FPX && type != PackFileType::VPK && type != PackFileType::ZIP) {
+std::optional<PackFileOptions> PackFileOptionsDialog::getForEdit(std::string_view typeGUID, PackFileOptions options, QWidget* parent) {
+	if (typeGUID != bsppp::PakLump::GUID && typeGUID != FPX::GUID && typeGUID != VPK::GUID && typeGUID != ZIP::GUID) {
 		QMessageBox::information(parent, tr("Pack File Properties"), tr("No properties available for this file type."));
 		return std::nullopt;
 	}
 
-	auto* dialog = new PackFileOptionsDialog(type, false, false, options, parent);
+	auto* dialog = new PackFileOptionsDialog(typeGUID, false, false, options, parent);
 	int ret = dialog->exec();
 	dialog->deleteLater();
 	if (ret != QDialog::Accepted) {

@@ -7,9 +7,6 @@
 using namespace sourcepp;
 using namespace vpkpp;
 
-SingleFile::SingleFile(const std::string& fullFilePath_)
-		: Folder(fullFilePath_) {}
-
 std::unique_ptr<PackFile> SingleFile::open(const std::string& path, const EntryCallback& callback) {
 	auto* singleFile = new SingleFile{path};
 	std::unique_ptr<PackFile> packFile{singleFile};

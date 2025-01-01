@@ -7,11 +7,6 @@
 using namespace sourcepp;
 using namespace vpkpp;
 
-Folder::Folder(const std::string& fullFilePath_)
-		: PackFileReadOnly(fullFilePath_) {
-	this->type = PackFileType::UNKNOWN;
-}
-
 std::unique_ptr<PackFile> Folder::open(const std::string& path, const EntryCallback& callback) {
 	auto* folder = new Folder{path};
 	std::unique_ptr<PackFile> packFile{folder};

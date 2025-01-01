@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <argparse/argparse.hpp>
+#include <bsppp/PakLump.h>
 #include <indicators/indeterminate_progress_bar.hpp>
 #include <vpkpp/vpkpp.h>
 
@@ -57,13 +58,17 @@ namespace {
 	using enum EntryCompressionType;
 	if (in == "deflate") {
 		return DEFLATE;
-	} else if (in == "bzip2") {
+	}
+	if (in == "bzip2") {
 		return BZIP2;
-	} else if (in == "lzma") {
+	}
+	if (in == "lzma") {
 		return LZMA;
-	} else if (in == "zstd") {
+	}
+	if (in == "zstd") {
 		return ZSTD;
-	} else if (in == "xz") {
+	}
+	if (in == "xz") {
 		return XZ;
 	}
 	// "none"
@@ -90,9 +95,9 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 		}
 		if (!packFile->extractAll(outputPath)) {
 			std::cerr
-					<< "Could not extract pack file contents to \"" << outputPath << "\"!\n"
-					<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
-					<< std::endl;
+				<< "Could not extract pack file contents to \"" << outputPath << "\"!\n"
+				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+				<< std::endl;
 		}
 		std::cout << "Extracted pack file contents under \"" << outputPath << "\"." << std::endl;
 	} else if (extractPath.ends_with('/')) {
@@ -107,9 +112,9 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 		}
 		if (!packFile->extractDirectory(extractPath, outputPath)) {
 			std::cerr
-					<< "Some or all files were unable to be extracted to \"" << outputPath << "\"!\n"
-					<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
-					<< std::endl;
+				<< "Some or all files were unable to be extracted to \"" << outputPath << "\"!\n"
+				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+				<< std::endl;
 		}
 		std::cout << "Extracted directory under \"" << outputPath << "\"." << std::endl;
 	} else {
@@ -182,8 +187,9 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_L(REMOVE_FILE))) {
 		auto path = cli.get(ARG_L(REMOVE_FILE));
 		if (!packFile->removeEntry(path)) {
-			std::cerr << "Unable to remove file at \"" << path << "\" from the pack file!\n" <<
-					"Check the file exists in the pack file and the path is spelled correctly." << std::endl;
+			std::cerr
+				<< "Unable to remove file at \"" << path << "\" from the pack file!\n"
+				<< "Check the file exists in the pack file and the path is spelled correctly." << std::endl;
 		} else {
 			packFile->bake("", {
 				.zip_compressionStrength = compressionLevel,
@@ -337,8 +343,8 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		return;
 	}
 
-	packFile->addDirectory("", inputPath, [saveToDir, &preloadExtensions](const std::string& path) -> EntryOptions {
-		uint32_t preloadBytes = 0;
+	packFile->addDirectory("", inputPath, [compressionMethod, compressionLevel, &preloadExtensions, saveToDir](const std::string& path) -> EntryOptions {
+		uint16_t preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
 			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path{path}.extension().string().ends_with(preloadExtension)) || std::filesystem::path{path}.filename().string() == preloadExtension) {
 				preloadBytes = VPK_MAX_PRELOAD_BYTES;
@@ -346,15 +352,17 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 			}
 		}
 		return {
-			.vpk_saveToDirectory = saveToDir,
+			.zip_compressionType = compressionMethod,
+			.zip_compressionStrength = compressionLevel,
 			.vpk_preloadBytes = preloadBytes,
+			.vpk_saveToDirectory = saveToDir,
 		};
 	});
 	packFile->bake("", {
 		.zip_compressionTypeOverride = compressionMethod,
 		.zip_compressionStrength = compressionLevel,
 		.vpk_generateMD5Entries = generateMD5Entries,
-	}, [noProgressBar, &bar](const std::string& path, const Entry& entry) {
+	}, [noProgressBar, &bar](const std::string&, const Entry&) {
 		if (!noProgressBar) {
 			bar->tick();
 		}

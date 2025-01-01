@@ -28,11 +28,10 @@ class Window : public QMainWindow {
 	friend class SavePackFileWorker;
 	friend class ExtractPackFileWorker;
 
-	template<vpkpp::PackFileType Type>
-	friend void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension);
-
 public:
 	explicit Window(QWidget* parent = nullptr);
+
+	void newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension);
 
 	void newBMZ(bool fromDirectory, const QString& startPath = QString());
 

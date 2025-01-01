@@ -237,6 +237,7 @@ public:
 		".jpeg",
 		".jfif",
 		".png",
+		".apng",
 		".webp",
 		".bmp",
 		".psd",

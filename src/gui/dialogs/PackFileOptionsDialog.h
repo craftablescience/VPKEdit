@@ -22,13 +22,13 @@ class PackFileOptionsDialog : public QDialog {
 	Q_OBJECT;
 
 public:
-	explicit PackFileOptionsDialog(vpkpp::PackFileType type, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent = nullptr);
+	explicit PackFileOptionsDialog(std::string_view typeGUID, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent = nullptr);
 
 	[[nodiscard]] PackFileOptions getPackFileOptions() const;
 
-	static std::optional<PackFileOptions> getForNew(vpkpp::PackFileType type, bool createFromDir, QWidget* parent = nullptr);
+	static std::optional<PackFileOptions> getForNew(std::string_view typeGUID, bool createFromDir, QWidget* parent = nullptr);
 
-	static std::optional<PackFileOptions> getForEdit(vpkpp::PackFileType type, PackFileOptions options, QWidget* parent = nullptr);
+	static std::optional<PackFileOptions> getForEdit(std::string_view typeGUID, PackFileOptions options, QWidget* parent = nullptr);
 
 private:
 	QComboBox* compressionType;

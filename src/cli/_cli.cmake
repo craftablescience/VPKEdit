@@ -20,6 +20,7 @@ target_link_libraries(
         ${PROJECT_NAME}cli PUBLIC
         argparse::argparse
         indicators::indicators
+        sourcepp::bsppp
         sourcepp::vpkpp)
 
 target_include_directories(

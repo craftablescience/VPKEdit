@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include <bsppp/PakLump.h>
 #include <kvpp/kvpp.h>
 #include <QActionGroup>
 #include <QApplication>
@@ -53,6 +54,8 @@
 using namespace kvpp;
 using namespace steampp;
 using namespace vpkpp;
+
+using BSP = bsppp::PakLump;
 
 Window::Window(QWidget* parent)
 		: QMainWindow(parent)
@@ -363,43 +366,43 @@ Window::Window(QWidget* parent)
 
 	auto* debugDialogsMenu = debugMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Dialogs"));
 	debugDialogsMenu->addAction("New Entry Dialog (File) [VPK]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::VPK, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", VPK::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("New Entry Dialog (Dir) [VPK]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::VPK, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", VPK::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("Edit Entry Dialog (File) [VPK]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::VPK, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", VPK::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("Edit Entry Dialog (Dir) [VPK]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::VPK, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", VPK::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("New Entry Dialog (File) [ZIP/BSP]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", PackFileType::ZIP, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(false, false, "test", ZIP::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("New Entry Dialog (Dir) [ZIP/BSP]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", PackFileType::ZIP, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(false, true, "test", ZIP::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("Edit Entry Dialog (File) [ZIP/BSP]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", PackFileType::ZIP, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(true, false, "test", ZIP::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("Edit Entry Dialog (Dir) [ZIP/BSP]", [this] {
-		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", PackFileType::ZIP, {}, this);
+		(void) EntryOptionsDialog::getEntryOptions(true, true, "test", ZIP::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("New Update Dialog", [this] {
 		NewUpdateDialog::getNewUpdatePrompt("https://example.com", "v1.2.3", "sample description", this);
 	});
 	debugDialogsMenu->addAction("Create Empty VPK Options Dialog", [this] {
-		(void) PackFileOptionsDialog::getForNew(PackFileType::VPK, false, this);
+		(void) PackFileOptionsDialog::getForNew(VPK::GUID, false, this);
 	});
 	debugDialogsMenu->addAction("Create VPK From Folder Options Dialog", [this] {
-		(void) PackFileOptionsDialog::getForNew(PackFileType::VPK, true, this);
+		(void) PackFileOptionsDialog::getForNew(VPK::GUID, true, this);
 	});
 	debugDialogsMenu->addAction("PackFile Options Dialog [VPK]", [this] {
-		(void) PackFileOptionsDialog::getForEdit(PackFileType::VPK, {}, this);
+		(void) PackFileOptionsDialog::getForEdit(VPK::GUID, {}, this);
 	});
 	debugDialogsMenu->addAction("PackFile Options Dialog [ZIP/BSP]", [this] {
-		(void) PackFileOptionsDialog::getForEdit(PackFileType::ZIP, {}, this);
+		(void) PackFileOptionsDialog::getForEdit(ZIP::GUID, {}, this);
 	});
 #endif
 
@@ -471,20 +474,20 @@ Window::Window(QWidget* parent)
 	}
 }
 
-template<PackFileType Type>
-void newPackFile(Window* window, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
-	static_assert(Type == PackFileType::FPX || Type == PackFileType::PAK || Type == PackFileType::PCK || Type == PackFileType::VPK || Type == PackFileType::WAD3 || Type == PackFileType::ZIP);
-
-	if (window->isWindowModified() && window->promptUserToKeepModifications()) {
+void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
+	if (typeGUID != FPX::GUID && typeGUID != PAK::GUID && typeGUID != PCK::GUID && typeGUID != VPK::GUID && typeGUID != WAD3::GUID && typeGUID != ZIP::GUID) {
+		return;
+	}
+	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
 		return;
 	}
 
-	auto options = PackFileOptionsDialog::getForNew(Type, fromDirectory, window);
+	auto options = PackFileOptionsDialog::getForNew(typeGUID, fromDirectory, this);
 	if (!options) {
 		return;
 	}
 
-	auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(window, QObject::tr("Use This Folder"), startPath) : "";
+	auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, QObject::tr("Use This Folder"), startPath) : "";
 	if (fromDirectory && dirPath.isEmpty()) {
 		return;
 	}
@@ -493,131 +496,133 @@ void newPackFile(Window* window, bool fromDirectory, const QString& startPath, c
 	if (fromDirectory) {
 		saveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
 		saveFilePath += QDir::separator();
-		if constexpr (Type == PackFileType::FPX || Type == PackFileType::VPK) {
+		if (typeGUID == FPX::GUID || typeGUID == VPK::GUID) {
 			saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + (((options->vpk_saveSingleFile || dirPath.endsWith("_dir")) ? "" : "_dir") + extension);
 		} else {
 			saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + extension;
 		}
 	}
-	auto packFilePath = QFileDialog::getSaveFileName(window, QObject::tr("Save New Pack File"), fromDirectory ? saveFilePath : startPath, name + " (*" + extension + ")");
+	auto packFilePath = QFileDialog::getSaveFileName(this, QObject::tr("Save New Pack File"), fromDirectory ? saveFilePath : startPath, name + " (*" + extension + ")");
 	if (packFilePath.isEmpty()) {
 		return;
 	}
 
-	std::unique_ptr<PackFile> packFile;
-	if constexpr (Type == PackFileType::FPX) {
-		packFile = FPX::create(packFilePath.toLocal8Bit().constData());
-		if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
+	std::unique_ptr<PackFile> out;
+	if (typeGUID == FPX::GUID) {
+		out = FPX::create(packFilePath.toLocal8Bit().constData());
+		if (auto* fpx = dynamic_cast<FPX*>(out.get())) {
 			fpx->setChunkSize(options->vpk_chunkSize);
 		}
-	} else if constexpr (Type == PackFileType::PAK) {
-		packFile = PAK::create(packFilePath.toLocal8Bit().constData());
-	} else if constexpr (Type == PackFileType::PCK) {
-		packFile = PCK::create(packFilePath.toLocal8Bit().constData());
-	} else if constexpr (Type == PackFileType::VPK) {
-		packFile = VPK::create(packFilePath.toLocal8Bit().constData(), options->vpk_version);
-		if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
+	} else if (typeGUID == PAK::GUID) {
+		out = PAK::create(packFilePath.toLocal8Bit().constData());
+	} else if (typeGUID == PCK::GUID) {
+		out = PCK::create(packFilePath.toLocal8Bit().constData());
+	} else if (typeGUID == VPK::GUID) {
+		out = VPK::create(packFilePath.toLocal8Bit().constData(), options->vpk_version);
+		if (auto* vpk = dynamic_cast<VPK*>(out.get())) {
 			vpk->setChunkSize(options->vpk_chunkSize);
 		}
-	} else if constexpr (Type == PackFileType::WAD3) {
-		packFile = WAD3::create(packFilePath.toLocal8Bit().constData());
-	} else if constexpr (Type == PackFileType::ZIP) {
-		packFile = ZIP::create(packFilePath.toLocal8Bit().constData());
+	} else if (typeGUID == WAD3::GUID) {
+		out = WAD3::create(packFilePath.toLocal8Bit().constData());
+	} else if (typeGUID == ZIP::GUID) {
+		out = ZIP::create(packFilePath.toLocal8Bit().constData());
 	} else {
 		return;
 	}
 
 	if (!fromDirectory) {
-		window->loadPackFile(packFilePath, std::move(packFile));
+		this->loadPackFile(packFilePath, std::move(out));
 		return;
 	}
 
 	// Set up progress bar
-	window->statusText->hide();
-	window->statusProgressBar->show();
-	window->statusBar()->show();
+	this->statusText->hide();
+	this->statusProgressBar->show();
+	this->statusBar()->show();
 
 	// Show progress bar is busy
-	window->statusProgressBar->setValue(0);
-	window->statusProgressBar->setRange(0, 0);
+	this->statusProgressBar->setValue(0);
+	this->statusProgressBar->setRange(0, 0);
 
-	window->freezeActions(true);
+	this->freezeActions(true);
 
 	// Set up thread
-	window->createPackFileFromDirWorkerThread = new QThread(window);
+	this->createPackFileFromDirWorkerThread = new QThread(this);
 	auto* worker = new IndeterminateProgressWorker();
-	worker->moveToThread(window->createPackFileFromDirWorkerThread);
-	QObject::connect(window->createPackFileFromDirWorkerThread, &QThread::started, worker, [worker, packFilePath, dirPath, options_=*options] {
+	worker->moveToThread(this->createPackFileFromDirWorkerThread);
+	QObject::connect(this->createPackFileFromDirWorkerThread, &QThread::started, worker, [worker, packFilePath, dirPath, options_=*options] {
 		worker->run([packFilePath, dirPath, options_] {
 			if (auto packFile = PackFile::open(packFilePath.toLocal8Bit().constData())) {
-				if (packFile->getType() == PackFileType::FPX) {
+				if (packFile->isInstanceOf<FPX>()) {
 					if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
 						fpx->setChunkSize(options_.vpk_chunkSize);
 					}
-				} else if (packFile->getType() == PackFileType::VPK) {
+				} else if (packFile->isInstanceOf<VPK>()) {
 					if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
 						vpk->setChunkSize(options_.vpk_chunkSize);
 					}
 				}
 				packFile->addDirectory("", dirPath.toLocal8Bit().constData(), {
-					.vpk_saveToDirectory = options_.vpk_saveSingleFile,
+					.zip_compressionType = EntryCompressionType::NO_COMPRESS,
+					.zip_compressionStrength = 0,
 					.vpk_preloadBytes = 0,
+					.vpk_saveToDirectory = options_.vpk_saveSingleFile,
 				});
 				packFile->bake("", {}, nullptr);
 			}
 		});
 	});
-	QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, window, [window, packFilePath, options_=*options] {
+	QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, this, [this, packFilePath, options_=*options] {
 		// Kill thread
-		window->createPackFileFromDirWorkerThread->quit();
-		window->createPackFileFromDirWorkerThread->wait();
-		delete window->createPackFileFromDirWorkerThread;
-		window->createPackFileFromDirWorkerThread = nullptr;
+		this->createPackFileFromDirWorkerThread->quit();
+		this->createPackFileFromDirWorkerThread->wait();
+		delete this->createPackFileFromDirWorkerThread;
+		this->createPackFileFromDirWorkerThread = nullptr;
 
 		// loadPackFile freezes them right away again
 		// this->freezeActions(false);
-		window->loadPackFile(packFilePath);
-		if (window->packFile) {
-			if (window->packFile->getType() == PackFileType::FPX) {
-				if (auto* fpx = dynamic_cast<FPX*>(window->packFile.get())) {
+		this->loadPackFile(packFilePath);
+		if (this->packFile) {
+			if (this->packFile->isInstanceOf<FPX>()) {
+				if (auto* fpx = dynamic_cast<FPX*>(this->packFile.get())) {
 					fpx->setChunkSize(options_.vpk_chunkSize);
 				}
-			} else if (window->packFile->getType() == PackFileType::VPK) {
-				if (auto* vpk = dynamic_cast<VPK*>(window->packFile.get())) {
+			} else if (this->packFile->isInstanceOf<VPK>()) {
+				if (auto* vpk = dynamic_cast<VPK*>(this->packFile.get())) {
 					vpk->setChunkSize(options_.vpk_chunkSize);
 				}
 			}
 		}
 	});
-	window->createPackFileFromDirWorkerThread->start();
+	this->createPackFileFromDirWorkerThread->start();
 }
 
 void Window::newBMZ(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::ZIP>(this, fromDirectory, startPath, "BMZ", ".bmz");
+	return this->newPackFile(ZIP::GUID, fromDirectory, startPath, "BMZ", ".bmz");
 }
 
 void Window::newFPX(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::FPX>(this, fromDirectory, startPath, "FPX", ".fpx");
+	return this->newPackFile(FPX::GUID, fromDirectory, startPath, "FPX", ".fpx");
 }
 
 void Window::newPAK(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::PAK>(this, fromDirectory, startPath, "PAK", ".pak");
+	return this->newPackFile(PAK::GUID, fromDirectory, startPath, "PAK", ".pak");
 }
 
 void Window::newPCK(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::PCK>(this, fromDirectory, startPath, "PCK", ".pck");
+	return this->newPackFile(PCK::GUID, fromDirectory, startPath, "PCK", ".pck");
 }
 
 void Window::newVPK(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::VPK>(this, fromDirectory, startPath, "VPK", ".vpk");
+	return this->newPackFile(VPK::GUID, fromDirectory, startPath, "VPK", ".vpk");
 }
 
 void Window::newWAD3(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::WAD3>(this, fromDirectory, startPath, "WAD3", ".wad");
+	return this->newPackFile(WAD3::GUID, fromDirectory, startPath, "WAD3", ".wad");
 }
 
 void Window::newZIP(bool fromDirectory, const QString& startPath) {
-	return ::newPackFile<PackFileType::ZIP>(this, fromDirectory, startPath, "ZIP", ".zip");
+	return this->newPackFile(ZIP::GUID, fromDirectory, startPath, "ZIP", ".zip");
 }
 
 void Window::openDir(const QString& startPath, const QString& dirPath) {
@@ -806,18 +811,18 @@ void Window::setProperties() {
 	auto version = 0u;
 	auto chunkSize = 0u;
 
-	if (this->packFile->getType() == PackFileType::FPX) {
+	if (this->packFile->isInstanceOf<FPX>()) {
 		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
 			chunkSize = fpx->getChunkSize();
 		}
-	} else if (this->packFile->getType() == PackFileType::VPK) {
+	} else if (this->packFile->isInstanceOf<VPK>()) {
 		if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
 			version = vpk->getVersion();
 			chunkSize = vpk->getChunkSize();
 		}
 	}
 
-	auto options = PackFileOptionsDialog::getForEdit(this->packFile->getType(), {
+	auto options = PackFileOptionsDialog::getForEdit(this->packFile->getGUID(), {
 		.compressionType = this->packFileOptions.compressionType,
 		.compressionStrength = this->packFileOptions.compressionStrength,
 		.vpk_version = version,
@@ -830,11 +835,11 @@ void Window::setProperties() {
 	this->packFileOptions.compressionType = options->compressionType;
 	this->packFileOptions.compressionStrength = options->compressionStrength;
 
-	if (this->packFile->getType() == PackFileType::FPX) {
+	if (this->packFile->isInstanceOf<FPX>()) {
 		if (auto fpx = dynamic_cast<FPX*>(this->packFile.get())) {
 			fpx->setChunkSize(options->vpk_chunkSize);
 		}
-	} else if (this->packFile->getType() == PackFileType::FPX) {
+	} else if (this->packFile->isInstanceOf<VPK>()) {
 		if (auto vpk = dynamic_cast<VPK*>(this->packFile.get())) {
 			vpk->setVersion(options->vpk_version);
 			vpk->setChunkSize(options->vpk_chunkSize);
@@ -865,7 +870,7 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, this->packFile->getType(), {}, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, false, prefilledPath, this->packFile->getGUID(), {}, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -911,7 +916,7 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 	EntryOptions options;
 
 	if (showOptions || Options::get<bool>(OPT_ADVANCED_FILE_PROPS)) {
-		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, this->packFile->getType(), {}, this);
+		auto newEntryOptions = EntryOptionsDialog::getEntryOptions(false, true, prefilledPath, this->packFile->getGUID(), {}, this);
 		if (!newEntryOptions) {
 			return;
 		}
@@ -966,7 +971,7 @@ void Window::editFile(const QString& oldPath) {
 	// Load existing properties
 	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 	int16_t compressionStrength = 5;
-	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 			compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
 			compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
@@ -974,11 +979,11 @@ void Window::editFile(const QString& oldPath) {
 	}
 
 	// Get new properties
-	const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getType(), {
+	const auto options = EntryOptionsDialog::getEntryOptions(true, false, oldPath, this->packFile->getGUID(), {
 		.zip_compressionType = compressionType,
 		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	}, this);
 	if (!options) {
 		return;
@@ -1004,7 +1009,7 @@ void Window::editFileContents(const QString& path, std::vector<std::byte> data) 
 	// Load existing properties
 	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 	int16_t compressionStrength = 5;
-	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
 			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
@@ -1015,8 +1020,8 @@ void Window::editFileContents(const QString& path, std::vector<std::byte> data) 
 	this->packFile->addEntry(path.toLocal8Bit().constData(), std::move(data), {
 		.zip_compressionType = compressionType,
 		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->markModified(true);
 }
@@ -1031,7 +1036,7 @@ void Window::editFileContents(const QString& path, const QString& data) {
 	// Load existing properties
 	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 	int16_t compressionStrength = 5;
-	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
 			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
@@ -1045,8 +1050,8 @@ void Window::editFileContents(const QString& path, const QString& data) {
 	}, {
 		.zip_compressionType = compressionType,
 		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->markModified(true);
 }
@@ -1065,7 +1070,7 @@ void Window::encryptFile(const QString& path) {
 	// Load existing properties
 	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 	int16_t compressionStrength = 5;
-	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
 			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
@@ -1079,8 +1084,8 @@ void Window::encryptFile(const QString& path) {
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
 		.zip_compressionType = compressionType,
 		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
@@ -1101,7 +1106,7 @@ void Window::decryptFile(const QString& path) {
 	// Load existing properties
 	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 	int16_t compressionStrength = 5;
-	if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
 			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
@@ -1115,8 +1120,8 @@ void Window::decryptFile(const QString& path) {
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
 		.zip_compressionType = compressionType,
 		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-		.vpk_preloadBytes = static_cast<uint32_t>(entry->extraData.size()),
 	});
 	this->entryTree->addEntry(newPath);
 	this->fileViewer->addEntry(*this->packFile, newPath);
@@ -1160,7 +1165,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		// Load existing properties
 		EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
 		int16_t compressionStrength = 5;
-		if (this->packFile->getType() == PackFileType::BSP || this->packFile->getType() == PackFileType::ZIP) {
+		if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
 			if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
 				compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
 				compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
@@ -1177,8 +1182,8 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
 			.zip_compressionType = compressionType,
 			.zip_compressionStrength = compressionStrength,
+			.vpk_preloadBytes = static_cast<uint16_t>(entry.extraData.size()),
 			.vpk_saveToDirectory = entry.archiveIndex == VPK_DIR_INDEX,
-			.vpk_preloadBytes = static_cast<unsigned int>(entry.extraData.size()),
 		});
 		this->entryTree->addEntry(newEntryPath);
 		this->fileViewer->addEntry(*this->packFile, newEntryPath);
@@ -1229,7 +1234,7 @@ void Window::signPackFile(const QString& privateKeyLocation) {
 	if (privateKeyPath.isEmpty()) {
 		return;
 	}
-	if (this->packFile->getType() == PackFileType::VPK && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toLocal8Bit().constData())) {
+	if (this->packFile->isInstanceOf<VPK>() && dynamic_cast<VPK&>(*this->packFile).sign(privateKeyPath.toLocal8Bit().constData())) {
 		QMessageBox::information(this, tr("Success"), tr("Successfully signed the pack file."));
 	} else {
 		QMessageBox::information(this, tr("Error"), tr("Failed to sign the pack file! Check the file contains both the private key and public key."));
@@ -1441,7 +1446,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeF
 	this->addDirAction->setDisabled(freeze);
 	this->setPropertiesAction->setDisabled(freeze);
 	this->toolsGeneralMenu->setDisabled(freeze);
-	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || this->packFile->getType() != PackFileType::VPK));
+	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || !this->packFile->isInstanceOf<VPK>()));
 
 	this->searchBar->setDisabled(freeze);
 	this->entryTree->setDisabled(freeze);
