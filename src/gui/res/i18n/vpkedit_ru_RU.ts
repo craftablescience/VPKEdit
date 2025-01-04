@@ -202,7 +202,7 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="99"/>
       <source>Preferred chunk size (MB):</source>
-      <translation>Предпочтительный размер блока (МБ):</translation>
+      <translation>Собственный размер блока (МБ):</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="135"/>
@@ -391,7 +391,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1390"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
-      <translation>В этом файле есть несохраненные изменения! Не хотите ли вы сначала сохранить эти изменения?</translation>
+      <translation>Файл содержит несохраненные изменения! Хотите ли вы сначала сохранить эти изменения?</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1572"/>
