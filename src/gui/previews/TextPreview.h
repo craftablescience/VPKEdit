@@ -79,7 +79,7 @@ public:
 	static inline const QStringList EXTENSIONS {
 		".txt", ".md", // Text
 		".nut", ".lua", ".gm", ".py", ".js", ".ts", // Scripting
-		".vmf", ".vmm", ".vmx", ".vmt", // Maps
+		".map", ".vmf", ".vmm", ".vmx", ".vmt", // Maps
 		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd", // Models / FGD
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues
 		".vbsp", ".rad", ".gi", ".rc", ".lst", // Valve
