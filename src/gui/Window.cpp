@@ -219,16 +219,18 @@ Window::Window(QWidget* parent)
 	const QVector<QPair<QString, QString>> languageToLocaleMapping = {
 			{tr("System Language"), ""},
 			{"", ""}, // Separator
-			{u8"Bosanski",		"bs_BA"},
-			{u8"简体中文",		"zh_CN"},
-			{u8"Nederlands",	"nl"},
-			{u8"English",		"en"},
-			{u8"日本語",			"ja"},
-			{u8"Italiano",		"it"},
-			{u8"Polski",		"pl"},
-			{u8"Español",		"es"},
-			{u8"Svenska",		"sv"},
-			{u8"Русский",		"ru_RU"},
+			{u8"Bosanski",           "bs_BA"},
+			{u8"简体中文",             "zh_CN"},
+			{u8"Nederlands",         "nl"},
+			{u8"English",            "en"},
+			{u8"日本語",              "ja"},
+			{u8"한국인",              "ko"},
+			{u8"Italiano",           "it"},
+			{u8"Polski",             "pl"},
+			{u8"Português (Brasil)", "pt_BR"},
+			{u8"Español",            "es"},
+			{u8"Svenska",            "sv"},
+			{u8"Русский",            "ru_RU"},
 	};
 	for (const auto& [language, locale] : languageToLocaleMapping) {
 		if (language.isEmpty() && locale.isEmpty()) {

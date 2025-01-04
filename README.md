@@ -29,20 +29,23 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 
 - Supported file formats:
 
-  | Format | Description                                 | Create | Read | Write |
-  |--------|---------------------------------------------|:------:|:----:|:-----:|
-  | BMZ    | Bonus Map Zip (Source Engine)               |   ✅    |  ✅   |   ✅   |
-  | BSP    | Source 1 Map                                |  N/A   |  ✅   |   ✅   |
-  | FPX    | VPK modification (Tactical Intervention)    |   ✅    |  ✅   |   ✅   |
-  | GCF    | Game Cache File (Pre-SteamPipe Steam games) |   ❌    |  ✅   |   ❌   |
-  | GMA    | Garry's Mod Addon                           |   ❌    |  ✅   |   ✅   |
-  | ORE    | Unknown acronym (Narbacular Drop)           |   ❌    |  ✅   |   ❌   |
-  | PAK    | PAcK file (Quake, original Half-Life, etc.) |   ✅    |  ✅   |   ✅   |
-  | PCK    | Godot PaCK file (Standalone or embedded)    |   ✅    |  ✅   |   ✅   |
-  | VPK    | Vampire PacK file (V:TMB)                   | 〰️[^1] |  ✅   |   ✅   |
-  | VPK    | Valve PacK file (Source Engine)             |   ✅    |  ✅   |   ✅   |
-  | WAD    | Where's All the Data (GoldSrc Engine)       |   ✅    |  ✅   |   ✅   |
-  | ZIP    | ZIP file                                    |   ✅    |  ✅   |   ✅   |
+  | Format | Description                                       | Create | Read | Write |
+  |--------|---------------------------------------------------|:------:|:----:|:-----:|
+  | 007    | Asset pack (007 - Nightfire)                      |   ❌    |  ✅   |   ❌   |
+  | BMZ    | Bonus Map Zip (Source Engine)                     |   ✅    |  ✅   |   ✅   |
+  | BSP    | Source 1 Map                                      |  N/A   |  ✅   |   ✅   |
+  | FPX    | VPK modification (Tactical Intervention)          |   ✅    |  ✅   |   ✅   |
+  | GCF    | Game Cache File (Pre-SteamPipe Steam games)       |   ❌    |  ✅   |   ❌   |
+  | GMA    | Garry's Mod Addon                                 |   ❌    |  ✅   |   ✅   |
+  | ORE    | Unknown acronym (Narbacular Drop)                 |   ❌    |  ✅   |   ❌   |
+  | PAK    | PAcK file (Quake, original Half-Life, HROT, etc.) |   ✅    |  ✅   |   ✅   |
+  | PCK    | Godot PaCK file (Standalone or embedded)          |   ✅    |  ✅   |   ✅   |
+  | PK3    | Pack v3 (Quake II)                                |   ✅    |  ✅   |   ✅   |
+  | PK4    | Pack v4 (Quake IV, Doom 3)                        |   ✅    |  ✅   |   ✅   |
+  | VPK    | Vampire PacK file (V:TMB)                         | 〰️[^1] |  ✅   |   ✅   |
+  | VPK    | Valve PacK file (Source Engine)                   |   ✅    |  ✅   |   ✅   |
+  | WAD    | Where's All the Data (GoldSrc Engine)             |   ✅    |  ✅   |   ✅   |
+  | ZIP    | ZIP file                                          |   ✅    |  ✅   |   ✅   |
 
   [^1]: Only supported in the CLI interface.
 
@@ -66,7 +69,9 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Dutch
   - Italian
   - Japanese
+  - Korean
   - Polish
+  - Portuguese (Brazil)
   - Russian
   - Spanish
   - Swedish

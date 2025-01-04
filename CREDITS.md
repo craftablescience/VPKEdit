@@ -13,7 +13,9 @@
 - Dutch: Trico Everfire
 - Italian: Enderzombi102
 - Japanese: craftablescience
+- Korean: hamn
 - Polish: Enderek, Patrxgt
+- Portuguese (Brazil): vivizinho64minecraft
 - Russian: Michael Soyka
 - Swedish: BreakinBenny, TheDudeWhosNameIsAce
 
