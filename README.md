@@ -37,6 +37,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | FPX    | VPK modification (Tactical Intervention)          |   ✅    |  ✅   |   ✅   |
   | GCF    | Game Cache File (Pre-SteamPipe Steam games)       |   ❌    |  ✅   |   ❌   |
   | GMA    | Garry's Mod Addon                                 |   ❌    |  ✅   |   ✅   |
+  | OL     | Worldcraft Object Library                         |   ❌    |  ✅   |   ❌   |
   | ORE    | Unknown acronym (Narbacular Drop)                 |   ❌    |  ✅   |   ❌   |
   | PAK    | PAcK file (Quake, original Half-Life, HROT, etc.) |   ✅    |  ✅   |   ✅   |
   | PCK    | Godot PaCK file (Standalone or embedded)          |   ✅    |  ✅   |   ✅   |
@@ -57,7 +58,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Source 1 Textures
   - Source 1 Models
   - Source 1 DMX files (particles, SFM sessions, etc.)
-  - Source 1 Prop Lightmaps (`PPL` files)
+  - Source 1 PPL files (prop lightmaps)
 - Create pack files of any version from scratch or an existing folder
 - Add and remove files and folders from writable pack files
 - Extract files and folders from readable pack files
