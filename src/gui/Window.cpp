@@ -192,7 +192,7 @@ Window::Window(QWidget* parent)
 	// Options menu
 	auto* optionsMenu = this->menuBar()->addMenu(tr("Options"));
 
-	auto* generalMenu = optionsMenu->addMenu(QIcon(":/logo.png"), "General...");
+	auto* generalMenu = optionsMenu->addMenu(QIcon(":/logo.png"), tr("General..."));
 	auto* optionAdvancedMode = generalMenu->addAction(tr("Advanced File Properties"), [] {
 		Options::invert(OPT_ADVANCED_FILE_PROPS);
 	});
