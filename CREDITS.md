@@ -1,17 +1,17 @@
 ## Contributors
 - [BreakinBenny](https://github.com/BreakinBenny): Bloody Good Time ICE key
-- [bt](https://github.com/caatge) and [ymgve](https://github.com/ymgve): GCF file format parser
+- [bt](https://github.com/caatge) and [ymgve](https://github.com/ymgve): GCF parser
 - [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, file associations for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Nbc66](https://github.com/Nbc66): added some extra info to the installation guide
-- [OzxyBox](https://github.com/ozxybox): WAD3 file format parser
+- [OzxyBox](https://github.com/ozxybox): WAD3 parser
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
 - [Tholp](https://github.com/Tholp1): major BSP stability improvements
 - [Trico Everfire](https://github.com/Trico-Everfire): open pack files based on Steam game install locations
 
 ## Honorable Mentions
-- Alhexx: 007 parser is based on their [reverse-engineering work](https://raw.githubusercontent.com/SmileyAG/dumpster/refs/heads/src_jb007nightfirepc_alurazoe/file_format_analysis.txt)
-- [erysdren](https://github.com/erysdren): OL and ORE file format parsers are based on its [reverse-engineering work](https://github.com/erysdren/scratch/blob/main/kaitai/worldcraft_ol.ksy)
+- Alhexx: 007 parser is based on their reverse-engineering work
+- [erysdren](https://github.com/erysdren): OL and ORE parsers are based on its reverse-engineering work
 
 ## Translators
 - Bosnian: Nbc66
