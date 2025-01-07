@@ -1681,8 +1681,11 @@ bool Window::writeEntryToFile(const QString& entryPath, const QString& filepath)
 }
 
 void Window::resetStatusBar() {
+	// hack: replace the name of the pack file with something unique and substitute
+	// it back later to avoid messing with it when doing translation substitutions
 	QString packFileStatus(std::string{*this->packFile}.c_str());
 	packFileStatus
+		.replace(this->packFile->getTruncatedFilename().c_str(), "83E7593B3B494FE0873C42BC3FC88DC5")
 		.replace("AppID", tr("AppID"))
 		.replace("App Version", tr("App Version"))
 		.replace("Godot Version", tr("Godot Version"))
@@ -1690,7 +1693,8 @@ void Window::resetStatusBar() {
 		.replace("Map Revision", tr("Map Revision"))
 		.replace("Addon Name:", tr("Addon Name:"))
 		.replace("Embedded", tr("Embedded"))
-		.replace("Encrypted", tr("Encrypted"));
+		.replace("Encrypted", tr("Encrypted"))
+		.replace("83E7593B3B494FE0873C42BC3FC88DC5", this->packFile->getTruncatedFilename().c_str());
 	this->statusText->setText(' ' + tr("Loaded") + ' ' + packFileStatus);
 	this->statusText->show();
 	this->statusProgressBar->hide();
