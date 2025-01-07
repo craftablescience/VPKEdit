@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/x-vpkedit-007">
+        <comment>007 - Nightfire Asset Pack</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>007</acronym>
+        <expanded-acronym>Double-Oh Seven</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.007"/>
+    </mime-type>
     <mime-type type="application/x-vpkedit-bmz">
         <comment>Bonus Map Zip</comment>
         <icon name="application-x-vpkedit"/>
@@ -43,6 +51,24 @@
         <glob-deleteall/>
         <glob pattern="*.gma"/>
         <glob pattern="*.GMA"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-ol">
+        <comment>Worldcraft Object Library</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>OL</acronym>
+        <expanded-acronym>Worldcraft Object Library</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.ol"/>
+        <glob pattern="*.OL"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-ore">
+        <comment>Narbacular Drop Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>ORE</acronym>
+        <expanded-acronym>Narbacular Drop Pack File</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.ore"/>
+        <glob pattern="*.ORE"/>
     </mime-type>
     <mime-type type="application/x-vpkedit-pak">
         <comment>Pack File</comment>

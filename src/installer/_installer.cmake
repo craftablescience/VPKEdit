@@ -128,11 +128,14 @@ if(WIN32)
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
     set(HELP_QUOTE "\"") # CMake is shit
     set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+            WriteRegStr HKCR '.007' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.ol' '' '${PROJECT_NAME_PRETTY}'
+            WriteRegStr HKCR '.ore' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.pak' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
             WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
@@ -147,11 +150,14 @@ if(WIN32)
             System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
         ")
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+            DeleteRegKey HKCR '.007'
             DeleteRegKey HKCR '.bmz'
             DeleteRegKey HKCR '.bsp'
             DeleteRegKey HKCR '.fpx'
             DeleteRegKey HKCR '.gcf'
             DeleteRegKey HKCR '.gma'
+            DeleteRegKey HKCR '.ol'
+            DeleteRegKey HKCR '.ore'
             DeleteRegKey HKCR '.pak'
             DeleteRegKey HKCR '.pck'
             DeleteRegKey HKCR '.vpk'
