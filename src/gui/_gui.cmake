@@ -177,6 +177,12 @@ if(WIN32)
 
     configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
     configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
+
+    # Copy translations
+    file(GLOB ${PROJECT_NAME}_QTBASE_TRANSLATIONS "${QT_BASEDIR}/translations/qtbase_*.qm")
+    foreach(${PROJECT_NAME}_QTBASE_TRANSLATION IN LISTS ${PROJECT_NAME}_QTBASE_TRANSLATIONS)
+        file(COPY "${${PROJECT_NAME}_QTBASE_TRANSLATION}" DESTINATION "${CMAKE_BINARY_DIR}/i18n")
+    endforeach()
 elseif(UNIX AND DEFINED QT_BASEDIR)
     configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"          "${CMAKE_BINARY_DIR}/libQt6Core.so.6"          COPYONLY)
     configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"           "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"           COPYONLY)
@@ -221,4 +227,10 @@ elseif(UNIX AND DEFINED QT_BASEDIR)
     file(COPY ${${PROJECT_NAME}_QT_PLUGINS_WAYLANDGRAPHICSINTEGRATIONCLIENT} DESTINATION "${CMAKE_BINARY_DIR}/wayland-graphics-integration-client")
     file(COPY ${${PROJECT_NAME}_QT_PLUGINS_WAYLANDSHELLINTEGRATION}          DESTINATION "${CMAKE_BINARY_DIR}/wayland-shell-integration")
     file(COPY ${${PROJECT_NAME}_QT_PLUGINS_XCBGLINTEGRATIONS}                DESTINATION "${CMAKE_BINARY_DIR}/xcbglintegrations")
+
+    # Copy translations
+    file(GLOB ${PROJECT_NAME}_QTBASE_TRANSLATIONS "${QT_BASEDIR}/translations/qtbase_*.qm")
+    file(COPY ${PROJECT_NAME}_QTBASE_TRANSLATIONS DESTINATION "${CMAKE_BINARY_DIR}/i18n")
+else()
+    set(${PROJECT_NAME}_QTBASE_TRANSLATIONS "")
 endif()

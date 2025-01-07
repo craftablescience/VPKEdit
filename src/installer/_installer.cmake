@@ -11,6 +11,9 @@ install(FILES
         "${CMAKE_CURRENT_LIST_DIR}/.nonportable"
         DESTINATION .)
 
+install(FILES "${${PROJECT_NAME}_QTBASE_TRANSLATIONS}"
+        DESTINATION i18n)
+
 if(WIN32)
     install(IMPORTED_RUNTIME_ARTIFACTS
             Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg

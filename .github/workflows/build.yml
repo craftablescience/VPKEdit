@@ -97,6 +97,7 @@ jobs:
             ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpkedit.exe
             ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/i18n/*.qm
             ${{env.BUILD_DIR}}/imageformats/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
@@ -168,6 +169,7 @@ jobs:
             ${{env.BUILD_DIR}}/LICENSE
             ${{env.BUILD_DIR}}/vpkedit.exe
             ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/i18n/*.qm
             ${{env.BUILD_DIR}}/imageformats/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
@@ -297,6 +299,7 @@ jobs:
             ${{env.BUILD_DIR}}/vpkedit
             ${{env.BUILD_DIR}}/*.so*
             ${{env.BUILD_DIR}}/egldeviceintegrations/*.so*
+            ${{env.BUILD_DIR}}/i18n/*.qm
             ${{env.BUILD_DIR}}/imageformats/*.so*
             ${{env.BUILD_DIR}}/platforminputcontexts/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
