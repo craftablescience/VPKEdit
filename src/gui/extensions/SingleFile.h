@@ -70,6 +70,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".py", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".js", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".ts", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".map", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vmf", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vmm", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vmx", &SingleFile::open);
@@ -119,6 +120,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".import", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".remap", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".pop", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".edt", &SingleFile::open);
 
 	// Textures
 	VPKPP_REGISTER_PACKFILE_OPEN(".tga", &SingleFile::open);
@@ -126,6 +128,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".jpeg", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".jfif", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".png", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".apng", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".webp", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".bmp", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".psd", &SingleFile::open);
