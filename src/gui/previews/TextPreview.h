@@ -78,7 +78,7 @@ public:
 	// Reminder if you add a format that should be highlighted to change that list too!
 	static inline const QStringList EXTENSIONS {
 		".txt", ".md", // Text
-		".nut", ".lua", ".gm", ".py", ".js", ".ts", // Scripting
+		".nut", ".gnut", ".lua", ".gm", ".py", ".js", ".ts", // Scripting
 		".map", ".vmf", ".vmm", ".vmx", ".vmt", // Maps
 		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd", // Models / FGD
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues

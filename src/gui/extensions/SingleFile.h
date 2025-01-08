@@ -64,6 +64,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".txt", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".md", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".nut", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".gnut", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".lua", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".gm", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".py", &SingleFile::open);
