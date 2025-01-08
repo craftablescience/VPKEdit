@@ -82,7 +82,7 @@ public:
 		".map", ".vmf", ".vmm", ".vmx", ".vmt", // Maps
 		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd", // Models / FGD
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues
-		".vbsp", ".rad", ".gi", ".rc", ".lst", // Valve
+		".vbsp", ".rad", ".gam", ".gi", ".rc", ".lst", // Valve
 		".cfg", ".ini", ".yml", ".yaml", ".toml", ".json", // Config
 		".html", ".htm", ".xml", ".css", ".scss", ".sass", // Web
 		"authors", "credits", "license", "readme", // Metadata

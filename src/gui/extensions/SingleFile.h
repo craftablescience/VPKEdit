@@ -91,6 +91,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".zpdata", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vbsp", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".rad", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".gam", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".gi", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".rc", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".lst", &SingleFile::open);
