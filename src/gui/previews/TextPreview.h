@@ -89,8 +89,9 @@ public:
 		".gitignore", ".gitattributes", ".gitmodules", // Git
 		".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap", // Godot
 		".zpc", ".zpdata", // Zombie Panic Survival
-		".pop", // TF2
+		".pop", // Team Fortress 2
 		".edt", // Synergy
+		".set", // Titanfall & Apex Legends
 	};
 
 	TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);

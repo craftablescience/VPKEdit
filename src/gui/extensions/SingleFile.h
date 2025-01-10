@@ -122,6 +122,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".remap", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".pop", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".edt", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".set", &SingleFile::open);
 
 	// Textures
 	VPKPP_REGISTER_PACKFILE_OPEN(".tga", &SingleFile::open);
