@@ -93,12 +93,13 @@ function(vpkedit_configure_target TARGET)
                     "$<$<CONFIG:Release>:/OPT:ICF>")
         endif()
 
-        # Add an icon to the executable
+        # Add an icon and manifest to the executable
         if(TARGET_TYPE STREQUAL "EXECUTABLE")
             target_sources(
                     ${TARGET} PRIVATE
                     "$<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo_alt.rc>"
-                    "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo.rc>")
+                    "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo.rc>"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/program.manifest")
         endif()
 
         # Don't show the console when running the executable
