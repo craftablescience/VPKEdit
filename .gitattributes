@@ -1,0 +1,11 @@
+* text=auto eol=lf
+
+*.md text
+
+LICENSE text
+
+
+# Skip exporting these files on download
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
