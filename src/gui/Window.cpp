@@ -1745,7 +1745,7 @@ void ScanSteamGamesWorker::run() {
 
 	// Add Steam games
 	for (auto appID : steam.getInstalledApps()) {
-		if (!steam.isAppUsingSourceEngine(appID) && !steam.isAppUsingSource2Engine(appID)) {
+		if (!steam.isAppUsingGoldSrcEngine(appID) && !steam.isAppUsingSourceEngine(appID) && !steam.isAppUsingSource2Engine(appID)) {
 			continue;
 		}
 		sourceGames.emplace_back(
