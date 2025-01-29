@@ -1,0 +1,23 @@
+DeleteRegKey HKCR '.007'
+DeleteRegKey HKCR '.bmz'
+DeleteRegKey HKCR '.bsp'
+DeleteRegKey HKCR '.fpx'
+DeleteRegKey HKCR '.gcf'
+DeleteRegKey HKCR '.gma'
+DeleteRegKey HKCR '.ol'
+DeleteRegKey HKCR '.ore'
+DeleteRegKey HKCR '.pak'
+DeleteRegKey HKCR '.pck'
+DeleteRegKey HKCR '.vpk'
+
+DeleteRegKey HKCR '${PROJECT_NAME}_pack_file'
+
+DeleteRegKey HKCR '.dmx'
+DeleteRegKey HKCR '.mdl'
+DeleteRegKey HKCR '.pcf'
+DeleteRegKey HKCR '.ppl'
+DeleteRegKey HKCR '.vtf'
+
+DeleteRegKey HKCR '${PROJECT_NAME}_asset'
+
+System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'

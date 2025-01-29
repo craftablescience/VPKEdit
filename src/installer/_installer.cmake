@@ -41,6 +41,16 @@ if(WIN32)
             "${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll"
             "${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll"
             DESTINATION tls)
+
+    # NSIS install commands
+    configure_file(
+            "${CMAKE_CURRENT_LIST_DIR}/win/InstallCommands.nsh.in"
+            "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh")
+
+    # NSIS uninstall commands
+    configure_file(
+            "${CMAKE_CURRENT_LIST_DIR}/win/UninstallCommands.nsh.in"
+            "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh")
 elseif(UNIX)
     if (DEFINED QT_BASEDIR)
         # If this is a custom install, we've copied the Qt libraries to the build directory and done special fixups
@@ -131,47 +141,8 @@ if(WIN32)
     set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT_NAME}.exe")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
-    set(HELP_QUOTE "\"") # CMake is shit
-    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-            WriteRegStr HKCR '.007' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.gma' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.ol' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.ore' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.pak' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.pck' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.dmx' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.pcf' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.ppl' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '.mdl' '' '${PROJECT_NAME_PRETTY}'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}' '' 'VPKEdit Pack File'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell' '' 'open'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\DefaultIcon' '' '$INSTDIR\\\\${PROJECT_NAME}.exe,0'
-            WriteRegStr HKCR '${PROJECT_NAME_PRETTY}\\\\shell\\\\open\\\\command' '' '$INSTDIR\\\\${PROJECT_NAME}.exe \\${HELP_QUOTE}%1\\${HELP_QUOTE}'
-            System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
-        ")
-    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
-            DeleteRegKey HKCR '.007'
-            DeleteRegKey HKCR '.bmz'
-            DeleteRegKey HKCR '.bsp'
-            DeleteRegKey HKCR '.fpx'
-            DeleteRegKey HKCR '.gcf'
-            DeleteRegKey HKCR '.gma'
-            DeleteRegKey HKCR '.ol'
-            DeleteRegKey HKCR '.ore'
-            DeleteRegKey HKCR '.pak'
-            DeleteRegKey HKCR '.pck'
-            DeleteRegKey HKCR '.vpk'
-            DeleteRegKey HKCR '.dmx'
-            DeleteRegKey HKCR '.pcf'
-            DeleteRegKey HKCR '.ppl'
-            DeleteRegKey HKCR '.mdl'
-            DeleteRegKey HKCR '${PROJECT_NAME_PRETTY}'
-        ")
+    file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh" CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
+    file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
 else()
     if(NOT (CPACK_GENERATOR STREQUAL "DEB"))
         message(WARNING "CPack generator must be DEB! Setting generator to DEB...")
