@@ -183,6 +183,8 @@ if(WIN32)
     foreach(${PROJECT_NAME}_QTBASE_TRANSLATION IN LISTS ${PROJECT_NAME}_QTBASE_TRANSLATIONS)
         file(COPY "${${PROJECT_NAME}_QTBASE_TRANSLATION}" DESTINATION "${CMAKE_BINARY_DIR}/i18n")
     endforeach()
+
+    target_sources(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/windows.manifest")
 elseif(UNIX AND DEFINED QT_BASEDIR)
     configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"          "${CMAKE_BINARY_DIR}/libQt6Core.so.6"          COPYONLY)
     configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"           "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"           COPYONLY)
