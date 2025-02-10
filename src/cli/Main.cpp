@@ -600,7 +600,7 @@ int main(int argc, const char* const* argv) {
 					foundAction = true;
 					::fileTree(inputPath);
 				}
-				if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(REMOVE_FILE))) {
+				if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(ADD_DIR)) || cli.is_used(ARG_L(REMOVE_FILE)) || cli.is_used(ARG_L(REMOVE_DIR))) {
 					foundAction = true;
 					::edit(cli, inputPath);
 				}
