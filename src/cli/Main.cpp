@@ -451,7 +451,7 @@ int main(int argc, const char* const* argv) {
 	                    "when it is still unclear. Almost all modes are compatible with each other, and will run in the\n"
 	                    "most logical sequence possible.");
 
-	cli.add_argument("<path>")
+	cli.add_argument("path")
 		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
@@ -582,7 +582,7 @@ int main(int argc, const char* const* argv) {
 	try {
 		cli.parse_args(argc, argv);
 
-		std::string inputPath{cli.get("<path>")};
+		std::string inputPath{cli.get("path")};
 		if (inputPath.ends_with('/') || inputPath.ends_with('\\')) {
 			inputPath.pop_back();
 		}
