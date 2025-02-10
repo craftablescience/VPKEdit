@@ -35,7 +35,9 @@ ARG_S(COMPRESSION_METHOD, "-m", "--compression-method");
 ARG_S(COMPRESSION_LEVEL,  "-x", "--compression-level");
 ARG_L(GEN_MD5_ENTRIES,          "--gen-md5-entries");
 ARG_L(ADD_FILE,                 "--add-file");
+ARG_L(ADD_DIR,                  "--add-dir");
 ARG_L(REMOVE_FILE,              "--remove-file");
+ARG_L(REMOVE_DIR,               "--remove-dir");
 ARG_S(PRELOAD,            "-p", "--preload");
 ARG_S(SINGLE_FILE,        "-s", "--single-file");
 ARG_S(EXTRACT,            "-e", "--extract");
@@ -173,6 +175,8 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
 		if (!std::filesystem::exists(args[0])) {
 			std::cerr << "File at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
+		} else if (!std::filesystem::is_regular_file(args[0])) {
+			std::cerr << "Path \"" << args[0] << "\" does not point to a file! Cannot add to pack file." << std::endl;
 		} else {
 			packFile->addEntry(args[1], args[0], {});
 			packFile->bake("", {
@@ -181,6 +185,23 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 				.vpk_generateMD5Entries = generateMD5Entries,
 			}, nullptr);
 			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
+		}
+	}
+
+	if (cli.is_used(ARG_L(ADD_DIR))) {
+		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_DIR));
+		if (!std::filesystem::exists(args[0])) {
+			std::cerr << "Directory at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
+		} else if (!std::filesystem::is_directory(args[0])) {
+			std::cerr << "Path \"" << args[0] << "\" does not point to a directory! Cannot add to pack file." << std::endl;
+		} else {
+			packFile->addDirectory(args[1], args[0]);
+			packFile->bake("", {
+				.zip_compressionTypeOverride = compressionMethod,
+				.zip_compressionStrength = compressionLevel,
+				.vpk_generateMD5Entries = generateMD5Entries,
+			}, nullptr);
+			std::cout << "Added directory at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
 		}
 	}
 
@@ -196,6 +217,21 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 				.vpk_generateMD5Entries = generateMD5Entries,
 			}, nullptr);
 			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
+		}
+	}
+
+	if (cli.is_used(ARG_L(REMOVE_DIR))) {
+		auto path = cli.get(ARG_L(REMOVE_DIR));
+		if (!packFile->removeDirectory(path)) {
+			std::cerr
+				<< "Unable to remove directory at \"" << path << "\" from the pack file!\n"
+				<< "Check the directory exists in the pack file and the path is spelled correctly." << std::endl;
+		} else {
+			packFile->bake("", {
+				.zip_compressionStrength = compressionLevel,
+				.vpk_generateMD5Entries = generateMD5Entries,
+			}, nullptr);
+			std::cout << "Removed directory at \"" << path << "\" from the pack file." << std::endl;
 		}
 	}
 }
@@ -469,8 +505,16 @@ int main(int argc, const char* const* argv) {
 		.help("(Modify) Add the specified file to the pack file with the given path.")
 		.nargs(2);
 
+	cli.add_argument(ARG_L(ADD_DIR))
+		.help("(Modify) Add the specified directory to the pack file with the given path.")
+		.nargs(2);
+
 	cli.add_argument(ARG_L(REMOVE_FILE))
 		.help("(Modify) Remove the specified file at the given path from the pack file.")
+		.nargs(1);
+
+	cli.add_argument(ARG_L(REMOVE_DIR))
+		.help("(Modify) Remove the specified directory at the given path from the pack file.")
 		.nargs(1);
 
 	cli.add_argument(ARG_P(PRELOAD))
