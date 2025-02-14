@@ -19,6 +19,8 @@ WriteRegStr HKCR '.dmx' '' '${PROJECT_NAME}_asset'
 WriteRegStr HKCR '.mdl' '' '${PROJECT_NAME}_asset'
 WriteRegStr HKCR '.pcf' '' '${PROJECT_NAME}_asset'
 WriteRegStr HKCR '.ppl' '' '${PROJECT_NAME}_asset'
+WriteRegStr HKCR '.tth' '' '${PROJECT_NAME}_asset'
+WriteRegStr HKCR '.ttz' '' '${PROJECT_NAME}_asset'
 WriteRegStr HKCR '.vtf' '' '${PROJECT_NAME}_asset'
 
 WriteRegStr HKCR '${PROJECT_NAME}_asset' '' '${PROJECT_NAME_PRETTY} Asset'

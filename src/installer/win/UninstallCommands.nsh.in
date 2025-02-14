@@ -16,6 +16,8 @@ DeleteRegKey HKCR '.dmx'
 DeleteRegKey HKCR '.mdl'
 DeleteRegKey HKCR '.pcf'
 DeleteRegKey HKCR '.ppl'
+DeleteRegKey HKCR '.tth'
+DeleteRegKey HKCR '.ttz'
 DeleteRegKey HKCR '.vtf'
 
 DeleteRegKey HKCR '${PROJECT_NAME}_asset'
