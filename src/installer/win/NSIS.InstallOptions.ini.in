@@ -159,7 +159,7 @@ Left=95
 Right=135
 Top=95
 Bottom=105
-State=0
+State=1
 
 [Field 19]
 Type=CheckBox
@@ -177,7 +177,7 @@ Left=95
 Right=135
 Top=115
 Bottom=125
-State=1
+State=0
 
 [Field 21]
 Type=CheckBox
