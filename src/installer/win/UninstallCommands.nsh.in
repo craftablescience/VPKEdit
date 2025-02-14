@@ -12,6 +12,7 @@ DeleteRegKey HKCR '.pak'
 DeleteRegKey HKCR '.pck'
 DeleteRegKey HKCR '.pk3'
 DeleteRegKey HKCR '.pk4'
+DeleteRegKey HKCR '.pkz'
 DeleteRegKey HKCR '.vpk'
 
 DeleteRegKey HKCR '@PROJECT_NAME@_pack_file'

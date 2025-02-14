@@ -1,5 +1,5 @@
 [Settings]
-NumFields=29
+NumFields=30
 
 [Field 1]
 Type=label
@@ -181,80 +181,89 @@ State=0
 
 [Field 21]
 Type=CheckBox
-Text=.vpk
+Text=.pkz
 Left=95
 Right=135
 Top=125
 Bottom=135
-State=1
+State=0
 
 [Field 22]
-Type=label
-Text=Asset Associations:
-Left=160
-Right=280
-Top=70
-Bottom=80
-
-[Field 23]
 Type=CheckBox
-Text=.dmx
-Left=160
-Right=200
+Text=.vpk
+Left=135
+Right=175
 Top=85
 Bottom=95
 State=1
 
+[Field 23]
+Type=label
+Text=Asset Associations:
+Left=200
+Right=340
+Top=70
+Bottom=80
+
 [Field 24]
 Type=CheckBox
-Text=.mdl
-Left=160
-Right=200
-Top=95
-Bottom=105
+Text=.dmx
+Left=200
+Right=240
+Top=85
+Bottom=95
 State=1
 
 [Field 25]
 Type=CheckBox
-Text=.pcf
-Left=160
-Right=200
-Top=105
-Bottom=115
+Text=.mdl
+Left=200
+Right=240
+Top=95
+Bottom=105
 State=1
 
 [Field 26]
 Type=CheckBox
-Text=.ppl
-Left=160
-Right=200
-Top=115
-Bottom=125
+Text=.pcf
+Left=200
+Right=240
+Top=105
+Bottom=115
 State=1
 
 [Field 27]
 Type=CheckBox
-Text=.tth
-Left=160
-Right=200
-Top=125
-Bottom=135
+Text=.ppl
+Left=200
+Right=240
+Top=115
+Bottom=125
 State=1
 
 [Field 28]
 Type=CheckBox
-Text=.ttz
+Text=.tth
 Left=200
 Right=240
-Top=85
-Bottom=95
+Top=125
+Bottom=135
 State=1
 
 [Field 29]
 Type=CheckBox
+Text=.ttz
+Left=240
+Right=280
+Top=85
+Bottom=95
+State=1
+
+[Field 30]
+Type=CheckBox
 Text=.vtf
-Left=200
-Right=240
+Left=240
+Right=280
 Top=95
 Bottom=105
 State=1
