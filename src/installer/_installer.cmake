@@ -45,12 +45,14 @@ if(WIN32)
     # NSIS install commands
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/win/InstallCommands.nsh.in"
-            "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh")
+            "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh"
+            @ONLY)
 
     # NSIS uninstall commands
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/win/UninstallCommands.nsh.in"
-            "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh")
+            "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh"
+            @ONLY)
 elseif(UNIX)
     if (DEFINED QT_BASEDIR)
         # If this is a custom install, we've copied the Qt libraries to the build directory and done special fixups
@@ -144,6 +146,7 @@ if(WIN32)
     set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh"   CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/win") # NSIS.template.in, NSIS.InstallOptions.ini.in
 else()
     if(NOT (CPACK_GENERATOR STREQUAL "DEB"))
         message(WARNING "CPack generator must be DEB! Setting generator to DEB...")

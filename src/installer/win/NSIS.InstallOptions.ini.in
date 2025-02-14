@@ -1,0 +1,251 @@
+[Settings]
+NumFields=28
+
+[Field 1]
+Type=label
+Text=By default @CPACK_PACKAGE_INSTALL_DIRECTORY@ does not add its directory to the system PATH.
+Left=0
+Right=-1
+Top=0
+Bottom=10
+
+[Field 2]
+Type=radiobutton
+Text=Do not add @CPACK_PACKAGE_NAME@ to the system PATH
+Left=0
+Right=-1
+Top=15
+Bottom=25
+State=1
+
+[Field 3]
+Type=radiobutton
+Text=Add @CPACK_PACKAGE_NAME@ to the system PATH for all users
+Left=0
+Right=-1
+Top=25
+Bottom=35
+State=0
+
+[Field 4]
+Type=radiobutton
+Text=Add @CPACK_PACKAGE_NAME@ to the system PATH for current user
+Left=0
+Right=-1
+Top=35
+Bottom=45
+State=0
+
+[Field 5]
+Type=CheckBox
+Text=Create @CPACK_PACKAGE_NAME@ Desktop Icon
+Left=0
+Right=-1
+Top=50
+Bottom=60
+State=0
+
+[Field 6]
+Type=label
+Text=Pack File Associations:
+Left=0
+Right=140
+Top=70
+Bottom=80
+
+[Field 7]
+Type=CheckBox
+Text=.007
+Left=0
+Right=55
+Top=85
+Bottom=95
+State=1
+
+[Field 8]
+Type=CheckBox
+Text=.bee_pack
+Left=0
+Right=55
+Top=95
+Bottom=105
+State=1
+
+[Field 9]
+Type=CheckBox
+Text=.bmz
+Left=0
+Right=55
+Top=105
+Bottom=115
+State=1
+
+[Field 10]
+Type=CheckBox
+Text=.bsp
+Left=0
+Right=55
+Top=115
+Bottom=125
+State=1
+
+[Field 11]
+Type=CheckBox
+Text=.fpx
+Left=0
+Right=55
+Top=125
+Bottom=135
+State=1
+
+[Field 12]
+Type=CheckBox
+Text=.gcf
+Left=55
+Right=95
+Top=85
+Bottom=95
+State=1
+
+[Field 13]
+Type=CheckBox
+Text=.gma
+Left=55
+Right=95
+Top=95
+Bottom=105
+State=1
+
+[Field 14]
+Type=CheckBox
+Text=.ol
+Left=55
+Right=95
+Top=105
+Bottom=115
+State=1
+
+[Field 15]
+Type=CheckBox
+Text=.ore
+Left=55
+Right=95
+Top=115
+Bottom=125
+State=1
+
+[Field 16]
+Type=CheckBox
+Text=.pak
+Left=55
+Right=95
+Top=125
+Bottom=135
+State=1
+
+[Field 17]
+Type=CheckBox
+Text=.pck
+Left=95
+Right=135
+Top=85
+Bottom=95
+State=1
+
+[Field 18]
+Type=CheckBox
+Text=.pk3
+Left=95
+Right=135
+Top=95
+Bottom=105
+State=0
+
+[Field 19]
+Type=CheckBox
+Text=.pk4
+Left=95
+Right=135
+Top=105
+Bottom=115
+State=0
+
+[Field 20]
+Type=CheckBox
+Text=.vpk
+Left=95
+Right=135
+Top=115
+Bottom=125
+State=1
+
+[Field 21]
+Type=label
+Text=Asset Associations:
+Left=160
+Right=280
+Top=70
+Bottom=80
+
+[Field 22]
+Type=CheckBox
+Text=.dmx
+Left=160
+Right=200
+Top=85
+Bottom=95
+State=1
+
+[Field 23]
+Type=CheckBox
+Text=.mdl
+Left=160
+Right=200
+Top=95
+Bottom=105
+State=1
+
+[Field 24]
+Type=CheckBox
+Text=.pcf
+Left=160
+Right=200
+Top=105
+Bottom=115
+State=1
+
+[Field 25]
+Type=CheckBox
+Text=.ppl
+Left=160
+Right=200
+Top=115
+Bottom=125
+State=1
+
+[Field 26]
+Type=CheckBox
+Text=.tth
+Left=160
+Right=200
+Top=125
+Bottom=135
+State=1
+
+[Field 27]
+Type=CheckBox
+Text=.ttz
+Left=200
+Right=240
+Top=85
+Bottom=95
+State=1
+
+[Field 28]
+Type=CheckBox
+Text=.vtf
+Left=200
+Right=240
+Top=95
+Bottom=105
+State=1

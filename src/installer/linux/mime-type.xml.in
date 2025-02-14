@@ -8,6 +8,15 @@
         <glob-deleteall/>
         <glob pattern="*.007"/>
     </mime-type>
+    <mime-type type="application/x-vpkedit-bee-pack">
+        <comment>BEE2.4 Package</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>BMZ</acronym>
+        <expanded-acronym>Bonus Map Zip</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.bmz"/>
+        <glob pattern="*.BMZ"/>
+    </mime-type>
     <mime-type type="application/x-vpkedit-bmz">
         <comment>Bonus Map Zip</comment>
         <icon name="application-x-vpkedit"/>

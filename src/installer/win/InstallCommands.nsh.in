@@ -1,31 +1,76 @@
-WriteRegStr HKCR '.007' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.bmz' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.bsp' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.fpx' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.gcf' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.gma' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.ol'  '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.ore' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.pak' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.pck' '' '${PROJECT_NAME}_pack_file'
-WriteRegStr HKCR '.vpk' '' '${PROJECT_NAME}_pack_file'
+${If} ${EXT_REGISTER_PACK_FILE_007}
+  WriteRegStr HKCR '.007'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_BEE_PACK}
+  WriteRegStr HKCR '.bee_pack' '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_BMZ}
+  WriteRegStr HKCR '.bmz'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_BSP}
+  WriteRegStr HKCR '.bsp'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_FPX}
+  WriteRegStr HKCR '.fpx'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_GCF}
+  WriteRegStr HKCR '.gcf'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_GMA}
+  WriteRegStr HKCR '.gma'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_OL}
+  WriteRegStr HKCR '.ol'       '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_ORE}
+  WriteRegStr HKCR '.ore'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_PAK}
+  WriteRegStr HKCR '.pak'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_PCK}
+  WriteRegStr HKCR '.pck'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_PK3}
+  WriteRegStr HKCR '.pk3'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_PK4}
+  WriteRegStr HKCR '.pk4'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_VPK}
+  WriteRegStr HKCR '.vpk'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 
-WriteRegStr HKCR '${PROJECT_NAME}_pack_file' '' '${PROJECT_NAME_PRETTY} Pack File'
-WriteRegStr HKCR '${PROJECT_NAME}_pack_file\\shell' '' 'open'
-WriteRegStr HKCR '${PROJECT_NAME}_pack_file\\DefaultIcon' '' '$INSTDIR\\${PROJECT_NAME}.exe,0'
-WriteRegStr HKCR '${PROJECT_NAME}_pack_file\\shell\\open\\command' '' '$INSTDIR\\${PROJECT_NAME}.exe \"%1\"'
+WriteRegStr HKCR '@PROJECT_NAME@_pack_file' '' '@PROJECT_NAME_PRETTY@ Pack File'
+WriteRegStr HKCR '@PROJECT_NAME@_pack_file\\shell' '' 'open'
+WriteRegStr HKCR '@PROJECT_NAME@_pack_file\\DefaultIcon' '' '$INSTDIR\\@PROJECT_NAME@.exe,0'
+WriteRegStr HKCR '@PROJECT_NAME@_pack_file\\shell\\open\\command' '' '$INSTDIR\\@PROJECT_NAME@.exe \"%1\"'
 
-WriteRegStr HKCR '.dmx' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.mdl' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.pcf' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.ppl' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.tth' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.ttz' '' '${PROJECT_NAME}_asset'
-WriteRegStr HKCR '.vtf' '' '${PROJECT_NAME}_asset'
+${If} ${EXT_REGISTER_ASSET_DMX}
+  WriteRegStr HKCR '.dmx' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_MDL}
+  WriteRegStr HKCR '.mdl' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_PCF}
+  WriteRegStr HKCR '.pcf' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_PPL}
+  WriteRegStr HKCR '.ppl' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_TTH}
+  WriteRegStr HKCR '.tth' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_TTZ}
+  WriteRegStr HKCR '.ttz' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_VTF}
+  WriteRegStr HKCR '.vtf' '' '@PROJECT_NAME@_asset'
+${EndIf}
 
-WriteRegStr HKCR '${PROJECT_NAME}_asset' '' '${PROJECT_NAME_PRETTY} Asset'
-WriteRegStr HKCR '${PROJECT_NAME}_asset\\shell' '' 'open'
-WriteRegStr HKCR '${PROJECT_NAME}_asset\\DefaultIcon' '' '$INSTDIR\\${PROJECT_NAME}.exe,0'
-WriteRegStr HKCR '${PROJECT_NAME}_asset\\shell\\open\\command' '' '$INSTDIR\\${PROJECT_NAME}.exe \"%1\"'
+WriteRegStr HKCR '@PROJECT_NAME@_asset' '' '@PROJECT_NAME_PRETTY@ Asset'
+WriteRegStr HKCR '@PROJECT_NAME@_asset\\shell' '' 'open'
+WriteRegStr HKCR '@PROJECT_NAME@_asset\\DefaultIcon' '' '$INSTDIR\\@PROJECT_NAME@.exe,0'
+WriteRegStr HKCR '@PROJECT_NAME@_asset\\shell\\open\\command' '' '$INSTDIR\\@PROJECT_NAME@.exe \"%1\"'
 
 System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
