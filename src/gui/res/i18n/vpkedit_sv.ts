@@ -419,7 +419,7 @@ Se nedan för mer information.</translation>
     <message>
       <location filename="../../Window.cpp" line="75"/>
       <source>File</source>
-      <translation>Fil</translation>
+      <translation>Arkiv</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="123"/>
