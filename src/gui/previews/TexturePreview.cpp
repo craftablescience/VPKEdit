@@ -17,6 +17,7 @@
 #include <QWheelEvent>
 
 #include "../utility/ImageLoader.h"
+#include "../FileViewer.h"
 
 using namespace vtfpp;
 
@@ -344,8 +345,9 @@ void VTFWidget::decodeImage(int mip, int frame, int face, int slice, bool alpha)
 	}
 }
 
-TexturePreview::TexturePreview(QWidget* parent)
-		: QWidget(parent) {
+TexturePreview::TexturePreview(QWidget* parent, FileViewer* fileViewer_)
+		: QWidget(parent)
+		, fileViewer(fileViewer_) {
 	auto* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0,0,0,0);
 
@@ -528,6 +530,21 @@ void TexturePreview::setPPLData(const std::vector<std::byte>& data) const {
 
 	this->ppl->setData(data);
 	this->setData(this->ppl);
+}
+
+void TexturePreview::setTTXData(const std::vector<std::byte>& tthData, const std::vector<std::byte>& ttzData) const {
+	this->image->hide();
+	this->svg->hide();
+	this->ppl->hide();
+	this->vtf->show();
+
+	TTX ttx{tthData, ttzData};
+	if (!ttx) {
+		this->fileViewer->showFileLoadErrorPreview();
+	}
+
+	this->vtf->setData(ttx.getVTF().bake());
+	this->setData(this->vtf);
 }
 
 void TexturePreview::setVTFData(const std::vector<std::byte>& data) const {

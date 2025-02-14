@@ -229,7 +229,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	auto* textPreview = newPreview<TextPreview>(this, this->window, this);
 	layout->addWidget(textPreview);
 
-	auto* texturePreview = newPreview<TexturePreview>(this);
+	auto* texturePreview = newPreview<TexturePreview>(this, this);
 	layout->addWidget(texturePreview);
 
 	this->clearContents(true);
@@ -305,6 +305,18 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 		}
 		this->showPreview<TexturePreview>();
 		this->getPreview<TexturePreview>()->setPPLData(*binary);
+	} else if (TexturePreview::EXTENSIONS_TTX.contains(extension)) {
+		// TTH/TTZ (VTMB texture)
+		auto fsPath = std::filesystem::path{path.toLocal8Bit().constData()};
+		QString basePath = (fsPath.parent_path().string() + '/' + fsPath.stem().string()).c_str();
+		auto tthBinary = this->window->readBinaryEntry(basePath + ".tth");
+		if (!tthBinary) {
+			this->showFileLoadErrorPreview();
+			return;
+		}
+		auto ttzBinary = this->window->readBinaryEntry(basePath + ".ttz");
+		this->showPreview<TexturePreview>();
+		this->getPreview<TexturePreview>()->setTTXData(*tthBinary, ttzBinary ? *ttzBinary : std::vector<std::byte>{});
 	} else if (TexturePreview::EXTENSIONS_VTF.contains(extension)) {
 		// VTF (texture)
 		auto binary = this->window->readBinaryEntry(path);

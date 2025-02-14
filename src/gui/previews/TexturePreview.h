@@ -14,6 +14,8 @@ class QLabel;
 class QSlider;
 class QSpinBox;
 
+class FileViewer;
+
 class ITextureWidget : public QWidget {
 	Q_OBJECT;
 
@@ -257,17 +259,24 @@ public:
 		".ppl",
 	};
 
+	static inline const QStringList EXTENSIONS_TTX {
+		".tth",
+		".ttz",
+	};
+
 	static inline const QStringList EXTENSIONS_VTF {
 		".vtf",
 	};
 
-	explicit TexturePreview(QWidget* parent = nullptr);
+	explicit TexturePreview(QWidget* parent = nullptr, FileViewer* fileViewer = nullptr);
 
 	void setImageData(const std::vector<std::byte>& data) const;
 
 	void setSVGData(const std::vector<std::byte>& data) const;
 
 	void setPPLData(const std::vector<std::byte>& data) const;
+
+	void setTTXData(const std::vector<std::byte>& tthData, const std::vector<std::byte>& ttzData) const;
 
 	void setVTFData(const std::vector<std::byte>& data) const;
 
@@ -279,6 +288,8 @@ protected:
 	void wheelEvent(QWheelEvent* event) override;
 
 private:
+	FileViewer* fileViewer;
+
 	ITextureWidget* image;
 	ITextureWidget* svg;
 	ITextureWidget* ppl;
