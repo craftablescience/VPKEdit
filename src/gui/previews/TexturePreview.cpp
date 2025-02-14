@@ -64,6 +64,18 @@ QString vtfFormatToString(ImageFormat format) {
 		{ RGBA1010102, "RGBA1010102" },
 		{ BGRA1010102, "BGRA1010102" },
 		{ R16F, "R16F" },
+		{ CONSOLE_BGRX8888_LINEAR, "CONSOLE_BGRX8888_LINEAR" },
+		{ CONSOLE_RGBA8888_LINEAR, "CONSOLE_RGBA8888_LINEAR" },
+		{ CONSOLE_ABGR8888_LINEAR, "CONSOLE_ABGR8888_LINEAR" },
+		{ CONSOLE_ARGB8888_LINEAR, "CONSOLE_ARGB8888_LINEAR" },
+		{ CONSOLE_BGRA8888_LINEAR, "CONSOLE_BGRA8888_LINEAR" },
+		{ CONSOLE_RGB888_LINEAR, "CONSOLE_RGB888_LINEAR" },
+		{ CONSOLE_BGR888_LINEAR, "CONSOLE_BGR888_LINEAR" },
+		{ CONSOLE_BGRX5551_LINEAR, "CONSOLE_BGRX5551_LINEAR" },
+		{ CONSOLE_I8_LINEAR, "CONSOLE_I8_LINEAR" },
+		{ CONSOLE_RGBA16161616_LINEAR, "CONSOLE_RGBA16161616_LINEAR" },
+		{ CONSOLE_BGRX8888_LE, "CONSOLE_BGRX8888_LE" },
+		{ CONSOLE_BGRA8888_LE, "CONSOLE_BGRA8888_LE" },
 		{ R8, "R8" },
 		{ BC7, "BC7" },
 		{ BC6H, "BC6H" },
@@ -240,7 +252,16 @@ bool VTFWidget::hasAlpha() const {
 }
 
 QString VTFWidget::getVersion() const {
-	return QString::number(this->vtf->getMajorVersion()) + "." + QString::number(this->vtf->getMinorVersion());
+	switch (this->vtf->getPlatform()) {
+		case VTF::PLATFORM_UNKNOWN:
+		case VTF::PLATFORM_PC:
+			return QString::number(this->vtf->getMajorVersion()) + "." + QString::number(this->vtf->getMinorVersion());
+		case VTF::PLATFORM_PS3:
+			return "PS3";
+		case VTF::PLATFORM_X360:
+			return "X360";
+	}
+	return "";
 }
 
 QString VTFWidget::getFormat() const {
