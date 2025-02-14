@@ -42,8 +42,9 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | ORE      | Unknown acronym (Narbacular Drop)                 |   ❌    |  ✅   |   ❌   |
   | PAK      | PAcK file (Quake, original Half-Life, HROT, etc.) |   ✅    |  ✅   |   ✅   |
   | PCK      | Godot PaCK file (Standalone or embedded)          |   ✅    |  ✅   |   ✅   |
-  | PK3      | Pack v3 (Quake II)                                |   ✅    |  ✅   |   ✅   |
-  | PK4      | Pack v4 (Quake IV, Doom 3)                        |   ✅    |  ✅   |   ✅   |
+  | PK3      | PacK v3 (Quake II)                                |   ✅    |  ✅   |   ✅   |
+  | PK4      | PacK v4 (Quake IV, Doom 3)                        |   ✅    |  ✅   |   ✅   |
+  | PKZ      | PacK file (Quake II RTX)                          |   ✅    |  ✅   |   ✅   |
   | VPK      | Valve PacK file (Source Engine)                   |   ✅    |  ✅   |   ✅   |
   | VPK      | Vampire PacK file (V:TMB)                         |   ✅    |  ✅   |   ✅   |
   | WAD      | Where's All the Data (GoldSrc Engine)             |   ✅    |  ✅   |   ✅   |
