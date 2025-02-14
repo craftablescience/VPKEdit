@@ -613,7 +613,7 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 	this->allMaterialsTab->addTopLevelItem(allMaterialDirsItem);
 	for (const auto& materialDir : mdlParser.mdl.materialDirectories) {
 		auto* materialDirItem = new QTreeWidgetItem(allMaterialDirsItem);
-		materialDirItem->setText(0, materialDir.c_str());
+		materialDirItem->setText(0, QString{materialDir.c_str()}.toLower());
 	}
 	allMaterialDirsItem->setExpanded(true);
 	auto* allMaterialNamesItem = new QTreeWidgetItem(this->allMaterialsTab);
@@ -621,7 +621,7 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 	this->allMaterialsTab->addTopLevelItem(allMaterialNamesItem);
 	for (const auto& material : mdlParser.mdl.materials) {
 		auto* materialNameItem = new QTreeWidgetItem(allMaterialNamesItem);
-		materialNameItem->setText(0, material.name.c_str());
+		materialNameItem->setText(0, QString{material.name.c_str()}.toLower());
 	}
 	allMaterialNamesItem->setExpanded(true);
 
@@ -634,6 +634,7 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 		for (int materialDirIndex = 0; materialDirIndex < mdlParser.mdl.materialDirectories.size(); materialDirIndex++) {
 			std::string vmtPath = "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt";
 			string::normalizeSlashes(vmtPath);
+			string::toLower(vmtPath);
 			if (auto data = getTextureDataForMaterial(packFile, vmtPath)) {
 				vtfs.push_back(std::move(data));
 
