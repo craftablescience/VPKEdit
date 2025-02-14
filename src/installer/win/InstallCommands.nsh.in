@@ -10,6 +10,9 @@ ${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_BSP}
   WriteRegStr HKCR '.bsp'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_FPK}
+  WriteRegStr HKCR '.fpk'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_FPX}
   WriteRegStr HKCR '.fpx'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}

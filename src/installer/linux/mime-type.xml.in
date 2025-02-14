@@ -35,6 +35,14 @@
         <glob pattern="*.bsp"/>
         <glob pattern="*.BSP"/>
     </mime-type>
+    <mime-type type="application/x-vpkedit-fpk">
+        <comment>Tactical Intervention Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>FPK</acronym>
+        <glob-deleteall/>
+        <glob pattern="*.fpk"/>
+        <glob pattern="*.FPK"/>
+    </mime-type>
     <mime-type type="application/x-vpkedit-fpx">
         <comment>Tactical Intervention Pack File</comment>
         <icon name="application-x-vpkedit"/>
