@@ -92,7 +92,7 @@ public:
 		".pop", // Team Fortress 2
 		".edt", // Synergy
 		".set", // Titanfall & Apex Legends
-		".scr", ".dlg", ".lip", // Vampire: The Masquerade - Bloodlines
+		".scr", ".dlg", ".lip", ".vfe", // Vampire: The Masquerade - Bloodlines
 	};
 
 	TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);

@@ -43,6 +43,8 @@ public:
 
 	void newVPK(bool fromDirectory, const QString& startPath = QString());
 
+	void newVPK_VTMB(bool fromDirectory, const QString& startPath = QString());
+
 	void newWAD3(bool fromDirectory, const QString& startPath = QString());
 
 	void newZIP(bool fromDirectory, const QString& startPath = QString());

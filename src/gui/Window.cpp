@@ -90,6 +90,9 @@ Window::Window(QWidget* parent)
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(false);
 	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK (V:TMB)", [this] {
+		this->newVPK_VTMB(false);
+	});
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "WAD3", [this] {
 		this->newWAD3(false);
 	});
@@ -112,6 +115,9 @@ Window::Window(QWidget* parent)
 	});
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK", [this] {
 		this->newVPK(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "VPK (V:TMB)", [this] {
+		this->newVPK_VTMB(true);
 	});
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "WAD3", [this] {
 		this->newWAD3(true);
@@ -477,7 +483,7 @@ Window::Window(QWidget* parent)
 }
 
 void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
-	if (typeGUID != FPX::GUID && typeGUID != PAK::GUID && typeGUID != PCK::GUID && typeGUID != VPK::GUID && typeGUID != WAD3::GUID && typeGUID != ZIP::GUID) {
+	if (typeGUID != FPX::GUID && typeGUID != PAK::GUID && typeGUID != PCK::GUID && typeGUID != VPK::GUID && typeGUID != VPK_VTMB::GUID && typeGUID != WAD3::GUID && typeGUID != ZIP::GUID) {
 		return;
 	}
 	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
@@ -524,6 +530,11 @@ void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QS
 		if (auto* vpk = dynamic_cast<VPK*>(out.get())) {
 			vpk->setChunkSize(options->vpk_chunkSize);
 		}
+	} else if (typeGUID == VPK_VTMB::GUID) {
+		const auto basePath = std::filesystem::path{packFilePath.toLocal8Bit().constData()};
+		std::string packFilePathStr = basePath.parent_path().string() + "/pack000" + std::string{VPK_VTMB_EXTENSION};
+		packFilePath = packFilePathStr.c_str();
+		out = VPK_VTMB::create(packFilePathStr);
 	} else if (typeGUID == WAD3::GUID) {
 		out = WAD3::create(packFilePath.toLocal8Bit().constData());
 	} else if (typeGUID == ZIP::GUID) {
@@ -617,6 +628,10 @@ void Window::newPCK(bool fromDirectory, const QString& startPath) {
 
 void Window::newVPK(bool fromDirectory, const QString& startPath) {
 	return this->newPackFile(VPK::GUID, fromDirectory, startPath, "VPK", ".vpk");
+}
+
+void Window::newVPK_VTMB(bool fromDirectory, const QString& startPath) {
+	return this->newPackFile(VPK_VTMB::GUID, fromDirectory, startPath, "VPK (V:TMB)", ".vpk");
 }
 
 void Window::newWAD3(bool fromDirectory, const QString& startPath) {
