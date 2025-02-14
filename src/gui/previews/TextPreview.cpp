@@ -93,6 +93,7 @@ void TextEditor::setText(const QString& text, const QString& extension) {
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns",
 		".zpc", ".zpdata", ".edt",
 		".vbsp", ".rad", ".gi", ".rc", ".lst", ".cfg",
+		".scr", ".dlg", ".lip",
 	};
 	if (keyValuesLikeFormats.contains(extension)) {
 		this->keyValuesHighlighter.setDocument(this->document());
