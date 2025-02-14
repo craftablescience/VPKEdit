@@ -56,9 +56,11 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - KeyValues files (text files with syntax highlighting)
   - Images
   - Source 1 Textures
+    - Prop lightmaps
+    - Troika textures
+    - Valve textures for both PC and console
   - Source 1 Models
   - Source 1 DMX files (particles, SFM sessions, etc.)
-  - Source 1 PPL files (prop lightmaps)
 - Create pack files of any version from scratch or an existing folder
 - Add and remove files and folders from writable pack files
 - Extract files and folders from readable pack files
