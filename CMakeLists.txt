@@ -35,9 +35,18 @@ set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
 
 # Options
-option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
 option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
+
 option(VPKEDIT_USE_LTO "Build VPKEdit with link-time optimization enabled" OFF)
+
+option(VPKEDIT_BUILD_INSTALLER "Build VPKEdit installer" ON)
+if(UNIX)
+    option(VPKEDIT_BUILD_FLATPAK "Build VPKEdit flatpak (use in tandem with installer option)" OFF)
+    set(VPKEDIT_FLATPAK_ID "info.${PROJECT_ORGANIZATION_NAME}.${PROJECT_NAME}" CACHE STRING "The ID of the Flatpak package")
+else()
+    set(VPKEDIT_BUILD_FLATPAK OFF CACHE INTERNAL "" FORCE)
+    set(VPKEDIT_FLATPAK_ID "" CACHE INTERNAL "" FORCE)
+endif()
 
 # Global CMake options
 if(PROJECT_IS_TOP_LEVEL)
