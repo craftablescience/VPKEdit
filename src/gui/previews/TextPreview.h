@@ -93,6 +93,7 @@ public:
 		".edt", // Synergy
 		".set", // Titanfall & Apex Legends
 		".scr", ".dlg", ".lip", ".vfe", // Vampire: The Masquerade - Bloodlines
+		".tbl", // Red Faction
 	};
 
 	TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
