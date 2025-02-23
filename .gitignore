@@ -2,12 +2,17 @@
 .idea/
 .vs/
 .vscode/
+.devcontainer/
 CMakeSettings.json
 
 # Project exclude paths
 build/
 cmake-build-*/
 out/
+flatpak-build/
 
 # Generated
 **/generated/
+
+# Flatpak builder
+**/.flatpak-builder/
