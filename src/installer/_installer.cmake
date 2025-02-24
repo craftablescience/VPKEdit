@@ -25,10 +25,7 @@ if(WIN32)
     install(FILES "${QT_BASEDIR}/bin/opengl32sw.dll"
             DESTINATION .)
 
-    install(FILES
-            "${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll"
-            "${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"
-            "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
+    install(FILES "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
             DESTINATION imageformats)
 
     install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
