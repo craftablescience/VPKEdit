@@ -124,3 +124,12 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 if(VPKEDIT_BUILD_INSTALLER)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
 endif()
+
+# VS setup
+if(WIN32)
+    set_target_properties(
+            ${PROJECT_NAME} PROPERTIES
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:${PROJECT_NAME}>"
+            VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+            VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
+endif()
