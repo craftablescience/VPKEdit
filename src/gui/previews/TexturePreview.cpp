@@ -257,10 +257,12 @@ QString VTFWidget::getVersion() const {
 		case VTF::PLATFORM_UNKNOWN:
 		case VTF::PLATFORM_PC:
 			return QString::number(this->vtf->getMajorVersion()) + "." + QString::number(this->vtf->getMinorVersion());
-		case VTF::PLATFORM_PS3:
-			return "PS3";
+		case VTF::PLATFORM_PS3_PORTAL2:
+			return "PS3 (v7.5)";
+		case VTF::PLATFORM_PS3_ORANGEBOX:
+			return "PS3 (v7.4)";
 		case VTF::PLATFORM_X360:
-			return "X360";
+			return "X360 (v7.4)";
 	}
 	return "";
 }
