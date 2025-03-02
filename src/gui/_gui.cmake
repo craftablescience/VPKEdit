@@ -158,26 +158,103 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LIC
 
 # Copy these so the user doesn't have to
 if(WIN32)
-    configure_file("${QT_BASEDIR}/bin/opengl32sw.dll"                       "${CMAKE_BINARY_DIR}/opengl32sw.dll"                       COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"          "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"          COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"           COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll"       COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll"       COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        "${CMAKE_BINARY_DIR}/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" COPYONLY)
-    configure_file("${QT_BASEDIR}/bin/Qt6Svg${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Svg${QT_LIB_SUFFIX}.dll" COPYONLY)
-
-    configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
-    configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
-    configure_file("${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qwebp${QT_LIB_SUFFIX}.dll" COPYONLY)
-
-    configure_file("${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/platforms/qwindows${QT_LIB_SUFFIX}.dll" COPYONLY)
-
-    configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" COPYONLY)
-
-    configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
-    configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
-
+	if(NOT CMAKE_BUILD_TYPE)
+		message(STATUS "CMAKE_BUILD_TYPE not defined copying both Release/Debug DLLs for Qt")
+		set(QT_DLLS
+			"!opengl32sw"
+			"Qt6Core"
+			"Qt6Gui"
+			"Qt6Widgets"
+			"Qt6Network"
+			"Qt6OpenGL"
+			"Qt6OpenGLWidgets"
+			"Qt6Svg"
+			"/plugins/imageformats/qjpeg:imageformats"
+			"/plugins/imageformats/qtga:imageformats"
+			"/plugins/imageformats/qwebp:imageformats"
+			"/plugins/platforms/qwindows:platforms"
+			"/plugins/styles/qwindowsvistastyle:styles"
+			"/plugins/tls/qcertonlybackend:tls"
+			"/plugins/tls/qschannelbackend:tls"
+		)
+		# Loop through the list of DLLs
+		foreach(dll ${QT_DLLS})
+		
+			# Initialize variables
+			set(skip_debug FALSE)
+			set(source_dll "${dll}")
+			set(custom_dest "")
+		
+			# Handle "!" prefix (skip debug DLL)
+			string(FIND "${source_dll}" "!" no_debug_dll)
+			if(${no_debug_dll} EQUAL 0)
+				set(skip_debug TRUE)
+				# Remove the "!" and store the rest of the DLL name
+				math(EXPR start_index "${no_debug_dll} + 1")
+				string(SUBSTRING "${source_dll}" ${start_index} -1 source_dll)
+			endif()
+		
+			# Handle ":" separator (custom destination)
+			string(FIND "${source_dll}" ":" custom_dir_separator)
+			if(${custom_dir_separator} GREATER -1)
+				string(REGEX REPLACE ":(.*)$" "" source_dll "${source_dll}")
+				string(REGEX REPLACE "^.*:" "" custom_dest "${dll}")
+			endif()
+		
+			# Extract filename
+			get_filename_component(dll_name "${source_dll}" NAME)
+		
+			# Set destination directory to custom destination if defined
+			if(NOT "${custom_dest}" STREQUAL "")
+				set(dest_dir "${CMAKE_BINARY_DIR}/${custom_dest}")
+			else()
+				# Default destination is CMAKE_BINARY_DIR
+				set(dest_dir "${CMAKE_BINARY_DIR}")
+			endif()
+		
+			# If there's no slash, copy from ${QT_BASEDIR}/bin/
+			string(FIND "${source_dll}" "/" found_slash)
+			if(${found_slash} EQUAL -1)
+				set(source_path "${QT_BASEDIR}/bin/${dll_name}")
+			else()
+				set(source_path "${QT_BASEDIR}${source_dll}")
+			endif()
+		
+			# Ensure directory exists
+			file(MAKE_DIRECTORY "${dest_dir}")
+		
+			# Copy Release DLL
+			message(STATUS "Copying ${source_path}.dll to ${dest_dir}/${dll_name}.dll")
+			configure_file("${source_path}.dll" "${dest_dir}/${dll_name}.dll" COPYONLY)
+		
+			# Copy Debug DLL if not excluded (if ! prefix exists)
+			if(NOT skip_debug)
+				message(STATUS "Copying Debug DLL ${source_path}d to ${dest_dir}/${dll_name}d.dll")
+				configure_file("${source_path}d.dll" "${dest_dir}/${dll_name}d.dll" COPYONLY)
+			endif()
+			
+		endforeach()
+	else()
+		configure_file("${QT_BASEDIR}/bin/opengl32sw.dll"                       "${CMAKE_BINARY_DIR}/opengl32sw.dll"                       COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6Core${QT_LIB_SUFFIX}.dll"          "${CMAKE_BINARY_DIR}/Qt6Core${QT_LIB_SUFFIX}.dll"          COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6Gui${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Gui${QT_LIB_SUFFIX}.dll"           COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6Widgets${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Widgets${QT_LIB_SUFFIX}.dll"       COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6Network${QT_LIB_SUFFIX}.dll"       "${CMAKE_BINARY_DIR}/Qt6Network${QT_LIB_SUFFIX}.dll"       COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        "${CMAKE_BINARY_DIR}/Qt6OpenGL${QT_LIB_SUFFIX}.dll"        COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/Qt6OpenGLWidgets${QT_LIB_SUFFIX}.dll" COPYONLY)
+		configure_file("${QT_BASEDIR}/bin/Qt6Svg${QT_LIB_SUFFIX}.dll"           "${CMAKE_BINARY_DIR}/Qt6Svg${QT_LIB_SUFFIX}.dll" COPYONLY)
+	
+		configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg${QT_LIB_SUFFIX}.dll" COPYONLY)
+		configure_file("${QT_BASEDIR}/plugins/imageformats/qtga${QT_LIB_SUFFIX}.dll"  "${CMAKE_BINARY_DIR}/imageformats/qtga${QT_LIB_SUFFIX}.dll"  COPYONLY)
+		configure_file("${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/imageformats/qwebp${QT_LIB_SUFFIX}.dll" COPYONLY)
+	
+		configure_file("${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/platforms/qwindows${QT_LIB_SUFFIX}.dll" COPYONLY)
+	
+		configure_file("${QT_BASEDIR}/plugins/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/styles/qwindowsvistastyle${QT_LIB_SUFFIX}.dll" COPYONLY)
+	
+		configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
+		configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
+	endif()
     # Copy translations
     file(GLOB ${PROJECT_NAME}_QTBASE_TRANSLATIONS "${QT_BASEDIR}/translations/qtbase_*.qm")
     foreach(${PROJECT_NAME}_QTBASE_TRANSLATION IN LISTS ${PROJECT_NAME}_QTBASE_TRANSLATIONS)
