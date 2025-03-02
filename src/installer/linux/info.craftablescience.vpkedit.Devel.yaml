@@ -1,0 +1,26 @@
+"$schema": "https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json"
+id: info.craftablescience.vpkedit.Devel
+runtime: org.kde.Platform
+runtime-version: "6.8"
+sdk: org.kde.Sdk
+command: vpkedit
+finish-args:
+  - "--socket=wayland"
+  - "--socket=fallback-x11"
+  - "--filesystem=host"
+  - "--env=QT_QPA_PLATFORMTHEME=kde"
+modules:
+  - name: vpkedit
+    buildsystem: cmake-ninja
+    build-options:
+      build-args:
+        - "--share=network"
+      config-opts:
+        - "-Wno-dev"
+        - "-DCMAKE_BUILD_TYPE=Release"
+        - "-DVPKEDIT_FLATPAK=ON"
+        - "-DFLATPAK_ID=info.craftablescience.vpkedit.Devel"
+    builddir: true
+    sources:
+      - type: dir
+        path: ../../..
