@@ -135,8 +135,6 @@ jobs:
           curl -L -o "__qt__.7z" "https://github.com/crystalidea/qt6windows7/releases/download/v${{env.QT_VERSION_VPKEDIT}}/qt6_x64_to_run_on_windows7.7z"
           7z x __qt__.7z -o__qt__ -y
           REM Overwrite the already copied binaries for standalone version
-          copy /Y __qt__\imageformats\qjpeg.dll        imageformats\qjpeg.dll
-          copy /Y __qt__\imageformats\qtga.dll         imageformats\qtga.dll
           copy /Y __qt__\imageformats\qwebp.dll        imageformats\qwebp.dll
           copy /Y __qt__\platforms\qwindows.dll        platforms\qwindows.dll
           copy /Y __qt__\styles\qwindowsvistastyle.dll styles\qwindowsvistastyle.dll
@@ -147,8 +145,6 @@ jobs:
           copy /Y __qt__\Qt6OpenGLWidgets.dll          Qt6OpenGLWidgets.dll
           copy /Y __qt__\Qt6Widgets.dll                Qt6Widgets.dll
           REM Overwrite the source of the binaries for installer version
-          copy /Y __qt__\imageformats\qjpeg.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qjpeg.dll"
-          copy /Y __qt__\imageformats\qtga.dll         "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qtga.dll"
           copy /Y __qt__\imageformats\qwebp.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\imageformats\qwebp.dll"
           copy /Y __qt__\platforms\qwindows.dll        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\platforms\qwindows.dll"
           copy /Y __qt__\styles\qwindowsvistastyle.dll "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\styles\qwindowsvistastyle.dll"
