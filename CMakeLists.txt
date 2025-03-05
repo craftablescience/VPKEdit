@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CheckIPOSupported)
 include(GNUInstallDirs)
 
+# Initial VS integration
+set(CMAKE_FOLDER "Thirdparty" CACHE INTERNAL "" FORCE)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Set up variables
 set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
 # If the tweak number exists, version is a beta or release candidate
@@ -81,8 +85,15 @@ function(vpkedit_configure_target TARGET)
         get_target_property(TARGET_TYPE ${TARGET} TYPE)
         get_target_property(TARGET_IS_GUI ${TARGET} WIN32_EXECUTABLE)
 
+        # Organize VS solution into folders
+        if(TARGET_TYPE STREQUAL "EXECUTABLE")
+            set_target_properties(${TARGET} PROPERTIES FOLDER "Executables")
+        else()
+            set_target_properties(${TARGET} PROPERTIES FOLDER "Libraries")
+        endif()
+
         # Create PDBs in release
-        if(MSVC AND ((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE")))
+        if((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE"))
             target_compile_options(
                     ${TARGET} PRIVATE
                     "$<$<CONFIG:Release>:/Zi>")
@@ -103,7 +114,7 @@ function(vpkedit_configure_target TARGET)
         endif()
 
         # Don't show the console when running the executable
-        if(MSVC AND TARGET_IS_GUI)
+        if(TARGET_IS_GUI)
             target_link_options(
                     ${TARGET} PRIVATE
                     "/ENTRY:mainCRTStartup")
@@ -127,9 +138,17 @@ endif()
 
 # VS setup
 if(WIN32)
+    set_property(
+            DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
     set_target_properties(
             ${PROJECT_NAME} PROPERTIES
             VS_DEBUGGER_COMMAND "$<TARGET_FILE:${PROJECT_NAME}>"
             VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
             VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
+
+    # Qt hacks
+    set_target_properties(${PROJECT_NAME}_lrelease PROPERTIES FOLDER "Qt")
+    set_target_properties(${PROJECT_NAME}_lupdate PROPERTIES FOLDER "Qt")
+    set_target_properties(${PROJECT_NAME}_other_files PROPERTIES FOLDER "Qt")
 endif()
