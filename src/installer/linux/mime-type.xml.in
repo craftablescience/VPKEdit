@@ -2,7 +2,7 @@
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
     <mime-type type="application/x-vpkedit-007">
         <comment>007 - Nightfire Asset Pack</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>007</acronym>
         <expanded-acronym>Double-Oh Seven</expanded-acronym>
         <glob-deleteall/>
@@ -10,7 +10,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-bee-pack">
         <comment>BEE2.4 Package</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>BMZ</acronym>
         <expanded-acronym>Bonus Map Zip</expanded-acronym>
         <glob-deleteall/>
@@ -19,7 +19,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-bmz">
         <comment>Bonus Map Zip</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>BMZ</acronym>
         <expanded-acronym>Bonus Map Zip</expanded-acronym>
         <glob-deleteall/>
@@ -28,7 +28,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-bsp">
         <comment>Source Map File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>BSP</acronym>
         <expanded-acronym>Binary Space Partitioning</expanded-acronym>
         <glob-deleteall/>
@@ -37,7 +37,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-fpk">
         <comment>Tactical Intervention Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>FPK</acronym>
         <glob-deleteall/>
         <glob pattern="*.fpk"/>
@@ -45,7 +45,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-fpx">
         <comment>Tactical Intervention Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>FPX</acronym>
         <glob-deleteall/>
         <glob pattern="*.fpx"/>
@@ -53,7 +53,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-gcf">
         <comment>Game Cache File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>GCF</acronym>
         <expanded-acronym>Game Cache File</expanded-acronym>
         <glob-deleteall/>
@@ -62,7 +62,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-gma">
         <comment>Garry's Mod Addon</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>GMA</acronym>
         <expanded-acronym>Garry's Mod Addon</expanded-acronym>
         <glob-deleteall/>
@@ -71,7 +71,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-ol">
         <comment>Worldcraft Object Library</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>OL</acronym>
         <expanded-acronym>Worldcraft Object Library</expanded-acronym>
         <glob-deleteall/>
@@ -80,7 +80,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-ore">
         <comment>Narbacular Drop Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>ORE</acronym>
         <expanded-acronym>Narbacular Drop Pack File</expanded-acronym>
         <glob-deleteall/>
@@ -89,7 +89,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-pak">
         <comment>Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>PAK</acronym>
         <expanded-acronym>Pack File</expanded-acronym>
         <glob-deleteall/>
@@ -98,7 +98,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-pck">
         <comment>Godot Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>PCK</acronym>
         <expanded-acronym>Godot Pack File</expanded-acronym>
         <glob-deleteall/>
@@ -107,7 +107,7 @@
     </mime-type>
     <mime-type type="application/x-vpkedit-vpk">
         <comment>Valve Pack File</comment>
-        <icon name="application-x-vpkedit"/>
+        <icon name="${FLATPAK_ID}"/>
         <acronym>VPK</acronym>
         <expanded-acronym>Valve Pack File</expanded-acronym>
         <glob-deleteall/>

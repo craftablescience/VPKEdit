@@ -1,12 +1,10 @@
 [Desktop Entry]
-Version=${PROJECT_VERSION}
 Name=${PROJECT_NAME_PRETTY}
 Comment=${PROJECT_DESCRIPTION}
-Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME} %f
-Icon=${PROJECT_NAME}
+Exec=${PROJECT_NAME} %f
+Icon=${FLATPAK_ID}
 Terminal=false
 Type=Application
-Categories=Qt;Development;Utility;
+Categories=Game
 MimeType=application/x-vpkedit-bmz;application/x-vpkedit-bsp;application/x-vpkedit-fpx;application/x-vpkedit-gcf;application/x-vpkedit-gma;application/x-vpkedit-grp;application/x-vpkedit-pak;application/x-vpkedit-pck;application/x-vpkedit-vpk;application/x-dmx;application/x-ppl;application/x-mdl;image/x-vtf;
 PrefersNonDefaultGPU=true
-X-KDE-RunOnDiscreteGpu=true
