@@ -1,6 +1,7 @@
 ## Contributors
 - [BreakinBenny](https://github.com/BreakinBenny): Bloody Good Time ICE key
 - [bt](https://github.com/caatge) and [ymgve](https://github.com/ymgve): GCF parser
+- [erysdren](https://github.com/erysdren): HOG parser, VPP parser
 - [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, file associations for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
 - [Nbc66](https://github.com/Nbc66): added some extra info to the installation guide
@@ -16,13 +17,16 @@
 ## Translators
 - Bosnian: Nbc66
 - Chinese (Simplified): lysenty-jay
+- Croatian: N0one
 - Dutch: Trico Everfire
-- Italian: Enderzombi102
+- German: Nilten
+- Italian: enderzombi102
 - Japanese: craftablescience
 - Korean: hamn
 - Polish: Enderek, Patrxgt
 - Portuguese (Brazil): vivizinho64minecraft
 - Russian: Michael Soyka
+- Spanish: Samuel, craftablescience
 - Swedish: BreakinBenny, TheDudeWhosNameIsAce
 
 ## Acknowledgements

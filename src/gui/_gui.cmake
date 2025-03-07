@@ -105,8 +105,10 @@ vpkedit_configure_target(${PROJECT_NAME})
 qt_add_translations(${PROJECT_NAME}
         TS_FILES
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_bs_BA.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_de.ts"
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_en.ts"
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_es.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_hr.ts"
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_it.ts"
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ja.ts"
         "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ko.ts"

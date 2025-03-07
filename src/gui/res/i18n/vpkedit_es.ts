@@ -6,7 +6,7 @@
     <message>
       <location filename="../../dialogs/ControlsDialog.cpp" line="26"/>
       <source>Controls</source>
-      <translation>Controla</translation>
+      <translation>Controles</translation>
     </message>
   </context>
   <context>
@@ -110,17 +110,17 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="488"/>
       <source>Skin</source>
-      <translation></translation>
+      <translation>Skin</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="532"/>
       <source>Materials Found</source>
-      <translation></translation>
+      <translation>Materiales encontrados</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="536"/>
       <source>All Materials</source>
-      <translation></translation>
+      <translation>Todos los Materiales</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="612"/>
@@ -130,7 +130,7 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="620"/>
       <source>Material Names</source>
-      <translation></translation>
+      <translation>Nombres de Materiales</translation>
     </message>
   </context>
   <context>
@@ -211,12 +211,12 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="58"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Nada</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="59"/>
       <source>Per-entry</source>
-      <translation></translation>
+      <translation>Por-entrada</translation>
     </message>
     <message>
       <location filename="../../dialogs/PackFileOptionsDialog.cpp" line="68"/>
@@ -640,7 +640,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="348"/>
       <source>Sign File...</source>
-      <translation></translation>
+      <translation>Firmar Archivo...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1220"/>
@@ -660,7 +660,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="1240"/>
       <source>Success</source>
-      <translation></translation>
+      <translation>Éxito</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1240"/>
@@ -675,7 +675,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="339"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Verificar Firma</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="726"/>
@@ -690,17 +690,17 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="77"/>
       <source>Create...</source>
-      <translation></translation>
+      <translation>Crear...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="100"/>
       <source>Create from Folder...</source>
-      <translation></translation>
+      <translation>Crear de Carpeta...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1153"/>
       <source>Abort</source>
-      <translation></translation>
+      <translation>Abortar</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1350"/>
@@ -710,7 +710,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="1622"/>
       <source>Loading installed games...</source>
-      <translation></translation>
+      <translation>Cargando juegos instalados...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1643"/>
@@ -730,12 +730,12 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="176"/>
       <source>Add Files...</source>
-      <translation></translation>
+      <translation>Añadir Archivos</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="896"/>
       <source>Open Files</source>
-      <translation></translation>
+      <translation>Abrir Archivos</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="195"/>
@@ -820,12 +820,12 @@ Canales: %2</translation>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="107"/>
       <source>None</source>
-      <translation></translation>
+      <translation>Nada</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="115"/>
       <source>Compression Type:</source>
-      <translation></translation>
+      <translation>Tipo de compresión:</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="121"/>
@@ -901,7 +901,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../Window.cpp" line="492"/>
       <source>Use This Folder</source>
-      <translation></translation>
+      <translation>Usa esta carpeta</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="507"/>
@@ -914,17 +914,17 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Key</source>
-      <translation></translation>
+      <translation>LLave</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value Type</source>
-      <translation></translation>
+      <translation>Tipo de Valor</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="17"/>
       <source>Value</source>
-      <translation></translation>
+      <translation>Valor</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="25"/>
@@ -939,12 +939,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="44"/>
       <source>GUID</source>
-      <translation></translation>
+      <translation>GUID</translation>
     </message>
     <message>
       <location filename="../../previews/DMXPreview.cpp" line="49"/>
       <source>Attributes</source>
-      <translation></translation>
+      <translation>Atributos</translation>
     </message>
   </context>
   <context>
@@ -952,22 +952,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="10"/>
       <source>Verify Signature</source>
-      <translation></translation>
+      <translation>Verificar Firma</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="13"/>
       <source>File does not have a signature.</source>
-      <translation></translation>
+      <translation>El archivo no tiene una firma.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="15"/>
       <source>File signature is valid.</source>
-      <translation></translation>
+      <translation>Firma del archivo es valida.</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifySignatureDialog.cpp" line="17"/>
       <source>File signature is invalid!</source>
-      <translation></translation>
+      <translation>¡Firma del archivo invalida!</translation>
     </message>
   </context>
   <context>
@@ -975,7 +975,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="84"/>
       <source>Copy Image</source>
-      <translation></translation>
+      <translation>Copiar Imagen</translation>
     </message>
   </context>
   <context>
@@ -993,7 +993,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="207"/>
       <source>Cancel</source>
-      <translation></translation>
+      <translation>Cancelar</translation>
     </message>
   </context>
   <context>
@@ -1006,7 +1006,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="366"/>
       <source>Mip</source>
-      <translation></translation>
+      <translation>Mip</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="380"/>
@@ -1016,7 +1016,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="393"/>
       <source>Face</source>
-      <translation></translation>
+      <translation>Cara</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="406"/>
@@ -1026,7 +1026,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="419"/>
       <source>Alpha</source>
-      <translation></translation>
+      <translation>Alpha</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="434"/>
@@ -1036,7 +1036,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="449"/>
       <source>Zoom</source>
-      <translation></translation>
+      <translation>Zoom</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="555"/>
@@ -1046,12 +1046,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="557"/>
       <source>Format: %1</source>
-      <translation></translation>
+      <translation>Formato: %1</translation>
     </message>
     <message>
       <location filename="../../previews/TexturePreview.cpp" line="559"/>
       <source>Compression: %1</source>
-      <translation></translation>
+      <translation>Compresión: %1</translation>
     </message>
   </context>
   <context>
@@ -1059,22 +1059,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="49"/>
       <source>Encrypt File</source>
-      <translation></translation>
+      <translation>Encriptar Archivo</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="49"/>
       <source>Decrypt File</source>
-      <translation></translation>
+      <translation>Decriptar Archivo</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="53"/>
       <source>Code:</source>
-      <translation></translation>
+      <translation>Codigo:</translation>
     </message>
     <message>
       <location filename="../../dialogs/VICEDialog.cpp" line="61"/>
       <source>Value:</source>
-      <translation></translation>
+      <translation>Valor:</translation>
     </message>
   </context>
   <context>
@@ -1082,7 +1082,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="6"/>
       <source>Extract File...</source>
-      <translation></translation>
+      <translation>Extraer Archivo...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="8"/>
@@ -1092,12 +1092,12 @@ instead of the directory:</source>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="9"/>
       <source>Encrypt File...</source>
-      <translation></translation>
+      <translation>Encriptar Archivo...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="10"/>
       <source>Decrypt File...</source>
-      <translation></translation>
+      <translation>Decriptar Archivo...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="11"/>
@@ -1108,24 +1108,24 @@ instead of the directory:</source>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="13"/>
       <source>Remove File</source>
-      <translation></translation>
+      <translation>Quitar Archivo</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="16"/>
       <source>Extract Folder...</source>
-      <translation></translation>
+      <translation>Extraer Carpeta...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="18"/>
       <location filename="../../EntryContextMenuData.cpp" line="35"/>
       <source>Add Files...</source>
-      <translation></translation>
+      <translation>Añadir Archivos...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="19"/>
       <location filename="../../EntryContextMenuData.cpp" line="36"/>
       <source>Add Folder...</source>
-      <translation></translation>
+      <translation>Añadir carpeta...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="21"/>
@@ -1135,22 +1135,22 @@ instead of the directory:</source>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="24"/>
       <source>Remove Folder</source>
-      <translation></translation>
+      <translation>Quitar Carpeta</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="27"/>
       <source>Extract Selected...</source>
-      <translation></translation>
+      <translation>Extraer Seleccionado...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="29"/>
       <source>Remove Selected...</source>
-      <translation></translation>
+      <translation>Quitar Seleccionado...</translation>
     </message>
     <message>
       <location filename="../../EntryContextMenuData.cpp" line="33"/>
       <source>Extract All...</source>
-      <translation></translation>
+      <translation>Extraer Todo...</translation>
     </message>
   </context>
 </TS>

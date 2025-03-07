@@ -66,18 +66,8 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 - Extract files and folders from readable pack files
 - Switch version of existing VPKs
 - Native Linux compatibility
-- User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):
-  - Bosnian
-  - Chinese (simplified)
-  - Dutch
-  - Italian
-  - Japanese
-  - Korean
-  - Polish
-  - Portuguese (Brazil)
-  - Russian
-  - Spanish
-  - Swedish
+- User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):<br/>
+  🇧🇦 🇨🇳 🇭🇷 🇳🇱 🇩🇪 🇮🇹 🇯🇵 🇰🇷 🇵🇱 🇧🇷 🇷🇺 🇪🇸 🇸🇪
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 

@@ -223,20 +223,22 @@ Window::Window(QWidget* parent)
 	auto* languageMenuGroup = new QActionGroup(languageMenu);
 	languageMenuGroup->setExclusive(true);
 	const QVector<QPair<QString, QString>> languageToLocaleMapping = {
-			{tr("System Language"), ""},
-			{"", ""}, // Separator
-			{u8"Bosanski",           "bs_BA"},
-			{u8"简体中文",             "zh_CN"},
-			{u8"Nederlands",         "nl"},
-			{u8"English",            "en"},
-			{u8"日本語",              "ja"},
-			{u8"한국인",              "ko"},
-			{u8"Italiano",           "it"},
-			{u8"Polski",             "pl"},
-			{u8"Português (Brasil)", "pt_BR"},
-			{u8"Español",            "es"},
-			{u8"Svenska",            "sv"},
-			{u8"Русский",            "ru_RU"},
+		{tr("System Language"), ""},
+		{"", ""}, // Separator
+		{u8"Bosanski",           "bs_BA"},
+		{u8"简体中文",            "zh_CN"},
+		{u8"Hrvatski",           "hr"},
+		{u8"Nederlands",         "nl"},
+		{u8"English",            "en"},
+		{u8"Deutsch",            "de"},
+		{u8"Italiano",           "it"},
+		{u8"日本語",              "ja"},
+		{u8"한국인",              "ko"},
+		{u8"Polski",             "pl"},
+		{u8"Português (Brasil)", "pt_BR"},
+		{u8"Русский",            "ru_RU"},
+		{u8"Español",            "es"},
+		{u8"Svenska",            "sv"},
 	};
 	for (const auto& [language, locale] : languageToLocaleMapping) {
 		if (language.isEmpty() && locale.isEmpty()) {
@@ -1165,7 +1167,7 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		}
 	});
 
-	QProgressDialog progressDialog(tr("Renaming folder... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, entriesToRename.size(), this);
+	QProgressDialog progressDialog(tr("Renaming folder... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, static_cast<int>(entriesToRename.size()), this);
 	progressDialog.setWindowTitle(tr("Rename Folder"));
 	progressDialog.setWindowModality(Qt::WindowModal);
 	for (const auto& [path, entry] : entriesToRename) {

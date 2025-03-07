@@ -127,6 +127,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".dlg", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".lip", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vfe", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".tbl", &SingleFile::open);
 
 	// Textures
 	VPKPP_REGISTER_PACKFILE_OPEN(".tga", &SingleFile::open);

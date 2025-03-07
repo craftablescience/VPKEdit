@@ -508,8 +508,8 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
 		button->setStyleSheet(
-				"QToolButton          { background-color: rgba(0,0,0,0); border: none; }\n"
-				"QToolButton::pressed { background-color: rgba(0,0,0,0); border: none; }");
+				"QToolButton         { background-color: rgba(0,0,0,0); border: none; }\n"
+				"QToolButton:pressed { background-color: rgba(0,0,0,0); border: none; }");
 		button->setShortcut(buttons[i].second);
 		QObject::connect(button, &QToolButton::pressed, this, [this, i] {
 			this->setShadingMode(static_cast<MDLShadingMode>(i));
