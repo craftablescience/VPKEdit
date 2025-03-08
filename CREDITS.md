@@ -1,6 +1,6 @@
 ## Contributors
 - [BreakinBenny](https://github.com/BreakinBenny): Bloody Good Time ICE key
-- [bt](https://github.com/caatge) and [ymgve](https://github.com/ymgve): GCF parser
+- [bt](https://github.com/eepycats) and [ymgve](https://github.com/ymgve): GCF parser
 - [erysdren](https://github.com/erysdren): HOG parser, VPP parser
 - [HurricanePootis](https://github.com/HurricanePootis): AUR maintainer, file associations for Linux
 - [JJL772](https://github.com/JJL772): Linux compatibility bugfixes
