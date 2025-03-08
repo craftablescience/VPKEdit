@@ -38,6 +38,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | FPX      | VPK modification (Tactical Intervention)          |   ✅    |  ✅   |   ✅   |
   | GCF      | Game Cache File (Pre-SteamPipe Steam games)       |   ❌    |  ✅   |   ❌   |
   | GMA      | Garry's Mod Addon                                 |   ❌    |  ✅   |   ✅   |
+  | HOG      | Unknown acronym (Descent)                         |   ❌    |  ✅   |   ❌   |
   | OL       | Worldcraft Object Library                         |   ❌    |  ✅   |   ❌   |
   | ORE      | Unknown acronym (Narbacular Drop)                 |   ❌    |  ✅   |   ❌   |
   | PAK      | PAcK file (Quake, original Half-Life, HROT, etc.) |   ✅    |  ✅   |   ✅   |
@@ -47,6 +48,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | PKZ      | PacK file (Quake II RTX)                          |   ✅    |  ✅   |   ✅   |
   | VPK      | Valve PacK file (Source Engine)                   |   ✅    |  ✅   |   ✅   |
   | VPK      | Vampire PacK file (V:TMB)                         |   ✅    |  ✅   |   ✅   |
+  | VPP      | Volition Pack file (Red Faction, Saints Row)      |   ❌    |  ✅   |   ❌   |
   | WAD      | Where's All the Data (GoldSrc Engine)             |   ✅    |  ✅   |   ✅   |
   | ZIP      | ZIP file                                          |   ✅    |  ✅   |   ✅   |
 
