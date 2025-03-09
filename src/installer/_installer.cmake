@@ -91,6 +91,8 @@ elseif(UNIX)
                 LIBRARY DESTINATION .)
     endif()
 
+    set(VPKEDIT_MIME_TYPE_ICON_ID "${PROJECT_NAME}" CACHE INTERNAL "" FORCE)
+
     # Desktop file
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
@@ -102,7 +104,6 @@ elseif(UNIX)
             RENAME "${PROJECT_NAME}.png")
 
     # MIME type info
-    set(VPKEDIT_MIME_TYPE_ICON_ID "${PROJECT_NAME}" CACHE INTERNAL "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/mime-type.xml.in"
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml")

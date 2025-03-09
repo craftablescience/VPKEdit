@@ -1,6 +1,8 @@
 install(TARGETS ${PROJECT_NAME}cli ${PROJECT_NAME}
         DESTINATION "bin/")
 
+set(VPKEDIT_MIME_TYPE_ICON_ID "${VPKEDIT_FLATPAK_ID}" CACHE INTERNAL "" FORCE)
+
 # Desktop file
 configure_file(
         "${CMAKE_CURRENT_LIST_DIR}/desktop.in"
@@ -15,7 +17,6 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
         RENAME "${VPKEDIT_FLATPAK_ID}.png")
 
 # MIME type info
-set(VPKEDIT_MIME_TYPE_ICON_ID "${VPKEDIT_FLATPAK_ID}" CACHE INTERNAL "" FORCE)
 configure_file(
         "${CMAKE_CURRENT_LIST_DIR}/../linux/mime-type.xml.in"
         "${CMAKE_CURRENT_LIST_DIR}/generated/mime-type.xml")
