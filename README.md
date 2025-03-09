@@ -65,6 +65,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Source 1 DMX files (particles, SFM sessions, etc.)
 - Create pack files of any version from scratch or an existing folder
 - Add and remove files and folders from writable pack files
+  - Directly edit text files within writable pack files
 - Extract files and folders from readable pack files
 - Switch version of existing VPKs
 - Native Linux compatibility
