@@ -18,6 +18,8 @@ modules:
       config-opts:
         - "-Wno-dev"
         - "-DCMAKE_BUILD_TYPE=Release"
+        - "-DVPKEDIT_USE_LTO=ON"
+        - "-DVPKEDIT_BUILD_INSTALLER=OFF"
         - "-DVPKEDIT_BUILD_FLATPAK=ON"
         - "-DVPKEDIT_FLATPAK_ID=info.craftablescience.vpkedit.Devel"
     builddir: true

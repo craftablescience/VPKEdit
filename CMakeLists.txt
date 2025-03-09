@@ -41,7 +41,7 @@ option(VPKEDIT_USE_LTO "Build VPKEdit with link-time optimization enabled" OFF)
 
 option(VPKEDIT_BUILD_INSTALLER "Build VPKEdit installer" ON)
 if(UNIX)
-    option(VPKEDIT_BUILD_FLATPAK "Build VPKEdit flatpak (use in tandem with installer option)" OFF)
+    option(VPKEDIT_BUILD_FLATPAK "Build VPKEdit flatpak" OFF)
     set(VPKEDIT_FLATPAK_ID "info.${PROJECT_ORGANIZATION_NAME}.${PROJECT_NAME}" CACHE STRING "The ID of the Flatpak package")
 else()
     set(VPKEDIT_BUILD_FLATPAK OFF CACHE INTERNAL "" FORCE)
@@ -139,6 +139,11 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/src/cli/_cli.cmake")
 
 # vpkedit
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
+
+# Flatpak
+if(VPKEDIT_BUILD_FLATPAK)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_flatpak.cmake")
+endif()
 
 # Installer
 if(VPKEDIT_BUILD_INSTALLER)

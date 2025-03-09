@@ -1,25 +1,17 @@
 # Set up install rules
-if(VPKEDIT_BUILD_FLATPAK)
-    install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}cli
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-else()
-    install(TARGETS ${PROJECT_NAME}cli
-            DESTINATION .)
+install(TARGETS ${PROJECT_NAME}cli ${PROJECT_NAME}
+        DESTINATION .)
 
-    install(TARGETS ${PROJECT_NAME}
-            DESTINATION .)
+install(FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
+        "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+        "${CMAKE_CURRENT_LIST_DIR}/.nonportable"
+        DESTINATION .)
 
-    install(FILES
-            "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
-            "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-            "${CMAKE_CURRENT_LIST_DIR}/.nonportable"
-            DESTINATION .)
-
-    foreach(${PROJECT_NAME}_QTBASE_TRANSLATION IN LISTS ${PROJECT_NAME}_QTBASE_TRANSLATIONS)
-        install(FILES "${${PROJECT_NAME}_QTBASE_TRANSLATION}"
-                DESTINATION i18n)
-    endforeach()
-endif()
+foreach(${PROJECT_NAME}_QTBASE_TRANSLATION IN LISTS ${PROJECT_NAME}_QTBASE_TRANSLATIONS)
+    install(FILES "${${PROJECT_NAME}_QTBASE_TRANSLATION}"
+            DESTINATION i18n)
+endforeach()
 
 if(WIN32)
     install(IMPORTED_RUNTIME_ARTIFACTS
@@ -92,35 +84,34 @@ elseif(UNIX)
                 "${CMAKE_BINARY_DIR}/wayland-shell-integration"
                 "${CMAKE_BINARY_DIR}/xcbglintegrations"
                 DESTINATION .)
-    elseif(NOT VPKEDIT_BUILD_FLATPAK)
+    else()
         install(IMPORTED_RUNTIME_ARTIFACTS
                 Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
                 RUNTIME DESTINATION .
                 LIBRARY DESTINATION .)
     endif()
 
-    set(desktop_file "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${FLATPAK_ID}.desktop")
     # Desktop file
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
-            "${desktop_file}")
-    install(FILES "${desktop_file}"
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications/")
+            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop"
+            DESTINATION "/usr/share/applications/")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps/"
+            DESTINATION "/usr/share/pixmaps/"
             RENAME "${PROJECT_NAME}.png")
 
     # MIME type info
+    set(VPKEDIT_MIME_TYPE_ICON_ID "${PROJECT_NAME}" CACHE INTERNAL "" FORCE)
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/mime-type.xml.in"
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml"
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mime/packages/"
-            RENAME "${FLATPAK_ID}.xml")
-
+            DESTINATION "/usr/share/mime/packages/"
+            RENAME "${PROJECT_NAME}.xml")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
-            DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/128x128/apps/"
-            RENAME "${FLATPAK_ID}.png")
+            DESTINATION "/usr/share/icons/hicolor/128x128/mimetypes/"
+            RENAME "application-x-vpkedit.png")
 endif()
 
 # CPack stuff
@@ -151,7 +142,7 @@ if(WIN32)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh"   CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/win") # NSIS.template.in, NSIS.InstallOptions.ini.in
-elseif(NOT VPKEDIT_BUILD_FLATPAK)
+elseif(UNIX)
     if(NOT (CPACK_GENERATOR STREQUAL "DEB"))
         message(WARNING "CPack generator must be DEB! Setting generator to DEB...")
         set(CPACK_GENERATOR "DEB" CACHE INTERNAL "" FORCE)
@@ -171,6 +162,4 @@ elseif(NOT VPKEDIT_BUILD_FLATPAK)
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}"
             DESTINATION "/usr/bin")
 endif()
-if(NOT VPKEDIT_BUILD_FLATPAK)
-    include(CPack)
-endif()
+include(CPack)
