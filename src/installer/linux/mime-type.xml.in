@@ -150,9 +150,9 @@
         <glob pattern="*.mdl"/>
         <glob pattern="*.MDL"/>
     </mime-type>
-    <mime-type type="application/x-ppl">
+    <mime-type type="image/x-ppl">
         <comment>Prop Lightmap</comment>
-        <icon name="application-x-ppl"/>
+        <icon name="image-x-ppl"/>
         <acronym>PPL</acronym>
         <expanded-acronym>Prop Lightmap</expanded-acronym>
         <glob-deleteall/>
