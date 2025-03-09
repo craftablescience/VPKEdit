@@ -479,9 +479,11 @@ Window::Window(QWidget* parent)
 		exit(1);
 	}
 
+#ifndef VPKEDIT_BUILD_FOR_STRATA_SOURCE
 	if (!Options::get<bool>(OPT_DISABLE_STARTUP_UPDATE_CHECK)) {
 		this->checkForNewUpdate(true);
 	}
+#endif
 }
 
 void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
