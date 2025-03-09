@@ -77,11 +77,16 @@ namespace {
 	return NO_COMPRESS;
 }
 
+#define VPKEDIT_ERROR_TYPE(name) class vpkedit_##name##_error : public std::runtime_error { public: using runtime_error::runtime_error; }
+VPKEDIT_ERROR_TYPE(load);
+VPKEDIT_ERROR_TYPE(invalid_argument);
+VPKEDIT_ERROR_TYPE(runtime);
+
 /// Extract file(s) from an existing pack file
 void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 
 	auto extractPath = cli.get(ARG_S(EXTRACT));
@@ -92,14 +97,13 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 			outputPath = cli.get(ARG_S(OUTPUT));
 		}
 		if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
-			std::cerr << "Output location must be an existing directory!" << std::endl;
-			return;
+			throw vpkedit_invalid_argument_error{"Output location must be an existing directory!"};
 		}
 		if (!packFile->extractAll(outputPath)) {
-			std::cerr
-				<< "Could not extract pack file contents to \"" << outputPath << "\"!\n"
-				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
-				<< std::endl;
+			throw vpkedit_runtime_error{
+				"Could not extract pack file contents to \"" + outputPath + "\"!\n"
+				"Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+			};
 		}
 		std::cout << "Extracted pack file contents under \"" << outputPath << "\"." << std::endl;
 	} else if (extractPath.ends_with('/')) {
@@ -109,14 +113,13 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 			outputPath = cli.get(ARG_S(OUTPUT));
 		}
 		if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
-			std::cerr << "Output location must be an existing directory!" << std::endl;
-			return;
+			throw vpkedit_invalid_argument_error{"Output location must be an existing directory!"};
 		}
 		if (!packFile->extractDirectory(extractPath, outputPath)) {
-			std::cerr
-				<< "Some or all files were unable to be extracted to \"" << outputPath << "\"!\n"
-				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
-				<< std::endl;
+			throw vpkedit_runtime_error{
+				"Some or all files were unable to be extracted to \"" + outputPath + "\"!\n"
+				"Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+			};
 		}
 		std::cout << "Extracted directory under \"" << outputPath << "\"." << std::endl;
 	} else {
@@ -127,14 +130,13 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 		}
 		auto entry = packFile->findEntry(extractPath);
 		if (!entry) {
-			std::cerr << "Could not find file at \"" << extractPath << "\" in the pack file!" << std::endl;
-			return;
+			throw vpkedit_runtime_error{"Could not find file at \"" + extractPath + "\" in the pack file!"};
 		}
 		if (!packFile->extractEntry(extractPath, outputPath)) {
-			std::cerr
-				<< "Could not extract file at \"" << extractPath << "\" to \"" << outputPath << "\"!\n"
-				<< "Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
-				<< std::endl;
+			throw vpkedit_runtime_error{
+				"Could not extract file at \"" + extractPath + "\" to \"" + outputPath + "\"!\n"
+				"Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the output location."
+			};
 		}
 		std::cout << "Extracted file at \"" << extractPath << "\" to \"" << outputPath << "\"." << std::endl;
 	}
@@ -144,7 +146,7 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 void fileTree(const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
+		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 	::prettyPrintPackFile(packFile);
 }
@@ -152,8 +154,7 @@ void fileTree(const std::string& inputPath) {
 /// Generate private/public key files
 void generateKeyPair(const std::string& inputPath) {
 	if (!VPK::generateKeyPairFiles(inputPath)) {
-		std::cerr << "Failed to generate public/private key files at \"" << inputPath << ".[private/public]key.vdf\"!" << std::endl;
-		return;
+		throw vpkedit_runtime_error{"Failed to generate public/private key files at \"" + inputPath + ".[private/public]key.vdf\"!"};
 	}
 	std::cout << "Generated private/public key files at \"" << inputPath << ".[private/public]key.vdf\"." << std::endl;
 	std::cout << "Remember to NEVER share a private key! The public key is fine to share." << std::endl;
@@ -165,15 +166,13 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_S(OUTPUT))) {
 		outputPath = cli.get(ARG_S(OUTPUT));
 		if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
-			std::cerr << "Output location must be an existing directory!" << std::endl;
-			return;
+			throw vpkedit_invalid_argument_error{"Output location must be an existing directory!"};
 		}
 	}
 
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
-		return;
+		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 
 	auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
@@ -183,9 +182,10 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_L(REMOVE_FILE))) {
 		auto path = cli.get(ARG_L(REMOVE_FILE));
 		if (!packFile->removeEntry(path)) {
-			std::cerr
-				<< "Unable to remove file at \"" << path << "\" from the pack file!\n"
-				<< "Check the file exists in the pack file and the path is spelled correctly." << std::endl;
+			throw vpkedit_runtime_error{
+				"Unable to remove file at \"" + path + "\" from the pack file!\n"
+				"Check the file exists in the pack file and the path is spelled correctly."
+			};
 		} else {
 			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
 		}
@@ -194,9 +194,10 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_L(REMOVE_DIR))) {
 		auto path = cli.get(ARG_L(REMOVE_DIR));
 		if (!packFile->removeDirectory(path)) {
-			std::cerr
-				<< "Unable to remove directory at \"" << path << "\" from the pack file!\n"
-				<< "Check the directory exists in the pack file and the path is spelled correctly." << std::endl;
+			throw vpkedit_runtime_error{
+				"Unable to remove directory at \"" + path + "\" from the pack file!\n"
+				"Check the directory exists in the pack file and the path is spelled correctly."
+			};
 		} else {
 			std::cout << "Removed directory at \"" << path << "\" from the pack file." << std::endl;
 		}
@@ -205,9 +206,9 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_L(ADD_FILE))) {
 		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
 		if (!std::filesystem::exists(args[0])) {
-			std::cerr << "File at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
+			throw vpkedit_invalid_argument_error{"File at \"" + args[0] + "\" does not exist! Cannot add to pack file."};
 		} else if (!std::filesystem::is_regular_file(args[0])) {
-			std::cerr << "Path \"" << args[0] << "\" does not point to a file! Cannot add to pack file." << std::endl;
+			throw vpkedit_invalid_argument_error{"Path \"" + args[0] + "\" does not point to a file! Cannot add to pack file."};
 		} else {
 			packFile->addEntry(args[1], args[0], {});
 			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
@@ -217,9 +218,9 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	if (cli.is_used(ARG_L(ADD_DIR))) {
 		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_DIR));
 		if (!std::filesystem::exists(args[0])) {
-			std::cerr << "Directory at \"" << args[0] << "\" does not exist! Cannot add to pack file." << std::endl;
+			throw vpkedit_invalid_argument_error{"Directory at \"" + args[0] + "\" does not exist! Cannot add to pack file."};
 		} else if (!std::filesystem::is_directory(args[0])) {
-			std::cerr << "Path \"" << args[0] << "\" does not point to a directory! Cannot add to pack file." << std::endl;
+			throw vpkedit_invalid_argument_error{"Path \"" + args[0] + "\" does not point to a directory! Cannot add to pack file."};
 		} else {
 			packFile->addDirectory(args[1], args[0]);
 			std::cout << "Added directory at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
@@ -240,13 +241,15 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 	if (saveToDir) {
 		std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
-		std::cerr << "Remove the " << ARG_S(SINGLE_FILE) << " / " << ARG_L(SINGLE_FILE) << " parameter for best results." << std::endl;
+		std::cerr << "Rebuild the VPK and remove the " << ARG_S(SINGLE_FILE) << " / " << ARG_L(SINGLE_FILE) << " parameter for best results." << std::endl;
 	}
 
 	auto vpk = VPK::open(inputPath);
 	if (!vpk || !dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
-		std::cerr << "Failed to sign VPK using private key file at \"" << signPath << "\"!" << std::endl;
-		std::cerr << "Check that the file exists and it contains both the private key and public key." << std::endl;
+		throw vpkedit_runtime_error{
+			"Failed to sign VPK using private key file at \"" + signPath + "\"!\n"
+			"Check that the file exists and it contains both the private key and public key."
+		};
 	} else {
 		std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
 	}
@@ -256,8 +259,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto packFile = PackFile::open(inputPath);
 	if (!packFile) {
-		std::cerr << "Could not open the pack file at \"" << inputPath << "\": it failed to load!" << std::endl;
-		return;
+		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 
 	if (cli.is_used(ARG_L(VERIFY_CHECKSUMS))) {
@@ -369,11 +371,10 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		packFile = WAD3::create(outputPath);
 	}
 	if (!packFile) {
-		std::cerr << "Failed to create pack file!" << std::endl;
 		if (!noProgressBar) {
 			bar->mark_as_completed();
 		}
-		return;
+		throw vpkedit_runtime_error{"Failed to create pack file!"};
 	}
 
 	packFile->addDirectory("", inputPath, [compressionMethod, compressionLevel, &preloadExtensions, saveToDir](const std::string& path) -> EntryOptions {
@@ -610,23 +611,32 @@ int main(int argc, const char* const* argv) {
 					::verify(cli, inputPath);
 				}
 				if (!foundAction) {
-					throw std::runtime_error{"No action taken! Add some arguments to clarify your intent."};
+					throw vpkedit_invalid_argument_error{"No action taken! Add some arguments to clarify your intent."};
 				}
 			}
 		} else if (cli.get<bool>(ARG_L(GEN_KEYPAIR))) {
 			::generateKeyPair(inputPath);
 		} else {
-			throw std::runtime_error{"Given path does not exist!"};
+			throw vpkedit_invalid_argument_error{"Given path does not exist!"};
 		}
+	} catch (const vpkedit_runtime_error& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	} catch (const vpkedit_load_error& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	} catch (const vpkedit_invalid_argument_error& e) {
+		std::cerr << e.what() << '\n' << std::endl;
+		std::cerr << "Run with --help to see more information about how to use this program." << std::endl;
+		return EXIT_FAILURE;
 	} catch (const std::exception& e) {
 		if (argc > 1) {
 			std::cerr << e.what() << '\n' << std::endl;
-			std::cerr << cli << std::endl;
+			std::cerr << "Run with --help to see more information about how to use this program." << std::endl;
+			return EXIT_FAILURE;
 		} else {
 			std::cout << cli << std::endl;
 		}
-		return EXIT_FAILURE;
 	}
-
 	return EXIT_SUCCESS;
 }
