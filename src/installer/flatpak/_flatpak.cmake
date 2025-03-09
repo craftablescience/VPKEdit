@@ -3,9 +3,9 @@ install(TARGETS ${PROJECT_NAME}cli ${PROJECT_NAME}
 
 # Desktop file
 configure_file(
-        "${CMAKE_CURRENT_LIST_DIR}/flatpak/desktop.in"
-        "${CMAKE_CURRENT_LIST_DIR}/flatpak/generated/${VPKEDIT_FLATPAK_ID}.desktop")
-install(FILES "${CMAKE_CURRENT_LIST_DIR}/flatpak/generated/${VPKEDIT_FLATPAK_ID}.desktop"
+        "${CMAKE_CURRENT_LIST_DIR}/desktop.in"
+        "${CMAKE_CURRENT_LIST_DIR}/generated/${VPKEDIT_FLATPAK_ID}.desktop")
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/generated/${VPKEDIT_FLATPAK_ID}.desktop"
         DESTINATION "share/applications/")
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
         DESTINATION "share/pixmaps/"
@@ -17,8 +17,8 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/branding/logo.png"
 # MIME type info
 set(VPKEDIT_MIME_TYPE_ICON_ID "${VPKEDIT_FLATPAK_ID}" CACHE INTERNAL "" FORCE)
 configure_file(
-        "${CMAKE_CURRENT_LIST_DIR}/linux/mime-type.xml.in"
-        "${CMAKE_CURRENT_LIST_DIR}/flatpak/generated/mime-type.xml")
-install(FILES "${CMAKE_CURRENT_LIST_DIR}/flatpak/generated/mime-type.xml"
+        "${CMAKE_CURRENT_LIST_DIR}/../linux/mime-type.xml.in"
+        "${CMAKE_CURRENT_LIST_DIR}/generated/mime-type.xml")
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/generated/mime-type.xml"
         DESTINATION "share/mime/packages/"
         RENAME "${VPKEDIT_FLATPAK_ID}.xml")

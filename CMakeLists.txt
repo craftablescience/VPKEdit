@@ -142,12 +142,14 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 
 # Flatpak
 if(VPKEDIT_BUILD_FLATPAK)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_flatpak.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/flatpak/_flatpak.cmake")
 endif()
 
 # Installer
-if(VPKEDIT_BUILD_INSTALLER)
+if(VPKEDIT_BUILD_INSTALLER AND NOT VPKEDIT_BUILD_FLATPAK)
     include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
+elseif(VPKEDIT_BUILD_FLATPAK)
+    message(WARNING "You cannot build the ${PROJECT_NAME_PRETTY} installer and flatpak at the same time! The flatpak takes priority.")
 endif()
 
 # VS setup
