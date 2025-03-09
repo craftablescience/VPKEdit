@@ -127,7 +127,7 @@ State=1
 
 [Field 15]
 Type=CheckBox
-Text=.ol
+Text=.hog
 Left=55
 Right=95
 Top=115
@@ -136,7 +136,7 @@ State=1
 
 [Field 16]
 Type=CheckBox
-Text=.ore
+Text=.ol
 Left=55
 Right=95
 Top=125
@@ -145,7 +145,7 @@ State=1
 
 [Field 17]
 Type=CheckBox
-Text=.pak
+Text=.ore
 Left=95
 Right=135
 Top=85
@@ -154,7 +154,7 @@ State=1
 
 [Field 18]
 Type=CheckBox
-Text=.pck
+Text=.pak
 Left=95
 Right=135
 Top=95
@@ -163,7 +163,7 @@ State=1
 
 [Field 19]
 Type=CheckBox
-Text=.pk3
+Text=.pck
 Left=95
 Right=135
 Top=105
@@ -172,7 +172,7 @@ State=0
 
 [Field 20]
 Type=CheckBox
-Text=.pk4
+Text=.pk3
 Left=95
 Right=135
 Top=115
@@ -181,7 +181,7 @@ State=0
 
 [Field 21]
 Type=CheckBox
-Text=.pkz
+Text=.pk4
 Left=95
 Right=135
 Top=125
@@ -190,7 +190,7 @@ State=0
 
 [Field 22]
 Type=CheckBox
-Text=.vpk
+Text=.pkz
 Left=135
 Right=175
 Top=85
@@ -198,6 +198,24 @@ Bottom=95
 State=1
 
 [Field 23]
+Type=CheckBox
+Text=.vpk
+Left=135
+Right=175
+Top=95
+Bottom=105
+State=1
+
+[Field 24]
+Type=CheckBox
+Text=.vpp
+Left=135
+Right=175
+Top=105
+Bottom=115
+State=1
+
+[Field 25]
 Type=label
 Text=Asset Associations:
 Left=200
@@ -205,7 +223,7 @@ Right=340
 Top=70
 Bottom=80
 
-[Field 24]
+[Field 26]
 Type=CheckBox
 Text=.dmx
 Left=200
@@ -214,7 +232,7 @@ Top=85
 Bottom=95
 State=1
 
-[Field 25]
+[Field 27]
 Type=CheckBox
 Text=.mdl
 Left=200
@@ -223,7 +241,7 @@ Top=95
 Bottom=105
 State=1
 
-[Field 26]
+[Field 28]
 Type=CheckBox
 Text=.pcf
 Left=200
@@ -232,7 +250,7 @@ Top=105
 Bottom=115
 State=1
 
-[Field 27]
+[Field 29]
 Type=CheckBox
 Text=.ppl
 Left=200
@@ -241,7 +259,7 @@ Top=115
 Bottom=125
 State=1
 
-[Field 28]
+[Field 30]
 Type=CheckBox
 Text=.tth
 Left=200
@@ -250,7 +268,7 @@ Top=125
 Bottom=135
 State=1
 
-[Field 29]
+[Field 31]
 Type=CheckBox
 Text=.ttz
 Left=240
@@ -259,11 +277,20 @@ Top=85
 Bottom=95
 State=1
 
-[Field 30]
+[Field 32]
 Type=CheckBox
-Text=.vtf
+Text=.vmt
 Left=240
 Right=280
 Top=95
 Bottom=105
+State=0
+
+[Field 33]
+Type=CheckBox
+Text=.vtf
+Left=240
+Right=280
+Top=105
+Bottom=115
 State=1

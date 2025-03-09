@@ -22,6 +22,9 @@ ${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_GMA}
   WriteRegStr HKCR '.gma'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_HOG}
+  WriteRegStr HKCR '.hog'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_OL}
   WriteRegStr HKCR '.ol'       '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
@@ -46,6 +49,9 @@ ${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_VPK}
   WriteRegStr HKCR '.vpk'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_VPP}
+  WriteRegStr HKCR '.vpp'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 
 WriteRegStr HKCR '@PROJECT_NAME@_pack_file' '' '@PROJECT_NAME_PRETTY@ Pack File'
 WriteRegStr HKCR '@PROJECT_NAME@_pack_file\\shell' '' 'open'
@@ -69,6 +75,9 @@ ${If} ${EXT_REGISTER_ASSET_TTH}
 ${EndIf}
 ${If} ${EXT_REGISTER_ASSET_TTZ}
   WriteRegStr HKCR '.ttz' '' '@PROJECT_NAME@_asset'
+${EndIf}
+${If} ${EXT_REGISTER_ASSET_VMT}
+  WriteRegStr HKCR '.vmt' '' '@PROJECT_NAME@_asset'
 ${EndIf}
 ${If} ${EXT_REGISTER_ASSET_VTF}
   WriteRegStr HKCR '.vtf' '' '@PROJECT_NAME@_asset'

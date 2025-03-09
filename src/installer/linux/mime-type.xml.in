@@ -69,6 +69,15 @@
         <glob pattern="*.gma"/>
         <glob pattern="*.GMA"/>
     </mime-type>
+    <mime-type type="application/x-vpkedit-hog">
+        <comment>Hog Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>HOG</acronym>
+        <expanded-acronym>Hog Pack File</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.hog"/>
+        <glob pattern="*.HOG"/>
+    </mime-type>
     <mime-type type="application/x-vpkedit-ol">
         <comment>Worldcraft Object Library</comment>
         <icon name="application-x-vpkedit"/>
@@ -113,6 +122,15 @@
         <glob-deleteall/>
         <glob pattern="*.vpk"/>
         <glob pattern="*.VPK"/>
+    </mime-type>
+    <mime-type type="application/x-vpkedit-vpp">
+        <comment>Volition Pack File</comment>
+        <icon name="application-x-vpkedit"/>
+        <acronym>VPP</acronym>
+        <expanded-acronym>Volition Pack File</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.vpp"/>
+        <glob pattern="*.VPP"/>
     </mime-type>
     <mime-type type="application/x-dmx">
         <comment>Datamodel Exchange</comment>
