@@ -1,8 +1,5 @@
 # Set up install rules
-install(TARGETS ${PROJECT_NAME}cli
-        DESTINATION .)
-
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME}cli ${PROJECT_NAME}
         DESTINATION .)
 
 install(FILES
@@ -94,6 +91,8 @@ elseif(UNIX)
                 LIBRARY DESTINATION .)
     endif()
 
+    set(VPKEDIT_MIME_TYPE_ICON_ID "${PROJECT_NAME}" CACHE INTERNAL "" FORCE)
+
     # Desktop file
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
@@ -144,7 +143,7 @@ if(WIN32)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh"   CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/win") # NSIS.template.in, NSIS.InstallOptions.ini.in
-else()
+elseif(UNIX)
     if(NOT (CPACK_GENERATOR STREQUAL "DEB"))
         message(WARNING "CPack generator must be DEB! Setting generator to DEB...")
         set(CPACK_GENERATOR "DEB" CACHE INTERNAL "" FORCE)
