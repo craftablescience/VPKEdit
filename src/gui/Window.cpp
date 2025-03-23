@@ -239,6 +239,7 @@ Window::Window(QWidget* parent)
 		{u8"Русский",            "ru_RU"},
 		{u8"Español",            "es"},
 		{u8"Svenska",            "sv"},
+		{u8"Tiếng Việt",         "vi"},
 	};
 	for (const auto& [language, locale] : languageToLocaleMapping) {
 		if (language.isEmpty() && locale.isEmpty()) {

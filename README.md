@@ -70,7 +70,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 - Switch version of existing VPKs
 - Native Linux compatibility
 - User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):<br/>
-  🇧🇦 🇨🇳 🇭🇷 🇳🇱 🇩🇪 🇮🇹 🇯🇵 🇰🇷 🇵🇱 🇧🇷 🇷🇺 🇪🇸 🇸🇪
+  🇧🇦 🇨🇳 🇭🇷 🇳🇱 🇩🇪 🇮🇹 🇯🇵 🇰🇷 🇵🇱 🇧🇷 🇷🇺 🇪🇸 🇸🇪 🇻🇳
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CONTROLS.md) to see all keyboard shortcuts.
 

@@ -28,6 +28,7 @@
 - Russian: Michael Soyka
 - Spanish: Samuel, craftablescience
 - Swedish: BreakinBenny, TheDudeWhosNameIsAce
+- Vietnamese: Barnacl437
 
 ## Acknowledgements
 - [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors

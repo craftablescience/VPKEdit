@@ -102,23 +102,8 @@ add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 vpkedit_configure_target(${PROJECT_NAME})
 
-qt_add_translations(${PROJECT_NAME}
-        TS_FILES
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_bs_BA.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_de.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_en.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_es.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_hr.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_it.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ja.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ko.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_nl.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_pl.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_pt_BR.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_ru_RU.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_sv.ts"
-        "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_zh_CN.ts"
-        SOURCES ${${PROJECT_NAME}_SOURCES})
+file(GLOB ${PROJECT_NAME}_I18N_TS_FILES "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_*.ts")
+qt_add_translations(${PROJECT_NAME} TS_FILES ${${PROJECT_NAME}_I18N_TS_FILES} SOURCES ${${PROJECT_NAME}_SOURCES})
 
 target_link_libraries(
         ${PROJECT_NAME} PRIVATE
