@@ -50,6 +50,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | VPK      | Vampire PacK file (V:TMB)                         |   ✅    |  ✅   |   ✅   |
   | VPP      | Volition Pack file (Red Faction, Saints Row)      |   ❌    |  ✅   |   ❌   |
   | WAD      | Where's All the Data (GoldSrc Engine)             |   ✅    |  ✅   |   ✅   |
+  | XZP      | Xbox ZiP (Xbox Half-Life 2)                       |   ❌    |  ✅   |   ❌   |
   | ZIP      | ZIP file                                          |   ✅    |  ✅   |   ✅   |
 
 - Preview files contained within the pack file without extracting them:
@@ -68,7 +69,8 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   - Directly edit text files within writable pack files
 - Extract files and folders from readable pack files
 - Switch version of existing VPKs
-- Native Linux compatibility
+- Native Linux builds
+  - Packaged for Debian, Arch, NixOS; standalone builds available
 - User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):<br/>
   🇧🇦 🇨🇳 🇭🇷 🇳🇱 🇩🇪 🇮🇹 🇯🇵 🇰🇷 🇵🇱 🇧🇷 🇷🇺 🇪🇸 🇸🇪 🇻🇳
 
