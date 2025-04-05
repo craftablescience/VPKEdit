@@ -70,7 +70,6 @@ as I don't use Arch Linux personally and don't know how that system works. (I us
 
 #### NixOS:
 
-VPKEdit is available from Nixpkgs thanks to [@Seraphim Pardee](https://github.com/SeraphimRP).
-To install to the default profile, run `nix-env -i vpkedit`. See the 
-[Nix documentation](https://nix-tutorial.gitlabpages.inria.fr/nix-tutorial/getting-started.html)
-for more information.
+VPKEdit is available from Nixpkgs unstable thanks to [@Seraphim Pardee](https://github.com/SeraphimRP).
+Add it to your system by placing `vpkedit` in the appropriate `environment.systemPackages = with pkgs; [];` section 
+in your Nix configuration. If you want to use it temporarily, run `nix-shell -p vpkedit` then `vpkedit` (for gui) or `vpkeditcli`.
