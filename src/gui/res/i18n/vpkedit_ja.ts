@@ -6,7 +6,7 @@
     <message>
       <location filename="../../dialogs/ControlsDialog.cpp" line="26"/>
       <source>Controls</source>
-      <translation>コントロールズ</translation>
+      <translation>操作方法</translation>
     </message>
   </context>
   <context>
@@ -20,7 +20,8 @@
       <location filename="../../previews/DirPreview.cpp" line="453"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <translation></translation>
+      <translation>"%1"を削除してよろしいですか？
+(Shiftキーを押しながら実行するとこのポップアップをスキップします。)</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="378"/>
@@ -246,13 +247,15 @@ Breaks if the file's size will be &gt;= 4gb!</source>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="27"/>
       <source>Some file checksums do not match their expected values!
 See below for more information.</source>
-      <translation></translation>
+      <translation>一部のファイルのチェックサムが一致しません！
+詳細については、以下を参照してください。</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="29"/>
       <source>Files that failed to validate:
 </source>
-      <translation></translation>
+      <translation>検証に失敗したファイル：
+</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="14"/>
@@ -280,12 +283,12 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="664"/>
       <source>Save to...</source>
-      <translation>保存先は...</translation>
+      <translation>保存...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="725"/>
       <source>Could not save!</source>
-      <translation></translation>
+      <translation>保存できませんでした！</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="763"/>
@@ -300,22 +303,22 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="763"/>
       <source>Error occurred checking for updates!</source>
-      <translation></translation>
+      <translation>アップデートの確認中にエラーが発生しました！</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="769"/>
       <source>Invalid JSON response was retrieved checking for updates!</source>
-      <translation></translation>
+      <translation>アップデートの確認中に無効なJSONレスポンスが返されました！</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="801"/>
       <source>No New Updates</source>
-      <translation></translation>
+      <translation>更新はありません</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="801"/>
       <source>You are using the latest version of the software.</source>
-      <translation></translation>
+      <translation>最新バージョンを使用中です。</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="859"/>
@@ -331,7 +334,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="948"/>
       <source>Error Removing File</source>
-      <translation></translation>
+      <translation>ファイルの削除中にエラーが発生しました</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="948"/>

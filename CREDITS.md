@@ -22,7 +22,7 @@
 - Dutch: Trico Everfire
 - German: Nilten
 - Italian: enderzombi102
-- Japanese: craftablescience
+- Japanese: craftablescience, poropopo
 - Korean: hamn
 - Polish: Enderek, Patrxgt
 - Portuguese (Brazil): vivizinho64minecraft
