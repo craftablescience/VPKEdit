@@ -180,50 +180,54 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 
 	if (cli.is_used(ARG_L(REMOVE_FILE))) {
-		auto path = cli.get(ARG_L(REMOVE_FILE));
-		if (!packFile->removeEntry(path)) {
-			throw vpkedit_runtime_error{
-				"Unable to remove file at \"" + path + "\" from the pack file!\n"
-				"Check the file exists in the pack file and the path is spelled correctly."
-			};
-		} else {
+		for (const auto paths = cli.get<std::vector<std::string>>(ARG_L(REMOVE_FILE)); const auto& path : paths) {
+			if (!packFile->removeEntry(path)) {
+				throw vpkedit_runtime_error{
+					"Unable to remove file at \"" + path + "\" from the pack file!\n"
+					"Check the file exists in the pack file and the path is spelled correctly."
+				};
+			}
 			std::cout << "Removed file at \"" << path << "\" from the pack file." << std::endl;
 		}
 	}
 
 	if (cli.is_used(ARG_L(REMOVE_DIR))) {
-		auto path = cli.get(ARG_L(REMOVE_DIR));
-		if (!packFile->removeDirectory(path)) {
-			throw vpkedit_runtime_error{
-				"Unable to remove directory at \"" + path + "\" from the pack file!\n"
-				"Check the directory exists in the pack file and the path is spelled correctly."
-			};
-		} else {
+		for (const auto paths = cli.get<std::vector<std::string>>(ARG_L(REMOVE_DIR)); const auto& path : paths) {
+			if (!packFile->removeDirectory(path)) {
+				throw vpkedit_runtime_error{
+					"Unable to remove directory at \"" + path + "\" from the pack file!\n"
+					"Check the directory exists in the pack file and the path is spelled correctly."
+				};
+			}
 			std::cout << "Removed directory at \"" << path << "\" from the pack file." << std::endl;
 		}
 	}
 
 	if (cli.is_used(ARG_L(ADD_FILE))) {
-		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
-		if (!std::filesystem::exists(args[0])) {
-			throw vpkedit_invalid_argument_error{"File at \"" + args[0] + "\" does not exist! Cannot add to pack file."};
-		} else if (!std::filesystem::is_regular_file(args[0])) {
-			throw vpkedit_invalid_argument_error{"Path \"" + args[0] + "\" does not point to a file! Cannot add to pack file."};
-		} else {
-			packFile->addEntry(args[1], args[0], {});
-			std::cout << "Added file at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
+		const auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_FILE));
+		for (int i = 0; i < args.size(); i += 2) {
+			if (!std::filesystem::exists(args[i])) {
+				throw vpkedit_invalid_argument_error{"File at \"" + args[i] + "\" does not exist! Cannot add to pack file."};
+			}
+			if (!std::filesystem::is_regular_file(args[0])) {
+				throw vpkedit_invalid_argument_error{"Path \"" + args[i] + "\" does not point to a file! Cannot add to pack file."};
+			}
+			packFile->addEntry(args[i + 1], args[i], {});
+			std::cout << "Added file at \"" << args[i] << "\" to the pack file at path \"" << args[i + 1] << "\"." << std::endl;
 		}
 	}
 
 	if (cli.is_used(ARG_L(ADD_DIR))) {
-		auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_DIR));
-		if (!std::filesystem::exists(args[0])) {
-			throw vpkedit_invalid_argument_error{"Directory at \"" + args[0] + "\" does not exist! Cannot add to pack file."};
-		} else if (!std::filesystem::is_directory(args[0])) {
-			throw vpkedit_invalid_argument_error{"Path \"" + args[0] + "\" does not point to a directory! Cannot add to pack file."};
-		} else {
-			packFile->addDirectory(args[1], args[0]);
-			std::cout << "Added directory at \"" << args[0] << "\" to the pack file at path \"" << args[1] << "\"." << std::endl;
+		const auto args = cli.get<std::vector<std::string>>(ARG_L(ADD_DIR));
+		for (int i = 0; i < args.size(); i += 2) {
+			if (!std::filesystem::exists(args[i])) {
+				throw vpkedit_invalid_argument_error{"Directory at \"" + args[i] + "\" does not exist! Cannot add to pack file."};
+			}
+			if (!std::filesystem::is_directory(args[i])) {
+				throw vpkedit_invalid_argument_error{"Path \"" + args[i] + "\" does not point to a directory! Cannot add to pack file."};
+			}
+			packFile->addDirectory(args[i + 1], args[i]);
+			std::cout << "Added directory at \"" << args[i] << "\" to the pack file at path \"" << args[i + 1] << "\"." << std::endl;
 		}
 	}
 
@@ -501,19 +505,23 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_L(ADD_FILE))
 		.help("(Modify) Add the specified file to the pack file with the given path.")
-		.nargs(2);
+		.nargs(2)
+		.append();
 
 	cli.add_argument(ARG_L(ADD_DIR))
 		.help("(Modify) Add the specified directory to the pack file with the given path.")
-		.nargs(2);
+		.nargs(2)
+		.append();
 
 	cli.add_argument(ARG_L(REMOVE_FILE))
 		.help("(Modify) Remove the specified file at the given path from the pack file.")
-		.nargs(1);
+		.nargs(1)
+		.append();
 
 	cli.add_argument(ARG_L(REMOVE_DIR))
 		.help("(Modify) Remove the specified directory at the given path from the pack file.")
-		.nargs(1);
+		.nargs(1)
+		.append();
 
 	cli.add_argument(ARG_P(PRELOAD))
 		.help("(Pack) If a file's extension is in this list, the first kilobyte will be\n"
