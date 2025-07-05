@@ -6,7 +6,6 @@ on:
 env:
   BUILD_DIR: '${{github.workspace}}/build'
   QT_VERSION: '6.6.3'
-  QT_MODULES: 'qtimageformats'
 
 jobs:
   analyze:
@@ -52,7 +51,6 @@ jobs:
           target: 'desktop'
           arch: 'gcc_64'
           dir: '${{github.workspace}}/qt'
-          modules: ${{env.QT_MODULES}}
           cache: true
 
       - name: Configure CMake

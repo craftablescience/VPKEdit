@@ -25,9 +25,6 @@ if(WIN32)
     install(FILES "${QT_BASEDIR}/bin/opengl32sw.dll"
             DESTINATION .)
 
-    install(FILES "${QT_BASEDIR}/plugins/imageformats/qwebp${QT_LIB_SUFFIX}.dll"
-            DESTINATION imageformats)
-
     install(FILES "${QT_BASEDIR}/plugins/platforms/qwindows${QT_LIB_SUFFIX}.dll"
             DESTINATION platforms)
 
@@ -77,7 +74,6 @@ elseif(UNIX)
 
         install(DIRECTORY
                 "${CMAKE_BINARY_DIR}/egldeviceintegrations"
-                "${CMAKE_BINARY_DIR}/imageformats"
                 "${CMAKE_BINARY_DIR}/platforminputcontexts"
                 "${CMAKE_BINARY_DIR}/platforms"
                 "${CMAKE_BINARY_DIR}/platformthemes"
