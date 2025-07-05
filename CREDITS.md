@@ -25,7 +25,7 @@
 - Japanese: craftablescience, poropopo
 - Korean: hamn
 - Polish: Enderek, Patrxgt
-- Portuguese (Brazil): vivizinho64minecraft
+- Portuguese (Brazil): Jean Trindade Pereira, vivizinho64minecraft
 - Russian: Michael Soyka
 - Spanish: Samuel, craftablescience
 - Swedish: BreakinBenny, TheDudeWhosNameIsAce
