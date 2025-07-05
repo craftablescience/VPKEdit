@@ -256,7 +256,7 @@ QString VTFWidget::getVersion() const {
 	switch (this->vtf->getPlatform()) {
 		case VTF::PLATFORM_UNKNOWN:
 		case VTF::PLATFORM_PC:
-			return QString::number(this->vtf->getMajorVersion()) + "." + QString::number(this->vtf->getMinorVersion());
+			return "7." + QString::number(this->vtf->getVersion());
 		case VTF::PLATFORM_PS3_PORTAL2:
 			return "PS3 (v7.5)";
 		case VTF::PLATFORM_PS3_ORANGEBOX:
@@ -272,7 +272,7 @@ QString VTFWidget::getFormat() const {
 }
 
 int VTFWidget::getAuxCompression() const {
-	if (this->vtf->getMajorVersion() < 7 || this->vtf->getMinorVersion() < 6) {
+	if (this->vtf->getVersion() < 6) {
 		return 0;
 	}
 
