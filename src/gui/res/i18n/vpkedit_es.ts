@@ -151,7 +151,7 @@ Asegúrese de que el archivo no está siendo utilizado por un juego u otra aplic
     <message>
       <location filename="../../FileViewer.cpp" line="85"/>
       <source>Navigate...</source>
-      <translation>Navega...</translation>
+      <translation>Navegar...</translation>
     </message>
   </context>
   <context>
@@ -281,7 +281,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="361"/>
       <source>Controls</source>
-      <translation>Controla</translation>
+      <translation>Controles</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="653"/>
@@ -420,7 +420,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="123"/>
       <source>Open...</source>
-      <translation>Abre...</translation>
+      <translation>Abrir...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="131"/>
@@ -435,7 +435,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="137"/>
       <source>Save</source>
-      <translation>Ahorro</translation>
+      <translation>Ahorrorar</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="142"/>
@@ -450,7 +450,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="160"/>
       <source>Check For Updates...</source>
-      <translation>Compruebe las Actualizaciones...</translation>
+      <translation>Comprobar Por Actualizaciones...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="164"/>
@@ -555,7 +555,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="424"/>
       <source>Search...</source>
-      <translation>Busca...</translation>
+      <translation>Buscar...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1673"/>
@@ -620,7 +620,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="210"/>
       <source>Disable Startup Update Check</source>
-      <translation>Desactivar la Comprobación de Actualización</translation>
+      <translation>Desactivar la Comprobación de Actualizaciones al Inicio</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1692"/>
@@ -635,7 +635,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="345"/>
       <source>Generate Public/Private Key Files...</source>
-      <translation></translation>
+      <translation>Generar archivos de llaves Publicas/Privadas...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="348"/>
@@ -685,7 +685,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="203"/>
       <source>Disable Open In Menu</source>
-      <translation></translation>
+      <translation>Deshabilitar Abrir En Menu</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="77"/>
@@ -715,7 +715,7 @@ Más información a continuación.</translation>
     <message>
       <location filename="../../Window.cpp" line="1643"/>
       <source>No games detected.</source>
-      <translation></translation>
+      <translation>No se detectaron juegos.</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="127"/>
@@ -850,7 +850,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="46"/>
       <source>Size</source>
-      <translation>Talla</translation>
+      <translation>Tamaño</translation>
     </message>
     <message>
       <location filename="../../previews/DirPreview.cpp" line="48"/>
@@ -988,7 +988,7 @@ instead of the directory:</source>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="201"/>
       <source>Save</source>
-      <translation>Ahorro</translation>
+      <translation>Ahorrar</translation>
     </message>
     <message>
       <location filename="../../previews/TextPreview.cpp" line="207"/>
