@@ -242,6 +242,7 @@ public:
 		".apng",
 		".webp",
 		".bmp",
+		".qoi",
 		".psd",
 		".gif",
 		".hdr",

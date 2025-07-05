@@ -140,6 +140,7 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".apng", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".webp", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".bmp", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".qoi", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".psd", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".gif", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".hdr", &SingleFile::open);
