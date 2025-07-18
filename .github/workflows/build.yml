@@ -38,7 +38,6 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: '==3.1.*'
           version: '${{env.QT_VERSION_VPKEDIT}}'
           host: 'windows'
           target: 'desktop'
@@ -50,7 +49,6 @@ jobs:
         if: ${{matrix.target == 'StrataSource'}}
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: '==3.1.*'
           version: '${{env.QT_VERSION_STRATASOURCE}}'
           host: 'windows'
           target: 'desktop'
@@ -207,7 +205,6 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: '==3.1.*'
           version: '${{env.QT_VERSION_VPKEDIT}}'
           host: 'linux'
           target: 'desktop'
@@ -219,7 +216,6 @@ jobs:
         if: ${{matrix.target == 'StrataSource'}}
         uses: jurplel/install-qt-action@v4
         with:
-          aqtversion: '==3.1.*'
           version: '${{env.QT_VERSION_STRATASOURCE}}'
           host: 'linux'
           target: 'desktop'
