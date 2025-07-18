@@ -11,8 +11,10 @@ env:
   BUILD_DIR: '${{github.workspace}}/build'
   QT_VERSION_VPKEDIT: '6.8.3'
   QT_MSVC_ARCH_VPKEDIT: 'win64_msvc2022_64'
+  QT_GCC_ARCH_VPKEDIT: 'linux_gcc_64'
   QT_VERSION_STRATASOURCE: '6.5.3'
   QT_MSVC_ARCH_STRATASOURCE: 'win64_msvc2019_64'
+  QT_GCC_ARCH_STRATASOURCE: 'gcc_64'
 
 jobs:
   build-windows:
@@ -210,7 +212,7 @@ jobs:
           version: '${{env.QT_VERSION_VPKEDIT}}'
           host: 'linux'
           target: 'desktop'
-          arch: 'gcc_64'
+          arch: '${{env.QT_GCC_ARCH_VPKEDIT}}'
           dir: '${{github.workspace}}/qt'
           cache: true
 
@@ -221,7 +223,7 @@ jobs:
           version: '${{env.QT_VERSION_STRATASOURCE}}'
           host: 'linux'
           target: 'desktop'
-          arch: 'gcc_64'
+          arch: '${{env.QT_GCC_ARCH_STRATASOURCE}}'
           dir: '${{github.workspace}}/qt'
           cache: true
 
