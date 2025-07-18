@@ -62,11 +62,11 @@ jobs:
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/msvc2019_64" -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/${{env.QT_MSVC_ARCH_VPKEDIT}}" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/msvc2019_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/${{env.QT_MSVC_ARCH_STRATASOURCE}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
@@ -141,15 +141,15 @@ jobs:
           xcopy /y __qt__\Qt6OpenGLWidgets.dll              Qt6OpenGLWidgets.dll
           xcopy /y __qt__\Qt6Widgets.dll                    Qt6Widgets.dll
           REM Overwrite the source of the binaries for installer version
-          xcopy /y __qt__\platforms\qwindows.dll            "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\platforms\qwindows.dll"
-          xcopy /y /c __qt__\styles\qmodernwindowsstyle.dll "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\styles\qmodernwindowsstyle.dll"
-          xcopy /y /c __qt__\styles\qwindowsvistastyle.dll  "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\plugins\styles\qwindowsvistastyle.dll"
-          xcopy /y __qt__\Qt6Core.dll                       "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Core.dll"
-          xcopy /y __qt__\Qt6Gui.dll                        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Gui.dll"
-          xcopy /y __qt__\Qt6Network.dll                    "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Network.dll"
-          xcopy /y __qt__\Qt6OpenGL.dll                     "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6OpenGL.dll"
-          xcopy /y __qt__\Qt6OpenGLWidgets.dll              "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6OpenGLWidgets.dll"
-          xcopy /y __qt__\Qt6Widgets.dll                    "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\msvc2019_64\bin\Qt6Widgets.dll"
+          xcopy /y __qt__\platforms\qwindows.dll            "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\plugins\platforms\qwindows.dll"
+          xcopy /y /c __qt__\styles\qmodernwindowsstyle.dll "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\plugins\styles\qmodernwindowsstyle.dll"
+          xcopy /y /c __qt__\styles\qwindowsvistastyle.dll  "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\plugins\styles\qwindowsvistastyle.dll"
+          xcopy /y __qt__\Qt6Core.dll                       "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6Core.dll"
+          xcopy /y __qt__\Qt6Gui.dll                        "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6Gui.dll"
+          xcopy /y __qt__\Qt6Network.dll                    "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6Network.dll"
+          xcopy /y __qt__\Qt6OpenGL.dll                     "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6OpenGL.dll"
+          xcopy /y __qt__\Qt6OpenGLWidgets.dll              "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6OpenGLWidgets.dll"
+          xcopy /y __qt__\Qt6Widgets.dll                    "${{github.workspace}}\qt\Qt\${{env.QT_VERSION_VPKEDIT}}\${{env.QT_MSVC_ARCH_VPKEDIT}}\bin\Qt6Widgets.dll"
 
       - name: Upload Standalone Compatibility GUI [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
@@ -229,11 +229,11 @@ jobs:
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DEB" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/gcc_64" -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DEB" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/${{env.QT_GCC_ARCH_VPKEDIT}}" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="RPM" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/gcc_64" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="RPM" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/${{env.QT_GCC_ARCH_STRATASOURCE}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
