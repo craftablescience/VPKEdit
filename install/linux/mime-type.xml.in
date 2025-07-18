@@ -185,5 +185,6 @@
         <glob-deleteall/>
         <glob pattern="*.vtf"/>
         <glob pattern="*.VTF"/>
+        <alias type="image/vnd.valve.source.texture"/>
     </mime-type>
 </mime-info>
