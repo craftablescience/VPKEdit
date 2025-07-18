@@ -46,7 +46,6 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: '${{env.QT_MSVC_ARCH_VPKEDIT}}'
-          dir: '${{github.workspace}}/qt'
           cache: true
 
       - name: Install Qt [target:StrataSource]
@@ -57,16 +56,15 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: '${{env.QT_MSVC_ARCH_STRATASOURCE}}'
-          dir: '${{github.workspace}}/qt'
           cache: true
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/${{env.QT_MSVC_ARCH_VPKEDIT}}" -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/${{env.QT_MSVC_ARCH_STRATASOURCE}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="NSIS" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
@@ -213,7 +211,6 @@ jobs:
           host: 'linux'
           target: 'desktop'
           arch: '${{env.QT_GCC_ARCH_VPKEDIT}}'
-          dir: '${{github.workspace}}/qt'
           cache: true
 
       - name: Install Qt [target:StrataSource]
@@ -224,16 +221,15 @@ jobs:
           host: 'linux'
           target: 'desktop'
           arch: '${{env.QT_GCC_ARCH_STRATASOURCE}}'
-          dir: '${{github.workspace}}/qt'
           cache: true
 
       - name: Configure CMake [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DEB" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_VPKEDIT}}/${{env.QT_GCC_ARCH_VPKEDIT}}" -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DEB" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="RPM" -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION_STRATASOURCE}}/${{env.QT_GCC_ARCH_STRATASOURCE}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="RPM" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
