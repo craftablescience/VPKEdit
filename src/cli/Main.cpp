@@ -7,7 +7,7 @@
 #include <indicators/indeterminate_progress_bar.hpp>
 #include <vpkpp/vpkpp.h>
 
-#include <Version.h>
+#include <Config.h>
 
 #include "Tree.h"
 

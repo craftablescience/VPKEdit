@@ -123,7 +123,8 @@ function(vpkedit_configure_target TARGET)
 endfunction()
 
 # Shared
-include("${CMAKE_CURRENT_SOURCE_DIR}/src/shared/_shared.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/ext/_ext.cmake")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h")
 
 # vpkeditcli
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/cli/_cli.cmake")

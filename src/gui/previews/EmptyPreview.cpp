@@ -1,6 +1,6 @@
 #include "EmptyPreview.h"
 
-#include <Version.h>
+#include <Config.h>
 
 EmptyPreview::EmptyPreview(QWidget* parent)
 		: InfoPreview({":/logo.png"}, PROJECT_TITLE.data(), parent) {
