@@ -71,9 +71,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/previews/TexturePreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/previews/TexturePreview.h"
 
-        "$<$<CONFIG:Debug>:${CMAKE_CURRENT_LIST_DIR}/res/logo_alt.qrc>"
-        "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_LIST_DIR}/res/logo.qrc>"
-        "${CMAKE_CURRENT_LIST_DIR}/res/res.qrc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.qrc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc"
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
@@ -102,8 +101,20 @@ add_executable(${PROJECT_NAME} WIN32 ${${PROJECT_NAME}_SOURCES})
 
 vpkedit_configure_target(${PROJECT_NAME})
 
-file(GLOB ${PROJECT_NAME}_I18N_TS_FILES "${CMAKE_CURRENT_LIST_DIR}/res/i18n/${PROJECT_NAME}_*.ts")
-qt_add_translations(${PROJECT_NAME} TS_FILES ${${PROJECT_NAME}_I18N_TS_FILES} SOURCES ${${PROJECT_NAME}_SOURCES})
+file(GLOB ${PROJECT_NAME}_I18N_TS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/i18n/${PROJECT_NAME}_*.ts")
+qt_add_translations(${PROJECT_NAME}
+		TS_FILES ${${PROJECT_NAME}_I18N_TS_FILES}
+		RESOURCE_PREFIX "/i18n"
+		SOURCES ${${PROJECT_NAME}_SOURCES})
+
+get_target_property(QT_QMAKE_EXECUTABLE Qt::qmake IMPORTED_LOCATION)
+execute_process(COMMAND "${QT_QMAKE_EXECUTABLE}" -query QT_INSTALL_TRANSLATIONS OUTPUT_VARIABLE QT_TRANSLATIONS_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+file(GLOB ${PROJECT_NAME}_I18N_QM_FILES "${QT_TRANSLATIONS_DIR}/qt_*.qm" "${QT_TRANSLATIONS_DIR}/qtbase_*.qm")
+qt_add_resources(${PROJECT_NAME} "${PROJECT_NAME}_precompiled_translations"
+		BASE "${QT_TRANSLATIONS_DIR}"
+		PREFIX "/i18n"
+		BIG_RESOURCES
+		FILES ${${PROJECT_NAME}_I18N_QM_FILES})
 
 target_link_libraries(
         ${PROJECT_NAME} PRIVATE
@@ -141,7 +152,6 @@ target_include_directories(
 # Copy these next to the executable
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
-# Don't copy the .nonportable file, we're debugging in standalone mode
 
 # Copy these so the user doesn't have to
 set(${PROJECT_NAME}_QTBASE_TRANSLATIONS "")

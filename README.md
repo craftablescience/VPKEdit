@@ -1,5 +1,5 @@
 <div>
-  <img align="left" width="44px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/logo.png?raw=true" alt="VPKEdit Logo" />
+  <img align="left" width="44px" src="https://github.com/craftablescience/VPKEdit/blob/main/res/brand/logo_512.png?raw=true" alt="VPKEdit Logo" />
   <h1>VPKEdit</h1>
 </div>
 
@@ -13,12 +13,12 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 </div>
 
 <div>
-  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/screenshot1.png?raw=true" alt="A screenshot of VPKEdit with a VPK and an MDL preview open in wireframe mode." />
-  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/screenshot2.png?raw=true" alt="A screenshot of VPKEdit with a VPK and an MDL preview open in shaded textured mode." />
+  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/res/brand/screenshot1.png?raw=true" alt="A screenshot of VPKEdit with a VPK and an MDL preview open in wireframe mode." />
+  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/res/brand/screenshot2.png?raw=true" alt="A screenshot of VPKEdit with a VPK and an MDL preview open in shaded textured mode." />
 </div>
 <div>
-  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/screenshot3.png?raw=true" alt="A screenshot of VPKEdit with a BSP and a VTF preview open." />
-  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/branding/screenshot4.png?raw=true" alt="A screenshot of the command-line version of VPKEdit." />
+  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/res/brand/screenshot3.png?raw=true" alt="A screenshot of VPKEdit with a BSP and a VTF preview open." />
+  <img width="400px" src="https://github.com/craftablescience/VPKEdit/blob/main/res/brand/screenshot4.png?raw=true" alt="A screenshot of the command-line version of VPKEdit." />
 </div>
 
 ## Installing

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 # Create project
 project(vpkedit
         DESCRIPTION "A CLI/GUI tool to create, read, and write several pack file formats."
-        VERSION "4.4.2"
+        VERSION "5.0.0.1"
         HOMEPAGE_URL "https://github.com/craftablescience/VPKEdit")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -109,9 +109,8 @@ function(vpkedit_configure_target TARGET)
         if(TARGET_TYPE STREQUAL "EXECUTABLE")
             target_sources(
                     ${TARGET} PRIVATE
-                    "$<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo_alt.rc>"
-                    "$<$<NOT:$<CONFIG:Debug>>:${CMAKE_CURRENT_SOURCE_DIR}/src/shared/res/logo.rc>"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/src/gui/res/program.manifest")
+                    "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.rc"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/res/program.manifest")
         endif()
 
         # Don't show the console when running the executable
