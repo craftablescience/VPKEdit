@@ -9,11 +9,13 @@ on:
 
 env:
   BUILD_DIR: '${{github.workspace}}/build'
-  QT_VERSION_VPKEDIT: '6.8.3'
+  QT_MSVC_VERSION_VPKEDIT: '6.8.3'
   QT_MSVC_ARCH_VPKEDIT: 'win64_msvc2022_64'
+  QT_GCC_VERSION_VPKEDIT: '6.4.2'
   QT_GCC_ARCH_VPKEDIT: 'linux_gcc_64'
-  QT_VERSION_STRATASOURCE: '6.5.3'
+  QT_MSVC_VERSION_STRATASOURCE: '6.5.3'
   QT_MSVC_ARCH_STRATASOURCE: 'win64_msvc2019_64'
+  QT_GCC_VERSION_STRATASOURCE: '6.5.3'
   QT_GCC_ARCH_STRATASOURCE: 'gcc_64'
 
 jobs:
@@ -42,7 +44,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{env.QT_VERSION_VPKEDIT}}'
+          version: '${{env.QT_MSVC_VERSION_VPKEDIT}}'
           host: 'windows'
           target: 'desktop'
           arch: '${{env.QT_MSVC_ARCH_VPKEDIT}}'
@@ -52,7 +54,7 @@ jobs:
         if: ${{matrix.target == 'StrataSource'}}
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{env.QT_VERSION_STRATASOURCE}}'
+          version: '${{env.QT_MSVC_VERSION_STRATASOURCE}}'
           host: 'windows'
           target: 'desktop'
           arch: '${{env.QT_MSVC_ARCH_STRATASOURCE}}'
@@ -116,7 +118,7 @@ jobs:
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         working-directory: ${{env.BUILD_DIR}}
         run: |
-          curl -L -o "__qt__.7z" "https://github.com/crystalidea/qt6windows7/releases/download/v${{env.QT_VERSION_VPKEDIT}}/qt6_x64_to_run_on_windows7.7z"
+          curl -L -o "__qt__.7z" "https://github.com/crystalidea/qt6windows7/releases/download/v${{env.QT_MSVC_VERSION_VPKEDIT}}/qt6_x64_to_run_on_windows7.7z"
           7z x __qt__.7z -o__qt__ -y
           REM Overwrite the already copied binaries for standalone version
           xcopy /y __qt__\platforms\qwindows.dll            platforms\qwindows.dll
@@ -198,7 +200,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{env.QT_VERSION_VPKEDIT}}'
+          version: '${{env.QT_GCC_VERSION_VPKEDIT}}'
           host: 'linux'
           target: 'desktop'
           arch: '${{env.QT_GCC_ARCH_VPKEDIT}}'
@@ -208,7 +210,7 @@ jobs:
         if: ${{matrix.target == 'StrataSource'}}
         uses: jurplel/install-qt-action@v4
         with:
-          version: '${{env.QT_VERSION_STRATASOURCE}}'
+          version: '${{env.QT_GCC_VERSION_STRATASOURCE}}'
           host: 'linux'
           target: 'desktop'
           arch: '${{env.QT_GCC_ARCH_STRATASOURCE}}'
