@@ -50,7 +50,7 @@ cs_include_directory(src/cli)
 # vpkedit
 cs_include_directory(src/gui)
 
-# Installer
+# installer
 if(VPKEDIT_BUILD_INSTALLER)
     cs_include_directory(install)
 endif()
@@ -60,9 +60,4 @@ if(WIN32)
     set_target_properties(
             ${PROJECT_NAME} PROPERTIES
             VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
-
-    # Qt hacks
-    set_target_properties(${PROJECT_NAME}_lrelease PROPERTIES FOLDER "Qt")
-    set_target_properties(${PROJECT_NAME}_lupdate PROPERTIES FOLDER "Qt")
-    set_target_properties(${PROJECT_NAME}_other_files PROPERTIES FOLDER "Qt")
 endif()
