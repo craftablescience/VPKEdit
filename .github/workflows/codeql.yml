@@ -10,7 +10,7 @@ env:
 jobs:
   analyze:
     name: Analyze (${{matrix.language}})
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: ${{(matrix.language == 'swift' && 120) || 360}}
     permissions:
       security-events: write
@@ -36,12 +36,6 @@ jobs:
       - name: Install Necessary Packages
         run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
 
-      - name: Install GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: 11
-          platform: x64
-
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -54,7 +48,7 @@ jobs:
           cache: true
 
       - name: Configure CMake
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=Release -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64" -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=Release -DQT_BASEDIR="${{github.workspace}}/qt/Qt/${{env.QT_VERSION}}/gcc_64" -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
