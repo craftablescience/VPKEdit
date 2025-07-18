@@ -43,9 +43,9 @@ application without any issues.
 >
 > ```sh
 > # CLI:
-> ln -s /path/to/standalone/vpkeditcli /usr/bin/vpkeditcli
+> ln -s /path/to/standalone/vpkeditcli ~/.local/bin/vpkeditcli
 > # GUI:
-> ln -s /path/to/standalone/vpkedit /usr/bin/vpkedit
+> ln -s /path/to/standalone/vpkedit ~/.local/bin/vpkedit
 > ```
 >
 > With the symlink in place, updating your standalone install will automatically update the binary on the PATH.
