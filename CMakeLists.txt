@@ -58,7 +58,7 @@ endif()
 # VS setup
 if(WIN32)
     set_target_properties(
-            ${PROJECT_NAME}_gui PROPERTIES
+            ${PROJECT_NAME} PROPERTIES
             VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
 
     # Qt hacks
