@@ -1,10 +1,10 @@
 [Desktop Entry]
 Name=${PROJECT_NAME_PRETTY}
 Comment=${PROJECT_DESCRIPTION}
-Exec=/opt/${PROJECT_NAME}/${PROJECT_NAME} %f
+Exec=${PROJECT_NAME} %f
 Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
 Categories=Qt;Development;Utility;
-MimeType=application/x-vpkedit-007;application/x-vpkedit-bee-pack;application/x-vpkedit-bmz;application/x-vpkedit-bsp;application/x-vpkedit-fpk;application/x-vpkedit-fpx;application/x-vpkedit-gcf;application/x-vpkedit-gma;application/x-vpkedit-hog;application/x-vpkedit-ol;application/x-vpkedit-ore;application/x-vpkedit-pak;application/x-vpkedit-pck;application/x-vpkedit-vpk;application/x-vpkedit-vpp;application/x-dmx;application/x-mdl;image/x-ppl;image/x-tth;image/x-ttz;image/x-vtf;
+MimeType=application/x-vpkedit-007;application/x-vpkedit-bee-pack;application/x-vpkedit-bmz;application/x-vpkedit-bsp;application/x-vpkedit-fpk;application/x-vpkedit-fpx;application/x-vpkedit-gcf;application/x-vpkedit-gma;application/x-vpkedit-hog;application/x-vpkedit-ol;application/x-vpkedit-ore;application/x-vpkedit-pak;application/x-vpkedit-pck;application/x-vpkedit-vpk;application/x-vpkedit-vpp;application/x-dmx;model/x-mdl;image/x-ppl;image/x-tth;image/x-ttz;image/x-vtf;
 PrefersNonDefaultGPU=true

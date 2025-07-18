@@ -141,9 +141,9 @@
         <glob pattern="*.dmx"/>
         <glob pattern="*.DMX"/>
     </mime-type>
-    <mime-type type="application/x-mdl">
+    <mime-type type="model/x-mdl">
         <comment>Model</comment>
-        <icon name="application-x-mdl"/>
+        <icon name="model-x-mdl"/>
         <acronym>MDL</acronym>
         <expanded-acronym>Model</expanded-acronym>
         <glob-deleteall/>
