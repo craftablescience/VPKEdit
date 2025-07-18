@@ -1,15 +1,15 @@
 [submodule "src/cli/thirdparty/argparse"]
-	path = src/cli/thirdparty/argparse
+	path = ext/cli/argparse
 	url = https://github.com/p-ranav/argparse
 [submodule "src/cli/thirdparty/indicators"]
-	path = src/cli/thirdparty/indicators
+	path = ext/cli/indicators
 	url = https://github.com/p-ranav/indicators
 [submodule "src/gui/thirdparty/discord"]
-	path = src/gui/thirdparty/discord
+	path = ext/gui/discord
 	url = https://github.com/craftablescience/discord-rpc-clean
 [submodule "src/gui/thirdparty/miniaudio"]
-	path = src/gui/thirdparty/miniaudio
+	path = ext/gui/miniaudio
 	url = https://github.com/mackron/miniaudio
 [submodule "src/shared/thirdparty/sourcepp"]
-	path = src/shared/thirdparty/sourcepp
+	path = ext/shared/sourcepp
 	url = https://github.com/craftablescience/sourcepp

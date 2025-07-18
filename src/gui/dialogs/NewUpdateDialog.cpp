@@ -3,7 +3,7 @@
 #include <QGridLayout>
 #include <QSpacerItem>
 
-#include <Version.h>
+#include <Config.h>
 
 #include "../utility/Options.h"
 

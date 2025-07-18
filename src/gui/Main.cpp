@@ -4,7 +4,7 @@
 #include <QSurfaceFormat>
 #include <QTranslator>
 
-#include <Version.h>
+#include <Config.h>
 
 #include "utility/Options.h"
 #include "Window.h"
@@ -34,8 +34,12 @@ int main(int argc, char** argv) {
 	if (translatorQtBase.load(locale, "qtbase", "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translatorQtBase);
 	}
+	QTranslator translatorQtHelp;
+	if (translatorQtHelp.load(locale, "qt_help", "_", ":/i18n")) {
+		QCoreApplication::installTranslator(&translatorQtHelp);
+	}
 	QTranslator translatorQt;
-	if (translatorQtBase.load(locale, "qt", "_", ":/i18n")) {
+	if (translatorQt.load(locale, "qt", "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translatorQt);
 	}
 	QTranslator translator;

@@ -36,7 +36,7 @@
 #include <steampp/steampp.h>
 #include <vpkpp/vpkpp.h>
 
-#include <Version.h>
+#include <Config.h>
 
 #include "dialogs/ControlsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
