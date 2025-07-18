@@ -35,6 +35,8 @@ VPKEdit is on the Windows package registry, so you only need to run one command 
 Installation on Linux will vary depending on your distro. On all distros you should be able to run the standalone
 application without any issues.
 
+[![Packaging Status](https://repology.org/badge/vertical-allrepos/vpkedit.svg?header=Packaging%20Status)](https://repology.org/project/vpkedit/versions)
+
 > [!TIP]
 > The installer will symlink the CLI and GUI applications to `/usr/bin` automatically,
 > but if you prefer or need to use a standalone version, you can run one or both of the following commands to add them to the PATH:
@@ -61,6 +63,18 @@ There are two ways of *installing* VPKEdit specific to the following distros:
 
 1. Download the installer from the GitHub releases section, and extract the `.deb` file from inside.
 2. Run `sudo apt install ./<name of deb file>.deb` in the directory you extracted it to.
+
+#### Fedora-based:
+
+###### Automatic:
+
+1. Install the Terra third-party package repository at https://terra.fyralabs.com/.
+2. VPKEdit should now be installable and upgradeable from `dnf` and `yum` (the package name being `vpkedit`).
+
+###### Manual:
+
+1. Download the installer from the GitHub releases section, and extract the `.rpm` file from inside.
+2. Run `sudo dnf install ./<name of rpm file>.rpm` in the directory you extracted it to.
 
 #### Arch-based:
 
