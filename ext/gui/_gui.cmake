@@ -49,7 +49,6 @@ function(target_use_qt TARGET)
     qt_add_resources(${TARGET} "${TARGET}_qt_translations"
             BASE "${QT_TRANSLATIONS_DIR}"
             PREFIX "/i18n"
-            BIG_RESOURCES
             FILES ${QT_I18N_QM_FILES})
 endfunction()
 
