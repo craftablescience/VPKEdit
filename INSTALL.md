@@ -80,7 +80,7 @@ There are two ways of *installing* VPKEdit specific to the following distros:
 
 VPKEdit is on the Arch User Repository thanks to [@HurricanePootis](https://github.com/HurricanePootis).
 Please consult the [Arch Wiki](https://wiki.archlinux.org/title/Arch_User_Repository) for more information,
-as I don't use Arch Linux personally and don't know how that system works. (I use Debian btw)
+as I don't use Arch Linux personally and don't know how that system works. (I use Fedora btw)
 
 #### NixOS:
 
