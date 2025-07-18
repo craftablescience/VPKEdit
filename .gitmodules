@@ -1,3 +1,6 @@
+[submodule "cmake/cmake-helpers"]
+	path = cmake/helpers
+	url = https://github.com/craftablescience/cmake-helpers
 [submodule "src/cli/thirdparty/argparse"]
 	path = ext/cli/argparse
 	url = https://github.com/p-ranav/argparse

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
-# Create project
+# set up project
 project(vpkedit
         DESCRIPTION "A CLI/GUI tool to create, read, and write several pack file formats."
         VERSION "5.0.0.1"
@@ -8,144 +8,57 @@ project(vpkedit
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include CMake libraries
-include(CheckIPOSupported)
-include(GNUInstallDirs)
-
-# Initial VS integration
-set(CMAKE_FOLDER "Thirdparty" CACHE INTERNAL "" FORCE)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# Set up variables
-set(PROJECT_NAME_PRETTY "VPKEdit" CACHE STRING "" FORCE)
-# If the tweak number exists, version is a beta or release candidate
-if(PROJECT_VERSION_TWEAK STREQUAL "")
-    # Proper release version
-    set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION}" CACHE STRING "" FORCE)
-elseif(PROJECT_VERSION_TWEAK MATCHES "^99+$")
-    # Release candidate, number of 9s controls the RC number
-    string(LENGTH ${PROJECT_VERSION_TWEAK} PROJECT_VERSION_TWEAK_LENGTH)
-    math(EXPR PROJECT_VERSION_TWEAK_LENGTH "${PROJECT_VERSION_TWEAK_LENGTH} - 1" OUTPUT_FORMAT DECIMAL)
-    set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-rc.${PROJECT_VERSION_TWEAK_LENGTH}" CACHE STRING "" FORCE)
-else()
-    # Beta version
-    set(PROJECT_VERSION_PRETTY "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-beta.${PROJECT_VERSION_TWEAK}" CACHE STRING "" FORCE)
-endif()
-set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE STRING "" FORCE)
-set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE STRING "" FORCE)
-
-# Options
-option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
+# options
 option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
-option(VPKEDIT_USE_LTO "Build VPKEdit with link-time optimization enabled" OFF)
+option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
 
-# Global CMake options
-if(PROJECT_IS_TOP_LEVEL)
-    # Set proper runpath
-    set(CMAKE_SKIP_RPATH OFF)
-    set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
-    set(CMAKE_BUILD_RPATH $ORIGIN)
-    set(CMAKE_INSTALL_RPATH $ORIGIN)
+# add helpers
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/helpers")
+include(CS_All)
 
-    # Compile with PIC
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# extra metadata variables
+set(PROJECT_NAME_PRETTY "VPKEdit")
+cs_version_pretty() # PROJECT_VERSION_PRETTY
+set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE INTERNAL "" FORCE)
+set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE INTERNAL "" FORCE)
 
-    # Compile with LTO if supported
-    set(VPKEDIT_USE_LTO_INTERNAL OFF)
-    if(VPKEDIT_USE_LTO)
-        check_ipo_supported(RESULT VPKEDIT_USE_LTO_INTERNAL)
-    endif()
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ${VPKEDIT_USE_LTO_INTERNAL})
+# initial VS integration
+cs_setup_vs_defaults(STARTUP_PROJECT "${PROJECT_NAME}")
 
-    # Set default install directory permissions
-    set(CMAKE_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-endif()
+# set common compile options
+option(VPKEDIT_USE_LTO "Compile ${PROJECT_NAME_PRETTY} with LTO/IPO" OFF)
+cs_configure_defaults(VPKEDIT_USE_LTO)
 
-# Macro to set up many things at once for a given target
+# shared code
+cs_include_directory(ext)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h")
+
+# cs_configure_target wrapper to have a custom icon and manifest path
 function(vpkedit_configure_target TARGET)
-    # Define DEBUG macro
-    target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
-
-    # Set optimization flags
-    if(CMAKE_BUILD_TYPE MATCHES "Debug")
-        # Build with debug friendly optimizations and debug symbols (MSVC defaults are fine)
-        if(UNIX OR MINGW)
-            target_compile_options(${TARGET} PRIVATE -Og -g)
-        endif()
-        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
-            target_compile_options(${TARGET} PRIVATE -fno-limit-debug-info)
-        endif()
-    else()
-        # Build with optimizations and don't omit stack pointer for debugging (MSVC defaults are fine)
-        if(UNIX OR MINGW)
-            target_compile_options(${TARGET} PRIVATE -O2 -fno-omit-frame-pointer)
-        endif()
-    endif()
-
+    cs_configure_target(${TARGET} MANIFEST)
     if(WIN32 AND MSVC)
         get_target_property(TARGET_TYPE ${TARGET} TYPE)
-        get_target_property(TARGET_IS_GUI ${TARGET} WIN32_EXECUTABLE)
-
-        # Organize VS solution into folders
         if(TARGET_TYPE STREQUAL "EXECUTABLE")
-            set_target_properties(${TARGET} PROPERTIES FOLDER "Executables")
-        else()
-            set_target_properties(${TARGET} PROPERTIES FOLDER "Libraries")
-        endif()
-
-        # Create PDBs in release
-        if((TARGET_TYPE STREQUAL "SHARED_LIBRARY") OR (TARGET_TYPE STREQUAL "EXECUTABLE"))
-            target_compile_options(
-                    ${TARGET} PRIVATE
-                    "$<$<CONFIG:Release>:/Zi>")
-            target_link_options(
-                    ${TARGET} PRIVATE
-                    "$<$<CONFIG:Release>:/DEBUG>"
-                    "$<$<CONFIG:Release>:/OPT:REF>"
-                    "$<$<CONFIG:Release>:/OPT:ICF>")
-        endif()
-
-        # Add an icon and manifest to the executable
-        if(TARGET_TYPE STREQUAL "EXECUTABLE")
-            target_sources(
-                    ${TARGET} PRIVATE
-                    "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.rc"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/res/program.manifest")
-        endif()
-
-        # Don't show the console when running the executable
-        if(TARGET_IS_GUI)
-            target_link_options(
-                    ${TARGET} PRIVATE
-                    "/ENTRY:mainCRTStartup")
+            target_sources(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.rc")
         endif()
     endif()
 endfunction()
 
-# Shared
-include("${CMAKE_CURRENT_SOURCE_DIR}/ext/_ext.cmake")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/shared/Config.h")
-
 # vpkeditcli
-include("${CMAKE_CURRENT_SOURCE_DIR}/src/cli/_cli.cmake")
+cs_include_directory(src/cli)
 
 # vpkedit
-include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
+cs_include_directory(src/gui)
 
 # Installer
 if(VPKEDIT_BUILD_INSTALLER)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/install/_install.cmake")
+    cs_include_directory(install)
 endif()
 
 # VS setup
 if(WIN32)
-    set_property(
-            DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            PROPERTY VS_STARTUP_PROJECT "${PROJECT_NAME}")
     set_target_properties(
-            ${PROJECT_NAME} PROPERTIES
-            VS_DEBUGGER_COMMAND "$<TARGET_FILE:${PROJECT_NAME}>"
-            VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+            ${PROJECT_NAME}_gui PROPERTIES
             VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
 
     # Qt hacks
