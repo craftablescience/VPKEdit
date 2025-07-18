@@ -133,7 +133,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/src/gui/_gui.cmake")
 
 # Installer
 if(VPKEDIT_BUILD_INSTALLER)
-    include("${CMAKE_CURRENT_SOURCE_DIR}/src/installer/_installer.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/install/_install.cmake")
 endif()
 
 # VS setup
