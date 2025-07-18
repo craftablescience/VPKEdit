@@ -1,7 +1,6 @@
 #include <memory>
 
 #include <QApplication>
-#include <QSettings>
 #include <QSurfaceFormat>
 #include <QTranslator>
 
@@ -26,20 +25,18 @@ int main(int argc, char** argv) {
 	QGuiApplication::setDesktopFileName(PROJECT_NAME.data());
 #endif
 
-	std::unique_ptr<QSettings> options;
-	if (Options::isStandalone()) {
-		auto configPath = QApplication::applicationDirPath() + "/config.ini";
-		options = std::make_unique<QSettings>(configPath, QSettings::Format::IniFormat);
-	} else {
-		options = std::make_unique<QSettings>();
-	}
+	const auto options = std::make_unique<QSettings>();
 	Options::setupOptions(*options);
 
 	const auto languageOverride = Options::get<QString>(OPT_LANGUAGE_OVERRIDE);
 	const auto locale = languageOverride.isEmpty() ? QLocale() : QLocale(languageOverride);
 	QTranslator translatorQtBase;
-	if (translatorQtBase.load(locale, "qtbase", "_", "i18n")) {
+	if (translatorQtBase.load(locale, "qtbase", "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translatorQtBase);
+	}
+	QTranslator translatorQt;
+	if (translatorQtBase.load(locale, "qt", "_", ":/i18n")) {
+		QCoreApplication::installTranslator(&translatorQt);
 	}
 	QTranslator translator;
 	if (translator.load(locale, PROJECT_NAME.data(), "_", ":/i18n")) {

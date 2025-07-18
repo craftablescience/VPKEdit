@@ -23,8 +23,6 @@ constexpr std::string_view STR_VICE_CODE_VALUE = "vice_dialog_code_value";
 
 namespace Options {
 
-bool isStandalone();
-
 void setupOptions(QSettings& options);
 
 QSettings* getOptions();

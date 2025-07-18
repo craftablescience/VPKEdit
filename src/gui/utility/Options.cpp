@@ -12,18 +12,6 @@ Q_DECLARE_METATYPE(QStringList)
 
 QSettings* opts = nullptr;
 
-bool Options::isStandalone() {
-#ifdef VPKEDIT_BUILD_FOR_STRATA_SOURCE
-	// Standalone mode is only used to check if we should write a physical config file.
-	// If we're building for a Strata Source game, we should just use the system registry.
-	// No need to pollute the bin folder!
-	return false;
-#else
-	QFileInfo nonportable(QApplication::applicationDirPath() + "/.nonportable");
-	return !(nonportable.exists() && nonportable.isFile());
-#endif
-}
-
 void Options::setupOptions(QSettings& options) {
 	if (!options.contains(OPT_STYLE)) {
 		options.setValue(OPT_STYLE, QApplication::style()->name());
