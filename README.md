@@ -25,6 +25,8 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 
 Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/INSTALL.md) for step-by-step installation instructions.
 
+[![Packaging Status](https://repology.org/badge/vertical-allrepos/vpkedit.svg?header=Packaging%20Status)](https://repology.org/project/vpkedit/versions)
+
 ## Features
 
 - Supported file formats:
