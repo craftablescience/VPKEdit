@@ -166,7 +166,7 @@ jobs:
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: '${{matrix.target}}-Windows-Installer-Compatibility-gcc-${{matrix.build_type}}'
+          name: '${{matrix.target}}-Windows-Installer-Compatibility-msvc-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
           retention-days: 7
@@ -175,7 +175,7 @@ jobs:
         if: ${{matrix.target == 'VPKEdit'}}
         uses: actions/upload-artifact@v4
         with:
-          name: '${{matrix.target}}-Windows-PDBs-gcc-${{matrix.build_type}}'
+          name: '${{matrix.target}}-Windows-PDBs-msvc-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli.pdb
             ${{env.BUILD_DIR}}/vpkedit.pdb
@@ -194,7 +194,7 @@ jobs:
           submodules: recursive
 
       - name: Install Necessary Packages
-        run: sudo apt update && sudo apt install -y cmake build-essential ninja-build chrpath
+        run: sudo apt update && sudo apt install -y chrpath
 
       - name: Install Qt [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
@@ -222,7 +222,7 @@ jobs:
 
       - name: Configure CMake [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="RPM" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DEB" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON -DVPKEDIT_USE_LTO=ON
 
       - name: Build Binaries
         working-directory: '${{env.BUILD_DIR}}'
