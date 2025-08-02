@@ -46,6 +46,21 @@ if(WIN32)
             "${CMAKE_CURRENT_LIST_DIR}/win/UninstallCommands.nsh.in"
             "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh"
             @ONLY)
+elseif(APPLE)
+    # macOS app bundle installation
+    install(TARGETS ${PROJECT_NAME}
+            BUNDLE DESTINATION .)
+    
+    install(TARGETS ${PROJECT_NAME}cli
+            DESTINATION bin)
+
+    install(FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
+            "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+            DESTINATION "share/licenses/${PROJECT_NAME}")
+
+    # Use system Qt - no install rules for frameworks
+    # Qt frameworks are handled automatically by the bundle
 elseif(UNIX)
     install(TARGETS ${PROJECT_NAME}cli
             DESTINATION bin)
@@ -118,6 +133,14 @@ if(WIN32)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/InstallCommands.nsh"   CPACK_NSIS_EXTRA_INSTALL_COMMANDS)
     file(READ "${CMAKE_CURRENT_LIST_DIR}/win/generated/UninstallCommands.nsh" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/win") # NSIS.template.in, NSIS.InstallOptions.ini.in
+elseif(APPLE)
+    if(NOT (CPACK_GENERATOR STREQUAL "DragNDrop"))
+        message(WARNING "CPack generator should be DragNDrop on macOS! Setting generator to DragNDrop...")
+        set(CPACK_GENERATOR "DragNDrop" CACHE INTERNAL "" FORCE)
+    endif()
+    set(CPACK_DMG_VOLUME_NAME ${PROJECT_NAME_PRETTY})
+    set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/install/macos/DMGSetup.scpt")
+    set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_512.png")
 else()
     if(CPACK_GENERATOR STREQUAL "DEB")
         set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")
