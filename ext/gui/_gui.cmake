@@ -9,6 +9,41 @@ if(WIN32 AND NOT DEFINED QT_BASEDIR)
     message(FATAL_ERROR "Please define your Qt install dir with -DQT_BASEDIR=\"C:/your/qt6/here\"")
 endif()
 
+# macOS Qt detection
+if(APPLE AND NOT DEFINED QT_BASEDIR)
+    # Try to find Qt6 in common locations
+    find_program(BREW_EXECUTABLE brew)
+    if(BREW_EXECUTABLE)
+        execute_process(COMMAND ${BREW_EXECUTABLE} --prefix qt6 
+                       OUTPUT_VARIABLE QT_BASEDIR 
+                       OUTPUT_STRIP_TRAILING_WHITESPACE
+                       ERROR_QUIET)
+        if(QT_BASEDIR)
+            message(STATUS "Found Qt6 via Homebrew at: ${QT_BASEDIR}")
+        endif()
+    endif()
+    
+    # Fallback to common Qt installation paths on macOS
+    if(NOT QT_BASEDIR)
+        set(QT_SEARCH_PATHS
+            "/opt/homebrew/opt/qt@6"
+            "/usr/local/opt/qt@6"
+            "/opt/local/libexec/qt6"
+            "$ENV{HOME}/Qt/6.*/macos"
+        )
+        foreach(QT_PATH ${QT_SEARCH_PATHS})
+            file(GLOB QT_FOUND ${QT_PATH})
+            if(QT_FOUND)
+                list(GET QT_FOUND -1 QT_BASEDIR)
+                break()
+            endif()
+        endforeach()
+        if(QT_BASEDIR)
+            message(STATUS "Found Qt6 at: ${QT_BASEDIR}")
+        endif()
+    endif()
+endif()
+
 if(DEFINED QT_BASEDIR)
     string(REPLACE "\\" "/" QT_BASEDIR "${QT_BASEDIR}")
 
@@ -79,6 +114,30 @@ if(WIN32)
 
     configure_file("${QT_BASEDIR}/plugins/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qcertonlybackend${QT_LIB_SUFFIX}.dll" COPYONLY)
     configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend${QT_LIB_SUFFIX}.dll" COPYONLY)
+elseif(APPLE AND DEFINED QT_BASEDIR)
+    # macOS Qt plugins - copy to the app bundle
+    set(PLUGINS_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app/Contents/PlugIns")
+    file(MAKE_DIRECTORY "${PLUGINS_DIR}/platforms")
+    file(MAKE_DIRECTORY "${PLUGINS_DIR}/styles")
+    file(MAKE_DIRECTORY "${PLUGINS_DIR}/tls")
+    
+    # Platform plugins
+    if(EXISTS "${QT_BASEDIR}/plugins/platforms/libqcocoa.dylib")
+        configure_file("${QT_BASEDIR}/plugins/platforms/libqcocoa.dylib" "${PLUGINS_DIR}/platforms/libqcocoa.dylib" COPYONLY)
+    endif()
+    
+    # Style plugins
+    if(EXISTS "${QT_BASEDIR}/plugins/styles/libqmacstyle.dylib")
+        configure_file("${QT_BASEDIR}/plugins/styles/libqmacstyle.dylib" "${PLUGINS_DIR}/styles/libqmacstyle.dylib" COPYONLY)
+    endif()
+    
+    # TLS plugins
+    if(EXISTS "${QT_BASEDIR}/plugins/tls/libqcertonlybackend.dylib")
+        configure_file("${QT_BASEDIR}/plugins/tls/libqcertonlybackend.dylib" "${PLUGINS_DIR}/tls/libqcertonlybackend.dylib" COPYONLY)
+    endif()
+    if(EXISTS "${QT_BASEDIR}/plugins/tls/libqsecuretransportbackend.dylib")
+        configure_file("${QT_BASEDIR}/plugins/tls/libqsecuretransportbackend.dylib" "${PLUGINS_DIR}/tls/libqsecuretransportbackend.dylib" COPYONLY)
+    endif()
 elseif(UNIX AND DEFINED QT_BASEDIR)
     configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6"          "${CMAKE_BINARY_DIR}/libQt6Core.so.6"          COPYONLY)
     configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6"           "${CMAKE_BINARY_DIR}/libQt6Gui.so.6"           COPYONLY)
