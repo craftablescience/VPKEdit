@@ -478,7 +478,11 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 
 	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), this);
 	this->backfaceCulling->setCheckState(Qt::CheckState::Checked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+	QObject::connect(this->backfaceCulling, &QCheckBox::checkStateChanged, this, [&](Qt::CheckState state) {
+#else
 	QObject::connect(this->backfaceCulling, &QCheckBox::stateChanged, this, [&](int state) {
+#endif
 		this->mdl->setCullBackFaces(state == Qt::CheckState::Checked);
 	});
 	controlsLayout->addWidget(this->backfaceCulling);
