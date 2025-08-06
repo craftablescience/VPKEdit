@@ -56,7 +56,8 @@
       <location filename="../../EntryTree.cpp" line="512"/>
       <source>Are you sure you want to delete "%1"?
 (Hold Shift to skip this popup.)</source>
-      <translation></translation>
+      <translation>"%1"を削除してよろしいですか？
+(Shiftキーを押しながら実行するとこのポップアップをスキップします。)</translation>
     </message>
     <message>
       <location filename="../../EntryTree.cpp" line="399"/>
@@ -75,7 +76,8 @@
       <location filename="../../FileViewer.cpp" line="394"/>
       <source>Failed to read file contents!
 Please ensure that a game or another application is not using the file.</source>
-      <translation></translation>
+      <translation>ファイルの内容が読み込まれませんでした！
+他のソフトがファイルを使用していないことを確認してください。</translation>
     </message>
   </context>
   <context>
@@ -88,12 +90,12 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="563"/>
       <source>Unable to find all the required files the model is composed of!</source>
-      <translation></translation>
+      <translation>モデルの読み込みに必要とするファイルが見つかりませんでした！</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="591"/>
       <source>This model is invalid, it cannot be previewed!</source>
-      <translation></translation>
+      <translation>このモデルが破損しているため、プレビューが表示できません！</translation>
     </message>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="575"/>
@@ -141,7 +143,7 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../previews/MDLPreview.cpp" line="231"/>
       <source>Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models.</source>
-      <translation></translation>
+      <translation>OpenGL 3.2 Coreが読み込まれませんでした！　モデルのプレビューを表示するためにパソコンやドライバーなどの更新を行った上で再試行ください。</translation>
     </message>
   </context>
   <context>
@@ -157,7 +159,7 @@ Please ensure that a game or another application is not using the file.</source>
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="12"/>
       <source>New Update Available</source>
-      <translation></translation>
+      <translation>ソフトの更新があります</translation>
     </message>
     <message>
       <location filename="../../dialogs/NewUpdateDialog.cpp" line="14"/>
@@ -168,7 +170,13 @@ Current version:  v%1
 Latest version:  %2
 
 [Click here to go to the release on GitHub.](%3)</source>
-      <translation></translation>
+      <translation>ソフトの更新があります！
+
+現在のバージョン：v%1
+
+最新バージョン：　v%2
+
+[GitHubのリリースからダウンロードする際はここをクリック](%3)</translation>
     </message>
   </context>
   <context>
@@ -231,17 +239,17 @@ Breaks if the file's size will be &gt;= 4gb!</source>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="16"/>
       <source>Overall file checksum matches the expected value.</source>
-      <translation></translation>
+      <translation>全体ファイルのチェックサムが期待値と一致しました。</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="18"/>
       <source>Overall file checksum does not match the expected value!</source>
-      <translation></translation>
+      <translation>全体ファイルのチェックサムが期待値と一致しません！</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="25"/>
       <source>All file checksums match their expected values.</source>
-      <translation></translation>
+      <translation>すべてのファイルのチェックサムが期待値と一致しました。</translation>
     </message>
     <message>
       <location filename="../../dialogs/VerifyChecksumsDialog.cpp" line="27"/>
@@ -283,7 +291,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="664"/>
       <source>Save to...</source>
-      <translation>保存...</translation>
+      <translation>名前を付けて保存...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="725"/>
@@ -339,12 +347,12 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="948"/>
       <source>There was an error removing the file at "%1"!</source>
-      <translation></translation>
+      <translation>"%1"を削除中にエラーが発生しました！</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="969"/>
       <source>Unable to edit file at "%1": could not read file data!</source>
-      <translation></translation>
+      <translation>"%1"を編集できません: ファイルの内容を読み込めませんでした！</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1138"/>
@@ -355,7 +363,7 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1138"/>
       <source>The new path:</source>
-      <translation></translation>
+      <translation>新しいパス：</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="355"/>
@@ -372,7 +380,7 @@ See below for more information.</source>
       <location filename="../../Window.cpp" line="1305"/>
       <location filename="../../Window.cpp" line="1370"/>
       <source>Extract to...</source>
-      <translation></translation>
+      <translation>指定パスへ解凍...</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1396"/>
@@ -382,12 +390,12 @@ See below for more information.</source>
     <message>
       <location filename="../../Window.cpp" line="1397"/>
       <source>This file has unsaved changes! Would you like to save these changes first?</source>
-      <translation></translation>
+      <translation>保存されていない変更が残っています！　実行する前にこの変更を保存しますか？</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1579"/>
       <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
-      <translation></translation>
+      <translation>このファイルを読み込めませんでした。他のソフトがファイルを使用していないことを確認してください。</translation>
     </message>
     <message>
       <location filename="../../Window.cpp" line="1659"/>
@@ -780,19 +788,20 @@ Channels: %2</source>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="80"/>
       <source>New Folder</source>
-      <translation></translation>
+      <translation>新しいフォルダー</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="82"/>
       <source>New File</source>
-      <translation></translation>
+      <translation>新しいファイル</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="94"/>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="95"/>
       <source>The path of the folder:
 (e.g. "%1")</source>
-      <translation></translation>
+      <translation>フォルダーのパス:
+(例: "%1")</translation>
     </message>
     <message>
       <location filename="../../dialogs/EntryOptionsDialog.cpp" line="131"/>
