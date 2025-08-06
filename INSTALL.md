@@ -38,8 +38,7 @@ application without any issues.
 [![Packaging Status](https://repology.org/badge/vertical-allrepos/vpkedit.svg?header=Packaging%20Status)](https://repology.org/project/vpkedit/versions)
 
 > [!TIP]
-> The installer will symlink the CLI and GUI applications to `/usr/bin` automatically,
-> but if you prefer or need to use a standalone version, you can run one or both of the following commands to add them to the PATH:
+> If you prefer or need to use a standalone version, you can run one or both of the following commands to add the standalone binaries to the PATH:
 >
 > ```sh
 > # CLI:
@@ -48,7 +47,7 @@ application without any issues.
 > ln -s /path/to/standalone/vpkedit ~/.local/bin/vpkedit
 > ```
 >
-> With the symlink in place, updating your standalone install will automatically update the binary on the PATH.
+> With the symlink in place, updating your standalone install will automatically update the binaries on the PATH.
 
 There are two ways of *installing* VPKEdit specific to the following distros:
 
