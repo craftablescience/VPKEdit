@@ -6,8 +6,8 @@ QPixmap ThemedIcon::get(const QWidget* parent, const QString& path, QPalette::Co
 	QStyleOption opt;
 	opt.initFrom(parent);
 
-	QPixmap pixmap(path);
-	auto mask = pixmap.createMaskFromColor(Qt::white, Qt::MaskOutColor);
+	QPixmap pixmap{path};
+	const auto mask = pixmap.createMaskFromColor(Qt::white, Qt::MaskOutColor);
 	pixmap.fill(opt.palette.color(role));
 	pixmap.setMask(mask);
 	return pixmap;

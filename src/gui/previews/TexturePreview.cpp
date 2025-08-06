@@ -376,7 +376,11 @@ TexturePreview::TexturePreview(QWidget* parent, FileViewer* fileViewer_)
 	auto* showEverythingCheckBoxLabel = new QLabel(tr("Lay Flat"), showEverythingCheckBoxParent);
 	showEverythingCheckBoxLayout->addWidget(showEverythingCheckBoxLabel);
 	this->showEverythingCheckBox = new QCheckBox(controls);
-	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&] {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::checkStateChanged, this, [&](Qt::CheckState) {
+#else
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&](int) {
+#endif
 		this->vtf->setShowEverythingEnabled(this->showEverythingCheckBox->isChecked());
 		this->frameSpin->setDisabled(this->vtf->getMaxFrame() == 1 || this->showEverythingCheckBox->isChecked());
 		this->faceSpin->setDisabled(this->vtf->getMaxFace() == 1 || this->showEverythingCheckBox->isChecked());
@@ -444,7 +448,11 @@ TexturePreview::TexturePreview(QWidget* parent, FileViewer* fileViewer_)
 	auto* alphaCheckBoxLabel = new QLabel(tr("Alpha"), alphaCheckBoxParent);
 	alphaCheckBoxLayout->addWidget(alphaCheckBoxLabel);
 	this->alphaCheckBox = new QCheckBox(controls);
-	QObject::connect(this->alphaCheckBox, &QCheckBox::stateChanged, this, [&] {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::checkStateChanged, this, [&](Qt::CheckState) {
+#else
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&](int) {
+#endif
 		this->image->setAlphaEnabled(this->alphaCheckBox->isChecked());
 		this->svg->setAlphaEnabled(this->alphaCheckBox->isChecked());
 		this->ppl->setAlphaEnabled(this->alphaCheckBox->isChecked());
@@ -459,7 +467,11 @@ TexturePreview::TexturePreview(QWidget* parent, FileViewer* fileViewer_)
 	auto* tileCheckBoxLabel = new QLabel(tr("Tile"), tileCheckBoxParent);
 	tileCheckBoxLayout->addWidget(tileCheckBoxLabel);
 	this->tileCheckBox = new QCheckBox(controls);
-	QObject::connect(this->tileCheckBox, &QCheckBox::stateChanged, this, [&] {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::checkStateChanged, this, [&](Qt::CheckState) {
+#else
+	QObject::connect(this->showEverythingCheckBox, &QCheckBox::stateChanged, this, [&](int) {
+#endif
 		this->image->setTileEnabled(this->tileCheckBox->isChecked());
 		this->svg->setTileEnabled(this->tileCheckBox->isChecked());
 		this->ppl->setTileEnabled(this->tileCheckBox->isChecked());

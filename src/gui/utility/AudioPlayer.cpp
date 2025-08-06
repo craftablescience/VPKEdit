@@ -3,6 +3,8 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
+#include <QObject>
+
 // This is ugly I hate it
 ma_decoder g_MiniAudioDecoder;
 ma_device g_MiniAudioDevice;
@@ -12,6 +14,7 @@ std::int64_t g_MiniAudioSeekPosition = -1;
 
 namespace {
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 void dataCallback(ma_device* device, void* output, const void* /*pInput*/, ma_uint32 frameCount) {
 	auto* decoder = static_cast<ma_decoder*>(device->pUserData);
 	if (!decoder) {

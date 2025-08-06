@@ -28,8 +28,7 @@ void DiscordPresence::init(std::string_view appID) {
 #ifdef _WIN32
 	__try {
 #endif
-	DiscordEventHandlers handlers;
-	std::memset(&handlers, 0, sizeof(handlers));
+	DiscordEventHandlers handlers{};
 	Discord_Initialize(appID.data(), &handlers, 1, nullptr);
 	std::atexit(&DiscordPresence::shutdown);
 	g_DiscordInitialized = true;
@@ -105,8 +104,7 @@ void DiscordPresence::update() {
 		return;
 	}
 	if (g_DiscordDirty) {
-		DiscordRichPresence discordPresence;
-		std::memset(&discordPresence, 0, sizeof(discordPresence));
+		DiscordRichPresence discordPresence{};
 
 		if (!g_DiscordState.empty()) {
 			discordPresence.state = g_DiscordState.c_str();

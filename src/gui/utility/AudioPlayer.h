@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include <QObject>
+#include <QString>
 
 namespace AudioPlayer {
 

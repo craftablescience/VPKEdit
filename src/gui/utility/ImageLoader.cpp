@@ -44,7 +44,7 @@ QImage ImageLoader::load(const QString& imagePath) {
 	auto* imageBufferRGBA8888Copy = new unsigned char[imageBufferRGBA8888.size()];
 	std::memcpy(imageBufferRGBA8888Copy, imageBufferRGBA8888.data(), imageBufferRGBA8888.size());
 	return {imageBufferRGBA8888Copy, width, height, QImage::Format_RGBA8888, [](void* buf) {
-		delete[] reinterpret_cast<unsigned char*>(buf);
+		delete[] static_cast<unsigned char*>(buf);
 	}, imageBufferRGBA8888Copy};
 }
 
@@ -52,8 +52,7 @@ QImage ImageLoader::load(const std::vector<std::byte>& imageData) {
 	static const QImage INVALID_ICON{":/icons/missing.png"};
 
 	{
-		QImage image;
-		if (image.loadFromData(imageData)) {
+		if (QImage image; image.loadFromData(imageData)) {
 			return image;
 		}
 	}
@@ -79,6 +78,6 @@ QImage ImageLoader::load(const std::vector<std::byte>& imageData) {
 	auto* imageBufferRGBA8888Copy = new unsigned char[imageBufferRGBA8888.size()];
 	std::memcpy(imageBufferRGBA8888Copy, imageBufferRGBA8888.data(), imageBufferRGBA8888.size());
 	return {imageBufferRGBA8888Copy, width, height, QImage::Format_RGBA8888, [](void* buf) {
-		delete[] reinterpret_cast<unsigned char*>(buf);
+		delete[] static_cast<unsigned char*>(buf);
 	}, imageBufferRGBA8888Copy};
 }

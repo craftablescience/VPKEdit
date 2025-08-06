@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 	format.setSamples(4);
 	QSurfaceFormat::setDefaultFormat(format);
 
-	QApplication app(argc, argv);
+	QApplication app{argc, argv};
 
 	QCoreApplication::setOrganizationName(ORGANIZATION_NAME.data());
 	QCoreApplication::setApplicationName(PROJECT_NAME.data());
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	Options::setupOptions(*options);
 
 	const auto languageOverride = Options::get<QString>(OPT_LANGUAGE_OVERRIDE);
-	const auto locale = languageOverride.isEmpty() ? QLocale() : QLocale(languageOverride);
+	const auto locale = languageOverride.isEmpty() ? QLocale{} : QLocale{languageOverride};
 	QTranslator translatorQtBase;
 	if (translatorQtBase.load(locale, "qtbase", "_", ":/i18n")) {
 		QCoreApplication::installTranslator(&translatorQtBase);
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 		QCoreApplication::installTranslator(&translator);
 	}
 
-	auto* window = new Window();
+	auto* window = new Window;
 	options->beginGroup("main_window");
 	window->restoreGeometry(options->value("geometry", window->saveGeometry()).toByteArray());
 	window->restoreState(options->value("state", window->saveState()).toByteArray());
