@@ -89,8 +89,6 @@ public:
 
 	void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
-	void about();
-
 	void generateKeyPairFiles(const QString& name = QString());
 
 	void signPackFile(const QString& privateKeyLocation = QString());

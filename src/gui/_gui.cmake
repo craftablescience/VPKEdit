@@ -2,6 +2,8 @@
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/ControlsDialog.h"
+		"${CMAKE_CURRENT_LIST_DIR}/dialogs/CreditsDialog.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/dialogs/CreditsDialog.h"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/EntryOptionsDialog.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/EntryOptionsDialog.h"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/NewUpdateDialog.cpp"

@@ -39,6 +39,7 @@
 #include <Config.h>
 
 #include "dialogs/ControlsDialog.h"
+#include "dialogs/CreditsDialog.h"
 #include "dialogs/EntryOptionsDialog.h"
 #include "dialogs/NewUpdateDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
@@ -362,7 +363,7 @@ Window::Window(QWidget* parent)
 	// Help menu
 	auto* helpMenu = this->menuBar()->addMenu(tr("Help"));
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About"), Qt::Key_F1, [this] {
-		this->about();
+		CreditsDialog::showDialog(this);
 	});
 	helpMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("About Qt"), Qt::ALT | Qt::Key_F1, [this] {
 		QMessageBox::aboutQt(this);
@@ -1213,25 +1214,6 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		progressDialog.setValue(progressDialog.value() + 1);
 	}
 	this->markModified(true);
-}
-
-void Window::about() {
-	QString creditsText = QString("# %1\n").arg(PROJECT_TITLE.data()) + '*' +
-			tr("Created by %1").arg("[craftablescience](https://github.com/craftablescience)") +
-			"*\n<br/>\n";
-	QFile creditsFile(":/CREDITS.md");
-	if (creditsFile.open(QIODevice::ReadOnly)) {
-		QTextStream in(&creditsFile);
-		creditsText += in.readAll();
-		creditsFile.close();
-	}
-
-	QMessageBox about(this);
-	about.setWindowTitle(tr("About"));
-	about.setIconPixmap(QIcon(":/logo.png").pixmap(64, 64));
-	about.setTextFormat(Qt::TextFormat::MarkdownText);
-	about.setText(creditsText);
-	about.exec();
 }
 
 void Window::generateKeyPairFiles(const QString& name) {
