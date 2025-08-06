@@ -40,7 +40,7 @@ void DMXPreview::setData(const std::vector<std::byte>& data) {
 	addElement = [&](int elementIndex, QTreeWidgetItem* parent, std::vector<int>& seenElements) {
 		const auto& element = elements[elementIndex];
 
-		if (std::ranges::find(referencedElements, element.guid) != referencedElements.end()) {
+		if (parent == root && std::ranges::find(referencedElements, element.guid) != referencedElements.end()) {
 			return;
 		}
 		referencedElements.push_back(element.guid);
