@@ -1,5 +1,6 @@
 #include "DMXPreview.h"
 
+#include <algorithm>
 #include <functional>
 
 #include <dmxpp/dmxpp.h>
@@ -33,10 +34,17 @@ void DMXPreview::setData(const std::vector<std::byte>& data) {
 	root->setText(0, QString("%1 v%2").arg(QString(dmx->getFormatType().data()).toUpper()).arg(dmx->getFormatVersion()));
 
 	const auto& elements = dmx->getElements();
+	QVector<std::array<std::byte, 16>> referencedElements;
 
 	std::function<void(int, QTreeWidgetItem*, std::vector<int>&)> addElement;
 	addElement = [&](int elementIndex, QTreeWidgetItem* parent, std::vector<int>& seenElements) {
 		const auto& element = elements[elementIndex];
+
+		if (std::ranges::find(referencedElements, element.guid) != referencedElements.end()) {
+			return;
+		}
+		referencedElements.push_back(element.guid);
+
 		auto* name = new QTreeWidgetItem(parent);
 		name->setText(0, element.name.c_str());
 		auto* type = new QTreeWidgetItem(name);
