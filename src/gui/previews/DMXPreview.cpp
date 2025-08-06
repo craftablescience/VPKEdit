@@ -20,16 +20,19 @@ DMXPreview::DMXPreview(FileViewer* fileViewer_, QWidget* parent)
 void DMXPreview::setData(const std::vector<std::byte>& data) {
 	this->clear();
 
-	DMX dmx{data};
+	std::unique_ptr<DMX> dmx;
+	try {
+		dmx = std::make_unique<DMX>(data);
+	} catch (const std::overflow_error&) {}
 	if (!dmx) {
 		this->fileViewer->showInfoPreview({":/icons/error.png"}, tr("Failed to parse DMX file."));
 		return;
 	}
 
 	auto* root = new QTreeWidgetItem(this);
-	root->setText(0, QString("%1 v%2").arg(QString(dmx.getFormatType().data()).toUpper()).arg(dmx.getFormatVersion()));
+	root->setText(0, QString("%1 v%2").arg(QString(dmx->getFormatType().data()).toUpper()).arg(dmx->getFormatVersion()));
 
-	const auto& elements = dmx.getElements();
+	const auto& elements = dmx->getElements();
 
 	std::function<void(int, QTreeWidgetItem*, std::vector<int>&)> addElement;
 	addElement = [&](int elementIndex, QTreeWidgetItem* parent, std::vector<int>& seenElements) {
