@@ -5,6 +5,7 @@
 #include <argparse/argparse.hpp>
 #include <bsppp/PakLump.h>
 #include <indicators/indeterminate_progress_bar.hpp>
+#include <sourcepp/crypto/String.h>
 #include <vpkpp/vpkpp.h>
 
 #include <Config.h>
@@ -77,6 +78,24 @@ namespace {
 	return NO_COMPRESS;
 }
 
+/// Right now, just used for getting a decryption key
+[[nodiscard]] std::vector<std::byte> handleOpenPropertyRequest(std::string_view guid, PackFile::OpenProperty property) {
+	if (guid == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+		std::cout << "Requires decryption key (32 hex characters): ";
+		std::string hex;
+		std::getline(std::cin, hex);
+		auto bytes = sourcepp::crypto::decodeHexString(hex);
+		while (bytes.size() < 16) {
+			bytes.push_back({});
+		}
+		if (bytes.size() > 16) {
+			bytes.resize(16);
+		}
+		return bytes;
+	}
+	return {};
+}
+
 #define VPKEDIT_ERROR_TYPE(name) class vpkedit_##name##_error : public std::runtime_error { public: using runtime_error::runtime_error; }
 VPKEDIT_ERROR_TYPE(load);
 VPKEDIT_ERROR_TYPE(invalid_argument);
@@ -84,7 +103,7 @@ VPKEDIT_ERROR_TYPE(runtime);
 
 /// Extract file(s) from an existing pack file
 void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath);
+	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -144,7 +163,7 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 
 /// Print the file tree of an existing pack file
 void fileTree(const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath);
+	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -170,7 +189,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	auto packFile = PackFile::open(inputPath);
+	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -261,7 +280,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 /// Verify checksums and/or signature are valid for an existing pack file
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath);
+	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
