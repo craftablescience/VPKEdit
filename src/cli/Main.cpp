@@ -47,6 +47,7 @@ ARG_L(FILE_TREE,                "--file-tree");
 ARG_S(SIGN,               "-k", "--sign");
 ARG_L(VERIFY_CHECKSUMS,         "--verify-checksums");
 ARG_L(VERIFY_SIGNATURE,         "--verify-signature");
+ARG_L(DECRYPTION_KEY,           "--decryption-key");
 
 #undef ARG_S
 #undef ARG_L
@@ -79,21 +80,27 @@ namespace {
 }
 
 /// Right now, just used for getting a decryption key
-[[nodiscard]] std::vector<std::byte> handleOpenPropertyRequest(PackFile* packFile, PackFile::OpenProperty property) {
-	if (packFile->getGUID() == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
-		std::cout << "Decryption key for depot ID " << dynamic_cast<GCF*>(packFile)->getAppID() << ": ";
-		std::string hex;
-		std::getline(std::cin, hex);
-		auto bytes = sourcepp::crypto::decodeHexString(hex);
-		while (bytes.size() < 16) {
-			bytes.push_back({});
+[[nodiscard]] PackFile::OpenPropertyRequest getOpenPropertyRequestor(const argparse::ArgumentParser& cli) {
+	return [&cli](PackFile* packFile, PackFile::OpenProperty property) -> std::vector<std::byte> {
+		if (packFile->getGUID() == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+			std::string hex;
+			if (cli.is_used(ARG_L(DECRYPTION_KEY))) {
+				hex = cli.get(ARG_L(DECRYPTION_KEY));
+			} else {
+				std::cout << "Decryption key for depot ID " << dynamic_cast<GCF*>(packFile)->getAppID() << ": ";
+				std::getline(std::cin, hex);
+			}
+			auto bytes = sourcepp::crypto::decodeHexString(hex);
+			while (bytes.size() < 16) {
+				bytes.push_back({});
+			}
+			if (bytes.size() > 16) {
+				bytes.resize(16);
+			}
+			return bytes;
 		}
-		if (bytes.size() > 16) {
-			bytes.resize(16);
-		}
-		return bytes;
-	}
-	return {};
+		return {};
+	};
 }
 
 #define VPKEDIT_ERROR_TYPE(name) class vpkedit_##name##_error : public std::runtime_error { public: using runtime_error::runtime_error; }
@@ -103,7 +110,7 @@ VPKEDIT_ERROR_TYPE(runtime);
 
 /// Extract file(s) from an existing pack file
 void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
+	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -162,8 +169,8 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 }
 
 /// Print the file tree of an existing pack file
-void fileTree(const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
+void fileTree(const argparse::ArgumentParser& cli, const std::string& inputPath) {
+	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -189,7 +196,7 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
+	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -280,7 +287,7 @@ void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 /// Verify checksums and/or signature are valid for an existing pack file
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath, nullptr, &::handleOpenPropertyRequest);
+	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -430,7 +437,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 
 	if (fileTree) {
-		::fileTree(outputPath);
+		::fileTree(cli, outputPath);
 	}
 	if (!signPath.empty()) {
 		::sign(cli, outputPath);
@@ -588,6 +595,9 @@ int main(int argc, const char* const* argv) {
 		.help("(Verify) Verify the pack file's signature if it exists.")
 		.flag();
 
+	cli.add_argument(ARG_L(DECRYPTION_KEY))
+		.help("Use the specified hex sequence to decrypt a pack file. Ignored if unnecessary.");
+
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
 	               R"(                    /$$                       /$$ /$$   /$$    )"        "\n"
 	               R"(                   | $$                      | $$|__/  | $$    )"        "\n"
@@ -623,7 +633,7 @@ int main(int argc, const char* const* argv) {
 				}
 				if (cli.is_used(ARG_L(FILE_TREE))) {
 					foundAction = true;
-					::fileTree(inputPath);
+					::fileTree(cli, inputPath);
 				}
 				if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(ADD_DIR)) || cli.is_used(ARG_L(REMOVE_FILE)) || cli.is_used(ARG_L(REMOVE_DIR))) {
 					foundAction = true;
