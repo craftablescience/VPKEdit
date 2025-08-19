@@ -1555,11 +1555,11 @@ bool Window::loadDir(const QString& path) {
 }
 
 bool Window::loadPackFile(const QString& path) {
-	return this->loadPackFile(path, PackFile::open(path.toLocal8Bit().constData(), nullptr, [this](std::string_view guid, PackFile::OpenProperty property) -> std::vector<std::byte> {
-		if (guid == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+	return this->loadPackFile(path, PackFile::open(path.toLocal8Bit().constData(), nullptr, [this](PackFile* packFile_, PackFile::OpenProperty property) -> std::vector<std::byte> {
+		if (packFile_->getGUID() == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
 			auto* dialog = new QInputDialog{this};
 			dialog->setWindowTitle(tr("Encrypted Pack File"));
-			dialog->setLabelText(tr("Requires decryption key:"));
+			dialog->setLabelText(tr("Decryption key for depot ID %1:").arg(dynamic_cast<GCF*>(packFile_)->getAppID()));
 			dialog->setInputMode(QInputDialog::TextInput);
 			dialog->setTextEchoMode(QLineEdit::Normal);
 			auto* dialogLineEdit = dialog->findChild<QLineEdit*>();

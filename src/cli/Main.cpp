@@ -79,9 +79,9 @@ namespace {
 }
 
 /// Right now, just used for getting a decryption key
-[[nodiscard]] std::vector<std::byte> handleOpenPropertyRequest(std::string_view guid, PackFile::OpenProperty property) {
-	if (guid == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
-		std::cout << "Requires decryption key (32 hex characters): ";
+[[nodiscard]] std::vector<std::byte> handleOpenPropertyRequest(PackFile* packFile, PackFile::OpenProperty property) {
+	if (packFile->getGUID() == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+		std::cout << "Decryption key for depot ID " << dynamic_cast<GCF*>(packFile)->getAppID() << ": ";
 		std::string hex;
 		std::getline(std::cin, hex);
 		auto bytes = sourcepp::crypto::decodeHexString(hex);
