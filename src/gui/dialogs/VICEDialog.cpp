@@ -60,6 +60,7 @@ VICEDialog::VICEDialog(Window* window_, QString path_, bool encrypt, QWidget* pa
 
 	auto* customCodeLabel = new QLabel(tr("Value:"), this);
 	this->customCode = new QLineEdit(this);
+	this->customCode->setMaxLength(8);
 	layout->addRow(customCodeLabel, this->customCode);
 
 	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -93,10 +94,14 @@ std::optional<std::vector<std::byte>> VICEDialog::getData() {
 	if (!data) {
 		return std::nullopt;
 	}
-	if (this->encrypting) {
-		return VICE::encrypt(*data, this->customCode->text().toLocal8Bit().constData());
+	auto code = this->customCode->text();
+	if (code.length() < 8) {
+		code.resize(8);
 	}
-	return VICE::decrypt(*data, this->customCode->text().toLocal8Bit().constData());
+	if (this->encrypting) {
+		return VICE::encrypt(*data, code.toLocal8Bit().constData());
+	}
+	return VICE::decrypt(*data, code.toLocal8Bit().constData());
 }
 
 std::optional<std::vector<std::byte>> VICEDialog::encrypt(Window* window, const QString& path, QWidget* parent) {

@@ -21,7 +21,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
-#include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QNetworkReply>
@@ -33,6 +32,7 @@
 #include <QStyleFactory>
 #include <QThread>
 #include <QTimer>
+#include <sourcepp/crypto/String.h>
 #include <steampp/steampp.h>
 #include <vpkpp/vpkpp.h>
 
@@ -1555,7 +1555,32 @@ bool Window::loadDir(const QString& path) {
 }
 
 bool Window::loadPackFile(const QString& path) {
-	return this->loadPackFile(path, PackFile::open(path.toLocal8Bit().constData()));
+	return this->loadPackFile(path, PackFile::open(path.toLocal8Bit().constData(), nullptr, [this](std::string_view guid, PackFile::OpenProperty property) -> std::vector<std::byte> {
+		if (guid == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+			auto* dialog = new QInputDialog{this};
+			dialog->setWindowTitle(tr("Encrypted Pack File"));
+			dialog->setLabelText(tr("Requires decryption key:"));
+			dialog->setInputMode(QInputDialog::TextInput);
+			dialog->setTextEchoMode(QLineEdit::Normal);
+			auto* dialogLineEdit = dialog->findChild<QLineEdit*>();
+			if (!dialogLineEdit) {
+				return {};
+			}
+			dialogLineEdit->setInputMask("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+			dialogLineEdit->setText("00000000000000000000000000000000");
+			dialogLineEdit->setMaxLength(32);
+			dialogLineEdit->setMinimumWidth(275);
+			if (!dialog->exec()) {
+				return {};
+			}
+			auto text = dialog->textValue();
+			while (text.length() < 32) {
+				text.prepend('0');
+			}
+			return sourcepp::crypto::decodeHexString(text.toUtf8().constData());
+		}
+		return {};
+	}));
 }
 
 bool Window::loadPackFile(const QString& path, std::unique_ptr<vpkpp::PackFile>&& newPackFile) {
