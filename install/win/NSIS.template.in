@@ -35,6 +35,7 @@
   Var EXT_REGISTER_PACK_FILE_PK3
   Var EXT_REGISTER_PACK_FILE_PK4
   Var EXT_REGISTER_PACK_FILE_PKZ
+  Var EXT_REGISTER_PACK_FILE_SIN
   Var EXT_REGISTER_PACK_FILE_VPK
   Var EXT_REGISTER_PACK_FILE_VPP
   Var EXT_REGISTER_ASSET_DMX
@@ -763,16 +764,17 @@ Section "-Core installation"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_PK3      "NSIS.InstallOptions.ini" "Field 20" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_PK4      "NSIS.InstallOptions.ini" "Field 21" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_PKZ      "NSIS.InstallOptions.ini" "Field 22" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPK      "NSIS.InstallOptions.ini" "Field 23" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPP      "NSIS.InstallOptions.ini" "Field 24" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_DMX          "NSIS.InstallOptions.ini" "Field 26" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_MDL          "NSIS.InstallOptions.ini" "Field 27" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_PCF          "NSIS.InstallOptions.ini" "Field 28" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_PPL          "NSIS.InstallOptions.ini" "Field 29" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_TTH          "NSIS.InstallOptions.ini" "Field 30" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_TTZ          "NSIS.InstallOptions.ini" "Field 31" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VMT          "NSIS.InstallOptions.ini" "Field 32" "State"
-  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VTF          "NSIS.InstallOptions.ini" "Field 33" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_SIN      "NSIS.InstallOptions.ini" "Field 23" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPK      "NSIS.InstallOptions.ini" "Field 24" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPP      "NSIS.InstallOptions.ini" "Field 25" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_DMX          "NSIS.InstallOptions.ini" "Field 27" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_MDL          "NSIS.InstallOptions.ini" "Field 28" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_PCF          "NSIS.InstallOptions.ini" "Field 29" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_PPL          "NSIS.InstallOptions.ini" "Field 30" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_TTH          "NSIS.InstallOptions.ini" "Field 31" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_TTZ          "NSIS.InstallOptions.ini" "Field 32" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VMT          "NSIS.InstallOptions.ini" "Field 33" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VTF          "NSIS.InstallOptions.ini" "Field 34" "State"
 
   ; Write special uninstall registry entries
   Push "StartMenu"

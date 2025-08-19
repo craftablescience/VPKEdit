@@ -46,6 +46,9 @@ ${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_PKZ}
   WriteRegStr HKCR '.pkz'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_SIN}
+  WriteRegStr HKCR '.sin'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_VPK}
   WriteRegStr HKCR '.vpk'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}

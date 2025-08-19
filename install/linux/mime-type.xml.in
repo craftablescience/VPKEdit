@@ -114,6 +114,15 @@
         <glob pattern="*.pck"/>
         <glob pattern="*.PCK"/>
     </mime-type>
+    <mime-type type="application/x-${PROJECT_NAME}-sin">
+        <comment>SiN Pack File</comment>
+        <icon name="${PROJECT_NAME}"/>
+        <acronym>SIN</acronym>
+        <expanded-acronym>SiN Pack File</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.sin"/>
+        <glob pattern="*.SIN"/>
+    </mime-type>
     <mime-type type="application/x-${PROJECT_NAME}-vpk">
         <comment>Valve Pack File</comment>
         <icon name="${PROJECT_NAME}"/>

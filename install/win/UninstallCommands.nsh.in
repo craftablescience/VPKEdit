@@ -14,6 +14,7 @@
 ; DeleteRegKey HKCR '.pk3'
 ; DeleteRegKey HKCR '.pk4'
 ; DeleteRegKey HKCR '.pkz'
+; DeleteRegKey HKCR '.sin'
 ; DeleteRegKey HKCR '.vpk'
 ; DeleteRegKey HKCR '.vpp'
 

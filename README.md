@@ -48,6 +48,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
   | PK3      | PacK v3 (Quake II)                                |   ✅    |  ✅   |   ✅   |
   | PK4      | PacK v4 (Quake IV, Doom 3)                        |   ✅    |  ✅   |   ✅   |
   | PKZ      | PacK file (Quake II RTX)                          |   ✅    |  ✅   |   ✅   |
+  | SIN      | SiN pack file (SiN 1998)                          |   ❌    |  ✅   |   ✅   |
   | VPK      | Valve PacK file (Source Engine)                   |   ✅    |  ✅   |   ✅   |
   | VPK      | Vampire PacK file (V:TMB)                         |   ✅    |  ✅   |   ✅   |
   | VPP      | Volition Pack file (Red Faction, Saints Row)      |   ❌    |  ✅   |   ❌   |
