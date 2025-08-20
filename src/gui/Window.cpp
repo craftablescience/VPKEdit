@@ -157,7 +157,7 @@ Window::Window(QWidget* parent)
 	this->closeFileAction->setDisabled(true);
 
 	fileMenu->addSeparator();
-	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogHelpButton), tr("Donate On Ko-fi..."), [] {
+	fileMenu->addAction(QIcon{":/icons/kofi.png"}, tr("Donate On Ko-fi..."), [] {
 		QDesktopServices::openUrl({"https://ko-fi.com/craftablescience"});
 	});
 
