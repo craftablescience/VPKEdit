@@ -36,28 +36,43 @@ using namespace vtfpp;
 
 namespace {
 
-std::unique_ptr<MDLTextureData> getTextureDataForMaterial(PackFile& packFile, const std::string& materialPath) {
-	auto materialFile = packFile.readEntryText(materialPath);
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
+	const auto materialFile = packFile.readEntryText(materialPath);
 	if (!materialFile) {
 		return nullptr;
 	}
 
-	KV1 materialKV{*materialFile};
+	const KV1 materialKV{*materialFile};
 	if (materialKV.getChildCount() == 0) {
 		return nullptr;
 	}
 
-	auto& baseTexturePathKV = materialKV[0]["$basetexture"];
-	if (baseTexturePathKV.isInvalid()) {
+	std::string baseTexturePath;
+	if (const auto& baseTexturePathKV = materialKV[0]["$basetexture"]; !baseTexturePathKV.isInvalid()) {
+		baseTexturePath = baseTexturePathKV.getValue();
+	} else if (string::iequals(materialKV[0].getKey(), "patch")) {
+		if (const auto& baseTexturePathPatchInsertKV = materialKV[0]["insert"]["$basetexture"]; !baseTexturePathPatchInsertKV.isInvalid()) {
+			baseTexturePath = baseTexturePathPatchInsertKV.getValue();
+		} else if (const auto& baseTexturePathPatchReplaceKV = materialKV[0]["replace"]["$basetexture"]; !baseTexturePathPatchReplaceKV.isInvalid()) {
+			baseTexturePath = baseTexturePathPatchReplaceKV.getValue();
+		} else if (const auto& baseTexturePathPatchIncludeKV = materialKV[0]["include"]; !baseTexturePathPatchIncludeKV.isInvalid()) {
+			// Just re-using this variable for the new material path
+			baseTexturePath = baseTexturePathPatchIncludeKV.getValue();
+			string::normalizeSlashes(baseTexturePath);
+			return ::getTextureDataForMaterial(packFile, baseTexturePath);
+		} else {
+			return nullptr;
+		}
+	} else {
 		return nullptr;
 	}
 
-	auto textureFile = packFile.readEntry("materials/" + std::string{baseTexturePathKV.getValue()} + ".vtf");
+	auto textureFile = packFile.readEntry("materials/" + baseTexturePath + ".vtf");
 	if (!textureFile) {
 		return nullptr;
 	}
 
-	VTF vtf{*textureFile};
+	const VTF vtf{*textureFile};
 	return std::make_unique<MDLTextureData>(
 			vtf.getImageDataAs(ImageFormat::RGB888),
 			vtf.getWidth(),
