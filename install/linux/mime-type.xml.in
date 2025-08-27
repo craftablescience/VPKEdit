@@ -186,14 +186,4 @@
         <glob pattern="*.ttz"/>
         <glob pattern="*.TTZ"/>
     </mime-type>
-    <mime-type type="image/x-vtf">
-        <comment>Valve Texture File</comment>
-        <icon name="image/x-vtf"/>
-        <acronym>VTF</acronym>
-        <expanded-acronym>Valve Texture File</expanded-acronym>
-        <glob-deleteall/>
-        <glob pattern="*.vtf"/>
-        <glob pattern="*.VTF"/>
-        <alias type="image/vnd.valve.source.texture"/>
-    </mime-type>
 </mime-info>
