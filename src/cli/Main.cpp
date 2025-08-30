@@ -1,5 +1,9 @@
+// ReSharper disable CppRedundantQualifier
+
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include <argparse/argparse.hpp>
@@ -110,13 +114,12 @@ VPKEDIT_ERROR_TYPE(runtime);
 
 /// Extract file(s) from an existing pack file
 void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
+	const auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 
-	auto extractPath = cli.get(ARG_S(EXTRACT));
-	if (extractPath == "/") {
+	if (const auto extractPath = cli.get(ARG_S(EXTRACT)); extractPath == "/") {
 		// Extract everything
 		auto outputPath = std::filesystem::path{inputPath}.parent_path().string();
 		if (cli.is_used(ARG_S(OUTPUT))) {
@@ -154,8 +157,7 @@ void extract(const argparse::ArgumentParser& cli, const std::string& inputPath) 
 		if (cli.is_used(ARG_S(OUTPUT))) {
 			outputPath = cli.get(ARG_S(OUTPUT));
 		}
-		auto entry = packFile->findEntry(extractPath);
-		if (!entry) {
+		if (!packFile->hasEntry(extractPath)) {
 			throw vpkedit_runtime_error{"Could not find file at \"" + extractPath + "\" in the pack file!"};
 		}
 		if (!packFile->extractEntry(extractPath, outputPath)) {
@@ -196,14 +198,14 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
+	const auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
 
-	auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
-	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
-	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
+	const auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
+	const auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
+	const auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
 
 	if (cli.is_used(ARG_L(REMOVE_FILE))) {
 		for (const auto paths = cli.get<std::vector<std::string>>(ARG_L(REMOVE_FILE)); const auto& path : paths) {
@@ -266,28 +268,27 @@ void edit(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 
 /// Sign an existing VPK
 void sign(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
-	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
+	const auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
+	const auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
 
 	if (saveToDir) {
 		std::cerr << "Warning: Signed VPKs that contain files will not be treated as signed by the Source engine!" << std::endl;
 		std::cerr << "Rebuild the VPK and remove the " << ARG_S(SINGLE_FILE) << " / " << ARG_L(SINGLE_FILE) << " parameter for best results." << std::endl;
 	}
 
-	auto vpk = VPK::open(inputPath);
+	const auto vpk = VPK::open(inputPath);
 	if (!vpk || !dynamic_cast<VPK*>(vpk.get())->sign(signPath)) {
 		throw vpkedit_runtime_error{
 			"Failed to sign VPK using private key file at \"" + signPath + "\"!\n"
 			"Check that the file exists and it contains both the private key and public key."
 		};
-	} else {
-		std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
 	}
+	std::cout << "Signed VPK using private key at \"" << signPath << "\"." << std::endl;
 }
 
 /// Verify checksums and/or signature are valid for an existing pack file
 void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
+	const auto packFile = PackFile::open(inputPath, nullptr, ::getOpenPropertyRequestor(cli));
 	if (!packFile) {
 		throw vpkedit_load_error{"Could not open the pack file at \"" + inputPath + "\": it failed to load!"};
 	}
@@ -305,7 +306,7 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		if (cli.get(ARG_L(VERIFY_CHECKSUMS)) == "all" || cli.get(ARG_L(VERIFY_CHECKSUMS)) == "files") {
 			if (!packFile->hasEntryChecksums()) {
 				std::cout << "This pack file format does not store checksums per file." << std::endl;
-			} else if (auto entries = packFile->verifyEntryChecksums(); entries.empty()) {
+			} else if (const auto entries = packFile->verifyEntryChecksums(); entries.empty()) {
 				std::cout << "All file checksums match their expected values." << std::endl;
 			} else {
 				std::cerr << "Some file checksums do not match their expected values!" << std::endl;
@@ -328,9 +329,9 @@ void verify(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	}
 }
 
-/// Pack contents of a directory into a new pack file
-void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
-	auto type = cli.get<std::string>(ARG_S(TYPE));
+/// Pack contents of a directory or response file into a new pack file
+void pack(const argparse::ArgumentParser& cli, std::string inputPath) {
+	const auto type = cli.get<std::string>(ARG_S(TYPE));
 	std::string extension = '.' + type;
 	if (type == "vpk_vtmb") {
 		extension = ".vpk";
@@ -354,17 +355,23 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		}
 	}
 
-	auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
-	auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
-	auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
-	auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
-	auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
-	auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
-	auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
-	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
-	auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
-	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
-	auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
+	const auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
+	const auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
+	const auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
+	const auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
+	const auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
+	const auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
+	const auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
+	const auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
+	const auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
+	const auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
+	const auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
+
+	std::string responsePath;
+	if (inputPath.starts_with('@')) {
+		responsePath = inputPath.substr(1);
+		inputPath = std::filesystem::path{responsePath}.replace_extension().string();
+	}
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -407,10 +414,10 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 		throw vpkedit_runtime_error{"Failed to create pack file!"};
 	}
 
-	packFile->addDirectory("", inputPath, [compressionMethod, compressionLevel, &preloadExtensions, saveToDir](const std::string& path) -> EntryOptions {
+	const auto creationCallback = [compressionMethod, compressionLevel, &preloadExtensions, saveToDir](const std::string& path) -> EntryOptions {
 		uint16_t preloadBytes = 0;
 		for (const auto& preloadExtension : preloadExtensions) {
-			if ((std::count(preloadExtension.begin(), preloadExtension.end(), '.') > 0 && std::filesystem::path{path}.extension().string().ends_with(preloadExtension)) || std::filesystem::path{path}.filename().string() == preloadExtension) {
+			if ((std::ranges::count(preloadExtension, '.') > 0 && std::filesystem::path{path}.extension().string().ends_with(preloadExtension)) || std::filesystem::path{path}.filename().string() == preloadExtension) {
 				preloadBytes = VPK_MAX_PRELOAD_BYTES;
 				break;
 			}
@@ -421,7 +428,31 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 			.vpk_preloadBytes = preloadBytes,
 			.vpk_saveToDirectory = saveToDir,
 		};
-	});
+	};
+
+	if (responsePath.empty()) {
+		packFile->addDirectory("", inputPath, creationCallback);
+	} else {
+		auto responsePathParent = std::filesystem::path{responsePath}.parent_path().string();
+		sourcepp::string::normalizeSlashes(responsePathParent);
+
+		std::fstream responseStream{responsePath};
+		std::string responseFileEntry;
+		while (std::getline(responseStream, responseFileEntry)) {
+			sourcepp::string::normalizeSlashes(responseFileEntry, true, true);
+
+			if (const auto responseFileEntryLocation = responsePathParent + '/' + responseFileEntry; !std::filesystem::exists(responseFileEntryLocation)) {
+				std::cerr << "File at \"" << responseFileEntryLocation << "\" does not exist! Cannot add to pack file." << std::endl;
+			} else if (std::filesystem::is_regular_file(responseFileEntryLocation)) {
+				packFile->addEntry(responseFileEntry, responseFileEntryLocation, creationCallback(responseFileEntry));
+			} else if (std::filesystem::is_directory(responseFileEntryLocation)) {
+				packFile->addDirectory(responseFileEntry, responseFileEntryLocation, creationCallback);
+			} else {
+				std::cerr << "Path \"" << responseFileEntryLocation << "\" does not point to a file or directory! Cannot add to pack file." << std::endl;
+			}
+		}
+	}
+
 	packFile->bake("", {
 		.zip_compressionTypeOverride = compressionMethod,
 		.zip_compressionStrength = compressionLevel,
@@ -480,7 +511,7 @@ int main(int argc, const char* const* argv) {
 	                    "most logical sequence possible.");
 
 	cli.add_argument("path")
-		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
+		.help("(Pack)     The directory or response file to pack the contents of into a new pack file.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Modify)   The path to the pack file to edit the contents of.\n"
@@ -583,8 +614,8 @@ int main(int argc, const char* const* argv) {
 		.flag();
 
 	cli.add_argument(ARG_P(SIGN))
-	    .help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
-	          "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
+		.help("(Pack) Sign the output VPK with the key in the given private key file (v2 only).\n"
+		      "(Sign) Sign the VPK with the key in the given private key file (v2 only).");
 
 	cli.add_argument(ARG_L(VERIFY_CHECKSUMS))
 		.help(R"((Verify) Verify the pack file's checksums. Can be "files", "overall", or "all" (without quotes).)")
@@ -623,7 +654,7 @@ int main(int argc, const char* const* argv) {
 		}
 
 		if (std::filesystem::exists(inputPath)) {
-			if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
+			if (std::filesystem::is_directory(inputPath)) {
 				::pack(cli, inputPath);
 			} else {
 				bool foundAction = false;
@@ -651,6 +682,8 @@ int main(int argc, const char* const* argv) {
 					throw vpkedit_invalid_argument_error{"No action taken! Add some arguments to clarify your intent."};
 				}
 			}
+		} else if (inputPath.starts_with('@') && std::filesystem::exists(inputPath.substr(1)) && std::filesystem::is_regular_file(inputPath.substr(1))) {
+			::pack(cli, inputPath);
 		} else if (cli.get<bool>(ARG_L(GEN_KEYPAIR))) {
 			::generateKeyPair(inputPath);
 		} else {
@@ -671,9 +704,8 @@ int main(int argc, const char* const* argv) {
 			std::cerr << e.what() << '\n' << std::endl;
 			std::cerr << "Run with --help to see more information about how to use this program." << std::endl;
 			return EXIT_FAILURE;
-		} else {
-			std::cout << cli << std::endl;
 		}
+		std::cout << cli << std::endl;
 	}
 	return EXIT_SUCCESS;
 }
