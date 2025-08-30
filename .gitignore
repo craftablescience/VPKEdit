@@ -3,6 +3,7 @@
 .vs/
 .vscode/
 CMakeSettings.json
+*.user
 
 # Project exclude paths
 build/
