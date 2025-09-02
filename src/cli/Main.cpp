@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 #include <argparse/argparse.hpp>
 #include <bsppp/PakLump.h>
@@ -48,6 +49,7 @@ ARG_S(SIGN,               "-k", "--sign");
 ARG_L(VERIFY_CHECKSUMS,         "--verify-checksums");
 ARG_L(VERIFY_SIGNATURE,         "--verify-signature");
 ARG_L(DECRYPTION_KEY,           "--decryption-key");
+ARG_S(RESPONSE_FILE,      "-r", "--response-file");
 
 #undef ARG_S
 #undef ARG_L
@@ -364,7 +366,7 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	auto saveToDir = cli.get<bool>(ARG_S(SINGLE_FILE));
 	auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
 	auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
-	auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
+    auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
 
 	std::unique_ptr<indicators::IndeterminateProgressBar> bar;
 	if (!noProgressBar) {
@@ -449,6 +451,132 @@ void pack(const argparse::ArgumentParser& cli, const std::string& inputPath) {
 	std::cout << "Successfully created pack file at \"" << packFile->getFilepath() << "\"." << std::endl;
 }
 
+/// Packs a list of files from a response file into a new pack file.
+void responsePack(const argparse::ArgumentParser& cli, const std::string& packName) {
+    auto type = cli.get<std::string>(ARG_S(TYPE));
+    std::string extension = '.' + type;
+    if (type == "vpk_vtmb") {
+        extension = ".vpk";
+    }
+
+    std::string outputPath = packName;
+    if (type == "fpx" || type == "vpk") {
+        outputPath += (cli.get<bool>(ARG_S(SINGLE_FILE)) || packName.ends_with("_dir") ? "" : "_dir") + extension;
+    } else {
+        outputPath += extension;
+    }
+    if (cli.is_used(ARG_S(OUTPUT))) {
+        outputPath = cli.get(ARG_S(OUTPUT));
+        if (!outputPath.ends_with(extension)) {
+            const auto fsPath = std::filesystem::path{outputPath};
+            outputPath = (fsPath.parent_path() / fsPath.stem()).string() + extension;
+        }
+        if ((type == "fpx" || type == "vpk") && !cli.get<bool>(ARG_S(SINGLE_FILE)) && !outputPath.ends_with("_dir" + extension)) {
+            std::cerr << "Warning: multichunk FPX/VPK is being written without a \"_dir\" suffix (e.g. \"hl2_textures_dir.vpk\").\n"
+                         "The Source engine may not be able to load this file!" << std::endl;
+        }
+    }
+
+    auto noProgressBar = cli.get<bool>(ARG_L(NO_PROGRESS));
+    auto version = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(VERSION))));
+    auto preferredChunkSize = static_cast<std::uint32_t>(std::stoi(cli.get(ARG_S(CHUNKSIZE))) * 1024 * 1024);
+    auto compressionMethod = ::compressionMethodStringToCompressionType(cli.get<std::string>(ARG_S(COMPRESSION_METHOD)));
+    auto compressionLevel = static_cast<int8_t>(std::stoi(cli.get<std::string>(ARG_S(COMPRESSION_LEVEL))));
+    auto generateMD5Entries = cli.get<bool>(ARG_L(GEN_MD5_ENTRIES));
+    auto preloadExtensions = cli.get<std::vector<std::string>>(ARG_S(PRELOAD));
+    auto fileTree = cli.get<bool>(ARG_L(FILE_TREE));
+    auto signPath = cli.is_used(ARG_S(SIGN)) ? cli.get(ARG_S(SIGN)) : "";
+    auto shouldVerify = cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE));
+    auto responseFile = cli.get<std::string>(ARG_S(RESPONSE_FILE));
+
+    std::unique_ptr<indicators::IndeterminateProgressBar> bar;
+    if (!noProgressBar) {
+        bar = std::make_unique<indicators::IndeterminateProgressBar>(
+            indicators::option::BarWidth{40},
+            indicators::option::Start{"["},
+            indicators::option::Fill{"·"},
+            indicators::option::Lead{"<==>"},
+            indicators::option::End{"]"},
+            indicators::option::PostfixText{"Packing files..."}
+            );
+    }
+
+    std::unique_ptr<PackFile> packFile;
+    if (type == "bmz" || type == "zip") {
+        packFile = ZIP::create(outputPath);
+    } else if (type == "fpx") {
+        packFile = FPX::create(outputPath);
+        if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
+            fpx->setChunkSize(preferredChunkSize);
+        }
+    } else if (type == "pak") {
+        packFile = PAK::create(outputPath);
+    } else if (type == "pck") {
+        packFile = PCK::create(outputPath, version);
+    } else if (type == "vpk_vtmb") {
+        packFile = VPK_VTMB::create(outputPath);
+    } else if (type == "vpk") {
+        packFile = VPK::create(outputPath, version);
+        if (auto* vpk = dynamic_cast<VPK*>(packFile.get())) {
+            vpk->setChunkSize(preferredChunkSize);
+        }
+    } else if (type == "wad3") {
+        packFile = WAD3::create(outputPath);
+    }
+    if (!packFile) {
+        if (!noProgressBar) {
+            bar->mark_as_completed();
+        }
+        throw vpkedit_runtime_error{"Failed to create pack file!"};
+    }
+
+    if (cli.is_used(ARG_S(OUTPUT))) {
+        outputPath = cli.get(ARG_S(OUTPUT));
+        if (!std::filesystem::exists(outputPath) || !std::filesystem::is_directory(outputPath)) {
+            throw vpkedit_invalid_argument_error{"Output location must be an existing directory!"};
+        }
+    }
+
+    std::fstream responseFS(responseFile);
+    std::string responseFileEntry;
+    while(std::getline(responseFS, responseFileEntry))
+    {
+        if (!std::filesystem::exists(responseFileEntry)) {
+            throw vpkedit_invalid_argument_error{"File at \"" + responseFileEntry + "\" does not exist! Cannot add to pack file."};
+        }
+        if (!std::filesystem::is_regular_file(responseFileEntry)) {
+            throw vpkedit_invalid_argument_error{"Path \"" + responseFileEntry + "\" does not point to a file! Cannot add to pack file."};
+        }
+        packFile->addEntry(responseFileEntry, responseFileEntry, {});
+        std::cout << "Added file at \"" << responseFileEntry << "\" to the pack file at path \"" << responseFileEntry << "\"." << std::endl;
+    }
+    responseFS.close();
+    packFile->bake("", {
+               .zip_compressionTypeOverride = compressionMethod,
+               .zip_compressionStrength = compressionLevel,
+               .vpk_generateMD5Entries = generateMD5Entries,
+           }, [noProgressBar, &bar](const std::string&, const Entry&) {
+           if (!noProgressBar) {
+               bar->tick();
+           }
+       });
+
+    if (!noProgressBar) {
+        bar->mark_as_completed();
+    }
+
+    if (fileTree) {
+        ::fileTree(cli, outputPath);
+    }
+    if (!signPath.empty()) {
+        ::sign(cli, outputPath);
+    }
+    if (shouldVerify) {
+        ::verify(cli, outputPath);
+    }
+
+    std::cout << "Successfully created pack file at \"" << packFile->getFilepath() << "\"." << std::endl;
+}
 } // namespace
 
 int main(int argc, const char* const* argv) {
@@ -465,9 +593,10 @@ int main(int argc, const char* const* argv) {
 	cli.set_assign_chars("=:");
 #endif
 
-	cli.add_description("This program currently has seven modes:\n"
-	                    " - Pack:     Packs the contents of a given directory into a new pack file.\n"
-	                    " - Extract:  Extracts files from the given pack file.\n"
+    cli.add_description("This program currently has eight modes:\n"
+                        " - Pack:     Packs the contents of a given directory into a new pack file.\n"
+                        " - Response: Packs a list of files from a response file into a new pack file.\n"
+                        " - Extract:  Extracts files from the given pack file.\n"
 	                    " - Generate: Generates files related to VPK creation, such as a public/private keypair.\n"
 	                    " - Modify:   Edits the contents of the given pack file.\n"
 	                    " - Preview:  Prints the file tree of the given pack file to the console. Can also be combined\n"
@@ -481,6 +610,7 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument("path")
 		.help("(Pack)     The directory to pack the contents of into a new pack file.\n"
+              "(Response) The name of the file(s) to generate.\n"
 		      "(Extract)  The path to the pack file to extract the contents of.\n"
 		      "(Generate) The name of the file(s) to generate.\n"
 		      "(Modify)   The path to the pack file to edit the contents of.\n"
@@ -597,6 +727,10 @@ int main(int argc, const char* const* argv) {
 
 	cli.add_argument(ARG_L(DECRYPTION_KEY))
 		.help("Use the specified hex sequence to decrypt a pack file. Ignored if unnecessary.");
+		
+    cli.add_argument(ARG_P(RESPONSE_FILE))
+        .help("(Response) The path to the response file which contains a list of files to be added to the pack file.")
+        .nargs(1);
 
 	cli.add_epilog(R"(Program details:                                               )"        "\n"
 	               R"(                    /$$                       /$$ /$$   /$$    )"        "\n"
@@ -622,35 +756,37 @@ int main(int argc, const char* const* argv) {
 			inputPath.pop_back();
 		}
 
-		if (std::filesystem::exists(inputPath)) {
+        if (std::filesystem::exists(inputPath)) {
 			if (std::filesystem::status(inputPath).type() == std::filesystem::file_type::directory) {
-				::pack(cli, inputPath);
-			} else {
-				bool foundAction = false;
-				if (cli.is_used(ARG_S(EXTRACT))) {
-					foundAction = true;
-					::extract(cli, inputPath);
+                ::pack(cli, inputPath);
+            } else {
+                bool foundAction = false;
+                if (cli.is_used(ARG_S(EXTRACT))) {
+                    foundAction = true;
+                    ::extract(cli, inputPath);
 				}
-				if (cli.is_used(ARG_L(FILE_TREE))) {
-					foundAction = true;
-					::fileTree(cli, inputPath);
+                if (cli.is_used(ARG_L(FILE_TREE))) {
+                    foundAction = true;
+                    ::fileTree(cli, inputPath);
 				}
-				if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(ADD_DIR)) || cli.is_used(ARG_L(REMOVE_FILE)) || cli.is_used(ARG_L(REMOVE_DIR))) {
-					foundAction = true;
-					::edit(cli, inputPath);
+                if (cli.is_used(ARG_L(ADD_FILE)) || cli.is_used(ARG_L(ADD_DIR)) || cli.is_used(ARG_L(REMOVE_FILE)) || cli.is_used(ARG_L(REMOVE_DIR))) {
+                    foundAction = true;
+                    ::edit(cli, inputPath);
 				}
-				if (cli.is_used(ARG_S(SIGN))) {
-					foundAction = true;
-					::sign(cli, inputPath);
+                if (cli.is_used(ARG_S(SIGN))) {
+                    foundAction = true;
+                    ::sign(cli, inputPath);
 				}
-				if (cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
-					foundAction = true;
-					::verify(cli, inputPath);
-				}
-				if (!foundAction) {
+                if (cli.is_used(ARG_L(VERIFY_CHECKSUMS)) || cli.is_used(ARG_L(VERIFY_SIGNATURE))) {
+                    foundAction = true;
+                    ::verify(cli, inputPath);
+                }
+                if (!foundAction) {
 					throw vpkedit_invalid_argument_error{"No action taken! Add some arguments to clarify your intent."};
 				}
-			}
+            }
+        } else if (cli.is_used((ARG_S(RESPONSE_FILE)))){
+            ::responsePack(cli, inputPath);
 		} else if (cli.get<bool>(ARG_L(GEN_KEYPAIR))) {
 			::generateKeyPair(inputPath);
 		} else {
