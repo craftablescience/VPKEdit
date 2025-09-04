@@ -59,8 +59,11 @@ elseif(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
-    # Use system Qt - no install rules for frameworks
-    # Qt frameworks are handled automatically by the bundle
+    # Deploy Qt into the bundle
+    qt_generate_deploy_app_script(
+        TARGET ${PROJECT_NAME}
+        OUTPUT_SCRIPT qt_deploy_script)
+    install(SCRIPT ${qt_deploy_script})    
 elseif(UNIX)
     install(TARGETS ${PROJECT_NAME}cli
             DESTINATION bin)
