@@ -41,6 +41,32 @@ function(vpkedit_configure_target TARGET)
         if(TARGET_TYPE STREQUAL "EXECUTABLE")
             target_sources(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.rc")
         endif()
+    elseif(APPLE)
+        option(VPKEDIT_MAC_BUNDLE_QT "Bundle Qt into the application bundle for macOS" ON)
+        list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/macOS")
+        include(MakeICNS)
+        set(MACOS_ICON "${CMAKE_CURRENT_BINARY_DIR}/logo.icns")
+        if(CMAKE_BUILD_TYPE MATCHES Debug)
+            make_icns_from_png(INPUT "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_alt.png" OUTPUT "${MACOS_ICON}")
+        else()
+            make_icns_from_png(INPUT "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo.png" OUTPUT "${MACOS_ICON}")
+        endif()
+        target_sources(${TARGET} PRIVATE ${MACOS_ICON})
+        set_source_files_properties(${MACOS_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+        # app bundle properties
+        set_target_properties(${TARGET} PROPERTIES
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/install/macos/MacOSXBundleInfo.plist.in"
+            MACOSX_BUNDLE_ICON_FILE logo.icns
+            MACOSX_BUNDLE_GUI_IDENTIFIER "info.${PROJECT_ORGANIZATION_NAME}.${PROJECT_NAME}"
+            MACOSX_BUNDLE_INFO_STRING ${CMAKE_PROJECT_DESCRIPTION}
+            MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME_PRETTY}
+            MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION}
+            MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION}
+            MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2022 Laura Lewis")
+        add_custom_command(TARGET ${TARGET}
+            POST_BUILD COMMAND
+            ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks/"
+            $<TARGET_FILE:${TARGET}>)
     endif()
 endfunction()
 

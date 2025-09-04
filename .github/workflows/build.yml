@@ -13,6 +13,8 @@ env:
   QT_MSVC_ARCH_VPKEDIT: 'win64_msvc2022_64'
   QT_GCC_VERSION_VPKEDIT: '6.8.2'
   QT_GCC_ARCH_VPKEDIT: 'linux_gcc_64' # gcc_64 on older Qt
+  QT_MAC_VERSION_VPKEDIT: '6.9.2'
+  QT_MAC_ARCH_VPKEDIT: 'clang_64'
   QT_MSVC_VERSION_STRATASOURCE: '6.5.3'
   QT_MSVC_ARCH_STRATASOURCE: 'win64_msvc2019_64'
   QT_GCC_VERSION_STRATASOURCE: '6.5.3'
@@ -288,6 +290,51 @@ jobs:
           name: '${{matrix.target}}-Linux-Installer-gcc-${{matrix.build_type}}'
           path: |
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
+          retention-days: 7
+
+  build-macos:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+        target: [VPKEdit]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Necessary Packages
+        run: brew update && brew install imagemagick coreutils cryptopp
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '${{env.QT_MAC_VERSION_VPKEDIT}}'
+          host: 'mac'
+          target: 'desktop'
+          arch: '${{env.QT_MAC_ARCH_VPKEDIT}}'
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_C_COMPILER="clang" -DCMAKE_CXX_COMPILER="clang++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR="DragNDrop" -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(gnproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(gnproc)
+
+      - name: Create Installer
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{matrix.target}}-macOS-Installer-Clang-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-Darwin.dmg
           retention-days: 7
 
   deploy:
