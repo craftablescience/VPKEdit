@@ -49,16 +49,16 @@ if(WIN32)
 elseif(APPLE)
     # macOS app bundle installation
     install(TARGETS ${PROJECT_NAME}
-            BUNDLE DESTINATION .)
+            BUNDLE DESTINATION .
+            RENAME ${PROJECT_NAME_PRETTY})
     
     install(TARGETS ${PROJECT_NAME}cli
-            DESTINATION bin)
+            DESTINATION "Command Line Utilities")
 
     install(FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-            DESTINATION "share/licenses/${PROJECT_NAME}")
-
+            DESTINATION .)
     # Use system Qt - no install rules for frameworks
     # Qt frameworks are handled automatically by the bundle
 elseif(UNIX)
@@ -135,9 +135,9 @@ elseif(APPLE)
         message(WARNING "CPack generator should be DragNDrop on macOS! Setting generator to DragNDrop...")
         set(CPACK_GENERATOR "DragNDrop" CACHE INTERNAL "" FORCE)
     endif()
+    set(CPACK_BUNDLE_NAME ${PROJECT_NAME_PRETTY})
     set(CPACK_DMG_VOLUME_NAME ${PROJECT_NAME_PRETTY})
     set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/install/macos/DMGSetup.scpt")
-    set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_512.png")
 else()
     if(CPACK_GENERATOR STREQUAL "DEB")
         set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_VENDOR} <${CPACK_PACKAGE_CONTACT}>")

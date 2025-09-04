@@ -11,3 +11,5 @@ out/
 
 # Generated
 **/generated/
+
+.DS_Store
