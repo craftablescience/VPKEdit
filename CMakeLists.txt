@@ -57,7 +57,6 @@ function(vpkedit_configure_target TARGET)
         set_source_files_properties(${MACOS_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
         # app bundle properties
         set_target_properties(${TARGET} PROPERTIES
-            OUTPUT_NAME ${PROJECT_NAME_PRETTY}
             MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/install/macos/MacOSXBundleInfo.plist.in"
             MACOSX_BUNDLE_ICON_FILE logo.icns
             MACOSX_BUNDLE_GUI_IDENTIFIER "info.craftablescience.vpkedit"

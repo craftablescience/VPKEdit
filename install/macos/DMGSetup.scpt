@@ -28,8 +28,7 @@ on run argv
 		delay 5
 	close
 
-	-- next setup the position of the app and Applications symlink
-	-- plus hide all the window decoration
+	-- hide all the window decoration
 	open
 		update without registering applications
 		tell container window
@@ -38,6 +37,7 @@ on run argv
 		set toolbar visible to false
 		end tell
 		update without registering applications
+		set name of item "vpkedit.app" to "VPKEdit.app"
 		delay 5
 	close
 
