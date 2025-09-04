@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QTranslator>
-#include <QtSystemDetection>
 
 #include <Config.h>
 
@@ -15,7 +14,7 @@ int main(int argc, char** argv) {
 	format.setDepthBufferSize(24);
 	format.setSamples(4);
 
-#if defined Q_OS_MACOS
+#if defined(__APPLE__)
 	format.setMajorVersion(3);
 	format.setMinorVersion(2);
 	format.setProfile(QSurfaceFormat::CoreProfile);
