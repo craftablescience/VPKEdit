@@ -65,6 +65,10 @@ function(vpkedit_configure_target TARGET)
             MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION}
             MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION}
             MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2022 Laura Lewis")
+        add_custom_command(TARGET ${TARGET} 
+            POST_BUILD COMMAND 
+            ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../../Frameworks/"
+            $<TARGET_FILE:${TARGET}>)
     endif()
 endfunction()
 
