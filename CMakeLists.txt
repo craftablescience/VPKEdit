@@ -42,6 +42,35 @@ function(vpkedit_configure_target TARGET)
             target_sources(${TARGET} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.rc")
         endif()
     endif()
+    if(APPLE)
+        option(VPKEDIT_MAC_BUNDLE_QT "Bundle Qt into the application bundle for macOS" ON)
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/make_icns.cmake")
+        set(MACOS_ICON "${CMAKE_CURRENT_BINARY_DIR}/logo.icns")
+        set(SOURCE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo.png")
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(SOURCE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_alt.png")
+        endif()
+        make_icns_from_png(
+            INPUT "${SOURCE_ICON}"
+            OUTPUT "${MACOS_ICON}"
+        )
+        target_sources(${TARGET} PRIVATE ${MACOS_ICON})
+        set_source_files_properties(${MACOS_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+        # app bundle properties
+        set_target_properties(${TARGET} PROPERTIES
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/install/macos/MacOSXBundleInfo.plist.in"
+            MACOSX_BUNDLE_ICON_FILE logo.icns
+            MACOSX_BUNDLE_GUI_IDENTIFIER "info.craftablescience.vpkedit"
+            MACOSX_BUNDLE_INFO_STRING ${CMAKE_PROJECT_DESCRIPTION}
+            MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME_PRETTY}
+            MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION}
+            MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION}
+            MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2022 Laura Lewis")
+        add_custom_command(TARGET ${TARGET} 
+            POST_BUILD COMMAND 
+            ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks/"
+            $<TARGET_FILE:${TARGET}>)
+    endif()
 endfunction()
 
 # vpkeditcli
