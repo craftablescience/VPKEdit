@@ -60,10 +60,12 @@ elseif(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
     # Deploy Qt into the bundle
-    qt_generate_deploy_app_script(
-        TARGET ${PROJECT_NAME}
-        OUTPUT_SCRIPT qt_deploy_script)
-    install(SCRIPT ${qt_deploy_script})    
+    if(VPKEDIT_MAC_BUNDLE_QT)
+        qt_generate_deploy_app_script(
+                TARGET ${PROJECT_NAME}
+                OUTPUT_SCRIPT qt_deploy_script)
+        install(SCRIPT ${qt_deploy_script})
+    endif()
 elseif(UNIX)
     install(TARGETS ${PROJECT_NAME}cli
             DESTINATION bin)
