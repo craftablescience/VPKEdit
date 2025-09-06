@@ -36,11 +36,11 @@ function (make_icns_from_png)
 		${ARGN})
 
 	find_program (
-		convert_exe
-		NAMES "convert"
-		DOC "Path to ImageMagick convert")
-	if (NOT convert_exe)
-		message (FATAL_ERROR "Could not find ImageMagick's 'convert' - is ImageMagick installed?")
+		magick
+		NAMES "magick"
+		DOC "Path to ImageMagick")
+	if (NOT magick)
+		message (FATAL_ERROR "Could not find ImageMagick - is ImageMagick installed?")
 	endif ()
 
 	get_filename_component (ARG_INPUT_ABS "${ARG_INPUT}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -67,10 +67,10 @@ function (make_icns_from_png)
 		list (APPEND deplist "${ipath}" "${ipath2x}")
 
 		execute_process(
-			COMMAND "${convert_exe}" "${sourceimg}" -resize "${size}x${size}" "${ipath2x}")
+			COMMAND "${magick}" "${sourceimg}" -resize "${size}x${size}" "${ipath2x}")
 
 		execute_process(
-			COMMAND "${convert_exe}" "${sourceimg}" -resize "${size2x}x${size2x}" "${ipath2x}")
+			COMMAND "${magick}" "${sourceimg}" -resize "${size2x}x${size2x}" "${ipath2x}")
 	endforeach ()
 
 	execute_process(
