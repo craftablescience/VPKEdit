@@ -13,6 +13,13 @@ int main(int argc, char** argv) {
 	QSurfaceFormat format;
 	format.setDepthBufferSize(24);
 	format.setSamples(4);
+
+#if defined(__APPLE__)
+	format.setMajorVersion(3);
+	format.setMinorVersion(2);
+	format.setProfile(QSurfaceFormat::CoreProfile);
+#endif
+
 	QSurfaceFormat::setDefaultFormat(format);
 
 	QApplication app{argc, argv};
