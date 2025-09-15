@@ -257,6 +257,8 @@ QString VTFWidget::getVersion() const {
 		case VTF::PLATFORM_UNKNOWN:
 		case VTF::PLATFORM_PC:
 			return "7." + QString::number(this->vtf->getVersion());
+		case VTF::PLATFORM_XBOX:
+			return "XBOX (v7.2)";
 		case VTF::PLATFORM_PS3_PORTAL2:
 			return "PS3 (v7.5)";
 		case VTF::PLATFORM_PS3_ORANGEBOX:

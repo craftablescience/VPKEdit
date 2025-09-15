@@ -267,6 +267,7 @@ public:
 
 	static inline const QStringList EXTENSIONS_VTF {
 		".vtf",
+		".xtf",
 	};
 
 	explicit TexturePreview(QWidget* parent = nullptr, FileViewer* fileViewer = nullptr);
