@@ -20,6 +20,10 @@ class ITextureWidget : public QWidget {
 	Q_OBJECT;
 
 public:
+	static constexpr float DEFAULT_ZOOM = 100;
+	static constexpr float MAX_ZOOM = 1500;
+	static constexpr float MIN_ZOOM = 10;
+
 	explicit ITextureWidget(QWidget* parent = nullptr);
 
 	virtual void setData(const std::vector<std::byte>& data) = 0;
@@ -38,7 +42,11 @@ public:
 
 	void setTileEnabled(bool tile) { this->tileEnabled = tile; }
 
-	void setZoom(int zoom_);
+	void setZoom(int zoom_, bool emitSignal = false);
+
+	void setOffset(const QPoint& off) { this->offset = off; }
+
+	[[nodiscard]] QPoint getOffset() const { return this->offset; }
 
 	[[nodiscard]] virtual uint16_t getCurrentImageWidth() const = 0;
 
@@ -60,7 +68,7 @@ public:
 
 	[[nodiscard]] bool getTileEnabled() const { return this->tileEnabled; }
 
-	[[nodiscard]] float getZoom() const { return this->zoom; }
+	[[nodiscard]] float getZoom() const { return this->zoom * 100.f; }
 
 	[[nodiscard]] virtual QString getVersion() const = 0;
 
@@ -68,7 +76,12 @@ public:
 
 	[[nodiscard]] virtual int getAuxCompression() const = 0;
 
+signals:
+	void zoomUpdated(float newZoom);
+
 protected:
+	[[nodiscard]] float getScaledZoom() const;
+
 	std::vector<std::byte> imageData;
 	QImage image;
 
@@ -80,6 +93,7 @@ protected:
 	bool alphaEnabled = false;
 	bool tileEnabled = false;
 	float zoom = 1.f;
+	QPoint offset;
 };
 
 class ImageWidget : public ITextureWidget {
@@ -287,6 +301,12 @@ protected:
 
 	[[nodiscard]] ITextureWidget* getVisibleWidget() const;
 
+	void mouseMoveEvent(QMouseEvent* event) override;
+
+	void mousePressEvent(QMouseEvent* event) override;
+
+	void mouseReleaseEvent(QMouseEvent* event) override;
+
 	void wheelEvent(QWheelEvent* event) override;
 
 private:
@@ -308,4 +328,6 @@ private:
 	QLabel* versionLabel;
 	QLabel* imageFormatLabel;
 	QLabel* compressionLevelLabel;
+	bool dragging = false;
+	QPoint lastDrag;
 };
