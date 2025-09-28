@@ -44,6 +44,8 @@ public:
 
 	[[nodiscard]] virtual uint16_t getCurrentImageHeight() const = 0;
 
+	[[nodiscard]] virtual uint16_t getCurrentImageDepth() const = 0;
+
 	[[nodiscard]] bool getShowEverythingEnabled() const { return this->showEverything; }
 
 	[[nodiscard]] virtual int getMaxMip() const = 0;
@@ -51,8 +53,6 @@ public:
 	[[nodiscard]] virtual int getMaxFrame() const = 0;
 
 	[[nodiscard]] virtual int getMaxFace() const = 0;
-
-	[[nodiscard]] virtual int getMaxSlice() const = 0;
 
 	[[nodiscard]] virtual bool hasAlpha() const = 0;
 
@@ -104,13 +104,13 @@ public:
 
 	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->image.height(); }
 
+	[[nodiscard]] uint16_t getCurrentImageDepth() const override { return 1; }
+
 	[[nodiscard]] int getMaxMip() const override { return 1; }
 
 	[[nodiscard]] int getMaxFrame() const override { return 1; }
 
 	[[nodiscard]] int getMaxFace() const override { return 1; }
-
-	[[nodiscard]] int getMaxSlice() const override { return 1; }
 
 	[[nodiscard]] bool hasAlpha() const override { return this->image.hasAlphaChannel(); }
 
@@ -157,13 +157,13 @@ public:
 
 	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->ppl ? this->ppl->getImageRaw(this->currentFrame)->height : 0; }
 
+	[[nodiscard]] uint16_t getCurrentImageDepth() const override { return 1; }
+
 	[[nodiscard]] int getMaxMip() const override { return 1; }
 
 	[[nodiscard]] int getMaxFrame() const override { return 1; }
 
 	[[nodiscard]] int getMaxFace() const override { return 1; }
-
-	[[nodiscard]] int getMaxSlice() const override { return 1; }
 
 	[[nodiscard]] bool hasAlpha() const override;
 
@@ -204,13 +204,13 @@ public:
 
 	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->vtf->getHeight(this->currentMip); }
 
-	[[nodiscard]] int getMaxMip() const override { return static_cast<int>(this->vtf->getMipCount()); }
+	[[nodiscard]] uint16_t getCurrentImageDepth() const override { return this->vtf->getDepth(); }
 
-	[[nodiscard]] int getMaxFrame() const override { return static_cast<int>(this->vtf->getFrameCount()); }
+	[[nodiscard]] int getMaxMip() const override { return this->vtf->getMipCount(); }
 
-	[[nodiscard]] int getMaxFace() const override { return static_cast<int>(this->vtf->getFaceCount()); }
+	[[nodiscard]] int getMaxFrame() const override { return this->vtf->getFrameCount(); }
 
-	[[nodiscard]] int getMaxSlice() const override { return static_cast<int>(this->vtf->getSliceCount()); }
+	[[nodiscard]] int getMaxFace() const override { return this->vtf->getFaceCount(); }
 
 	[[nodiscard]] bool hasAlpha() const override;
 

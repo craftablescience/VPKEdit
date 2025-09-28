@@ -588,9 +588,9 @@ void TexturePreview::setData(ITextureWidget* widget) const {
 	this->faceSpin->setValue(0);
 	this->faceSpin->setDisabled(widget->getMaxFace() == 1 || widget->getShowEverythingEnabled());
 
-	this->sliceSpin->setMaximum(widget->getMaxSlice() - 1);
+	this->sliceSpin->setMaximum(widget->getCurrentImageDepth() - 1);
 	this->sliceSpin->setValue(0);
-	this->sliceSpin->setDisabled(widget->getMaxSlice() == 1);
+	this->sliceSpin->setDisabled(widget->getCurrentImageDepth() == 1);
 
 	// Don't reset alpha: this is handled automatically
 	//this->alphaCheckBox->setChecked(false);
