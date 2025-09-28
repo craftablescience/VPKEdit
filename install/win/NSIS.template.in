@@ -46,6 +46,7 @@
   Var EXT_REGISTER_ASSET_TTZ
   Var EXT_REGISTER_ASSET_VMT
   Var EXT_REGISTER_ASSET_VTF
+  Var EXT_REGISTER_ASSET_XTF
 
 ;--------------------------------
 ;Include Modern UI
@@ -775,6 +776,7 @@ Section "-Core installation"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_TTZ          "NSIS.InstallOptions.ini" "Field 32" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VMT          "NSIS.InstallOptions.ini" "Field 33" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_VTF          "NSIS.InstallOptions.ini" "Field 34" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_XTF          "NSIS.InstallOptions.ini" "Field 35" "State"
 
   ; Write special uninstall registry entries
   Push "StartMenu"

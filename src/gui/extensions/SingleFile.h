@@ -153,4 +153,5 @@ private:
 	VPKPP_REGISTER_PACKFILE_OPEN(".tth", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".ttz", &SingleFile::open);
 	VPKPP_REGISTER_PACKFILE_OPEN(".vtf", &SingleFile::open);
+	VPKPP_REGISTER_PACKFILE_OPEN(".xtf", &SingleFile::open);
 };

@@ -28,6 +28,7 @@ DeleteRegKey HKCR '@PROJECT_NAME@_pack_file'
 ; DeleteRegKey HKCR '.ttz'
 ; DeleteRegKey HKCR '.vmt'
 ; DeleteRegKey HKCR '.vtf'
+; DeleteRegKey HKCR '.xtf'
 
 DeleteRegKey HKCR '@PROJECT_NAME@_asset'
 

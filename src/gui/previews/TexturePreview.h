@@ -83,7 +83,7 @@ protected:
 };
 
 class ImageWidget : public ITextureWidget {
-Q_OBJECT;
+	Q_OBJECT;
 
 public:
 	using ITextureWidget::ITextureWidget;
