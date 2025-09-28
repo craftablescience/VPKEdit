@@ -11,8 +11,8 @@ env:
   BUILD_DIR: '${{github.workspace}}/build'
   QT_MSVC_VERSION_VPKEDIT: '6.8.3'
   QT_MSVC_ARCH_VPKEDIT: 'win64_msvc2022_64'
-  QT_GCC_VERSION_VPKEDIT: '6.4.2'
-  QT_GCC_ARCH_VPKEDIT: 'gcc_64' # linux_gcc_64 on newer Qt
+  QT_GCC_VERSION_VPKEDIT: '6.8.2'
+  QT_GCC_ARCH_VPKEDIT: 'linux_gcc_64' # gcc_64 on older Qt
   QT_MSVC_VERSION_STRATASOURCE: '6.5.3'
   QT_MSVC_ARCH_STRATASOURCE: 'win64_msvc2019_64'
   QT_GCC_VERSION_STRATASOURCE: '6.5.3'
