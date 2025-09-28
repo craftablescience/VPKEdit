@@ -14,36 +14,6 @@
 
 using namespace vpkpp;
 
-namespace {
-
-int compressionTypeToComboIndex(EntryCompressionType type) {
-	switch (type) {
-		case EntryCompressionType::NO_OVERRIDE: return 1;
-		case EntryCompressionType::NO_COMPRESS: return 0;
-		case EntryCompressionType::DEFLATE:     return 3;
-		case EntryCompressionType::BZIP2:       return 4;
-		case EntryCompressionType::LZMA:        return 2;
-		case EntryCompressionType::ZSTD:        return 5;
-		case EntryCompressionType::XZ:          return 6;
-	}
-	return 0;
-}
-
-EntryCompressionType comboIndexToCompressionType(int index) {
-	switch (index) {
-		case 1: return EntryCompressionType::NO_OVERRIDE;
-		case 0: return EntryCompressionType::NO_COMPRESS;
-		case 3: return EntryCompressionType::DEFLATE;
-		case 4: return EntryCompressionType::BZIP2;
-		case 2: return EntryCompressionType::LZMA;
-		case 5: return EntryCompressionType::ZSTD;
-		case 6: return EntryCompressionType::XZ;
-	}
-	return EntryCompressionType::NO_OVERRIDE;
-}
-
-} // namespace
-
 PackFileOptionsDialog::PackFileOptionsDialog(std::string_view typeGUID, bool editing, bool createFromDir, PackFileOptions options, QWidget* parent)
 		: QDialog(parent) {
 	this->setModal(true);
@@ -55,16 +25,18 @@ PackFileOptionsDialog::PackFileOptionsDialog(std::string_view typeGUID, bool edi
 	this->compressionStrength = nullptr;
 	if (typeGUID == bsppp::PakLump::GUID || typeGUID == ZIP::GUID) {
 		this->compressionType = new QComboBox(this);
-		this->compressionType->addItem(tr("None"));
-		this->compressionType->addItem(tr("Per-entry"));
-		this->compressionType->addItem("LZMA");
+		this->compressionType->addItem(tr("None"), static_cast<int>(EntryCompressionType::NO_COMPRESS));
+		this->compressionType->addItem(tr("Per-entry"), static_cast<int>(EntryCompressionType::NO_OVERRIDE));
+		this->compressionType->addItem("LZMA", static_cast<int>(EntryCompressionType::LZMA));
 		if (typeGUID == ZIP::GUID) {
-			this->compressionType->addItem("DEFLATE");
-			this->compressionType->addItem("BZIP2");
-			this->compressionType->addItem("ZSTD");
-			this->compressionType->addItem("XZ");
+			this->compressionType->addItem("DEFLATE", static_cast<int>(EntryCompressionType::DEFLATE));
+			this->compressionType->addItem("BZIP2", static_cast<int>(EntryCompressionType::BZIP2));
+			this->compressionType->addItem("ZSTD", static_cast<int>(EntryCompressionType::ZSTD));
+			this->compressionType->addItem("XZ", static_cast<int>(EntryCompressionType::XZ));
 		}
-		this->compressionType->setCurrentIndex(::compressionTypeToComboIndex(options.compressionType));
+		if (const auto index = this->compressionType->findData(static_cast<int>(options.compressionType)); index >= 0) {
+			this->compressionType->setCurrentIndex(index);
+		}
 		layout->addRow(tr("Compression Type Override:"), this->compressionType);
 
 		this->compressionStrength = new QSpinBox(this);
@@ -111,7 +83,7 @@ PackFileOptionsDialog::PackFileOptionsDialog(std::string_view typeGUID, bool edi
 
 PackFileOptions PackFileOptionsDialog::getPackFileOptions() const {
 	return {
-		.compressionType = this->compressionType ? ::comboIndexToCompressionType(this->compressionType->currentIndex()) : EntryCompressionType::NO_OVERRIDE,
+		.compressionType = this->compressionType ? static_cast<EntryCompressionType>(this->compressionType->currentData().toInt()) : EntryCompressionType::NO_OVERRIDE,
 		.compressionStrength = static_cast<short>(this->compressionStrength ? this->compressionStrength->value() : 5),
 		.vpk_version = this->version ? static_cast<std::uint32_t>(this->version->currentIndex()) : 2,
 		.vpk_saveSingleFile = this->singleFile && this->singleFile->isChecked(),
