@@ -7,7 +7,6 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include "previews/AudioPreview.h"
 #include "previews/DirPreview.h"
 #include "previews/DMXPreview.h"
 #include "previews/EmptyPreview.h"
@@ -208,9 +207,6 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
-	auto* audioPreview = newPreview<AudioPreview>(this);
-	layout->addWidget(audioPreview);
-
 	auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
 	layout->addWidget(dirPreview);
 
@@ -251,16 +247,7 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 	this->clearContents(false);
 	this->navbar->setPath(path);
 
-	if (AudioPreview::EXTENSIONS.contains(extension)) {
-		// Audio
-		auto binary = this->window->readBinaryEntry(path);
-		if (!binary) {
-			this->showFileLoadErrorPreview();
-			return;
-		}
-		this->showPreview<AudioPreview>();
-		this->getPreview<AudioPreview>()->setData(*binary);
-	} else if (DMXPreview::EXTENSIONS.contains(extension)) {
+	if (DMXPreview::EXTENSIONS.contains(extension)) {
 		// DMX
 		auto binary = this->window->readBinaryEntry(path);
 		if (!binary) {

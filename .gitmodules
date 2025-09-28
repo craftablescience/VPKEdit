@@ -10,9 +10,6 @@
 [submodule "src/gui/thirdparty/discord"]
 	path = ext/gui/discord
 	url = https://github.com/craftablescience/discord-rpc-clean
-[submodule "src/gui/thirdparty/miniaudio"]
-	path = ext/gui/miniaudio
-	url = https://github.com/mackron/miniaudio
 [submodule "src/shared/thirdparty/sourcepp"]
 	path = ext/shared/sourcepp
 	url = https://github.com/craftablescience/sourcepp

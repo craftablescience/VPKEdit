@@ -1,9 +1,6 @@
 # discord-rpc
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/discord")
 
-# miniaudio
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/miniaudio")
-
 # Qt
 if(WIN32 AND NOT DEFINED QT_BASEDIR)
     message(FATAL_ERROR "Please define your Qt install dir with -DQT_BASEDIR=\"C:/your/qt6/here\"")

@@ -22,8 +22,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.h"
 
-		"${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/previews/AudioPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.cpp"
@@ -42,8 +40,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_SOURCE_DIR}/res/logo$<$<CONFIG:Debug>:_alt>.qrc"
 		"${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc"
 
-		"${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/utility/AudioPlayer.h"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/DiscordPresence.h"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/ImageLoader.cpp"
@@ -77,7 +73,6 @@ target_link_libraries(
         ${PROJECT_NAME} PRIVATE
         ${CMAKE_DL_LIBS}
         discord-rpc
-		miniaudio
         sourcepp::bsppp
         sourcepp::dmxpp
         sourcepp::kvpp
