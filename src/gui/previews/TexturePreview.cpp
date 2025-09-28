@@ -1,6 +1,8 @@
 #include "TexturePreview.h"
 
+#include <cmath>
 #include <cstdint>
+#include <numbers>
 #include <utility>
 
 #include <QApplication>
@@ -93,22 +95,52 @@ ITextureWidget::ITextureWidget(QWidget* parent)
 		: QWidget(parent) {
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	auto* contextMenu = new QMenu(this);
-	auto* copyImageAction = contextMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Copy Image"));
+	auto* contextMenu = new QMenu{this};
 
-	QObject::connect(this, &VTFWidget::customContextMenuRequested, this, [this, contextMenu, copyImageAction](const QPoint& pos) {
-		if (this->image.isNull()) {
-			return;
-		}
-		auto* selectedAction = contextMenu->exec(this->mapToGlobal(pos));
-		if (selectedAction == copyImageAction) {
-			QApplication::clipboard()->setImage(this->image, QClipboard::Clipboard);
+	contextMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("&Copy Image"), [this] {
+		QApplication::clipboard()->setImage(this->image, QClipboard::Clipboard);
+	});
+
+	contextMenu->addSeparator();
+
+	contextMenu->addAction(QIcon::fromTheme("zoom-in"), tr("Zoom &In"), [this] {
+		this->setZoom(this->getZoom() + 150.f, true);
+		this->update();
+	});
+
+	contextMenu->addAction(QIcon::fromTheme("zoom-out"), tr("Zoom &Out"), [this] {
+		this->setZoom(this->getZoom() - 150.f, true);
+		this->update();
+	});
+
+	contextMenu->addAction(QIcon::fromTheme("zoom-original"), tr("Reset &Zoom"), [this] {
+		this->setZoom(DEFAULT_ZOOM, true);
+		this->update();
+	});
+
+	contextMenu->addAction(QIcon::fromTheme("view-restore"), tr("Reset &Pan"), [this] {
+		this->setOffset({});
+		this->update();
+	});
+
+	QObject::connect(this, &VTFWidget::customContextMenuRequested, this, [this, contextMenu](const QPoint& pos) {
+		if (!this->image.isNull()) {
+			(void) contextMenu->exec(this->mapToGlobal(pos));
 		}
 	});
 }
 
-void ITextureWidget::setZoom(int zoom_) {
-	this->zoom = static_cast<float>(zoom_) / 100.f;
+void ITextureWidget::setZoom(int zoom_, bool emitSignal) {
+	const float clamped = std::clamp(static_cast<float>(zoom_), MIN_ZOOM, MAX_ZOOM);
+	this->zoom = clamped / 100.f;
+	if (emitSignal) {
+		emit this->zoomUpdated(clamped);
+	}
+}
+
+float ITextureWidget::getScaledZoom() const {
+	// Gives a more natural scaling curve
+	return 10.f * std::pow((this->zoom + 5.f) / 15.f, std::numbers::e_v<float>);
 }
 
 void ImageWidget::setData(const std::vector<std::byte>& data) {
@@ -124,14 +156,14 @@ QString ImageWidget::getFormat() const {
 void ImageWidget::paintEvent(QPaintEvent* /*event*/) {
 	QPainter painter(this);
 
-	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
+	const float realZoom = static_cast<float>(1 << this->currentMip) * this->getScaledZoom();
 
-	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(this->getCurrentImageWidth()) * realZoom)) / 2;
-	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2;
-	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
-	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
+	const int zoomedXPos = this->offset.x() + ((this->width()  - static_cast<int>(static_cast<float>(this->getCurrentImageWidth())  * realZoom)) / 2);
+	const int zoomedYPos = this->offset.y() + ((this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2);
+	const int zoomedWidth =  static_cast<int>(static_cast<float>(this->image.width())  * realZoom);
+	const int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
 
-	QRect sourceRect(0, 0, this->image.width(), this->image.height());
+	const QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
 	const auto imageFlags = this->alphaEnabled
 	                        ? Qt::ImageConversionFlag::AutoColor | Qt::ImageConversionFlag::NoAlpha
@@ -151,7 +183,7 @@ void ImageWidget::paintEvent(QPaintEvent* /*event*/) {
 void SVGWidget::setData(const std::vector<std::byte>& data) {
 	QSvgRenderer renderer;
 	renderer.load(QByteArray{reinterpret_cast<const char*>(data.data()), static_cast<qsizetype>(data.size())});
-	auto size = renderer.defaultSize();
+	const auto size = renderer.defaultSize();
 	this->image = QImage(size.width(), size.height(), QImage::Format_RGBA8888);
 	this->image.fill(0);
 	QPainter painter(&image);
@@ -186,23 +218,22 @@ void PPLWidget::paintEvent(QPaintEvent*) {
 		return;
 	}
 
-	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
+	const float realZoom = static_cast<float>(1 << this->currentMip) * this->getScaledZoom();
 
-	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(this->getCurrentImageWidth()) * realZoom)) / 2;
-	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2;
-	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
-	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
+	const int zoomedXPos = this->offset.x() + ((this->width()  - static_cast<int>(static_cast<float>(this->getCurrentImageWidth())  * realZoom)) / 2);
+	const int zoomedYPos = this->offset.y() + ((this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2);
+	const int zoomedWidth =  static_cast<int>(static_cast<float>(this->image.width())  * realZoom);
+	const int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
 
-	QRect sourceRect(0, 0, this->image.width(), this->image.height());
+	const QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
 	if (this->showEverything && (this->getMaxFrame() > 1 || this->getMaxFace() > 1)) {
-		int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
-		int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
+		const int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
+		const int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
 		for (int face = 0; face < this->getMaxFace(); face++) {
 			for (int frame = 0; frame < this->getMaxFrame(); frame++) {
-				auto imageData = this->ppl->getImageAsRGB888(this->currentFrame);
-				if (imageData) {
-					QImage currentImage(reinterpret_cast<uchar*>(imageData->data.data()), static_cast<int>(this->getCurrentImageWidth()), static_cast<int>(this->getCurrentImageHeight()), QImage::Format_RGB888);
+				if (auto imageData = this->ppl->getImageAsRGB888(this->currentFrame)) {
+					QImage currentImage(reinterpret_cast<uchar*>(imageData->data.data()), this->getCurrentImageWidth(), this->getCurrentImageHeight(), QImage::Format_RGB888);
 					painter.drawImage(QRect(zoomedXPos + (zoomedWidth * face) - (totalZoomedWidth / 2), zoomedYPos + (zoomedHeight * frame) - (totalZoomedHeight / 2), zoomedWidth, zoomedHeight), currentImage, sourceRect);
 				}
 			}
@@ -292,23 +323,23 @@ void VTFWidget::paintEvent(QPaintEvent*) {
 		return;
 	}
 
-	float realZoom = static_cast<float>(1 << this->currentMip) * this->zoom;
+	const float realZoom = static_cast<float>(1 << this->currentMip) * this->getScaledZoom();
 
-	int zoomedXPos = (this->width() - static_cast<int>(static_cast<float>(this->getCurrentImageWidth()) * realZoom)) / 2;
-	int zoomedYPos = (this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2;
-	int zoomedWidth = static_cast<int>(static_cast<float>(this->image.width()) * realZoom);
-	int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
+	const int zoomedXPos = this->offset.x() + ((this->width()  - static_cast<int>(static_cast<float>(this->getCurrentImageWidth())  * realZoom)) / 2);
+	const int zoomedYPos = this->offset.y() + ((this->height() - static_cast<int>(static_cast<float>(this->getCurrentImageHeight()) * realZoom)) / 2);
+	const int zoomedWidth =  static_cast<int>(static_cast<float>(this->image.width())  * realZoom);
+	const int zoomedHeight = static_cast<int>(static_cast<float>(this->image.height()) * realZoom);
 
-	QRect sourceRect(0, 0, this->image.width(), this->image.height());
+	const QRect sourceRect(0, 0, this->image.width(), this->image.height());
 
 	if (this->showEverything && (this->getMaxFrame() > 1 || this->getMaxFace() > 1)) {
-		int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
-		int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
+		const int totalZoomedWidth = zoomedWidth * (this->getMaxFace() - 1);
+		const int totalZoomedHeight = zoomedHeight * (this->getMaxFrame() - 1);
 		for (int face = 0; face < this->getMaxFace(); face++) {
 			for (int frame = 0; frame < this->getMaxFrame(); frame++) {
 				auto imageData = this->vtf->getImageDataAsRGBA8888(this->currentMip, frame, face, this->currentSlice);
 				if (!imageData.empty()) {
-					QImage currentImage(reinterpret_cast<uchar*>(imageData.data()), static_cast<int>(this->getCurrentImageWidth()), static_cast<int>(this->getCurrentImageHeight()), QImage::Format_RGBA8888);
+					QImage currentImage(reinterpret_cast<uchar*>(imageData.data()), this->getCurrentImageWidth(), this->getCurrentImageHeight(), QImage::Format_RGBA8888);
 					if (!this->alphaEnabled) {
 						currentImage = currentImage.convertedTo(QImage::Format_RGB888);
 					}
@@ -488,16 +519,21 @@ TexturePreview::TexturePreview(QWidget* parent, FileViewer* fileViewer_)
 	auto* zoomSliderLabel = new QLabel(tr("Zoom"), zoomSliderParent);
 	zoomSliderLayout->addWidget(zoomSliderLabel);
 	this->zoomSlider = new QSlider(controls);
-	this->zoomSlider->setMinimum(10);
-	this->zoomSlider->setMaximum(1000);
-	this->zoomSlider->setValue(100);
-	QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [&] {
+	this->zoomSlider->setMinimum(ITextureWidget::MIN_ZOOM);
+	this->zoomSlider->setMaximum(ITextureWidget::MAX_ZOOM);
+	this->zoomSlider->setValue(ITextureWidget::DEFAULT_ZOOM);
+	QObject::connect(this->zoomSlider, &QSlider::valueChanged, this, [this] {
 		this->image->setZoom(this->zoomSlider->value());
 		this->svg->setZoom(this->zoomSlider->value());
 		this->ppl->setZoom(this->zoomSlider->value());
 		this->vtf->setZoom(this->zoomSlider->value());
 		this->getVisibleWidget()->repaint();
 	});
+	for (const auto* widget : {this->image, this->svg, this->ppl, this->vtf}) {
+		QObject::connect(widget, &ITextureWidget::zoomUpdated, this, [this](float zoom) {
+			this->zoomSlider->setValue(zoom);
+		});
+	}
 	zoomSliderLayout->addWidget(this->zoomSlider, 0, Qt::AlignHCenter);
 	controlsLayout->addWidget(zoomSliderParent);
 
@@ -627,9 +663,38 @@ ITextureWidget* TexturePreview::getVisibleWidget() const {
 	return this->vtf;
 }
 
+void TexturePreview::mouseMoveEvent(QMouseEvent* event) {
+	if (this->dragging) {
+		const auto delta = event->pos() - this->lastDrag;
+		auto* widget = this->getVisibleWidget();
+		widget->setOffset(widget->getOffset() + delta);
+		widget->repaint();
+		this->lastDrag = event->pos();
+	}
+	event->accept();
+}
+
+void TexturePreview::mousePressEvent(QMouseEvent* event) {
+	if (event->button() == Qt::MouseButton::LeftButton || event->button() == Qt::MouseButton::MiddleButton) {
+		this->setCursor({Qt::CursorShape::ClosedHandCursor});
+		this->lastDrag = event->pos();
+		this->dragging = true;
+	}
+	event->accept();
+}
+
+void TexturePreview::mouseReleaseEvent(QMouseEvent* event) {
+	if (event->button() == Qt::MouseButton::LeftButton || event->button() == Qt::MouseButton::MiddleButton) {
+		this->setCursor({Qt::CursorShape::ArrowCursor});
+		this->dragging = false;
+	}
+	event->accept();
+}
+
 void TexturePreview::wheelEvent(QWheelEvent* event) {
-	if (QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
-		this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y());
+	if (const QPoint numDegrees = event->angleDelta() / 8; !numDegrees.isNull()) {
+		const float mult = event->modifiers() & Qt::Modifier::CTRL ? 10.f : 1.f;
+		this->zoomSlider->setValue(this->zoomSlider->value() + numDegrees.y() * mult);
 	}
 	event->accept();
 }
