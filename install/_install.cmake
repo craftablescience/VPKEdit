@@ -64,7 +64,7 @@ elseif(APPLE)
             DESTINATION .)
 
     install(TARGETS ${PROJECT_NAME}_dmx_preview
-            DESTINATION "${PROJECT_NAME_PRETTY}.app/Contents/PlugIns")
+            DESTINATION "${PROJECT_NAME_PRETTY}.app/Contents/PlugIns/previews")
 
     # Deploy Qt into the bundle
     if(VPKEDIT_MAC_BUNDLE_QT)
