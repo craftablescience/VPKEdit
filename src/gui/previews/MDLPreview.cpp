@@ -1,6 +1,7 @@
 #include "MDLPreview.h"
 
 #include <filesystem>
+#include <ranges>
 #include <utility>
 
 #include <kvpp/kvpp.h>
@@ -72,11 +73,34 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 		return nullptr;
 	}
 
+	// todo: properly handle patch materials
+	bool translucent = !materialKV[0]["$translucent"].isInvalid() && materialKV[0]["$translucent"].getValue<bool>();
+	bool alphaTest = false;
+	float alphaTestReference = 0.f;
+	if (!translucent) {
+		alphaTest = !materialKV[0]["$alphatest"].isInvalid() && materialKV[0]["$alphatest"].getValue<bool>();
+		if (alphaTest && !materialKV[0]["$alphatestreference"].isInvalid()) {
+			alphaTestReference = materialKV[0]["$alphatestreference"].getValue<float>();
+		} else if (alphaTest) {
+			alphaTestReference = 0.7f;
+		}
+	}
+
 	const VTF vtf{*textureFile};
+	if (!ImageFormatDetails::transparent(vtf.getFormat())) {
+		translucent = false;
+		alphaTest = false;
+		alphaTestReference = 0.f;
+	}
+
 	return std::make_unique<MDLTextureData>(
-			vtf.getImageDataAs(ImageFormat::RGB888),
-			vtf.getWidth(),
-			vtf.getHeight()
+		(translucent || alphaTest) ? vtf.getImageDataAsRGBA8888() : vtf.getImageDataAs(ImageFormat::RGB888),
+		vtf.getWidth(),
+		vtf.getHeight(),
+		MDLTextureSettings{
+			translucent ? MDLTextureSettings::TransparencyMode::TRANSLUCENT : alphaTest ? MDLTextureSettings::TransparencyMode::ALPHA_TEST : MDLTextureSettings::TransparencyMode::NONE,
+			alphaTestReference,
+		}
 	);
 }
 
@@ -191,20 +215,20 @@ void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& 
 	this->clearTextures();
 	for (const auto& vtf : vtfData) {
 		if (!vtf) {
-			this->textures.push_back(nullptr);
+			this->textures.push_back({nullptr, {}});
 			continue;
 		}
 		auto* texture = new QOpenGLTexture(QOpenGLTexture::Target::Target2D);
 		texture->create();
-		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.data()), static_cast<int>(vtf->width), static_cast<int>(vtf->height), QImage::Format_RGB888));
-		this->textures.push_back(texture);
+		texture->setData(QImage(reinterpret_cast<uchar*>(vtf->data.data()), vtf->width, vtf->height, vtf->settings.transparencyMode == MDLTextureSettings::TransparencyMode::NONE ? QImage::Format_RGB888 : QImage::Format_RGBA8888));
+		this->textures.push_back({texture, vtf->settings});
 	}
 }
 
 void MDLWidget::clearTextures() {
 	this->makeCurrent();
 
-	for (auto* texture : this->textures) {
+	for (auto* texture : this->textures | std::views::keys) {
 		if (texture && texture->isCreated()) {
 			texture->destroy();
 		}
@@ -376,8 +400,17 @@ void MDLWidget::paintGL() {
 
 	for (auto& mesh : this->meshes) {
 		QOpenGLTexture* texture;
-		if (mesh.textureIndex < 0 || this->skins.size() <= this->skin || this->skins[this->skin].size() <= mesh.textureIndex || !(texture = this->textures[this->skins[this->skin][mesh.textureIndex]])) {
+		if (mesh.textureIndex < 0 || this->skins.size() <= this->skin || this->skins[this->skin].size() <= mesh.textureIndex || !((texture = this->textures[this->skins[this->skin][mesh.textureIndex]].first))) {
 			texture = &this->missingTexture;
+		} else {
+			const auto& [transparencyMode, alphaTestReference] = this->textures[this->skins[this->skin][mesh.textureIndex]].second;
+			currentShaderProgram->setUniformValue("uAlphaTestReference", alphaTestReference);
+			if (transparencyMode == MDLTextureSettings::TransparencyMode::TRANSLUCENT) {
+				this->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				this->glEnable(GL_BLEND);
+			} else {
+				this->glDisable(GL_BLEND);
+			}
 		}
 		texture->bind(0);
 

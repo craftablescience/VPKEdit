@@ -2,11 +2,12 @@
 
 uniform sampler2D uMeshTexture;
 uniform sampler2D uMatCapTexture;
+uniform float     uAlphaTestReference;
 
-in vec3 fNormal;
+in vec3  fNormal;
 in float fDepth;
-in vec2 fUVMesh;
-in vec2 fUVMatCap;
+in vec2  fUVMesh;
+in vec2  fUVMatCap;
 
 void main() {
     // Works in light and dark mode

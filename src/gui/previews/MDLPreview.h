@@ -63,10 +63,20 @@ enum class MDLShadingMode {
 	SHADED_TEXTURED = 3,
 };
 
+struct MDLTextureSettings {
+	enum class TransparencyMode {
+		NONE,
+		ALPHA_TEST,
+		TRANSLUCENT,
+	} transparencyMode;
+	float alphaTestReference;
+};
+
 struct MDLTextureData {
 	std::vector<std::byte> data;
 	std::uint16_t width;
 	std::uint16_t height;
+	MDLTextureSettings settings;
 };
 
 class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
@@ -132,7 +142,7 @@ private:
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
 	int vertexCount;
 	std::vector<MDLSubMesh> meshes;
-	QList<QOpenGLTexture*> textures;
+	QList<QPair<QOpenGLTexture*, MDLTextureSettings>> textures;
 
 	int skin;
 	std::vector<std::vector<short>> skins;
