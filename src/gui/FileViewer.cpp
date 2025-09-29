@@ -219,7 +219,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 		pluginLocations << path + "/" + QString{PROJECT_NAME.data()};
 	}
 #elif defined(__APPLE__)
-	pluginLocations << QDir::absoluteFilePath("../PlugIns")
+	pluginLocations << QDir{"../PlugIns"}.absolutePath();
 #elif defined(__linux__)
 	pluginLocations << "/usr/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()};
 	pluginLocations << QDir{"~/.local/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()}}.canonicalPath();

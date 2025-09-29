@@ -244,8 +244,10 @@ jobs:
             chrpath -r '$ORIGIN' "$f"
           done
           for f in ${{env.BUILD_DIR}}/*/*.so*; do
-            echo "Fixing $f..."
-            chrpath -r '$ORIGIN/..' "$f"
+            if [[ "$f" != *previews* ]]; then
+              echo "Fixing $f..."
+              chrpath -r '$ORIGIN/..' "$f"
+            fi
           done
 
       - name: Upload Standalone [target:VPKEdit]
