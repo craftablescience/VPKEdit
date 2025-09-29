@@ -22,10 +22,11 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.h"
 
+		"${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin.h"
+
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"
-		"${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/previews/DMXPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/InfoPreview.cpp"
@@ -74,7 +75,6 @@ target_link_libraries(
         ${CMAKE_DL_LIBS}
         discord-rpc
         sourcepp::bsppp
-        sourcepp::dmxpp
         sourcepp::kvpp
         sourcepp::mdlpp
         sourcepp::steampp
@@ -91,3 +91,10 @@ target_use_qt(${PROJECT_NAME})
 # Copy these next to the executable
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CREDITS.md" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
+
+# Add plugins
+include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/dmx/DMXPreview.cmake")
+
+if(LINUX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE VPKEDIT_LIBDIR="${CMAKE_INSTALL_LIBDIR}")
+endif()

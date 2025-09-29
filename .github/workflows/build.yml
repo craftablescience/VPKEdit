@@ -88,6 +88,7 @@ jobs:
             ${{env.BUILD_DIR}}/vpkedit.exe
             ${{env.BUILD_DIR}}/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/previews/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
             ${{env.BUILD_DIR}}/tls/*.dll
           retention-days: 7
@@ -155,6 +156,7 @@ jobs:
             ${{env.BUILD_DIR}}/vpkedit.exe
             ${{env.BUILD_DIR}}/*.dll
             ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/previews/*.dll
             ${{env.BUILD_DIR}}/styles/*.dll
             ${{env.BUILD_DIR}}/tls/*.dll
           retention-days: 7
@@ -261,6 +263,7 @@ jobs:
             ${{env.BUILD_DIR}}/platforminputcontexts/*.so*
             ${{env.BUILD_DIR}}/platforms/*.so*
             ${{env.BUILD_DIR}}/platformthemes/*.so*
+            ${{env.BUILD_DIR}}/previews/*.so*
             ${{env.BUILD_DIR}}/tls/*.so*
             ${{env.BUILD_DIR}}/wayland-decoration-client/*.so*
             ${{env.BUILD_DIR}}/wayland-graphics-integration-client/*.so*

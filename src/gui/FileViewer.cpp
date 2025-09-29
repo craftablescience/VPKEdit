@@ -1,14 +1,20 @@
 #include "FileViewer.h"
 
 #include <filesystem>
+#include <ranges>
 
+#include <QApplication>
+#include <QJsonArray>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QPluginLoader>
+#include <QStandardPaths>
 #include <QTimer>
 #include <QToolButton>
 
+#include "Config.h"
+#include "plugins/previews/IVPKEditPreviewPlugin.h"
 #include "previews/DirPreview.h"
-#include "previews/DMXPreview.h"
 #include "previews/EmptyPreview.h"
 #include "previews/InfoPreview.h"
 #include "previews/MDLPreview.h"
@@ -162,7 +168,7 @@ void NavBar::clearContents(bool resetHistory) {
 	}
 }
 
-void NavBar::resetButtonIcons() {
+void NavBar::resetButtonIcons() const {
 	this->backButtonAction->setIcon(ThemedIcon::get(this, ":/icons/left.png", QPalette::ColorRole::ButtonText));
 	this->nextButtonAction->setIcon(ThemedIcon::get(this, ":/icons/right.png", QPalette::ColorRole::ButtonText));
 	this->upButtonAction->setIcon(ThemedIcon::get(this, ":/icons/up.png", QPalette::ColorRole::ButtonText));
@@ -207,35 +213,62 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
-	auto* dirPreview = newPreview<DirPreview>(this, this->window, this);
-	layout->addWidget(dirPreview);
+	QStringList pluginLocations{QApplication::applicationDirPath()};
+#if defined(_WIN32)
+	for (const auto& path : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)) {
+		pluginLocations << path + "/" + QString{PROJECT_NAME.data()};
+	}
+#elif defined(__APPLE__)
+	pluginLocations << QDir::absoluteFilePath("../PlugIns")
+#elif defined(__linux__)
+	pluginLocations << "/usr/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()};
+	pluginLocations << QDir{"~/.local/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()}}.canonicalPath();
+#endif
+	qDebug() << pluginLocations;
+	for (const QString& dirPath : QCoreApplication::libraryPaths()) {
+		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
+			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
+			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin*>(loader->instance())) {
+				if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
+					continue;
+				}
+				this->previewPlugins.push_back(loader);
+				plugin->initPreview(this);
+				layout->addWidget(plugin->getPreview());
+				QObject::connect(plugin, &IVPKEditPreviewPlugin::showInfoPreview, this, &FileViewer::showInfoPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+			} else {
+				loader->deleteLater();
+			}
+		}
+	}
 
-	auto* dmxPreview = newPreview<DMXPreview>(this);
-	layout->addWidget(dmxPreview);
+	this->dirPreview = new DirPreview{this, this->window, this};
+	layout->addWidget(this->dirPreview);
 
-	auto* emptyPreview = newPreview<EmptyPreview>(this);
-	layout->addWidget(emptyPreview);
+	this->emptyPreview = new EmptyPreview{this};
+	layout->addWidget(this->emptyPreview);
 
-	auto* infoPreview = newPreview<InfoPreview>(this);
-	layout->addWidget(infoPreview);
+	this->infoPreview = new InfoPreview{this};
+	layout->addWidget(this->infoPreview);
 
-	auto* mdlPreview = newPreview<MDLPreview>(this, this->window, this);
-	layout->addWidget(mdlPreview);
+	this->mdlPreview = new MDLPreview{this, this->window, this};
+	layout->addWidget(this->mdlPreview);
 
-	auto* textPreview = newPreview<TextPreview>(this, this->window, this);
-	layout->addWidget(textPreview);
+	this->textPreview = new TextPreview{this, this->window, this};
+	layout->addWidget(this->textPreview);
 
-	auto* texturePreview = newPreview<TexturePreview>(this, this);
-	layout->addWidget(texturePreview);
+	this->texturePreview = new TexturePreview{this, this};
+	layout->addWidget(this->texturePreview);
 
 	this->clearContents(true);
 }
 
-void FileViewer::requestNavigateBack() {
+void FileViewer::requestNavigateBack() const {
 	this->navbar->navigateBack();
 }
 
-void FileViewer::requestNavigateNext() {
+void FileViewer::requestNavigateNext() const {
 	this->navbar->navigateNext();
 }
 
@@ -247,24 +280,38 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 	this->clearContents(false);
 	this->navbar->setPath(path);
 
-	if (DMXPreview::EXTENSIONS.contains(extension)) {
-		// DMX
-		auto binary = this->window->readBinaryEntry(path);
-		if (!binary) {
-			this->showFileLoadErrorPreview();
-			return;
+	// Check plugins first
+	for (auto* pluginLoader : this->previewPlugins) {
+		const auto& metadata = pluginLoader->metaData().value("MetaData").toObject();
+		if (!metadata.contains("extensions") || !metadata.value("extensions").isArray()) {
+			continue;
 		}
-		this->showPreview<DMXPreview>();
-		this->getPreview<DMXPreview>()->setData(*binary);
-	} else if (MDLPreview::EXTENSIONS.contains(extension)) {
+		for (const auto extensionArray = metadata.value("extensions").toArray(); const auto& pluginExtension : extensionArray) {
+			if (pluginExtension.isString() && pluginExtension.toString() == extension) {
+				const auto binary = this->window->readBinaryEntry(path);
+				if (!binary) {
+					this->showFileLoadErrorPreview();
+					return;
+				}
+				this->hideAllPreviews();
+				auto* plugin = qobject_cast<IVPKEditPreviewPlugin*>(pluginLoader->instance());
+				plugin->getPreview()->show();
+				plugin->setData(path, reinterpret_cast<const quint8*>(binary->data()), binary->size());
+				return;
+			}
+		}
+	}
+
+	if (MDLPreview::EXTENSIONS.contains(extension)) {
 		// MDL (model)
 		auto binary = this->window->readBinaryEntry(path);
 		if (!binary) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<MDLPreview>();
-		this->getPreview<MDLPreview>()->setMesh(path, packFile);
+		this->hideAllPreviews();
+		this->mdlPreview->show();
+		this->mdlPreview->setMesh(path, packFile);
 	} else if (TexturePreview::EXTENSIONS_IMAGE.contains(extension)) {
 		// Image
 		auto binary = this->window->readBinaryEntry(path);
@@ -272,8 +319,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<TexturePreview>();
-		this->getPreview<TexturePreview>()->setImageData(*binary);
+		this->hideAllPreviews();
+		this->texturePreview->show();
+		this->texturePreview->setImageData(*binary);
 	} else if (TexturePreview::EXTENSIONS_SVG.contains(extension)) {
 		// SVG
 		auto binary = this->window->readBinaryEntry(path);
@@ -281,8 +329,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<TexturePreview>();
-		this->getPreview<TexturePreview>()->setSVGData(*binary);
+		this->hideAllPreviews();
+		this->texturePreview->show();
+		this->texturePreview->setSVGData(*binary);
 	} else if (TexturePreview::EXTENSIONS_PPL.contains(extension)) {
 		// PPL (texture)
 		auto binary = this->window->readBinaryEntry(path);
@@ -290,8 +339,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<TexturePreview>();
-		this->getPreview<TexturePreview>()->setPPLData(*binary);
+		this->hideAllPreviews();
+		this->texturePreview->show();
+		this->texturePreview->setPPLData(*binary);
 	} else if (TexturePreview::EXTENSIONS_TTX.contains(extension)) {
 		// TTH/TTZ (VTMB texture)
 		auto fsPath = std::filesystem::path{path.toLocal8Bit().constData()};
@@ -302,8 +352,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			return;
 		}
 		auto ttzBinary = this->window->readBinaryEntry(basePath + ".ttz");
-		this->showPreview<TexturePreview>();
-		this->getPreview<TexturePreview>()->setTTXData(*tthBinary, ttzBinary ? *ttzBinary : std::vector<std::byte>{});
+		this->hideAllPreviews();
+		this->texturePreview->show();
+		this->texturePreview->setTTXData(*tthBinary, ttzBinary ? *ttzBinary : std::vector<std::byte>{});
 	} else if (TexturePreview::EXTENSIONS_VTF.contains(extension)) {
 		// VTF (texture)
 		auto binary = this->window->readBinaryEntry(path);
@@ -311,8 +362,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<TexturePreview>();
-		this->getPreview<TexturePreview>()->setVTFData(*binary);
+		this->hideAllPreviews();
+		this->texturePreview->show();
+		this->texturePreview->setVTFData(*binary);
 	} else if (TextPreview::EXTENSIONS.contains(extension)) {
 		// Text
 		auto text = this->window->readTextEntry(path);
@@ -320,8 +372,9 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 			this->showFileLoadErrorPreview();
 			return;
 		}
-		this->showPreview<TextPreview>();
-		this->getPreview<TextPreview>()->setText(*text, extension);
+		this->hideAllPreviews();
+		this->textPreview->show();
+		this->textPreview->setText(*text, extension);
 	} else {
 		this->showInfoPreview({":/icons/warning.png"}, tr("No available preview."));
 	}
@@ -331,58 +384,57 @@ void FileViewer::displayDir(const QString& path, const QList<QString>& subfolder
 	this->clearContents(false);
 	this->navbar->setPath(path);
 
-	this->getPreview<DirPreview>()->setPath(path, subfolders, entryPaths, packFile);
-	this->showPreview<DirPreview>();
+	this->dirPreview->setPath(path, subfolders, entryPaths, packFile);
+	this->hideAllPreviews();
+	this->dirPreview->show();
 }
 
-void FileViewer::addEntry(const PackFile& packFile, const QString& path) {
-	this->getPreview<DirPreview>()->addEntry(packFile, path);
+void FileViewer::addEntry(const PackFile& packFile, const QString& path) const {
+	this->dirPreview->addEntry(packFile, path);
 }
 
-void FileViewer::removeFile(const QString& path) {
-	this->getPreview<DirPreview>()->removeFile(path);
+void FileViewer::removeFile(const QString& path) const {
+	this->dirPreview->removeFile(path);
 }
 
-void FileViewer::removeDir(const QString& path) {
-	if (path == this->getPreview<DirPreview>()->getCurrentPath()) {
-		this->hidePreview<DirPreview>();
+void FileViewer::removeDir(const QString& path) const {
+	if (path == this->dirPreview->getCurrentPath()) {
+		this->dirPreview->hide();
 		return;
 	}
-	this->getPreview<DirPreview>()->removeDir(path);
+	this->dirPreview->removeDir(path);
 }
 
-void FileViewer::setSearchQuery(const QString& query) {
-	this->getPreview<DirPreview>()->setSearchQuery(query);
+void FileViewer::setSearchQuery(const QString& query) const {
+	this->dirPreview->setSearchQuery(query);
 }
 
-void FileViewer::setReadOnly(bool readOnly) {
-	this->getPreview<TextPreview>()->setReadOnly(readOnly);
+void FileViewer::setReadOnly(bool readOnly) const {
+	this->textPreview->setReadOnly(readOnly);
 }
 
 void FileViewer::selectSubItemInDir(const QString& name) const {
 	this->window->selectSubItemInDir(name);
 }
 
-bool FileViewer::isDirPreviewVisible() {
-	return this->getPreview<DirPreview>()->isVisible();
+bool FileViewer::isDirPreviewVisible() const {
+	return this->dirPreview->isVisible();
 }
 
-const QString& FileViewer::getDirPreviewCurrentPath() {
-	return this->getPreview<DirPreview>()->getCurrentPath();
+const QString& FileViewer::getDirPreviewCurrentPath() const {
+	return this->dirPreview->getCurrentPath();
 }
 
 void FileViewer::clearContents(bool resetHistory) {
 	this->navbar->clearContents(resetHistory);
-	this->showPreview<EmptyPreview>();
+	this->hideAllPreviews();
+	this->emptyPreview->show();
 }
 
 void FileViewer::showInfoPreview(const QPixmap& icon, const QString& text) {
-	for (const auto [index, widget] : this->previews) {
-		widget->hide();
-	}
-	auto* infoPreview = dynamic_cast<InfoPreview*>(this->previews.at(std::type_index(typeid(InfoPreview))));
-	infoPreview->show();
-	infoPreview->setData(icon, text);
+	this->hideAllPreviews();
+	this->infoPreview->show();
+	this->infoPreview->setData(icon, text);
 }
 
 void FileViewer::showGenericErrorPreview(const QString& text) {
@@ -391,4 +443,16 @@ void FileViewer::showGenericErrorPreview(const QString& text) {
 
 void FileViewer::showFileLoadErrorPreview() {
 	this->showInfoPreview({":/icons/warning.png"}, tr("Failed to read file contents!\nPlease ensure that a game or another application is not using the file."));
+}
+
+void FileViewer::hideAllPreviews() {
+	for (auto* pluginLoader : this->previewPlugins) {
+		qobject_cast<IVPKEditPreviewPlugin*>(pluginLoader->instance())->getPreview()->hide();
+	}
+	this->dirPreview->hide();
+	this->infoPreview->hide();
+	this->emptyPreview->hide();
+	this->mdlPreview->hide();
+	this->textPreview->hide();
+	this->texturePreview->hide();
 }

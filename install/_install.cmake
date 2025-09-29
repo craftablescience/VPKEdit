@@ -11,6 +11,9 @@ if(WIN32)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
 
+    install(TARGETS ${PROJECT_NAME}_dmx_preview
+            DESTINATION previews)
+
     install(IMPORTED_RUNTIME_ARTIFACTS
             Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg
             RUNTIME DESTINATION .
@@ -59,6 +62,10 @@ elseif(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
+
+    install(TARGETS ${PROJECT_NAME}_dmx_preview
+            DESTINATION "${PROJECT_NAME_PRETTY}.app/Contents/PlugIns")
+
     # Deploy Qt into the bundle
     if(VPKEDIT_MAC_BUNDLE_QT)
         qt_generate_deploy_app_script(
@@ -68,15 +75,18 @@ elseif(APPLE)
     endif()
 elseif(UNIX)
     install(TARGETS ${PROJECT_NAME}cli
-            DESTINATION bin)
+            DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
     install(TARGETS ${PROJECT_NAME}
-            DESTINATION bin)
+            DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
     install(FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-            DESTINATION "share/licenses/${PROJECT_NAME}")
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}")
+
+    install(TARGETS ${PROJECT_NAME}_dmx_preview
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/previews")
 
     # Use system Qt - no install rules
 
@@ -85,15 +95,15 @@ elseif(UNIX)
             "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop"
-            DESTINATION "share/applications")
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_16.png"
-            DESTINATION "share/icons/hicolor/16x16/apps"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/16x16/apps"
             RENAME "${PROJECT_NAME}.png")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_128.png"
-            DESTINATION "share/icons/hicolor/128x128/apps"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps"
             RENAME "${PROJECT_NAME}.png")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_512.png"
-            DESTINATION "share/icons/hicolor/512x512/apps"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/512x512/apps"
             RENAME "${PROJECT_NAME}.png")
 
     # MIME type info
@@ -101,7 +111,7 @@ elseif(UNIX)
             "${CMAKE_CURRENT_LIST_DIR}/linux/mime-type.xml.in"
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml"
-            DESTINATION "share/mime/packages"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/mime/packages"
             RENAME "${PROJECT_NAME}.xml")
 else()
     message(FATAL_ERROR "No install rules for selected platform.")
