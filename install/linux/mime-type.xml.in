@@ -12,10 +12,10 @@
         <comment>BEE2.4 Package</comment>
         <icon name="${PROJECT_NAME}"/>
         <acronym>BMZ</acronym>
-        <expanded-acronym>Bonus Map Zip</expanded-acronym>
+        <expanded-acronym>BEE2.4 Package</expanded-acronym>
         <glob-deleteall/>
-        <glob pattern="*.bmz"/>
-        <glob pattern="*.BMZ"/>
+        <glob pattern="*.bee_pack"/>
+        <glob pattern="*.BEE_PACK"/>
     </mime-type>
     <mime-type type="application/x-${PROJECT_NAME}-bmz">
         <comment>Bonus Map Zip</comment>
@@ -140,6 +140,15 @@
         <glob-deleteall/>
         <glob pattern="*.vpp"/>
         <glob pattern="*.VPP"/>
+    </mime-type>
+    <mime-type type="application/x-${PROJECT_NAME}-xzp">
+        <comment>Valve Xbox Zip</comment>
+        <icon name="${PROJECT_NAME}"/>
+        <acronym>XZP</acronym>
+        <expanded-acronym>Xbox Zip</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.xzp"/>
+        <glob pattern="*.XZP"/>
     </mime-type>
     <mime-type type="application/x-dmx">
         <comment>Datamodel Exchange</comment>

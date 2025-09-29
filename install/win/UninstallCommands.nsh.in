@@ -17,6 +17,7 @@
 ; DeleteRegKey HKCR '.sin'
 ; DeleteRegKey HKCR '.vpk'
 ; DeleteRegKey HKCR '.vpp'
+; DeleteRegKey HKCR '.xzp'
 
 DeleteRegKey HKCR '@PROJECT_NAME@_pack_file'
 

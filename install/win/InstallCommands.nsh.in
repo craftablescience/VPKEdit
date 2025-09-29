@@ -55,6 +55,9 @@ ${EndIf}
 ${If} ${EXT_REGISTER_PACK_FILE_VPP}
   WriteRegStr HKCR '.vpp'      '' '@PROJECT_NAME@_pack_file'
 ${EndIf}
+${If} ${EXT_REGISTER_PACK_FILE_XZP}
+  WriteRegStr HKCR '.xzp'      '' '@PROJECT_NAME@_pack_file'
+${EndIf}
 
 WriteRegStr HKCR '@PROJECT_NAME@_pack_file' '' '@PROJECT_NAME_PRETTY@ Pack File'
 WriteRegStr HKCR '@PROJECT_NAME@_pack_file\\shell' '' 'open'

@@ -38,6 +38,7 @@
   Var EXT_REGISTER_PACK_FILE_SIN
   Var EXT_REGISTER_PACK_FILE_VPK
   Var EXT_REGISTER_PACK_FILE_VPP
+  Var EXT_REGISTER_PACK_FILE_XZP
   Var EXT_REGISTER_ASSET_DMX
   Var EXT_REGISTER_ASSET_MDL
   Var EXT_REGISTER_ASSET_PCF
@@ -768,6 +769,7 @@ Section "-Core installation"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_SIN      "NSIS.InstallOptions.ini" "Field 23" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPK      "NSIS.InstallOptions.ini" "Field 24" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_VPP      "NSIS.InstallOptions.ini" "Field 25" "State"
+  !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_PACK_FILE_XZP      "NSIS.InstallOptions.ini" "Field 36" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_DMX          "NSIS.InstallOptions.ini" "Field 27" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_MDL          "NSIS.InstallOptions.ini" "Field 28" "State"
   !insertmacro INSTALLOPTIONS_READ $EXT_REGISTER_ASSET_PCF          "NSIS.InstallOptions.ini" "Field 29" "State"

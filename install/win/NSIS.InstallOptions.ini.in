@@ -1,5 +1,5 @@
 [Settings]
-NumFields=34
+NumFields=36
 
 [Field 1]
 Type=label
@@ -222,6 +222,15 @@ Left=135
 Right=175
 Top=115
 Bottom=125
+State=1
+
+[Field 36]
+Type=CheckBox
+Text=.xzp
+Left=135
+Right=175
+Top=125
+Bottom=135
 State=1
 
 [Field 26]

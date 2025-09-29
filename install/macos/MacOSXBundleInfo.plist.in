@@ -71,7 +71,7 @@
 				<string>application/x-${PROJECT_NAME}-bee-pack</string>
 				<key>public.filename-extension</key>
 				<array>
-					<string>bmz</string>
+					<string>bee_pack</string>
 				</array>
 			</dict>
 		</dict>
@@ -256,9 +256,9 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>pak</string>
-					<string>pa3</string>
-					<string>pa4</string>
-					<string>paz</string>
+					<string>pk3</string>
+					<string>pk4</string>
+					<string>pkz</string>
 				</array>
 			</dict>
 		</dict>
@@ -321,7 +321,6 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>vpk</string>
-					<string>VPK</string>
 				</array>
 			</dict>
 		</dict>
@@ -345,6 +344,46 @@
 				</array>
 			</dict>
 		</dict>
+        <dict>
+        	<key>UTTypeIdentifier</key>
+        	<string>info.craftablescience.vpkedit.wad</string>
+        	<key>UTTypeDescription</key>
+        	<string>GoldSrc WAD3</string>
+        	<key>UTTypeConformsTo</key>
+        	<array>
+        		<string>public.archive</string>
+        		<string>public.data</string>
+        	</array>
+        	<key>UTTypeTagSpecification</key>
+        	<dict>
+        		<key>public.mime-type</key>
+        		<string>application/x-${PROJECT_NAME}-wad</string>
+        		<key>public.filename-extension</key>
+        		<array>
+        			<string>wad</string>
+        		</array>
+        	</dict>
+        </dict>
+		<dict>
+        	<key>UTTypeIdentifier</key>
+        	<string>info.craftablescience.vpkedit.xzp</string>
+        	<key>UTTypeDescription</key>
+        	<string>Valve Xbox Zip</string>
+        	<key>UTTypeConformsTo</key>
+        	<array>
+        		<string>public.archive</string>
+        		<string>public.data</string>
+        	</array>
+        	<key>UTTypeTagSpecification</key>
+        	<dict>
+        		<key>public.mime-type</key>
+        		<string>application/x-${PROJECT_NAME}-xzp</string>
+        		<key>public.filename-extension</key>
+        		<array>
+        			<string>xzp</string>
+        		</array>
+        	</dict>
+        </dict>
 		<dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.valvesoftware.dmx</string>
@@ -354,7 +393,6 @@
 			<array>
 				<string>public.data</string>
 				<string>public.content</string>
-				<string>public.composite-content</string>
 			</array>
 			<key>UTTypeReferenceURL</key>
 			<string>https://developer.valvesoftware.com/wiki/DMX</string>
@@ -439,8 +477,8 @@
 			<string>Troika Texture Zip</string>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.archive</string>
 				<string>public.data</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeTagSpecification</key>
 			<dict>
@@ -452,6 +490,46 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+        	<key>UTTypeIdentifier</key>
+        	<string>info.craftablescience.vpkedit.vtf</string>
+        	<key>UTTypeDescription</key>
+        	<string>Valve Texture Format</string>
+        	<key>UTTypeConformsTo</key>
+        	<array>
+        		<string>public.data</string>
+        		<string>public.content</string>
+        	</array>
+        	<key>UTTypeTagSpecification</key>
+        	<dict>
+        		<key>public.mime-type</key>
+        		<string>image/x-vtf</string>
+        		<key>public.filename-extension</key>
+        		<array>
+        			<string>vtf</string>
+        		</array>
+        	</dict>
+        </dict>
+        <dict>
+        	<key>UTTypeIdentifier</key>
+        	<string>info.craftablescience.vpkedit.xtf</string>
+        	<key>UTTypeDescription</key>
+        	<string>Valve Xbox Texture Format</string>
+        	<key>UTTypeConformsTo</key>
+        	<array>
+        		<string>public.data</string>
+        		<string>public.content</string>
+        	</array>
+        	<key>UTTypeTagSpecification</key>
+        	<dict>
+        		<key>public.mime-type</key>
+        		<string>image/x-xtf</string>
+        		<key>public.filename-extension</key>
+        		<array>
+        			<string>xtf</string>
+        		</array>
+        	</dict>
+        </dict>
 	</array>
 
 	<key>CFBundleDocumentTypes</key>
@@ -471,7 +549,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>bmz</string>
+				<string>bee_pack</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>${MACOSX_BUNDLE_ICON_FILE}</string>
@@ -480,6 +558,18 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
+		<dict>
+        	<key>CFBundleTypeExtensions</key>
+        	<array>
+        		<string>bmz</string>
+        	</array>
+        	<key>CFBundleTypeIconFile</key>
+        	<string>${MACOSX_BUNDLE_ICON_FILE}</string>
+        	<key>CFBundleTypeName</key>
+        	<string>Bonus Map Zip</string>
+        	<key>CFBundleTypeRole</key>
+        	<string>Editor</string>
+        </dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
@@ -636,9 +726,11 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>${MACOSX_BUNDLE_ICON_FILE}</string>
 			<key>CFBundleTypeName</key>
-			<string>GoldSrc WAD</string>
+			<string>GoldSrc WAD3</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>LSHandlerRank</key>
+            <string>Alternate</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -648,11 +740,9 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>${MACOSX_BUNDLE_ICON_FILE}</string>
 			<key>CFBundleTypeName</key>
-			<string>Xbox ZiP</string>
+			<string>Valve Xbox Zip</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
-			<key>LSHandlerRank</key>
-			<string>Alternate</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -738,6 +828,34 @@
 			<key>LSHandlerRank</key>
 			<string>Alternate</string>
 		</dict>
+		<dict>
+        	<key>CFBundleTypeExtensions</key>
+        	<array>
+        		<string>vtf</string>
+        	</array>
+        	<key>CFBundleTypeIconFile</key>
+        	<string>${MACOSX_BUNDLE_ICON_FILE}</string>
+        	<key>CFBundleTypeName</key>
+        	<string>Valve Texture Format</string>
+        	<key>CFBundleTypeRole</key>
+        	<string>Viewer</string>
+        	<key>LSHandlerRank</key>
+        	<string>Alternate</string>
+        </dict>
+        <dict>
+        	<key>CFBundleTypeExtensions</key>
+        	<array>
+        		<string>xtf</string>
+        	</array>
+        	<key>CFBundleTypeIconFile</key>
+        	<string>${MACOSX_BUNDLE_ICON_FILE}</string>
+        	<key>CFBundleTypeName</key>
+        	<string>Valve Xbox Texture Format</string>
+        	<key>CFBundleTypeRole</key>
+        	<string>Viewer</string>
+        	<key>LSHandlerRank</key>
+        	<string>Alternate</string>
+        </dict>
 	</array>
 </dict>
 </plist>
