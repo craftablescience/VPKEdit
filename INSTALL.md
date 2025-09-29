@@ -3,8 +3,9 @@
 This document covers the different ways you can install VPKEdit on its supported
 platforms:
 
-- Windows 7, 8, 8.1, 10, 11 (64-bit)
-- Linux (64-bit)
+- Windows 7, 8, 8.1, 10, 11 (`x86_64`)
+- macOS (`arm64`)
+- Linux (`x86_64`)
 
 ## Windows
 
@@ -29,6 +30,11 @@ VPKEdit is on the Windows package registry, so you only need to run one command 
 3. If you downloaded the standalone files, you're done, just unzip the files. If you downloaded the installer,
    unzip the installer application and run it. When running the application Windows will give you a safety warning,
    ignore it and hit `More Info` → `Run Anyway`.
+
+## macOS
+
+Install VPKEdit through the DMG installer in [the latest GitHub release](https://github.com/craftablescience/VPKEdit/releases/latest),
+under the `Assets` dropdown. No standalone build or `x86_64` builds are provided for this platform.
 
 ## Linux
 
