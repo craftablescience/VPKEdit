@@ -66,6 +66,9 @@ elseif(UNIX)
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop"
             DESTINATION "share/applications")
+    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_16.png"
+            DESTINATION "share/icons/hicolor/16x16/apps"
+            RENAME "${PROJECT_NAME}.png")
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_128.png"
             DESTINATION "share/icons/hicolor/128x128/apps"
             RENAME "${PROJECT_NAME}.png")
