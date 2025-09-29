@@ -36,6 +36,13 @@ VPKEdit is on the Windows package registry, so you only need to run one command 
 Install VPKEdit through the DMG installer in [the latest GitHub release](https://github.com/craftablescience/VPKEdit/releases/latest),
 under the `Assets` dropdown. No standalone build or `x86_64` builds are provided for this platform.
 
+Note that since builds are not signed, you will need to run the following command in the terminal once after
+installation:
+
+```sh
+xattr -rd com.apple.quarantine /path/to/installed/VPKEdit.app
+```
+
 ## Linux
 
 Installation on Linux will vary depending on your distro. On all distros you should be able to run the standalone
