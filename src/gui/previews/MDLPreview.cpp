@@ -109,7 +109,6 @@ float AABB::getDepth() const {
 
 MDLWidget::MDLWidget(QWidget* parent)
 		: QOpenGLWidget(parent)
-		, QOpenGLFunctions_3_2_Core()
 		, missingTexture(QOpenGLTexture::Target2D)
 		, matCapTexture(QOpenGLTexture::Target2D)
 		, vertexCount(0)
@@ -133,6 +132,8 @@ MDLWidget::~MDLWidget() {
 }
 
 void MDLWidget::setModel(const BakedModel& model) {
+	this->makeCurrent();
+
 	// Set vertex data
 	if (this->vertices.isCreated()) {
 		this->vertices.destroy();
@@ -147,6 +148,11 @@ void MDLWidget::setModel(const BakedModel& model) {
 	// Add meshes
 	for (const auto& bakedMesh : model.meshes) {
 		auto& mesh = this->meshes.emplace_back();
+		mesh.vao = std::make_unique<QOpenGLVertexArrayObject>();
+		mesh.vao->create();
+		mesh.vao->bind();
+
+		this->vertices.bind();
 
 		mesh.textureIndex = bakedMesh.materialIndex;
 
@@ -154,11 +160,34 @@ void MDLWidget::setModel(const BakedModel& model) {
 		mesh.ebo.create();
 		mesh.ebo.bind();
 		mesh.ebo.allocate(bakedMesh.indices.data(), static_cast<int>(mesh.indexCount * sizeof(uint16_t)));
+
+		std::ptrdiff_t offset = 0;
+		// position
+		this->glEnableVertexAttribArray(0);
+		this->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BakedModel::Vertex), reinterpret_cast<void*>(offset));
+		offset += sizeof(math::Vec3f);
+
+		// normal
+		this->glEnableVertexAttribArray(1);
+		this->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BakedModel::Vertex), reinterpret_cast<void*>(offset));
+		offset += sizeof(math::Vec3f);
+
+		// uv
+		this->glEnableVertexAttribArray(2);
+		this->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BakedModel::Vertex), reinterpret_cast<void*>(offset));
+		// offset += sizeof(math::Vec2f);
+
+		mesh.vao->release();
+
 		mesh.ebo.release();
+
+		this->vertices.release();
 	}
 }
 
 void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& vtfData) {
+	this->makeCurrent();
+
 	this->clearTextures();
 	for (const auto& vtf : vtfData) {
 		if (!vtf) {
@@ -173,6 +202,8 @@ void MDLWidget::setTextures(const std::vector<std::unique_ptr<MDLTextureData>>& 
 }
 
 void MDLWidget::clearTextures() {
+	this->makeCurrent();
+
 	for (auto* texture : this->textures) {
 		if (texture && texture->isCreated()) {
 			texture->destroy();
@@ -188,16 +219,16 @@ void MDLWidget::setSkinLookupTable(std::vector<std::vector<short>> skins_) {
 
 void MDLWidget::setAABB(AABB aabb) {
 	// https://stackoverflow.com/a/32836605 - calculate optimal camera distance from bounding box
-	auto midpoint = (aabb.max + aabb.min) / 2.0f;
+	const auto midpoint = (aabb.max + aabb.min) / 2.0f;
 	float sphereRadius = 0.0f;
 	for (const auto corner : aabb.getCorners()) {
-		if (auto dist = midpoint.distanceToPoint(corner); dist > sphereRadius) {
+		if (const auto dist = midpoint.distanceToPoint(corner); dist > sphereRadius) {
 			sphereRadius = dist;
 		}
 	}
-	float fovRad = qDegreesToRadians(this->fov);
+	const float fovRad = qDegreesToRadians(this->fov);
 	this->target = midpoint;
-	this->distance = static_cast<float>(sphereRadius / qTan(fovRad / 2));
+	this->distance = sphereRadius / qTan(fovRad / 2);
 	this->distanceScale = this->distance / 128.0f;
 }
 
@@ -222,28 +253,32 @@ void MDLWidget::setCullBackFaces(bool enable) {
 }
 
 void MDLWidget::clearMeshes() {
-	if (this->vertices.isCreated()) {
-		this->vertices.destroy();
-	}
-
-	this->clearTextures();
+	this->makeCurrent();
 
 	for (auto& mesh : this->meshes) {
+		if (mesh.vao) {
+			mesh.vao->destroy();
+			mesh.vao.reset();
+		}
 		if (mesh.ebo.isCreated()) {
 			mesh.ebo.destroy();
 		}
 	}
 	this->meshes.clear();
 
+	if (this->vertices.isCreated()) {
+		this->vertices.destroy();
+	}
+
+	this->clearTextures();
+
 	this->skin = 0;
 	this->skins.clear();
-
-	this->update();
 }
 
 void MDLWidget::initializeGL() {
 	if (!this->initializeOpenGLFunctions()) {
-		QMessageBox::critical(this, tr("Error"), tr("Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models."));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to initialize OpenGL 3.3 Core context! Please upgrade your computer to preview models."));
 		return; // and probably crash right after
 	}
 
@@ -285,7 +320,7 @@ void MDLWidget::paintGL() {
 	QStyleOption opt;
 	opt.initFrom(this);
 
-	auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
+	const auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
 	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
 	this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -329,7 +364,7 @@ void MDLWidget::paintGL() {
 	currentShaderProgram->bind();
 
 	QMatrix4x4 view;
-	QVector3D translation(this->target.x(), this->target.y(), -this->target.z() - this->distance);
+	const QVector3D translation{this->target.x(), this->target.y(), -this->target.z() - this->distance};
 	view.translate(translation);
 	view.rotate(this->rotation);
 	currentShaderProgram->setUniformValue("uMVP", this->projection * view);
@@ -338,8 +373,6 @@ void MDLWidget::paintGL() {
 	currentShaderProgram->setUniformValue("uEyePosition", translation);
 	currentShaderProgram->setUniformValue("uMeshTexture", 0);
 	currentShaderProgram->setUniformValue("uMatCapTexture", 1);
-
-	this->vertices.bind();
 
 	for (auto& mesh : this->meshes) {
 		QOpenGLTexture* texture;
@@ -350,32 +383,18 @@ void MDLWidget::paintGL() {
 
 		this->matCapTexture.bind(1);
 
+		mesh.vao->bind();
+		this->vertices.bind();
 		mesh.ebo.bind();
-
-		int offset = 0;
-		int vertexPosLocation = currentShaderProgram->attributeLocation("vPos");
-		currentShaderProgram->enableAttributeArray(vertexPosLocation);
-		currentShaderProgram->setAttributeBuffer(vertexPosLocation, GL_FLOAT, offset, 3, sizeof(BakedModel::Vertex));
-		offset += sizeof(math::Vec3f);
-
-		int vertexNormalLocation = currentShaderProgram->attributeLocation("vNormal");
-		currentShaderProgram->enableAttributeArray(vertexNormalLocation);
-		currentShaderProgram->setAttributeBuffer(vertexNormalLocation, GL_FLOAT, offset, 3, sizeof(BakedModel::Vertex));
-		offset += sizeof(math::Vec3f);
-
-		int vertexUVLocation = currentShaderProgram->attributeLocation("vUV");
-		currentShaderProgram->enableAttributeArray(vertexUVLocation);
-		currentShaderProgram->setAttributeBuffer(vertexUVLocation, GL_FLOAT, offset, 2, sizeof(BakedModel::Vertex));
-
 		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
 		mesh.ebo.release();
+		this->vertices.release();
+		mesh.vao->release();
 
 		this->matCapTexture.release(1);
 
 		texture->release(0);
 	}
-
-	this->vertices.release();
 
 	currentShaderProgram->release();
 }

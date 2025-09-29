@@ -6,7 +6,7 @@
 
 #include <QBasicTimer>
 #include <QOpenGLBuffer>
-#include <QOpenGLFunctions_3_2_Core>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
@@ -50,6 +50,7 @@ struct AABB {
 };
 
 struct MDLSubMesh {
+	std::unique_ptr<QOpenGLVertexArrayObject> vao;
 	int textureIndex;
 	QOpenGLBuffer ebo{QOpenGLBuffer::Type::IndexBuffer};
 	int indexCount;
@@ -68,7 +69,7 @@ struct MDLTextureData {
 	std::uint16_t height;
 };
 
-class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_2_Core {
+class MDLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 	Q_OBJECT;
 
 public:
@@ -130,7 +131,7 @@ private:
 	QOpenGLTexture matCapTexture;
 	QOpenGLBuffer vertices{QOpenGLBuffer::Type::VertexBuffer};
 	int vertexCount;
-	QList<MDLSubMesh> meshes;
+	std::vector<MDLSubMesh> meshes;
 	QList<QOpenGLTexture*> textures;
 
 	int skin;
