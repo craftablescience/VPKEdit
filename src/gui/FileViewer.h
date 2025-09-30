@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <QPluginLoader>
 #include <QWidget>
 
@@ -77,13 +75,15 @@ private:
 
 class FileViewer;
 
-class IVPKEditPreviewPlugin_V1_0_PackFileAccess final : public IVPKEditPreviewPlugin_V1_0_IPackFileAccess {
+class IVPKEditPreviewPlugin_V1_0_WindowAccess final : public IVPKEditPreviewPlugin_V1_0_IWindowAccess {
 public:
-	explicit IVPKEditPreviewPlugin_V1_0_PackFileAccess(FileViewer* fileViewer_);
+	explicit IVPKEditPreviewPlugin_V1_0_WindowAccess(FileViewer* fileViewer_);
 
-	[[nodiscard]] bool has(const QString& entryPath) override;
+	[[nodiscard]] bool hasEntry(const QString& entryPath) override;
 
-	[[nodiscard]] bool read(const QString& entryPath, QByteArray& data) override;
+	[[nodiscard]] bool readEntry(const QString& entryPath, QByteArray& data) override;
+
+	void selectEntryInEntryTree(const QString& entryPath) override;
 
 private:
 	FileViewer* fileViewer;
@@ -92,7 +92,7 @@ private:
 class FileViewer : public QWidget {
 	Q_OBJECT;
 
-	friend IVPKEditPreviewPlugin_V1_0_PackFileAccess;
+	friend IVPKEditPreviewPlugin_V1_0_WindowAccess;
 
 public:
 	explicit FileViewer(Window* window_, QWidget* parent = nullptr);
@@ -139,7 +139,7 @@ private:
 	Window* window;
 	NavBar* navbar;
 
-	std::unique_ptr<IVPKEditPreviewPlugin_V1_0_PackFileAccess> packFileAccess_V1_0;
+	IVPKEditPreviewPlugin_V1_0_WindowAccess* packFileAccess_V1_0;
 	QList<QPluginLoader*> previewPlugins;
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;

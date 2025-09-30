@@ -2,20 +2,24 @@
 
 #include <QObject>
 
-class IVPKEditPreviewPlugin_V1_0_IPackFileAccess : public QObject {
+class IVPKEditPreviewPlugin_V1_0_IWindowAccess : public QObject {
 	Q_OBJECT;
 
 public:
-	[[nodiscard]] virtual bool has(const QString& entryPath) = 0;
+	using QObject::QObject;
 
-	[[nodiscard]] virtual bool read(const QString& entryPath, QByteArray& data) = 0;
+	[[nodiscard]] virtual bool hasEntry(const QString& entryPath) = 0;
+
+	[[nodiscard]] virtual bool readEntry(const QString& entryPath, QByteArray& data) = 0;
+
+	virtual void selectEntryInEntryTree(const QString& entryPath) = 0;
 };
 
 class IVPKEditPreviewPlugin_V1_0 : public QObject {
 	Q_OBJECT;
 
 public:
-	virtual void initPlugin(IVPKEditPreviewPlugin_V1_0_IPackFileAccess* packFileAccess) = 0;
+	virtual void initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess) = 0;
 
 	virtual void initPreview(QWidget* parent) = 0;
 

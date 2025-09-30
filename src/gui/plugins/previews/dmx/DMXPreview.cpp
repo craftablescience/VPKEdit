@@ -12,7 +12,7 @@
 
 using namespace dmxpp;
 
-void DMXPreview::initPlugin(IVPKEditPreviewPlugin_V1_0_IPackFileAccess*) {}
+void DMXPreview::initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess*) {}
 
 void DMXPreview::initPreview(QWidget* parent) {
 	this->preview = new QTreeWidget{parent};
