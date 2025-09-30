@@ -12,6 +12,8 @@
 
 using namespace dmxpp;
 
+void DMXPreview::initPlugin(IVPKEditPreviewPlugin_V1_0_IPackFileAccess*) {}
+
 void DMXPreview::initPreview(QWidget* parent) {
 	this->preview = new QTreeWidget{parent};
 	this->preview->setColumnCount(3);
@@ -22,6 +24,11 @@ void DMXPreview::initPreview(QWidget* parent) {
 
 QWidget* DMXPreview::getPreview() const {
 	return this->preview;
+}
+
+QIcon DMXPreview::getIcon() const {
+	// todo: cool icon
+	return {};
 }
 
 IVPKEditPreviewPlugin_V1_0::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {

@@ -23,7 +23,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/SingleFile.h"
 
 		"${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin.h"
+		"${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin_V1_0.h"
 
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/DirPreview.h"

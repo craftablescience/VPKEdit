@@ -1,6 +1,6 @@
 # Create library
 qt_add_plugin(${PROJECT_NAME}_dmx_preview CLASS_NAME "DMXPreview"
-        "${CMAKE_CURRENT_LIST_DIR}/../IVPKEditPreviewPlugin.h"
+        "${CMAKE_CURRENT_LIST_DIR}/../IVPKEditPreviewPlugin_V1_0.h"
         "${CMAKE_CURRENT_LIST_DIR}/DMXPreview.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/DMXPreview.h")
 vpkedit_configure_target(${PROJECT_NAME}_dmx_preview)

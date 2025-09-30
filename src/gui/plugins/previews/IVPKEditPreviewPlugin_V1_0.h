@@ -2,18 +2,31 @@
 
 #include <QObject>
 
+class IVPKEditPreviewPlugin_V1_0_IPackFileAccess : public QObject {
+	Q_OBJECT;
+
+public:
+	[[nodiscard]] virtual bool has(const QString& entryPath) = 0;
+
+	[[nodiscard]] virtual bool read(const QString& entryPath, QByteArray& data) = 0;
+};
+
 class IVPKEditPreviewPlugin_V1_0 : public QObject {
 	Q_OBJECT;
 
 public:
+	virtual void initPlugin(IVPKEditPreviewPlugin_V1_0_IPackFileAccess* packFileAccess) = 0;
+
 	virtual void initPreview(QWidget* parent) = 0;
 
 	[[nodiscard]] virtual QWidget* getPreview() const = 0;
 
+	[[nodiscard]] virtual QIcon getIcon() const = 0;
+
 	enum Error {
 		ERROR_SHOWED_THIS_PREVIEW  = 0,
-		ERROR_SHOWED_NO_PREVIEW    = 1,
-		ERROR_SHOWED_OTHER_PREVIEW = 2,
+		ERROR_SHOWED_OTHER_PREVIEW = 1,
+		ERROR_SHOWED_NO_PREVIEW    = 2,
 	};
 
 	// Sorry, QSpan is too new

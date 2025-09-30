@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../IVPKEditPreviewPlugin.h"
+#include "../IVPKEditPreviewPlugin_V1_0.h"
 
 class QTreeWidget;
 
@@ -10,9 +10,13 @@ class DMXPreview final : public IVPKEditPreviewPlugin_V1_0 {
 	Q_INTERFACES(IVPKEditPreviewPlugin_V1_0);
 
 public:
+	void initPlugin(IVPKEditPreviewPlugin_V1_0_IPackFileAccess*) override;
+
 	void initPreview(QWidget* parent) override;
 
 	[[nodiscard]] QWidget* getPreview() const override;
+
+	[[nodiscard]] QIcon getIcon() const override;
 
 	Error setData(const QString&, const quint8* dataPtr, quint64 length) override;
 

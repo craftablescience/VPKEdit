@@ -13,7 +13,6 @@
 #include <QToolButton>
 
 #include "Config.h"
-#include "plugins/previews/IVPKEditPreviewPlugin.h"
 #include "previews/DirPreview.h"
 #include "previews/EmptyPreview.h"
 #include "previews/InfoPreview.h"
@@ -201,9 +200,26 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 	}
 }
 
+IVPKEditPreviewPlugin_V1_0_PackFileAccess::IVPKEditPreviewPlugin_V1_0_PackFileAccess(FileViewer* fileViewer_)
+		: fileViewer(fileViewer_) {}
+
+bool IVPKEditPreviewPlugin_V1_0_PackFileAccess::has(const QString& entryPath) {
+	return this->fileViewer->window->hasEntry(entryPath);
+}
+
+bool IVPKEditPreviewPlugin_V1_0_PackFileAccess::read(const QString& entryPath, QByteArray& data) {
+	const auto file = this->fileViewer->window->readBinaryEntry(entryPath);
+	if (!file) {
+		return false;
+	}
+	data.assign(*file);
+	return true;
+}
+
 FileViewer::FileViewer(Window* window_, QWidget* parent)
 		: QWidget(parent)
-		, window(window_) {
+		, window(window_)
+		, packFileAccess_V1_0(std::make_unique<IVPKEditPreviewPlugin_V1_0_PackFileAccess>(this)) {
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 
@@ -233,6 +249,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 					continue;
 				}
 				this->previewPlugins.push_back(loader);
+				plugin->initPlugin(this->packFileAccess_V1_0.get());
 				plugin->initPreview(this);
 				layout->addWidget(plugin->getPreview());
 				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showInfoPreview, this, &FileViewer::showInfoPreview);

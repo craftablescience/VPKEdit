@@ -1,10 +1,11 @@
 #pragma once
 
-#include <typeinfo>
-#include <typeindex>
+#include <memory>
 
 #include <QPluginLoader>
 #include <QWidget>
+
+#include "plugins/previews/IVPKEditPreviewPlugin_V1_0.h"
 
 class QAction;
 class QLineEdit;
@@ -74,8 +75,24 @@ private:
 	void processPathChanged(const QString& newPath, bool addToHistory = true, bool firePathChanged = true);
 };
 
+class FileViewer;
+
+class IVPKEditPreviewPlugin_V1_0_PackFileAccess final : public IVPKEditPreviewPlugin_V1_0_IPackFileAccess {
+public:
+	explicit IVPKEditPreviewPlugin_V1_0_PackFileAccess(FileViewer* fileViewer_);
+
+	[[nodiscard]] bool has(const QString& entryPath) override;
+
+	[[nodiscard]] bool read(const QString& entryPath, QByteArray& data) override;
+
+private:
+	FileViewer* fileViewer;
+};
+
 class FileViewer : public QWidget {
 	Q_OBJECT;
+
+	friend IVPKEditPreviewPlugin_V1_0_PackFileAccess;
 
 public:
 	explicit FileViewer(Window* window_, QWidget* parent = nullptr);
@@ -122,6 +139,7 @@ private:
 	Window* window;
 	NavBar* navbar;
 
+	std::unique_ptr<IVPKEditPreviewPlugin_V1_0_PackFileAccess> packFileAccess_V1_0;
 	QList<QPluginLoader*> previewPlugins;
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;
