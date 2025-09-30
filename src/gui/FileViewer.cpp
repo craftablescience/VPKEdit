@@ -228,15 +228,15 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	for (const QString& dirPath : QCoreApplication::libraryPaths()) {
 		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
 			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
-			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin*>(loader->instance())) {
+			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_0*>(loader->instance())) {
 				if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
 					continue;
 				}
 				this->previewPlugins.push_back(loader);
 				plugin->initPreview(this);
 				layout->addWidget(plugin->getPreview());
-				QObject::connect(plugin, &IVPKEditPreviewPlugin::showInfoPreview, this, &FileViewer::showInfoPreview);
-				QObject::connect(plugin, &IVPKEditPreviewPlugin::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showInfoPreview, this, &FileViewer::showInfoPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
 			} else {
 				loader->deleteLater();
 			}
@@ -294,7 +294,7 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 					return;
 				}
 				this->hideAllPreviews();
-				auto* plugin = qobject_cast<IVPKEditPreviewPlugin*>(pluginLoader->instance());
+				auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_0*>(pluginLoader->instance());
 				plugin->getPreview()->show();
 				plugin->setData(path, reinterpret_cast<const quint8*>(binary->data()), binary->size());
 				return;
@@ -447,7 +447,7 @@ void FileViewer::showFileLoadErrorPreview() {
 
 void FileViewer::hideAllPreviews() {
 	for (auto* pluginLoader : this->previewPlugins) {
-		qobject_cast<IVPKEditPreviewPlugin*>(pluginLoader->instance())->getPreview()->hide();
+		qobject_cast<IVPKEditPreviewPlugin_V1_0*>(pluginLoader->instance())->getPreview()->hide();
 	}
 	this->dirPreview->hide();
 	this->infoPreview->hide();

@@ -20,11 +20,11 @@ void DMXPreview::initPreview(QWidget* parent) {
 	this->preview->setHeaderLabels({tr("Key"), tr("Value Type"), tr("Value")});
 }
 
-QWidget* DMXPreview::getPreview() {
+QWidget* DMXPreview::getPreview() const {
 	return this->preview;
 }
 
-IVPKEditPreviewPlugin::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_0::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	this->preview->clear();
 
 	std::unique_ptr<DMX> dmx;

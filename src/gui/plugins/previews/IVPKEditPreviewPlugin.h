@@ -2,13 +2,13 @@
 
 #include <QObject>
 
-class IVPKEditPreviewPlugin : public QObject {
+class IVPKEditPreviewPlugin_V1_0 : public QObject {
 	Q_OBJECT;
 
 public:
 	virtual void initPreview(QWidget* parent) = 0;
 
-	virtual QWidget* getPreview() = 0;
+	[[nodiscard]] virtual QWidget* getPreview() const = 0;
 
 	enum Error {
 		ERROR_SHOWED_THIS_PREVIEW  = 0,
@@ -25,5 +25,5 @@ signals:
 	void showGenericErrorPreview(const QString& text);
 };
 
-#define IVPKEditPreviewPlugin_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.0"
-Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin, IVPKEditPreviewPlugin_iid)
+#define IVPKEditPreviewPlugin_V1_0_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.0"
+Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V1_0, IVPKEditPreviewPlugin_V1_0_iid)
