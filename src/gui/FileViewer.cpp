@@ -16,7 +16,6 @@
 #include "previews/DirPreview.h"
 #include "previews/EmptyPreview.h"
 #include "previews/InfoPreview.h"
-#include "previews/MDLPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/TexturePreview.h"
 #include "utility/ThemedIcon.h"
@@ -208,8 +207,17 @@ bool IVPKEditPreviewPlugin_V1_0_WindowAccess::hasEntry(const QString& entryPath)
 	return this->fileViewer->window->hasEntry(entryPath);
 }
 
-bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readEntry(const QString& entryPath, QByteArray& data) {
+bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readBinaryEntry(const QString& entryPath, QByteArray& data) {
 	const auto file = this->fileViewer->window->readBinaryEntry(entryPath);
+	if (!file) {
+		return false;
+	}
+	data.assign(*file);
+	return true;
+}
+
+bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readTextEntry(const QString& entryPath, QString& data) {
+	const auto file = this->fileViewer->window->readTextEntry(entryPath);
 	if (!file) {
 		return false;
 	}
@@ -275,9 +283,6 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	this->infoPreview = new InfoPreview{this};
 	layout->addWidget(this->infoPreview);
 
-	this->mdlPreview = new MDLPreview{this, this->window, this};
-	layout->addWidget(this->mdlPreview);
-
 	this->textPreview = new TextPreview{this, this->window, this};
 	layout->addWidget(this->textPreview);
 
@@ -325,17 +330,7 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 		}
 	}
 
-	if (MDLPreview::EXTENSIONS.contains(extension)) {
-		// MDL (model)
-		auto binary = this->window->readBinaryEntry(path);
-		if (!binary) {
-			this->showFileLoadErrorPreview();
-			return;
-		}
-		this->hideAllPreviews();
-		this->mdlPreview->show();
-		this->mdlPreview->setMesh(path, packFile);
-	} else if (TexturePreview::EXTENSIONS_IMAGE.contains(extension)) {
+	if (TexturePreview::EXTENSIONS_IMAGE.contains(extension)) {
 		// Image
 		auto binary = this->window->readBinaryEntry(path);
 		if (!binary) {
@@ -475,7 +470,6 @@ void FileViewer::hideAllPreviews() {
 	this->dirPreview->hide();
 	this->infoPreview->hide();
 	this->emptyPreview->hide();
-	this->mdlPreview->hide();
 	this->textPreview->hide();
 	this->texturePreview->hide();
 }

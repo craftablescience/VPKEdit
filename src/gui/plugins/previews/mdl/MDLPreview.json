@@ -1,0 +1,14 @@
+{
+  "name": "MDL",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
+  "extensions": [
+    ".mdl",
+    ".vtx",
+    ".vvd",
+    ".phy",
+    ".ani",
+    ".vta"
+  ]
+}

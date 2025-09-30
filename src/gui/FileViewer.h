@@ -12,7 +12,6 @@ class QToolButton;
 class DirPreview;
 class EmptyPreview;
 class InfoPreview;
-class MDLPreview;
 class TextPreview;
 class TexturePreview;
 
@@ -81,7 +80,9 @@ public:
 
 	[[nodiscard]] bool hasEntry(const QString& entryPath) override;
 
-	[[nodiscard]] bool readEntry(const QString& entryPath, QByteArray& data) override;
+	[[nodiscard]] bool readBinaryEntry(const QString& entryPath, QByteArray& data) override;
+
+	[[nodiscard]] bool readTextEntry(const QString& entryPath, QString& data) override;
 
 	void selectEntryInEntryTree(const QString& entryPath) override;
 
@@ -131,7 +132,7 @@ public:
 
 	void hideAllPreviews();
 
-	[[nodiscard]] NavBar* getNavBar() {
+	[[nodiscard]] NavBar* getNavBar() const {
 		return this->navbar;
 	}
 
@@ -144,7 +145,6 @@ private:
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;
 	InfoPreview* infoPreview;
-	MDLPreview* mdlPreview;
 	TextPreview* textPreview;
 	TexturePreview* texturePreview;
 };

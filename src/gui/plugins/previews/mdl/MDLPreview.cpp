@@ -15,35 +15,30 @@
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QSpinBox>
-#include <QStyleOption>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QtMath>
 #include <sourcepp/String.h>
-#include <vpkpp/vpkpp.h>
 #include <vtfpp/vtfpp.h>
 
-#include "../utility/ThemedIcon.h"
-#include "../FileViewer.h"
-#include "../Window.h"
+#include "../../../utility/ThemedIcon.h"
 
 using namespace kvpp;
 using namespace mdlpp;
 using namespace sourcepp;
 using namespace std::literals;
-using namespace vpkpp;
 using namespace vtfpp;
 
 namespace {
 
-std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFile, const std::string& materialPath) {
-	const auto materialFile = packFile.readEntryText(materialPath);
-	if (!materialFile) {
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess, const std::string& materialPath) {
+	QString materialFile;
+	if (!windowAccess->readTextEntry(materialPath.c_str(), materialFile)) {
 		return nullptr;
 	}
 
-	const KV1 materialKV{*materialFile};
+	const KV1 materialKV{materialFile.toUtf8().constData()};
 	if (materialKV.getChildCount() == 0) {
 		return nullptr;
 	}
@@ -60,7 +55,7 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 			// Just re-using this variable for the new material path
 			baseTexturePath = baseTexturePathPatchIncludeKV.getValue();
 			string::normalizeSlashes(baseTexturePath);
-			return ::getTextureDataForMaterial(packFile, baseTexturePath);
+			return ::getTextureDataForMaterial(windowAccess, baseTexturePath);
 		} else {
 			return nullptr;
 		}
@@ -68,8 +63,8 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 		return nullptr;
 	}
 
-	auto textureFile = packFile.readEntry("materials/" + baseTexturePath + ".vtf");
-	if (!textureFile) {
+	QByteArray textureFile;
+	if (!windowAccess->readBinaryEntry(("materials/" + baseTexturePath + ".vtf").c_str(), textureFile)) {
 		return nullptr;
 	}
 
@@ -86,7 +81,7 @@ std::unique_ptr<MDLTextureData> getTextureDataForMaterial(const PackFile& packFi
 		}
 	}
 
-	const VTF vtf{*textureFile};
+	const VTF vtf{{reinterpret_cast<std::byte*>(textureFile.data()), static_cast<std::span<const std::byte>::size_type>(textureFile.size())}};
 	if (!ImageFormatDetails::transparent(vtf.getFormat())) {
 		translucent = false;
 		alphaTest = false;
@@ -539,17 +534,17 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 constexpr int TOOLBAR_SPACE_SIZE = 48;
 constexpr int SHADING_MODE_BUTTON_SIZE = 24;
 
-MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
-		: QWidget(parent)
-		, fileViewer(fileViewer_)
-		, shadingModeWireframe(nullptr)
-		, shadingModeShadedUntextured(nullptr)
-		, shadingModeUnshadedTextured(nullptr)
-		, shadingModeShadedTextured(nullptr) {
-	auto* layout = new QVBoxLayout(this);
+void MDLPreview::initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess_) {
+	this->windowAccess = windowAccess_;
+}
+
+void MDLPreview::initPreview(QWidget* parent) {
+	this->preview = new QWidget{parent};
+
+	auto* layout = new QVBoxLayout(this->preview);
 	layout->setContentsMargins(0,0,0,0);
 
-	auto* controls = new QFrame(this);
+	auto* controls = new QFrame(this->preview);
 	controls->setFrameShape(QFrame::Shape::StyledPanel);
 	controls->setFixedHeight(TOOLBAR_SPACE_SIZE);
 	layout->addWidget(controls, Qt::AlignRight);
@@ -557,7 +552,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 	auto* controlsLayout = new QHBoxLayout(controls);
 	controlsLayout->setAlignment(Qt::AlignRight);
 
-	auto* tabsToggleButton = new QPushButton(tr("Toggle Info Panel"), this);
+	auto* tabsToggleButton = new QPushButton(tr("Toggle Info Panel"), controls);
 	tabsToggleButton->setCheckable(true);
 	tabsToggleButton->setChecked(false);
 	QObject::connect(tabsToggleButton, &QPushButton::clicked, this, [&](bool checked) {
@@ -567,7 +562,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 
 	controlsLayout->addSpacing(TOOLBAR_SPACE_SIZE);
 
-	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), this);
+	this->backfaceCulling = new QCheckBox(tr("Backface Culling"), controls);
 	this->backfaceCulling->setCheckState(Qt::CheckState::Checked);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
 	QObject::connect(this->backfaceCulling, &QCheckBox::checkStateChanged, this, [&](Qt::CheckState state) {
@@ -580,8 +575,8 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 
 	controlsLayout->addSpacing(TOOLBAR_SPACE_SIZE);
 
-	controlsLayout->addWidget(new QLabel(tr("Skin"), this));
-	this->skinSpinBox = new QSpinBox(this);
+	controlsLayout->addWidget(new QLabel(tr("Skin"), controls));
+	this->skinSpinBox = new QSpinBox(controls);
 	this->skinSpinBox->setFixedWidth(32);
 	this->skinSpinBox->setMinimum(0);
 	this->skinSpinBox->setValue(0);
@@ -599,7 +594,7 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		{&this->shadingModeShadedTextured,   Qt::Key_4},
 	};
 	for (int i = 0; i < buttons.size(); i++) {
-		auto* button = *(buttons[i].first) = new QToolButton(this);
+		auto* button = *(buttons[i].first) = new QToolButton(controls);
 		button->setToolButtonStyle(Qt::ToolButtonIconOnly);
 		button->setFixedSize(SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE);
 		button->setStyleSheet(
@@ -612,17 +607,17 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 		controlsLayout->addWidget(button, 0, Qt::AlignVCenter | Qt::AlignRight);
 	}
 
-	this->mdl = new MDLWidget(this);
+	this->mdl = new MDLWidget(this->preview);
 	layout->addWidget(this->mdl);
 
-	this->tabs = new QTabWidget(this);
+	this->tabs = new QTabWidget(this->preview);
 	this->tabs->setFixedHeight(150);
 	this->tabs->hide();
 
 	this->materialsTab = new QTreeWidget(this->tabs);
 	this->materialsTab->setHeaderHidden(true);
-	QObject::connect(this->materialsTab, &QTreeWidget::itemClicked, this, [window](QTreeWidgetItem* item) {
-		window->selectEntryInEntryTree(item->text(0));
+	QObject::connect(this->materialsTab, &QTreeWidget::itemClicked, this, [this](QTreeWidgetItem* item) {
+		this->windowAccess->selectEntryInEntryTree(item->text(0));
 	});
 	this->tabs->addTab(this->materialsTab, tr("Materials Found"));
 
@@ -633,7 +628,16 @@ MDLPreview::MDLPreview(FileViewer* fileViewer_, Window* window, QWidget* parent)
 	layout->addWidget(this->tabs);
 }
 
-void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
+QWidget * MDLPreview::getPreview() const {
+	return this->preview;
+}
+
+QIcon MDLPreview::getIcon() const {
+	// todo: cool icon
+	return {};
+}
+
+IVPKEditPreviewPlugin_V1_0::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
 	this->mdl->clearMeshes();
 
 	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();
@@ -642,31 +646,31 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 		basePath = std::filesystem::path{basePath}.replace_extension().string();
 	}
 
-	auto mdlData = packFile.readEntry(basePath + ".mdl");
-	auto vvdData = packFile.readEntry(basePath + ".vvd");
-	auto vtxData = packFile.readEntry(basePath + ".vtx");
-	if (!vtxData) {
-		vtxData = packFile.readEntry(basePath + ".dx90.vtx");
+	QByteArray mdlData;
+	const bool hasMDLData = this->windowAccess->readBinaryEntry((basePath + ".mdl").c_str(), mdlData);
+	QByteArray vvdData;
+	const bool hasVVDData = this->windowAccess->readBinaryEntry((basePath + ".vvd").c_str(), vvdData);
+	QByteArray vtxData;
+	bool hasVTXData = false;
+	for (const auto* ext : {".vtx", ".dx90.vtx", ".dx80.vtx", ".sw.vtx"}) {
+		hasVTXData = this->windowAccess->readBinaryEntry((basePath + ext).c_str(), vtxData);
+		if (hasVTXData) {
+			break;
+		}
 	}
-	if (!vtxData) {
-		vtxData = packFile.readEntry(basePath + ".dx80.vtx");
-	}
-	if (!vtxData) {
-		vtxData = packFile.readEntry(basePath + ".sw.vtx");
-	}
-	if (!mdlData || !vvdData || !vtxData) {
+	if (!hasMDLData || !hasVVDData || !hasVTXData) {
 		QString error{tr("Unable to find all the required files the model is composed of!") + '\n'};
-		if (!mdlData) {
+		if (!hasMDLData) {
 			error += "\n- ";
 			error += basePath.c_str();
 			error += ".mdl";
 		}
-		if (!vvdData) {
+		if (!hasVVDData) {
 			error += "\n- ";
 			error += basePath.c_str();
 			error += ".vvd";
 		}
-		if (!vtxData) {
+		if (!hasVTXData) {
 			error += "\n- " + tr("One of the following:") +
 					 "\n  - " + basePath.c_str() + ".vtx" +
 					 "\n  - " + basePath.c_str() + ".dx90.vtx" +
@@ -674,21 +678,22 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 					 "\n  - " + basePath.c_str() + ".sw.vtx";
 		}
 
-		this->fileViewer->showGenericErrorPreview(error);
-		return;
+		emit this->showGenericErrorPreview(error);
+		return ERROR_SHOWED_OTHER_PREVIEW;
 	}
 
 	StudioModel mdlParser;
-	bool opened = mdlParser.open(reinterpret_cast<const uint8_t*>(mdlData->data()), mdlData->size(),
-								 reinterpret_cast<const uint8_t*>(vtxData->data()), vtxData->size(),
-								 reinterpret_cast<const uint8_t*>(vvdData->data()), vvdData->size());
+	const bool opened = mdlParser.open(
+		reinterpret_cast<const uint8_t*>(mdlData.data()), mdlData.size(),
+		reinterpret_cast<const uint8_t*>(vtxData.data()), vtxData.size(),
+		reinterpret_cast<const uint8_t*>(vvdData.data()), vvdData.size());
 	if (!opened) {
-		this->fileViewer->showGenericErrorPreview(tr("This model is invalid, it cannot be previewed!"));
-		return;
+		emit this->showGenericErrorPreview(tr("This model is invalid, it cannot be previewed!"));
+		return ERROR_SHOWED_OTHER_PREVIEW;
 	}
 
 	// Maybe we can add a setting for LOD...
-	auto bakedModel = mdlParser.processModelData(ROOT_LOD);
+	const auto bakedModel = mdlParser.processModelData(ROOT_LOD);
 	this->mdl->setModel(bakedModel);
 
 	this->skinSpinBox->setValue(0);
@@ -730,7 +735,7 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 			std::string vmtPath = "materials/"s + mdlParser.mdl.materialDirectories.at(materialDirIndex) + mdlParser.mdl.materials.at(materialIndex).name + ".vmt";
 			string::normalizeSlashes(vmtPath);
 			string::toLower(vmtPath);
-			if (auto data = getTextureDataForMaterial(packFile, vmtPath)) {
+			if (auto data = ::getTextureDataForMaterial(this->windowAccess, vmtPath)) {
 				vtfs.push_back(std::move(data));
 
 				auto* item = new QTreeWidgetItem(this->materialsTab);
@@ -754,6 +759,8 @@ void MDLPreview::setMesh(const QString& path, PackFile& packFile) const {
 		this->setShadingMode(MDLShadingMode::SHADED_UNTEXTURED);
 	}
 	this->mdl->update();
+
+	return ERROR_SHOWED_THIS_PREVIEW;
 }
 
 void MDLPreview::setShadingMode(MDLShadingMode mode) const {
@@ -766,7 +773,7 @@ void MDLPreview::setShadingMode(MDLShadingMode mode) const {
 			{&this->shadingModeShadedTextured, ":/icons/model_shaded_textured.png", MDLShadingMode::SHADED_TEXTURED},
 	};
 	for (auto& [button, iconPath, buttonMode] : buttonsAndIcons) {
-		(*button)->setIcon(ThemedIcon::get(this, iconPath, buttonMode == mode ? QPalette::ColorRole::Link : QPalette::ColorRole::ButtonText));
+		(*button)->setIcon(ThemedIcon::get(this->preview, iconPath, buttonMode == mode ? QPalette::ColorRole::Link : QPalette::ColorRole::ButtonText));
 		(*button)->setIconSize({SHADING_MODE_BUTTON_SIZE, SHADING_MODE_BUTTON_SIZE});
 	}
 

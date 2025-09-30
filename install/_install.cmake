@@ -11,7 +11,7 @@ if(WIN32)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
 
-    install(TARGETS ${PROJECT_NAME}_dmx_preview
+    install(TARGETS ${PROJECT_NAME}_dmx_preview ${PROJECT_NAME}_mdl_preview
             DESTINATION previews)
 
     install(IMPORTED_RUNTIME_ARTIFACTS
@@ -63,7 +63,7 @@ elseif(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION .)
 
-    install(TARGETS ${PROJECT_NAME}_dmx_preview
+    install(TARGETS ${PROJECT_NAME}_dmx_preview ${PROJECT_NAME}_mdl_preview
             DESTINATION "${PROJECT_NAME_PRETTY}.app/Contents/PlugIns/previews")
 
     # Deploy Qt into the bundle
@@ -85,7 +85,7 @@ elseif(UNIX)
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}")
 
-    install(TARGETS ${PROJECT_NAME}_dmx_preview
+    install(TARGETS ${PROJECT_NAME}_dmx_preview ${PROJECT_NAME}_mdl_preview
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/previews")
 
     # Use system Qt - no install rules

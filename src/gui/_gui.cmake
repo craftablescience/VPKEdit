@@ -31,8 +31,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/previews/EmptyPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/InfoPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/InfoPreview.h"
-		"${CMAKE_CURRENT_LIST_DIR}/previews/MDLPreview.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/previews/MDLPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/TextPreview.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/TextPreview.h"
 		"${CMAKE_CURRENT_LIST_DIR}/previews/TexturePreview.cpp"
@@ -49,8 +47,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/utility/Options.h"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.h"
-		"${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"
 
 		"${CMAKE_CURRENT_LIST_DIR}/EntryContextMenuData.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/EntryContextMenuData.h"
@@ -94,6 +91,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LIC
 
 # Add plugins
 include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/dmx/DMXPreview.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/mdl/MDLPreview.cmake")
 
 if(LINUX)
     target_compile_definitions(${PROJECT_NAME} PRIVATE VPKEDIT_LIBDIR="${CMAKE_INSTALL_LIBDIR}")

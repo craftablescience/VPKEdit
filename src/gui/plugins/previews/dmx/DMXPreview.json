@@ -1,5 +1,8 @@
 {
-  "name": "DMX Preview",
+  "name": "DMX",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
   "extensions": [
     ".dmx",
     ".movieobjects",
