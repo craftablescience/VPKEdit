@@ -12,7 +12,7 @@ in vec2  fUVMatCap;
 void main() {
     vec4 texColor = texture2D(uMeshTexture, fUVMesh) * clamp(texture2D(uMatCapTexture, fUVMatCap) * 1.25 + 0.25, 0.0, 1.0);
     if (texColor.a < uAlphaTestReference) {
-        discard;
+        texColor.a = 0.0;
     }
     gl_FragColor = texColor;
 }
