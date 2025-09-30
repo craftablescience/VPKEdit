@@ -498,6 +498,7 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 	this->translationalVelocity *= MOTION_REDUCTION_AMOUNT;
 	if (this->translationalVelocity.length() < 0.01) {
 		this->translationalVelocity = QVector3D();
+		this->update();
 	} else {
 		this->target += this->translationalVelocity;
 		this->update();
@@ -506,6 +507,7 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 	this->angularSpeed *= MOTION_REDUCTION_AMOUNT;
 	if (this->angularSpeed < 0.01) {
 		this->angularSpeed = 0.0;
+		this->update();
 	} else {
 		this->rotation = QQuaternion::fromAxisAndAngle(this->rotationAxis, static_cast<float>(this->angularSpeed)) * this->rotation;
 		this->update();

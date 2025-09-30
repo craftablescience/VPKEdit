@@ -101,6 +101,7 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli.exe
             ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/previews/*.dll
           retention-days: 7
 
       - name: Create Installer [target:VPKEdit]
@@ -281,6 +282,7 @@ jobs:
           path: |
             ${{env.BUILD_DIR}}/vpkeditcli
             ${{env.BUILD_DIR}}/vpkedit
+            ${{env.BUILD_DIR}}/previews/*.so*
           retention-days: 7
 
       - name: Create Installer [target:VPKEdit]
