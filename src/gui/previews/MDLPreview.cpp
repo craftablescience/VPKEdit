@@ -459,10 +459,12 @@ void MDLWidget::mousePressEvent(QMouseEvent* event) {
 		this->rmbBeingHeld = true;
 	}
 
+	this->setCursor({Qt::CursorShape::ClosedHandCursor});
 	event->accept();
 }
 
 void MDLWidget::mouseReleaseEvent(QMouseEvent* event) {
+	this->setCursor({Qt::CursorShape::ArrowCursor});
 	if (event->button() == Qt::MouseButton::RightButton) {
 		this->rmbBeingHeld = false;
 		event->accept();
