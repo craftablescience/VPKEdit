@@ -345,7 +345,7 @@ void MDLWidget::paintGL() {
 	opt.initFrom(this);
 
 	const auto clearColor = opt.palette.color(QPalette::ColorRole::Window);
-	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
+	this->glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 1.f);
 	this->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (this->meshes.empty()) {
@@ -398,35 +398,55 @@ void MDLWidget::paintGL() {
 	currentShaderProgram->setUniformValue("uMeshTexture", 0);
 	currentShaderProgram->setUniformValue("uMatCapTexture", 1);
 
+	QList<QPair<MDLSubMesh*, QPair<QOpenGLTexture*, MDLTextureSettings>>> opaqueMeshes;
+	QList<QPair<MDLSubMesh*, QPair<QOpenGLTexture*, MDLTextureSettings>>> alphaTestMeshes;
+	QList<QPair<MDLSubMesh*, QPair<QOpenGLTexture*, MDLTextureSettings>>> translucentMeshes;
 	for (auto& mesh : this->meshes) {
 		QOpenGLTexture* texture;
 		if (mesh.textureIndex < 0 || this->skins.size() <= this->skin || this->skins[this->skin].size() <= mesh.textureIndex || !((texture = this->textures[this->skins[this->skin][mesh.textureIndex]].first))) {
 			texture = &this->missingTexture;
-		} else {
-			const auto& [transparencyMode, alphaTestReference] = this->textures[this->skins[this->skin][mesh.textureIndex]].second;
-			currentShaderProgram->setUniformValue("uAlphaTestReference", alphaTestReference);
-			if (transparencyMode == MDLTextureSettings::TransparencyMode::TRANSLUCENT) {
+			opaqueMeshes.push_back({&mesh, {texture, {}}});
+			continue;
+		}
+		switch (const auto& settings = this->textures[this->skins[this->skin][mesh.textureIndex]].second; settings.transparencyMode) {
+			case MDLTextureSettings::TransparencyMode::NONE:
+				opaqueMeshes.push_back({&mesh, {texture, settings}});
+				break;
+			case MDLTextureSettings::TransparencyMode::ALPHA_TEST:
+				alphaTestMeshes.push_back({&mesh, {texture, settings}});
+				break;
+			case MDLTextureSettings::TransparencyMode::TRANSLUCENT:
+				translucentMeshes.push_back({&mesh, {texture, settings}});
+				break;
+		}
+	}
+	for (const auto& currentMeshes : {opaqueMeshes, alphaTestMeshes, translucentMeshes}) {
+		for (auto& mesh : currentMeshes) {
+			currentShaderProgram->setUniformValue("uAlphaTestReference", mesh.second.second.alphaTestReference);
+
+			if (this->shadingMode != MDLShadingMode::WIREFRAME && mesh.second.second.transparencyMode == MDLTextureSettings::TransparencyMode::TRANSLUCENT) {
 				this->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				this->glEnable(GL_BLEND);
 			} else {
 				this->glDisable(GL_BLEND);
 			}
+
+			mesh.second.first->bind(0);
+
+			this->matCapTexture.bind(1);
+
+			mesh.first->vao->bind();
+			this->vertices.bind();
+			mesh.first->ebo.bind();
+			this->glDrawElements(GL_TRIANGLES, mesh.first->indexCount, GL_UNSIGNED_SHORT, nullptr);
+			mesh.first->ebo.release();
+			this->vertices.release();
+			mesh.first->vao->release();
+
+			this->matCapTexture.release(1);
+
+			mesh.second.first->release(0);
 		}
-		texture->bind(0);
-
-		this->matCapTexture.bind(1);
-
-		mesh.vao->bind();
-		this->vertices.bind();
-		mesh.ebo.bind();
-		this->glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, nullptr);
-		mesh.ebo.release();
-		this->vertices.release();
-		mesh.vao->release();
-
-		this->matCapTexture.release(1);
-
-		texture->release(0);
 	}
 
 	currentShaderProgram->release();

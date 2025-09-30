@@ -68,8 +68,8 @@ struct MDLTextureSettings {
 		NONE,
 		ALPHA_TEST,
 		TRANSLUCENT,
-	} transparencyMode;
-	float alphaTestReference;
+	} transparencyMode = TransparencyMode::NONE;
+	float alphaTestReference = 0.7f;
 };
 
 struct MDLTextureData {
