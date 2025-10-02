@@ -348,6 +348,7 @@ jobs:
     needs:
       - build-windows
       - build-linux
+      - build-macos
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
