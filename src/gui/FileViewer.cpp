@@ -255,7 +255,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	pluginLocations << QDir{"~/.local/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()}}.canonicalPath();
 #endif
 	qDebug() << pluginLocations;
-	for (const QString& dirPath : QCoreApplication::libraryPaths()) {
+	for (const QString& dirPath : pluginLocations) {
 		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
 			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
 			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_0*>(loader->instance())) {
