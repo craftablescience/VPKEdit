@@ -108,6 +108,8 @@ public:
 protected:
 	void resizeEvent(QResizeEvent* event) override;
 
+	void recomputeToolbarVisibility() const;
+
 private:
 	FileViewer* fileViewer;
 	Window* window;

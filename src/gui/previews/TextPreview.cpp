@@ -4,6 +4,7 @@
 #include <QScrollBar>
 #include <QStyleOption>
 #include <QTextBlock>
+#include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
 
@@ -221,6 +222,7 @@ TextPreview::TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* pare
 
 void TextPreview::setText(const QString& text, const QString& extension) {
 	this->editor->setText(text, extension);
+	this->recomputeToolbarVisibility();
 }
 
 void TextPreview::setEditing(bool editing) const {
@@ -230,19 +232,33 @@ void TextPreview::setEditing(bool editing) const {
 	this->cancelAction->setVisible(editing);
 	this->fileViewer->getNavBar()->setDisabled(editing);
 	this->window->freezeActions(editing, true, false);
+	this->recomputeToolbarVisibility();
 }
 
 void TextPreview::setReadOnly(bool readOnly) const {
 	this->editAction->setVisible(!readOnly);
 	this->saveAction->setVisible(false);
 	this->cancelAction->setVisible(false);
+	this->recomputeToolbarVisibility();
 }
 
 void TextPreview::resizeEvent(QResizeEvent* event) {
 	QWidget::resizeEvent(event);
 	auto width = this->width();
-	if (auto* scrollbar = this->editor->verticalScrollBar()) {
+	if (const auto* scrollbar = this->editor->verticalScrollBar()) {
 		width -= scrollbar->sizeHint().width();
 	}
 	this->toolbar->setFixedSize(width, 64);
+	this->recomputeToolbarVisibility();
+}
+
+void TextPreview::recomputeToolbarVisibility() const {
+	// must be delayed a single frame
+	QTimer::singleShot(0, this, [this] {
+		QRegion reg;
+		reg += this->toolbar->actionGeometry(this->editAction);
+		reg += this->toolbar->actionGeometry(this->saveAction);
+		reg += this->toolbar->actionGeometry(this->cancelAction);
+		this->toolbar->setMask(reg);
+	});
 }
