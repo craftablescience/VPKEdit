@@ -212,7 +212,7 @@ bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readBinaryEntry(const QString& ent
 	if (!file) {
 		return false;
 	}
-	data.assign(*file);
+	data = QByteArray{reinterpret_cast<const char*>(file->data()), static_cast<qlonglong>(file->size())};
 	return true;
 }
 
@@ -221,7 +221,7 @@ bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readTextEntry(const QString& entry
 	if (!file) {
 		return false;
 	}
-	data.assign(*file);
+	data = *file;
 	return true;
 }
 
