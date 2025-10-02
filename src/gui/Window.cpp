@@ -49,6 +49,7 @@
 #include "utility/DiscordPresence.h"
 #include "utility/ImageLoader.h"
 #include "utility/Options.h"
+#include "utility/TempDir.h"
 #include "EntryTree.h"
 #include "FileViewer.h"
 
@@ -1534,6 +1535,12 @@ void Window::closeEvent(QCloseEvent* event) {
 		event->ignore();
 		return;
 	}
+
+	// Delete temp folders
+	for (auto& dir : TempDir::createdTempDirs()) {
+		dir.removeRecursively();
+	}
+	TempDir::createdTempDirs().clear();
 
 	// Write location and sizing
 	auto* settings = Options::getOptions();

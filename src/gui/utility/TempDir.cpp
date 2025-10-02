@@ -6,15 +6,15 @@
 
 using namespace sourcepp;
 
-constexpr std::string_view TMP_DIR_BASE = ".vpkedit-";
+namespace {
 
-TempDir::TempDir()
-		: uuid(string::generateUUIDv4().c_str()) {
+constexpr std::string_view TMP_DIR_BASE = "vpkedit-";
+
+} // namespace
+
+TempDir::TempDir() : uuid(string::generateUUIDv4().c_str()) {
 	QDir::temp().mkdir(TMP_DIR_BASE.data() + this->uuid);
-}
-
-TempDir::~TempDir() {
-	this->dir().removeRecursively();
+	createdTempDirs() << this->dir();
 }
 
 QDir TempDir::dir() const {
@@ -23,4 +23,10 @@ QDir TempDir::dir() const {
 
 QString TempDir::path() const {
 	return this->dir().path();
+}
+
+// Deleted in Window - we need to delay deletion because of some platforms like KDE
+QList<QDir>& TempDir::createdTempDirs() {
+	static QList<QDir> dirs;
+	return dirs;
 }
