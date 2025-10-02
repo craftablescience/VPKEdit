@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCollator>
+#include <QDesktopServices>
 #include <QDrag>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -214,6 +215,13 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 	});
 
 	QObject::connect(this, &QTreeWidget::currentItemChanged, this, &EntryTree::onCurrentItemChanged);
+
+	QObject::connect(this, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item, int) {
+		const TempDir tempDir;
+		const QString savePath = tempDir.dir().absoluteFilePath(item->text(0));
+		this->window->extractFile(this->getItemPath(item), savePath);
+		QDesktopServices::openUrl("file://" + savePath);
+	});
 
 	this->clearContents();
 }
