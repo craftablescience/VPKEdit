@@ -64,7 +64,7 @@ elseif(APPLE)
             DESTINATION .)
 
     install(TARGETS ${PROJECT_NAME}_dmx_preview ${PROJECT_NAME}_mdl_preview
-            DESTINATION "${PROJECT_NAME_PRETTY}.app/Contents/PlugIns/previews")
+            DESTINATION "${PROJECT_NAME}.app/Contents/PlugIns/previews")
 
     # Deploy Qt into the bundle
     if(VPKEDIT_MAC_BUNDLE_QT)
@@ -72,6 +72,10 @@ elseif(APPLE)
                 TARGET ${PROJECT_NAME}
                 OUTPUT_SCRIPT qt_deploy_script)
         install(SCRIPT ${qt_deploy_script})
+    endif()
+
+    if(VPKEDIT_MAC_BUNDLE_ADHOC_SIGN)
+        set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/macos/SignBundle.cmake")
     endif()
 elseif(UNIX)
     install(TARGETS ${PROJECT_NAME}cli
