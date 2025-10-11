@@ -239,6 +239,7 @@ Window::Window(QWidget* parent)
 		{u8"Polski",             "pl"},
 		{u8"Português (Brasil)", "pt_BR"},
 		{u8"Русский",            "ru_RU"},
+		{u8"Slovenščina",        "sl"},
 		{u8"Español",            "es"},
 		{u8"Svenska",            "sv"},
 		{u8"Tiếng Việt",         "vi"},

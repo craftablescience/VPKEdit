@@ -18,20 +18,21 @@
 - [erysdren](https://github.com/erysdren): OL and ORE parsers are based on its reverse-engineering work
 
 ## Translators
-- Bosnian: Nbc66
-- Chinese (Simplified): lysenty-jay
-- Croatian: N0one
-- Dutch: Trico Everfire
-- German: Nilten
-- Italian: enderzombi102
-- Japanese: Annie Miyajima, craftablescience, poropopo
-- Korean: hamn
-- Polish: Enderek, Patrxgt
-- Portuguese (Brazil): Jean Trindade Pereira, vivizinho64minecraft
-- Russian: Michael Soyka
-- Spanish: Samuel, craftablescience
-- Swedish: BreakinBenny, TheDudeWhosNameIsAce
-- Vietnamese: Barnacl437
+- Bosanski: Nbc66
+- 简体中文: lysenty-jay
+- Hrvatski: N0one
+- Nederlands: Trico Everfire
+- Deutsch: Nilten
+- Italiano: enderzombi102
+- 日本語: Annie Miyajima, craftablescience, poropopo
+- 한국인: hamn
+- Polski: Enderek, Patrxgt
+- Português (Brasil): Jean Trindade Pereira, vivizinho64minecraft
+- Русский: Michael Soyka
+- Slovenian: Andrew Pozenel
+- Español: Samuel, craftablescience
+- Svenska: BreakinBenny, TheDudeWhosNameIsAce
+- Tiếng Việt: Barnacl437
 
 ## Acknowledgements
 - [SourcePP](https://github.com/craftablescience/sourcepp) - craftablescience and contributors

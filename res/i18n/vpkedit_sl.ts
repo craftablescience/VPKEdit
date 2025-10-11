@@ -1,0 +1,1158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="sl">
+  <context>
+    <name>ControlsDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/ControlsDialog.cpp" line="26"/>
+      <source>Controls</source>
+      <translation>Kontrolniki</translation>
+    </message>
+  </context>
+  <context>
+    <name>DirPreview</name>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="453"/>
+      <source>Delete Entry</source>
+      <translation>Izbriši vnos</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="453"/>
+      <source>Are you sure you want to delete "%1"?
+(Hold Shift to skip this popup.)</source>
+      <translation>Ali ste prepričani, da želite izbrisati "%1"?
+(Držite tipko Shift, da preskočite to pojavno okno.)</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="378"/>
+      <source>kb</source>
+      <translation>kb</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="382"/>
+      <source>mb</source>
+      <translation>mb</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="386"/>
+      <source>gb</source>
+      <translation>gb</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="375"/>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="393"/>
+      <source>b</source>
+      <translation>b</translation>
+    </message>
+  </context>
+  <context>
+    <name>EntryTree</name>
+    <message>
+      <location filename="../../src/gui/EntryTree.cpp" line="512"/>
+      <source>Delete Entry</source>
+      <translation>Izbriši vnos</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryTree.cpp" line="512"/>
+      <source>Are you sure you want to delete "%1"?
+(Hold Shift to skip this popup.)</source>
+      <translation>Ali ste prepričani, da želite izbrisati "%1"?
+(Držite tipko Shift, da preskočite to pojavno okno.)</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryTree.cpp" line="399"/>
+      <source>Extract to...</source>
+      <translation>Razširi v...</translation>
+    </message>
+  </context>
+  <context>
+    <name>FileViewer</name>
+    <message>
+      <location filename="../../src/gui/FileViewer.cpp" line="339"/>
+      <source>No available preview.</source>
+      <translation>Predogled ni na voljo.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/FileViewer.cpp" line="406"/>
+      <source>Failed to read file contents!
+Please ensure that a game or another application is not using the file.</source>
+      <translation>Neuspešno branje vsebine datoteke!
+Preverite, ali datoteko ne uporablja igra ali druga aplikacija.</translation>
+    </message>
+  </context>
+  <context>
+    <name>MDLPreview</name>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="479"/>
+      <source>Backface Culling</source>
+      <translation>Izločanje zadnje ploskve</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="563"/>
+      <source>Unable to find all the required files the model is composed of!</source>
+      <translation>Ni mogoče najti vseh zahtevanih datotek, iz katerih je sestavljen model!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="591"/>
+      <source>This model is invalid, it cannot be previewed!</source>
+      <translation>Ta model ni veljaven, predogled ni mogoč!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="575"/>
+      <source>One of the following:</source>
+      <translation>Eno od naslednjega:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="469"/>
+      <source>Toggle Info Panel</source>
+      <translation>Preklopi informativno ploščo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="488"/>
+      <source>Skin</source>
+      <translation>Preobleka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="532"/>
+      <source>Materials Found</source>
+      <translation>Najdeni materiali</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="536"/>
+      <source>All Materials</source>
+      <translation>Vsi materiali</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="612"/>
+      <source>Folders</source>
+      <translation>Mape</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="620"/>
+      <source>Material Names</source>
+      <translation>Imena materialov</translation>
+    </message>
+  </context>
+  <context>
+    <name>MDLWidget</name>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="231"/>
+      <source>Error</source>
+      <translation>Napaka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/MDLPreview.cpp" line="231"/>
+      <source>Unable to initialize OpenGL 3.2 Core context! Please upgrade your computer to preview models.</source>
+      <translation>Ni mogoče inicializirati konteksta OpenGL 3.2 Core! Prosimo, da nadgradite svoj računalnik za predogled modelov.</translation>
+    </message>
+  </context>
+  <context>
+    <name>NavBar</name>
+    <message>
+      <location filename="../../src/gui/FileViewer.cpp" line="85"/>
+      <source>Navigate...</source>
+      <translation>Navigirajte...</translation>
+    </message>
+  </context>
+  <context>
+    <name>NewUpdateDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/NewUpdateDialog.cpp" line="12"/>
+      <source>New Update Available</source>
+      <translation>Na voljo je nova posodobitev</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/NewUpdateDialog.cpp" line="14"/>
+      <source>There is a new update available!
+
+Current version:  v%1
+
+Latest version:  %2
+
+[Click here to go to the release on GitHub.](%3)</source>
+      <translation>Na voljo je nova posodobitev!
+
+Trenutna različica: v%1
+
+Najnovejša različica: %2
+
+[Kliknite tukaj, da odprete izdajo na GitHubu.](%3)</translation>
+    </message>
+  </context>
+  <context>
+    <name>PackFileOptionsDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="86"/>
+      <source>Version:</source>
+      <translation>Različica:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="50"/>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="138"/>
+      <source>Pack File Properties</source>
+      <translation>Lastnosti datoteke Pack</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="95"/>
+      <source>Save to single file:
+Breaks if the file's size will be &gt;= 4gb!</source>
+      <translation>Shrani v eno datoteko:
+Prekine, če bo velikost datoteke &gt;= 4 GB!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="102"/>
+      <source>Preferred chunk size (MB):</source>
+      <translation>Želena velikost bloka (MB):</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="138"/>
+      <source>No properties available for this file type.</source>
+      <translation>Za to vrsto datoteke ni na voljo nobenih lastnosti.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="58"/>
+      <source>None</source>
+      <translation>Nič</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="59"/>
+      <source>Per-entry</source>
+      <translation>Na vnos</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="68"/>
+      <source>Compression Type Override:</source>
+      <translation>Preglasitev vrste stiskanja:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/PackFileOptionsDialog.cpp" line="74"/>
+      <source>Compression Strength:</source>
+      <translation>Jakost stiskanja:</translation>
+    </message>
+  </context>
+  <context>
+    <name>VerifyChecksumsDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="10"/>
+      <source>Verify Checksums</source>
+      <translation>Preveri kontrolne vsote</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="16"/>
+      <source>Overall file checksum matches the expected value.</source>
+      <translation>Skupna kontrolna vsota datoteke se ujema s pričakovano vrednostjo.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="18"/>
+      <source>Overall file checksum does not match the expected value!</source>
+      <translation>Skupna kontrolna vsota datoteke se ne ujema s pričakovano vrednostjo!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="25"/>
+      <source>All file checksums match their expected values.</source>
+      <translation>Vse kontrolne vsote datotek se ujemajo s pričakovanimi vrednostmi.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="27"/>
+      <source>Some file checksums do not match their expected values!
+See below for more information.</source>
+      <translation>Nekatere kontrolne vsote datotek se ne ujemajo s pričakovanimi vrednostmi!
+Za več informacij glejte spodaj.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="29"/>
+      <source>Files that failed to validate:
+</source>
+      <translation>Datoteke, ki niso bile uspešno preverjene:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="14"/>
+      <source>No overall file checksum present, moving on...</source>
+      <translation>Ni splošne kontrolne vsote datoteke, nadaljevanje...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifyChecksumsDialog.cpp" line="23"/>
+      <source>This pack file format does not store checksums for contained files.</source>
+      <translation>Ta oblika datoteke Pack ne shranjuje kontrolnih vsot za vsebovane datoteke.</translation>
+    </message>
+  </context>
+  <context>
+    <name>Window</name>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="371"/>
+      <source>Controls</source>
+      <translation>Kontrolniki</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="674"/>
+      <source>Open Pack File</source>
+      <translation>Odpri datoteko Pack</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="685"/>
+      <source>Save to...</source>
+      <translation>Shrani v...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="746"/>
+      <source>Could not save!</source>
+      <translation>Ni bilo mogoče shraniti!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="784"/>
+      <location filename="../../src/gui/Window.cpp" line="790"/>
+      <location filename="../../src/gui/Window.cpp" line="990"/>
+      <location filename="../../src/gui/Window.cpp" line="1244"/>
+      <location filename="../../src/gui/Window.cpp" line="1352"/>
+      <location filename="../../src/gui/Window.cpp" line="1581"/>
+      <source>Error</source>
+      <translation>Napaka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="784"/>
+      <source>Error occurred checking for updates!</source>
+      <translation>Pri preverjanju posodobitev je prišlo do napake!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="790"/>
+      <source>Invalid JSON response was retrieved checking for updates!</source>
+      <translation>Pri preverjanju posodobitev je bil pridobljen neveljaven odgovor JSON!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="822"/>
+      <source>No New Updates</source>
+      <translation>Ni novih posodobitev</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="822"/>
+      <source>You are using the latest version of the software.</source>
+      <translation>Uporabljate najnovejšo različico programske opreme.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="880"/>
+      <source>Open File</source>
+      <translation>Odpri datoteko</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="654"/>
+      <location filename="../../src/gui/Window.cpp" line="926"/>
+      <source>Open Folder</source>
+      <translation>Odpri mapo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="969"/>
+      <source>Error Removing File</source>
+      <translation>Napaka pri odstranjevanju datoteke</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="969"/>
+      <source>There was an error removing the file at "%1"!</source>
+      <translation>Pri odstranjevanju datoteke pri "%1" je prišlo do napake!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="990"/>
+      <source>Unable to edit file at "%1": could not read file data!</source>
+      <translation>Datoteke pri "%1" ni mogoče urediti: podatkov datoteke ni bilo mogoče prebrati!</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1159"/>
+      <location filename="../../src/gui/Window.cpp" line="1175"/>
+      <source>Rename Folder</source>
+      <translation>Preimenuj mapo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1159"/>
+      <source>The new path:</source>
+      <translation>Nova pot:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="365"/>
+      <source>About</source>
+      <translation>O nas</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1296"/>
+      <source>Extract as...</source>
+      <translation>Izvleči kot ...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1307"/>
+      <location filename="../../src/gui/Window.cpp" line="1372"/>
+      <source>Extract to...</source>
+      <translation>Izvleči v ...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1398"/>
+      <source>Save changes?</source>
+      <translation>Shrani spremembe?</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1399"/>
+      <source>This file has unsaved changes! Would you like to save these changes first?</source>
+      <translation>Ta datoteka ima neshranjene spremembe! Ali želite najprej shraniti te spremembe?</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1581"/>
+      <source>Unable to load this file. Please ensure that a game or another application is not using the file.</source>
+      <translation>Te datoteke ni mogoče naložiti. Prepričajte se, da datoteke ne uporablja igra ali druga aplikacija.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1661"/>
+      <source>No recent files.</source>
+      <translation>Ni nedavnih datotek.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="70"/>
+      <source>Restart Required</source>
+      <translation>Zahtevan je ponovni zagon</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="70"/>
+      <source>The application must be restarted for these settings to take effect.</source>
+      <translation>Za uveljavitev teh nastavitev je treba aplikacijo znova zagnati.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="76"/>
+      <source>File</source>
+      <translation>Datoteka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="130"/>
+      <source>Open...</source>
+      <translation>Odpri...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="138"/>
+      <source>Open In...</source>
+      <translation>Odpri v...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="141"/>
+      <source>Open Recent...</source>
+      <translation>Odpri nedavno...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="144"/>
+      <source>Save</source>
+      <translation>Shrani</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="149"/>
+      <source>Save As...</source>
+      <translation>Shrani kot...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="154"/>
+      <source>Close</source>
+      <translation>Zapri</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="167"/>
+      <source>Check For Updates...</source>
+      <translation>Preveri za posodobitvami...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="171"/>
+      <source>Exit</source>
+      <translation>Izhod</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="176"/>
+      <source>Edit</source>
+      <translation>Uredi</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="177"/>
+      <source>Extract All</source>
+      <translation>Razširi vse</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="188"/>
+      <source>Add Folder...</source>
+      <translation>Dodaj mapo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="194"/>
+      <source>Properties...</source>
+      <translation>Lastnosti...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="200"/>
+      <source>Options</source>
+      <translation>Možnosti</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="320"/>
+      <source>Entry Tree...</source>
+      <translation>Vhodno drevo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="321"/>
+      <source>Expand Folder When Selected</source>
+      <translation>Razširi mapo, ko je izbrana</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="328"/>
+      <source>Start Collapsed</source>
+      <translation>Začni strnjeno</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="335"/>
+      <source>Hide Icons</source>
+      <translation>Skrij ikone</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="261"/>
+      <source>Theme...</source>
+      <translation>Tema...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="223"/>
+      <source>Language...</source>
+      <translation>Jezik...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="203"/>
+      <source>Advanced File Properties</source>
+      <translation>Napredne lastnosti datoteke</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="364"/>
+      <source>Help</source>
+      <translation>Pomoč</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="368"/>
+      <source>About Qt</source>
+      <translation>O Qt</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="343"/>
+      <source>Tools</source>
+      <translation>Orodja</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="345"/>
+      <source>General</source>
+      <translation>Splošno</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="346"/>
+      <source>Verify Checksums</source>
+      <translation>Preveri kontrolne vsote</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="377"/>
+      <source>Debug</source>
+      <translation>Odpravljanje napak</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="379"/>
+      <source>Dialogs</source>
+      <translation>Dialogi</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="434"/>
+      <source>Search...</source>
+      <translation>Iskanje ...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1675"/>
+      <source>Clear</source>
+      <translation>Počisti</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1692"/>
+      <source>AppID</source>
+      <translation>AppID</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1693"/>
+      <source>App Version</source>
+      <translation>Različica aplikacije</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1694"/>
+      <source>Godot Version</source>
+      <translation>Različica Godot</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1695"/>
+      <source>Version</source>
+      <translation>Različica</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1696"/>
+      <source>Map Revision</source>
+      <translation>Revizija mape</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1697"/>
+      <source>Addon Name:</source>
+      <translation>Ime dodatka:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1701"/>
+      <source>Loaded</source>
+      <translation>Naloženo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="160"/>
+      <source>Donate On Ko-fi...</source>
+      <translation>Donirajte na Ko-fi...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="227"/>
+      <source>System Language</source>
+      <translation>Sistemski jezik</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="302"/>
+      <source>Enable Rich Presence</source>
+      <translation>Omogoči bogato prisotnost</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="217"/>
+      <source>Disable Startup Update Check</source>
+      <translation>Onemogoči preverjanje posodobitev ob zagonu</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1698"/>
+      <source>Embedded</source>
+      <translation>Vgrajeno</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1699"/>
+      <source>Encrypted</source>
+      <translation>Šifrirano</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="355"/>
+      <source>Generate Public/Private Key Files...</source>
+      <translation>Ustvari datoteke z javnimi/zasebnimi ključi ...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="358"/>
+      <source>Sign File...</source>
+      <translation>Podpiši datoteko ...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1222"/>
+      <source>Keypair Filename</source>
+      <translation>Ime datoteke s parom ključev</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1222"/>
+      <source>Name of the keypair files to generate:</source>
+      <translation>Ime datotek s pari ključev, ki jih je treba ustvariti:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1234"/>
+      <source>Open Private Key File</source>
+      <translation>Odpri datoteko zasebnega ključa</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1242"/>
+      <source>Success</source>
+      <translation>Uspeh</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1242"/>
+      <source>Successfully signed the pack file.</source>
+      <translation>Datoteka paketa pack je bila uspešno podpisana.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1244"/>
+      <source>Failed to sign the pack file! Check the file contains both the private key and public key.</source>
+      <translation>Podpis datoteke paketa pack ni uspel! Preverite, ali datoteka vsebuje tako zasebni kot javni ključ.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="349"/>
+      <source>Verify Signature</source>
+      <translation>Preveri podpis</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="747"/>
+      <source>An error occurred while saving changes to the file. Check that you have permission to write to it, and that no other application is using it.</source>
+      <translation>Pri shranjevanju sprememb v datoteko je prišlo do napake. Preverite, ali imate dovoljenje za pisanje v datoteko in ali je ne uporablja nobena druga aplikacija.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="210"/>
+      <source>Disable Open In Menu</source>
+      <translation>Onemogoči meni Odpri v</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="78"/>
+      <source>Create...</source>
+      <translation>Ustvari...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="104"/>
+      <source>Create from Folder...</source>
+      <translation>Ustvari iz mape...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1174"/>
+      <source>Abort</source>
+      <translation>Prekini</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1352"/>
+      <source>Failed to write some or all files to "%1". Please ensure that a game or another application is not using the file, and that you have sufficient permissions to write to the save location.</source>
+      <translation>Zapis nekaterih ali vseh datotek v "%1" ni uspel. Prepričajte se, da datoteke ne uporablja nobena igra ali druga aplikacija in da imate zadostna dovoljenja za pisanje na mesto shranjevanja.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1624"/>
+      <source>Loading installed games...</source>
+      <translation>Nalaganje nameščenih iger...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1645"/>
+      <source>No games detected.</source>
+      <translation>Ni zaznanih iger.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="134"/>
+      <source>Open Folder...</source>
+      <translation>Odpri mapo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="1174"/>
+      <source>Renaming folder... Aborting this process will not roll back changes made so far.</source>
+      <translation>Preimenovanje mape ... Prekinitev tega postopka ne bo razveljavila doslej narejenih sprememb.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="183"/>
+      <source>Add Files...</source>
+      <translation>Dodaj datoteke...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="917"/>
+      <source>Open Files</source>
+      <translation>Odpri datoteke</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="202"/>
+      <source>General...</source>
+      <translation>Splošno...</translation>
+    </message>
+  </context>
+  <context>
+    <name>AudioPreview</name>
+    <message>
+      <location filename="../../src/gui/previews/AudioPreview.cpp" line="117"/>
+      <source>Sample Rate: %1hz
+Channels: %2</source>
+      <translation>Frekvenca vzorčenja: %1hz
+Kanali: %2</translation>
+    </message>
+  </context>
+  <context>
+    <name>EntryOptionsDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="60"/>
+      <source>(Advanced) Edit Folder</source>
+      <translation>(Napredno) Urejanje mape</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="62"/>
+      <source>(Advanced) Edit File</source>
+      <translation>(Napredno) Urejanje datoteke</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="66"/>
+      <source>(Advanced) New Folder</source>
+      <translation>(Napredno) Nova mapa</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="68"/>
+      <source>(Advanced) New File</source>
+      <translation>(Napredno) Nova datoteka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="74"/>
+      <source>Edit Folder</source>
+      <translation>Uredi mapo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="76"/>
+      <source>Edit File</source>
+      <translation>Uredi datoteko</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="80"/>
+      <source>New Folder</source>
+      <translation>Nova mapa</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="82"/>
+      <source>New File</source>
+      <translation>Nova datoteka</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="94"/>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="95"/>
+      <source>The path of the folder:
+(e.g. "%1")</source>
+      <translation>Pot do mape:
+(npr. "%1")</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="131"/>
+      <source>Set the bytes of each file to preload:
+(From 0 to %1 bytes)</source>
+      <translation>Nastavite število bajtov za prednalaganje vsake datoteke:
+(Od 0 do %1 bajtov)</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="132"/>
+      <source>Set the bytes of the file to preload:
+(From 0 to %1 bytes)</source>
+      <translation>Nastavite število bajtov datoteke za prednalaganje:
+(Od 0 do %1 bajtov)</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="107"/>
+      <source>None</source>
+      <translation>Nič</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="115"/>
+      <source>Compression Type:</source>
+      <translation>Vrsta stiskanja:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="121"/>
+      <source>Compression Strength Override:</source>
+      <translation>Preglasitev jakosti stiskanja:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="124"/>
+      <source>Save each file to a new numbered archive
+instead of the directory:</source>
+      <translation>Vsako datoteko shranite v nov oštevilčen arhiv namesto v imenik:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/EntryOptionsDialog.cpp" line="125"/>
+      <source>Save the file to a new numbered archive
+instead of the directory:</source>
+      <translation>Shranite datoteko v nov oštevilčen arhiv namesto v imenik:</translation>
+    </message>
+  </context>
+  <context>
+    <name>QObject</name>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="46"/>
+      <source>Size</source>
+      <translation>Velikost</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="48"/>
+      <source>CRC32</source>
+      <translation>CRC32</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="50"/>
+      <source>MD5</source>
+      <translation>MD5</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="52"/>
+      <source>Archive Index</source>
+      <translation>Kazalo arhiva</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="54"/>
+      <source>Preloaded Size</source>
+      <translation>Prednaložena velikost</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="56"/>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="85"/>
+      <source>Unknown</source>
+      <translation>Neznano</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="68"/>
+      <source>Name</source>
+      <translation>Ime</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DirPreview.cpp" line="69"/>
+      <source>Type</source>
+      <translation>Vrsta</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/utility/AudioPlayer.cpp" line="53"/>
+      <source>Failed to initialize decoder.</source>
+      <translation>Inicializacija dekodirnika ni uspela.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/utility/AudioPlayer.cpp" line="65"/>
+      <source>Failed to open playback device.</source>
+      <translation>Naprave za predvajanje ni bilo mogoče odpreti.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="504"/>
+      <source>Use This Folder</source>
+      <translation>Uporabi to mapo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/Window.cpp" line="519"/>
+      <source>Save New Pack File</source>
+      <translation>Shrani novo datoteko paketa Pack</translation>
+    </message>
+  </context>
+  <context>
+    <name>DMXPreview</name>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="18"/>
+      <source>Key</source>
+      <translation>Ključ</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="18"/>
+      <source>Value Type</source>
+      <translation>Vrsta vrednosti</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="18"/>
+      <source>Value</source>
+      <translation>Vrednost</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="29"/>
+      <source>Failed to parse DMX file.</source>
+      <translation>Razčlenjevanje datoteke DMX ni uspelo.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="51"/>
+      <source>Type</source>
+      <translation>Vrsta</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="55"/>
+      <source>GUID</source>
+      <translation>GUID</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/DMXPreview.cpp" line="60"/>
+      <source>Attributes</source>
+      <translation>Atributi</translation>
+    </message>
+  </context>
+  <context>
+    <name>VerifySignatureDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifySignatureDialog.cpp" line="10"/>
+      <source>Verify Signature</source>
+      <translation>Preveri podpis</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifySignatureDialog.cpp" line="13"/>
+      <source>File does not have a signature.</source>
+      <translation>Datoteka nima podpisa.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifySignatureDialog.cpp" line="15"/>
+      <source>File signature is valid.</source>
+      <translation>Podpis datoteke je veljaven.</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VerifySignatureDialog.cpp" line="17"/>
+      <source>File signature is invalid!</source>
+      <translation>Podpis datoteke je neveljaven!</translation>
+    </message>
+  </context>
+  <context>
+    <name>ITextureWidget</name>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="97"/>
+      <source>Copy Image</source>
+      <translation>Kopiraj sliko</translation>
+    </message>
+  </context>
+  <context>
+    <name>TextPreview</name>
+    <message>
+      <location filename="../../src/gui/previews/TextPreview.cpp" line="197"/>
+      <source>Edit</source>
+      <translation>Uredi</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TextPreview.cpp" line="202"/>
+      <source>Save</source>
+      <translation>Shrani</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TextPreview.cpp" line="208"/>
+      <source>Cancel</source>
+      <translation>Prekliči</translation>
+    </message>
+  </context>
+  <context>
+    <name>TexturePreview</name>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="376"/>
+      <source>Lay Flat</source>
+      <translation>Izravnaj</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="395"/>
+      <source>Mip</source>
+      <translation>Mip</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="409"/>
+      <source>Frame</source>
+      <translation>Okvir</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="422"/>
+      <source>Face</source>
+      <translation>Ploskev</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="435"/>
+      <source>Slice</source>
+      <translation>Rezina</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="448"/>
+      <source>Alpha</source>
+      <translation>Alfa</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="467"/>
+      <source>Tile</source>
+      <translation>Ploščica</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="486"/>
+      <source>Zoom</source>
+      <translation>Povečava</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="607"/>
+      <source>Version: %1</source>
+      <translation>Različica: %1</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="609"/>
+      <source>Format: %1</source>
+      <translation>Oblika: %1</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/previews/TexturePreview.cpp" line="611"/>
+      <source>Compression: %1</source>
+      <translation>Stiskanje: %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>VICEDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/VICEDialog.cpp" line="49"/>
+      <source>Encrypt File</source>
+      <translation>Šifriraj datoteko</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VICEDialog.cpp" line="49"/>
+      <source>Decrypt File</source>
+      <translation>Dešifriraj datoteko</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VICEDialog.cpp" line="53"/>
+      <source>Code:</source>
+      <translation>Koda:</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/dialogs/VICEDialog.cpp" line="61"/>
+      <source>Value:</source>
+      <translation>Vrednost:</translation>
+    </message>
+  </context>
+  <context>
+    <name>EntryContextMenuData</name>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="6"/>
+      <source>Extract File...</source>
+      <translation>Razširi datoteko...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="8"/>
+      <source>Rename/Move File...</source>
+      <translation>Preimenuj/Premakni datoteko...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="9"/>
+      <source>Encrypt File...</source>
+      <translation>Šifriraj datoteko...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="10"/>
+      <source>Decrypt File...</source>
+      <translation>Dešifriraj datoteko...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="11"/>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="22"/>
+      <source>Copy Path</source>
+      <translation>Kopiraj pot</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="13"/>
+      <source>Remove File</source>
+      <translation>Odstrani datoteko</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="16"/>
+      <source>Extract Folder...</source>
+      <translation>Razširi mapo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="18"/>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="35"/>
+      <source>Add Files...</source>
+      <translation>Dodaj datoteke...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="19"/>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="36"/>
+      <source>Add Folder...</source>
+      <translation>Dodaj mapo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="21"/>
+      <source>Rename/Move Folder...</source>
+      <translation>Preimenuj/Premakni mapo...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="24"/>
+      <source>Remove Folder</source>
+      <translation>Odstrani mapo</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="27"/>
+      <source>Extract Selected...</source>
+      <translation>Razširi izbrano...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="29"/>
+      <source>Remove Selected...</source>
+      <translation>Odstrani izbrano...</translation>
+    </message>
+    <message>
+      <location filename="../../src/gui/EntryContextMenuData.cpp" line="33"/>
+      <source>Extract All...</source>
+      <translation>Razširi vse...</translation>
+    </message>
+  </context>
+  <context>
+    <name>CreditsDialog</name>
+    <message>
+      <location filename="../../src/gui/dialogs/CreditsDialog.cpp" line="40"/>
+      <source>About %1</source>
+      <translation>O %1</translation>
+    </message>
+  </context>
+</TS>
