@@ -23,7 +23,8 @@ VPKEdit is an open source MIT-licensed tool that can create, extract from, previ
 
 ## Installing
 
-Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/INSTALL.md) for step-by-step installation instructions.
+Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/INSTALL.md) for step-by-step installation instructions. VPKEdit is available for Windows 7+ and
+macOS (arm64), as well as the following Linux distributions:
 
 [![Packaging Status](https://repology.org/badge/vertical-allrepos/vpkedit.svg?header=Packaging%20Status)](https://repology.org/project/vpkedit/versions)
 
@@ -73,7 +74,7 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/IN
 - Extract files and folders from readable pack files
 - Switch version of existing VPKs
 - Native Linux builds
-  - Packaged for Debian, Arch, NixOS; standalone builds available
+  - Packaged for Arch, Debian, Fedora, NixOS; standalone builds available
 - User interface translated to the following languages ([support the translation effort here](https://poeditor.com/join/project/yxR9MLc9X2)):<br/>
   🇧🇦 🇨🇳 🇭🇷 🇳🇱 🇩🇪 🇮🇹 🇯🇵 🇰🇷 🇵🇱 🇧🇷 🇷🇺 🇸🇮 🇪🇸 🇸🇪 🇻🇳
 
