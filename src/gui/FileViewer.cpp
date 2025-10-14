@@ -199,15 +199,19 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 	}
 }
 
-VPKEditWindowAccess_V1::VPKEditWindowAccess_V1(FileViewer* fileViewer_)
-		: IVPKEditWindowAccess_V1(fileViewer_)
+VPKEditWindowAccess_V2::VPKEditWindowAccess_V2(FileViewer* fileViewer_)
+		: IVPKEditWindowAccess_V2(fileViewer_)
 		, fileViewer(fileViewer_) {}
 
-bool VPKEditWindowAccess_V1::hasEntry(const QString& entryPath) {
+bool VPKEditWindowAccess_V2::isReadOnly() const {
+	return this->fileViewer->window->isReadOnly();
+}
+
+bool VPKEditWindowAccess_V2::hasEntry(const QString& entryPath) const {
 	return this->fileViewer->window->hasEntry(entryPath);
 }
 
-bool VPKEditWindowAccess_V1::readBinaryEntry(const QString& entryPath, QByteArray& data) {
+bool VPKEditWindowAccess_V2::readBinaryEntry(const QString& entryPath, QByteArray& data) const {
 	const auto file = this->fileViewer->window->readBinaryEntry(entryPath);
 	if (!file) {
 		return false;
@@ -216,7 +220,7 @@ bool VPKEditWindowAccess_V1::readBinaryEntry(const QString& entryPath, QByteArra
 	return true;
 }
 
-bool VPKEditWindowAccess_V1::readTextEntry(const QString& entryPath, QString& data) {
+bool VPKEditWindowAccess_V2::readTextEntry(const QString& entryPath, QString& data) const {
 	const auto file = this->fileViewer->window->readTextEntry(entryPath);
 	if (!file) {
 		return false;
@@ -225,7 +229,7 @@ bool VPKEditWindowAccess_V1::readTextEntry(const QString& entryPath, QString& da
 	return true;
 }
 
-void VPKEditWindowAccess_V1::selectEntryInEntryTree(const QString& entryPath) {
+void VPKEditWindowAccess_V2::selectEntryInEntryTree(const QString& entryPath) const {
 	this->fileViewer->window->selectEntryInEntryTree(entryPath);
 }
 
@@ -241,7 +245,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
-	this->packFileAccess_V1 = new VPKEditWindowAccess_V1{this};
+	this->packFileAccess_V1 = new VPKEditWindowAccess_V2{this};
 
 	QStringList pluginLocations{QApplication::applicationDirPath()};
 #if defined(_WIN32)
@@ -258,7 +262,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	for (const QString& dirPath : pluginLocations) {
 		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
 			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
-			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_0*>(loader->instance())) {
+			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_1*>(loader->instance())) {
 				if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
 					continue;
 				}
@@ -266,8 +270,8 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 				plugin->initPlugin(this->packFileAccess_V1);
 				plugin->initPreview(this);
 				layout->addWidget(plugin->getPreview());
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showInfoPreview, this, &FileViewer::showInfoPreview);
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_1::showInfoPreview, this, &FileViewer::showInfoPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_1::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
 			} else {
 				loader->deleteLater();
 			}
@@ -322,7 +326,7 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 					return;
 				}
 				this->hideAllPreviews();
-				auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_0*>(pluginLoader->instance());
+				auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_1*>(pluginLoader->instance());
 				plugin->getPreview()->show();
 				plugin->setData(path, reinterpret_cast<const quint8*>(binary->data()), binary->size());
 				return;
@@ -465,7 +469,7 @@ void FileViewer::showFileLoadErrorPreview() {
 
 void FileViewer::hideAllPreviews() {
 	for (auto* pluginLoader : this->previewPlugins) {
-		qobject_cast<IVPKEditPreviewPlugin_V1_0*>(pluginLoader->instance())->getPreview()->hide();
+		qobject_cast<IVPKEditPreviewPlugin_V1_1*>(pluginLoader->instance())->getPreview()->hide();
 	}
 	this->dirPreview->hide();
 	this->infoPreview->hide();

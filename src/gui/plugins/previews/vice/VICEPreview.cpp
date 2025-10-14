@@ -4,7 +4,7 @@
 
 #include <QLabel>
 
-void VICEPreview::initPlugin(IVPKEditWindowAccess_V1*) {}
+void VICEPreview::initPlugin(IVPKEditWindowAccess_V2*) {}
 
 void VICEPreview::initPreview(QWidget* parent) {
 	this->preview = new QLabel{tr("Decrypt file to view contents"), parent};
@@ -22,6 +22,6 @@ QIcon VICEPreview::getIcon() const {
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_0::Error VICEPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_1::Error VICEPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	return ERROR_SHOWED_THIS_PREVIEW;
 }

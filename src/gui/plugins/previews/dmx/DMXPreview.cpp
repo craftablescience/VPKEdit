@@ -12,7 +12,7 @@
 
 using namespace dmxpp;
 
-void DMXPreview::initPlugin(IVPKEditWindowAccess_V1*) {}
+void DMXPreview::initPlugin(IVPKEditWindowAccess_V2*) {}
 
 void DMXPreview::initPreview(QWidget* parent) {
 	this->preview = new QTreeWidget{parent};
@@ -31,7 +31,7 @@ QIcon DMXPreview::getIcon() const {
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_0::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_1::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	this->preview->clear();
 
 	std::unique_ptr<DMX> dmx;

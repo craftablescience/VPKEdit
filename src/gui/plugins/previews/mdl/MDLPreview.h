@@ -157,13 +157,13 @@ private:
 	bool rmbBeingHeld;
 };
 
-class MDLPreview final : public IVPKEditPreviewPlugin_V1_0 {
+class MDLPreview final : public IVPKEditPreviewPlugin_V1_1 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_0_iid FILE "MDLPreview.json");
-	Q_INTERFACES(IVPKEditPreviewPlugin_V1_0);
+	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_1_iid FILE "MDLPreview.json");
+	Q_INTERFACES(IVPKEditPreviewPlugin_V1_1);
 
 public:
-	void initPlugin(IVPKEditWindowAccess_V1* windowAccess_) override;
+	void initPlugin(IVPKEditWindowAccess_V2* windowAccess_) override;
 
 	void initPreview(QWidget* parent) override;
 
@@ -176,7 +176,7 @@ public:
 private:
 	void setShadingMode(MDLShadingMode mode) const;
 
-	IVPKEditWindowAccess_V1* windowAccess = nullptr;
+	IVPKEditWindowAccess_V2* windowAccess = nullptr;
 	QWidget* preview = nullptr;
 
 	QCheckBox* backfaceCulling = nullptr;
