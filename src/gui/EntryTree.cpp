@@ -130,9 +130,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 		contextMenuData->setReadOnly(this->window->isReadOnly());
 		if (this->selectedItems().length() == 1) {
 			auto path = this->getItemPath(this->selectedItems()[0]);
-			if (path.endsWith(".nuc") || path.endsWith(".ctx")) {
+			if (path.endsWith(".nuc") || path.endsWith(".ctx") || path.endsWith(".ekv")) {
 				contextMenuData->setEncryptDecryptVisible(false, true);
-			} else if (path.endsWith(".nut") || path.endsWith(".txt")) {
+			} else if (path.endsWith(".nut") || path.endsWith(".txt") || path.endsWith(".kv")) {
 				contextMenuData->setEncryptDecryptVisible(true, false);
 			} else {
 				contextMenuData->setEncryptDecryptVisible(false, false);

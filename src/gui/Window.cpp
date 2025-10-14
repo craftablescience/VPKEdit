@@ -1102,7 +1102,14 @@ void Window::encryptFile(const QString& path) {
 		}
 	}
 
-	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".txt" ? ".ctx" : ".nuc");
+	QString newPath;
+	if (path.endsWith(".kv")) {
+		newPath = path.sliced(0, path.length() - 2) + "ekv";
+	} else if (path.endsWith(".nut")) {
+		newPath = path.sliced(0, path.length() - 3) + "nuc";
+	} else if (path.endsWith(".txt")) {
+		newPath = path.sliced(0, path.length() - 3) + "ctx";
+	}
 	this->requestEntryRemoval(path);
 	this->requestEntryRemoval(newPath);
 
@@ -1138,7 +1145,14 @@ void Window::decryptFile(const QString& path) {
 		}
 	}
 
-	auto newPath = path.sliced(0, path.length() - 4) + (path.sliced(path.length() - 4) == ".ctx" ? ".txt" : ".nut");
+	QString newPath;
+	if (path.endsWith(".ekv")) {
+		newPath = path.sliced(0, path.length() - 3) + "kv";
+	} else if (path.endsWith(".nuc")) {
+		newPath = path.sliced(0, path.length() - 3) + "nut";
+	} else if (path.endsWith(".ctx")) {
+		newPath = path.sliced(0, path.length() - 3) + "txt";
+	}
 	this->requestEntryRemoval(path);
 	this->requestEntryRemoval(newPath);
 
