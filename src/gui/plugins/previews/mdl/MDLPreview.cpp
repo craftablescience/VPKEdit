@@ -173,13 +173,6 @@ void MDLWidget::setModel(const BakedModel& model) {
 
 		this->vertices.bind();
 
-		mesh.textureIndex = bakedMesh.materialIndex;
-
-		mesh.indexCount = static_cast<int>(bakedMesh.indices.size());
-		mesh.ebo.create();
-		mesh.ebo.bind();
-		mesh.ebo.allocate(bakedMesh.indices.data(), static_cast<int>(mesh.indexCount * sizeof(uint16_t)));
-
 		std::ptrdiff_t offset = 0;
 		// position
 		this->glEnableVertexAttribArray(0);
@@ -195,6 +188,13 @@ void MDLWidget::setModel(const BakedModel& model) {
 		this->glEnableVertexAttribArray(2);
 		this->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BakedModel::Vertex), reinterpret_cast<void*>(offset));
 		// offset += sizeof(math::Vec2f);
+
+		mesh.textureIndex = bakedMesh.materialIndex;
+
+		mesh.indexCount = static_cast<int>(bakedMesh.indices.size());
+		mesh.ebo.create();
+		mesh.ebo.bind();
+		mesh.ebo.allocate(bakedMesh.indices.data(), static_cast<int>(mesh.indexCount * sizeof(uint16_t)));
 
 		mesh.vao->release();
 
@@ -431,11 +431,7 @@ void MDLWidget::paintGL() {
 			this->matCapTexture.bind(1);
 
 			mesh.first->vao->bind();
-			this->vertices.bind();
-			mesh.first->ebo.bind();
 			this->glDrawElements(GL_TRIANGLES, mesh.first->indexCount, GL_UNSIGNED_SHORT, nullptr);
-			mesh.first->ebo.release();
-			this->vertices.release();
 			mesh.first->vao->release();
 
 			this->matCapTexture.release(1);
