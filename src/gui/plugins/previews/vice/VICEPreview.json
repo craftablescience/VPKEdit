@@ -1,0 +1,11 @@
+{
+  "name": "VICE",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
+  "extensions": [
+    ".ctx",
+    ".ekv",
+    ".nuc"
+  ]
+}
