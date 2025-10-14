@@ -90,8 +90,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md" "${CMAKE_BINARY_DIR}/CRE
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"    "${CMAKE_BINARY_DIR}/LICENSE"    COPYONLY)
 
 # Add plugins
-include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/dmx/DMXPreview.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/mdl/MDLPreview.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/plugins/previews/IVPKEditPreviewPlugin.cmake")
 
 if(LINUX)
     target_compile_definitions(${PROJECT_NAME} PRIVATE VPKEDIT_LIBDIR="${CMAKE_INSTALL_LIBDIR}")

@@ -1,3 +1,5 @@
+include_guard(GLOBAL)
+
 # https://gist.github.com/Qix-/f4090181e55ea365633da8c3d0ab5249
 
 # LICENSE: CC0 - go nuts.
