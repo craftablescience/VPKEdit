@@ -18,6 +18,7 @@
 #include "previews/InfoPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/TexturePreview.h"
+#include "utility/Options.h"
 #include "utility/ThemedIcon.h"
 #include "Window.h"
 
@@ -202,6 +203,10 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 VPKEditWindowAccess_V2::VPKEditWindowAccess_V2(FileViewer* fileViewer_)
 		: IVPKEditWindowAccess_V2(fileViewer_)
 		, fileViewer(fileViewer_) {}
+
+QSettings* VPKEditWindowAccess_V2::getOptions() const {
+	return Options::getOptions();
+}
 
 bool VPKEditWindowAccess_V2::isReadOnly() const {
 	return this->fileViewer->window->isReadOnly();

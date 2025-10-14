@@ -2,11 +2,15 @@
 
 #include <QObject>
 
+class QSettings;
+
 class IVPKEditWindowAccess_V2 : public QObject {
 	Q_OBJECT;
 
 public:
 	using QObject::QObject;
+
+	[[nodiscard]] virtual QSettings* getOptions() const = 0;
 
 	[[nodiscard]] virtual bool isReadOnly() const = 0;
 

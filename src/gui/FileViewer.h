@@ -78,6 +78,8 @@ class VPKEditWindowAccess_V2 final : public IVPKEditWindowAccess_V2 {
 public:
 	explicit VPKEditWindowAccess_V2(FileViewer* fileViewer_);
 
+	[[nodiscard]] QSettings* getOptions() const override;
+
 	[[nodiscard]] bool isReadOnly() const override;
 
 	[[nodiscard]] bool hasEntry(const QString& entryPath) const override;
