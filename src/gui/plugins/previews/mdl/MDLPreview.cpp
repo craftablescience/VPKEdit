@@ -32,7 +32,7 @@ using namespace vtfpp;
 
 namespace {
 
-std::unique_ptr<MDLTextureData> getTextureDataForMaterial(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess, const std::string& materialPath) {
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(IVPKEditWindowAccess_V1* windowAccess, const std::string& materialPath) {
 	QString materialFile;
 	if (!windowAccess->readTextEntry(materialPath.c_str(), materialFile)) {
 		return nullptr;
@@ -530,7 +530,7 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 constexpr int TOOLBAR_SPACE_SIZE = 48;
 constexpr int SHADING_MODE_BUTTON_SIZE = 24;
 
-void MDLPreview::initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess_) {
+void MDLPreview::initPlugin(IVPKEditWindowAccess_V1* windowAccess_) {
 	this->windowAccess = windowAccess_;
 }
 

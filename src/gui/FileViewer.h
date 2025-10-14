@@ -3,7 +3,7 @@
 #include <QPluginLoader>
 #include <QWidget>
 
-#include "plugins/previews/IVPKEditPreviewPlugin_V1_0.h"
+#include "plugins/previews/IVPKEditPreviewPlugin.h"
 
 class QAction;
 class QLineEdit;
@@ -74,9 +74,9 @@ private:
 
 class FileViewer;
 
-class IVPKEditPreviewPlugin_V1_0_WindowAccess final : public IVPKEditPreviewPlugin_V1_0_IWindowAccess {
+class VPKEditWindowAccess_V1 final : public IVPKEditWindowAccess_V1 {
 public:
-	explicit IVPKEditPreviewPlugin_V1_0_WindowAccess(FileViewer* fileViewer_);
+	explicit VPKEditWindowAccess_V1(FileViewer* fileViewer_);
 
 	[[nodiscard]] bool hasEntry(const QString& entryPath) override;
 
@@ -93,7 +93,7 @@ private:
 class FileViewer : public QWidget {
 	Q_OBJECT;
 
-	friend IVPKEditPreviewPlugin_V1_0_WindowAccess;
+	friend VPKEditWindowAccess_V1;
 
 public:
 	explicit FileViewer(Window* window_, QWidget* parent = nullptr);
@@ -140,7 +140,7 @@ private:
 	Window* window;
 	NavBar* navbar;
 
-	IVPKEditPreviewPlugin_V1_0_WindowAccess* packFileAccess_V1_0;
+	VPKEditWindowAccess_V1* packFileAccess_V1;
 	QList<QPluginLoader*> previewPlugins;
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;

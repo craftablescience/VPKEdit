@@ -12,7 +12,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 
-#include "../IVPKEditPreviewPlugin_V1_0.h"
+#include "../IVPKEditPreviewPlugin.h"
 
 namespace mdlpp {
 
@@ -163,7 +163,7 @@ class MDLPreview final : public IVPKEditPreviewPlugin_V1_0 {
 	Q_INTERFACES(IVPKEditPreviewPlugin_V1_0);
 
 public:
-	void initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess_) override;
+	void initPlugin(IVPKEditWindowAccess_V1* windowAccess_) override;
 
 	void initPreview(QWidget* parent) override;
 
@@ -176,7 +176,7 @@ public:
 private:
 	void setShadingMode(MDLShadingMode mode) const;
 
-	IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess = nullptr;
+	IVPKEditWindowAccess_V1* windowAccess = nullptr;
 	QWidget* preview = nullptr;
 
 	QCheckBox* backfaceCulling = nullptr;

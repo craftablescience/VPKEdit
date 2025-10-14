@@ -1,27 +1,12 @@
 #pragma once
 
-#include <QObject>
-
-class IVPKEditPreviewPlugin_V1_0_IWindowAccess : public QObject {
-	Q_OBJECT;
-
-public:
-	using QObject::QObject;
-
-	[[nodiscard]] virtual bool hasEntry(const QString& entryPath) = 0;
-
-	[[nodiscard]] virtual bool readBinaryEntry(const QString& entryPath, QByteArray& data) = 0;
-
-	[[nodiscard]] virtual bool readTextEntry(const QString& entryPath, QString& data) = 0;
-
-	virtual void selectEntryInEntryTree(const QString& entryPath) = 0;
-};
+#include "../IVPKEditWindowAccess.h"
 
 class IVPKEditPreviewPlugin_V1_0 : public QObject {
 	Q_OBJECT;
 
 public:
-	virtual void initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess* windowAccess) = 0;
+	virtual void initPlugin(IVPKEditWindowAccess_V1* windowAccess) = 0;
 
 	virtual void initPreview(QWidget* parent) = 0;
 

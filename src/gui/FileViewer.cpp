@@ -199,15 +199,15 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 	}
 }
 
-IVPKEditPreviewPlugin_V1_0_WindowAccess::IVPKEditPreviewPlugin_V1_0_WindowAccess(FileViewer* fileViewer_)
-		: IVPKEditPreviewPlugin_V1_0_IWindowAccess(fileViewer_)
+VPKEditWindowAccess_V1::VPKEditWindowAccess_V1(FileViewer* fileViewer_)
+		: IVPKEditWindowAccess_V1(fileViewer_)
 		, fileViewer(fileViewer_) {}
 
-bool IVPKEditPreviewPlugin_V1_0_WindowAccess::hasEntry(const QString& entryPath) {
+bool VPKEditWindowAccess_V1::hasEntry(const QString& entryPath) {
 	return this->fileViewer->window->hasEntry(entryPath);
 }
 
-bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readBinaryEntry(const QString& entryPath, QByteArray& data) {
+bool VPKEditWindowAccess_V1::readBinaryEntry(const QString& entryPath, QByteArray& data) {
 	const auto file = this->fileViewer->window->readBinaryEntry(entryPath);
 	if (!file) {
 		return false;
@@ -216,7 +216,7 @@ bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readBinaryEntry(const QString& ent
 	return true;
 }
 
-bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readTextEntry(const QString& entryPath, QString& data) {
+bool VPKEditWindowAccess_V1::readTextEntry(const QString& entryPath, QString& data) {
 	const auto file = this->fileViewer->window->readTextEntry(entryPath);
 	if (!file) {
 		return false;
@@ -225,7 +225,7 @@ bool IVPKEditPreviewPlugin_V1_0_WindowAccess::readTextEntry(const QString& entry
 	return true;
 }
 
-void IVPKEditPreviewPlugin_V1_0_WindowAccess::selectEntryInEntryTree(const QString& entryPath) {
+void VPKEditWindowAccess_V1::selectEntryInEntryTree(const QString& entryPath) {
 	this->fileViewer->window->selectEntryInEntryTree(entryPath);
 }
 
@@ -241,7 +241,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
-	this->packFileAccess_V1_0 = new IVPKEditPreviewPlugin_V1_0_WindowAccess{this};
+	this->packFileAccess_V1 = new VPKEditWindowAccess_V1{this};
 
 	QStringList pluginLocations{QApplication::applicationDirPath()};
 #if defined(_WIN32)
@@ -263,7 +263,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 					continue;
 				}
 				this->previewPlugins.push_back(loader);
-				plugin->initPlugin(this->packFileAccess_V1_0);
+				plugin->initPlugin(this->packFileAccess_V1);
 				plugin->initPreview(this);
 				layout->addWidget(plugin->getPreview());
 				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_0::showInfoPreview, this, &FileViewer::showInfoPreview);

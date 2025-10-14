@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../IVPKEditPreviewPlugin_V1_0.h"
+#include "../IVPKEditPreviewPlugin.h"
 
 class QTreeWidget;
 
@@ -10,7 +10,7 @@ class DMXPreview final : public IVPKEditPreviewPlugin_V1_0 {
 	Q_INTERFACES(IVPKEditPreviewPlugin_V1_0);
 
 public:
-	void initPlugin(IVPKEditPreviewPlugin_V1_0_IWindowAccess*) override;
+	void initPlugin(IVPKEditWindowAccess_V1*) override;
 
 	void initPreview(QWidget* parent) override;
 
