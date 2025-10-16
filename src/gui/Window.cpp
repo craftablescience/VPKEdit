@@ -44,7 +44,6 @@
 #include "dialogs/NewUpdateDialog.h"
 #include "dialogs/VerifyChecksumsDialog.h"
 #include "dialogs/VerifySignatureDialog.h"
-#include "dialogs/VICEDialog.h"
 #include "extensions/Folder.h"
 #include "utility/DiscordPresence.h"
 #include "utility/ImageLoader.h"
@@ -1078,92 +1077,6 @@ void Window::editFileContents(const QString& path, const QString& data) {
 		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
 		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
 	});
-	this->markModified(true);
-}
-
-void Window::encryptFile(const QString& path) {
-	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-	if (!entry) {
-		return;
-	}
-
-	auto data = VICEDialog::encrypt(this, path, this);
-	if (!data) {
-		return;
-	}
-
-	// Load existing properties
-	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
-	int16_t compressionStrength = 5;
-	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
-		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
-			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
-			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
-		}
-	}
-
-	QString newPath;
-	if (path.endsWith(".kv")) {
-		newPath = path.sliced(0, path.length() - 2) + "ekv";
-	} else if (path.endsWith(".nut")) {
-		newPath = path.sliced(0, path.length() - 3) + "nuc";
-	} else if (path.endsWith(".txt")) {
-		newPath = path.sliced(0, path.length() - 3) + "ctx";
-	}
-	this->requestEntryRemoval(path);
-	this->requestEntryRemoval(newPath);
-
-	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
-		.zip_compressionType = compressionType,
-		.zip_compressionStrength = compressionStrength,
-		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
-		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-	});
-	this->entryTree->addEntry(newPath);
-	this->fileViewer->addEntry(*this->packFile, newPath);
-	this->markModified(true);
-}
-
-void Window::decryptFile(const QString& path) {
-	auto entry = this->packFile->findEntry(path.toLocal8Bit().constData());
-	if (!entry) {
-		return;
-	}
-
-	auto data = VICEDialog::decrypt(this, path, this);
-	if (!data) {
-		return;
-	}
-
-	// Load existing properties
-	EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
-	int16_t compressionStrength = 5;
-	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
-		if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
-			compressionType = zip->getEntryCompressionType(path.toLocal8Bit().constData());
-			compressionStrength = zip->getEntryCompressionStrength(path.toLocal8Bit().constData());
-		}
-	}
-
-	QString newPath;
-	if (path.endsWith(".ekv")) {
-		newPath = path.sliced(0, path.length() - 3) + "kv";
-	} else if (path.endsWith(".nuc")) {
-		newPath = path.sliced(0, path.length() - 3) + "nut";
-	} else if (path.endsWith(".ctx")) {
-		newPath = path.sliced(0, path.length() - 3) + "txt";
-	}
-	this->requestEntryRemoval(path);
-	this->requestEntryRemoval(newPath);
-
-	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), {
-		.zip_compressionType = compressionType,
-		.zip_compressionStrength = compressionStrength,
-		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
-		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
-	});
-	this->entryTree->addEntry(newPath);
-	this->fileViewer->addEntry(*this->packFile, newPath);
 	this->markModified(true);
 }
 

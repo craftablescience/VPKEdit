@@ -6,8 +6,6 @@ EntryContextMenuData::EntryContextMenuData(bool useRoot, QWidget* parent)
 	this->extractFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Extract File..."));
 	this->contextMenuFile->addSeparator();
 	this->editFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_DialogResetButton), tr("Rename/Move File..."));
-	this->encryptFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TitleBarUnshadeButton), tr("Encrypt File..."));
-	this->decryptFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TitleBarShadeButton), tr("Decrypt File..."));
 	this->copyFilePathAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_FileDialogDetailedView), tr("Copy Path"));
 	this->contextMenuFile->addSeparator();
 	this->removeFileAction = this->contextMenuFile->addAction(parent->style()->standardIcon(QStyle::SP_TrashIcon), tr("Remove File"));
@@ -54,9 +52,4 @@ void EntryContextMenuData::setReadOnly(bool readOnly) const {
 	if (this->addDirToRootAction) {
 		this->addDirToRootAction->setDisabled(readOnly);
 	}
-}
-
-void EntryContextMenuData::setEncryptDecryptVisible(bool encrypt, bool decrypt) const {
-	this->encryptFileAction->setVisible(encrypt);
-	this->decryptFileAction->setVisible(decrypt);
 }

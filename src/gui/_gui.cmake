@@ -14,8 +14,6 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifyChecksumsDialog.h"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/dialogs/VerifySignatureDialog.h"
-		"${CMAKE_CURRENT_LIST_DIR}/dialogs/VICEDialog.cpp"
-		"${CMAKE_CURRENT_LIST_DIR}/dialogs/VICEDialog.h"
 
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/Folder.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/extensions/Folder.h"

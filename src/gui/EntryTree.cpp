@@ -355,7 +355,6 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 
 	QObject::connect(this, &QWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData->setReadOnly(this->window->isReadOnly());
-		contextMenuData->setEncryptDecryptVisible(false, false); // todo: remove me
 		if (const auto selectedIndexes = this->selectedIndexes(); selectedIndexes.length() > 1) {
 			// Handle the selected action
 			if (const auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos)); selectedSelectionAction == contextMenuData->extractSelectedAction) {

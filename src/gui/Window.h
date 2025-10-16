@@ -83,10 +83,6 @@ public:
 
 	void editFileContents(const QString& path, const QString& data);
 
-	void encryptFile(const QString& path);
-
-	void decryptFile(const QString& path);
-
 	void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
 	void generateKeyPairFiles(const QString& name = QString());

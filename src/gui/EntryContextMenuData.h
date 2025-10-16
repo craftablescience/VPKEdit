@@ -12,13 +12,9 @@ public:
 
 	void setReadOnly(bool readOnly) const;
 
-	void setEncryptDecryptVisible(bool encrypt, bool decrypt) const;
-
 	QMenu* contextMenuFile = nullptr;
 	QAction* extractFileAction = nullptr;
 	QAction* editFileAction = nullptr;
-	QAction* encryptFileAction = nullptr;
-	QAction* decryptFileAction = nullptr;
 	QAction* copyFilePathAction = nullptr;
 	QAction* removeFileAction = nullptr;
 
