@@ -1,9 +1,10 @@
 #pragma once
 
 #include <functional>
+#include <memory>
+#include <vector>
 
-#include <QTreeWidget>
-
+#include <QTreeView>
 #include <vpkpp/vpkpp.h>
 
 class QKeyEvent;
@@ -13,7 +14,84 @@ class QThread;
 
 class Window;
 
-class EntryTree : public QTreeWidget {
+class EntryTreeNode {
+	friend class EntryTreeModel;
+
+public:
+	EntryTreeNode(EntryTreeNode* parent, QString name, bool isDirectory = false);
+
+	[[nodiscard]] EntryTreeNode* findChild(const QString& name) const;
+
+	void sort();
+
+	[[nodiscard]] const EntryTreeNode* parent() const;
+
+	[[nodiscard]] const QString& name() const;
+
+	void setName(QString name);
+
+	[[nodiscard]] const std::vector<std::unique_ptr<EntryTreeNode>>& children() const;
+
+	[[nodiscard]] bool isDirectory() const;
+
+protected:
+	[[nodiscard]] EntryTreeNode* parent();
+
+	[[nodiscard]] std::vector<std::unique_ptr<EntryTreeNode>>& children();
+
+	EntryTreeNode* parent_;
+	QString name_;
+	std::vector<std::unique_ptr<EntryTreeNode>> children_;
+	bool isDirectory_;
+};
+
+class EntryTreeModel : public QAbstractItemModel {
+	Q_OBJECT;
+
+	friend class EntryTree;
+
+public:
+	explicit EntryTreeModel(QObject* parent);
+
+	[[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+
+	[[nodiscard]] QModelIndex parent(const QModelIndex& index) const override;
+
+	[[nodiscard]] int rowCount(const QModelIndex& parent) const override;
+
+	[[nodiscard]] int columnCount(const QModelIndex&) const override;
+
+	[[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
+
+	[[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+	void clear();
+
+	void addEntry(const QString& path, bool sort = true);
+
+	void removeEntry(const QString& path);
+
+	[[nodiscard]] bool hasEntry(const QString& path) const;
+
+	[[nodiscard]] EntryTreeNode* getNodeAtPath(const QString& path) const;
+
+	[[nodiscard]] QString getNodePath(const EntryTreeNode* node) const;
+
+	void sort(int, Qt::SortOrder) override;
+
+	void sort();
+
+	[[nodiscard]] const EntryTreeNode* root() const;
+
+	[[nodiscard]] EntryTreeNode* root();
+
+protected:
+	[[nodiscard]] EntryTreeNode* getNodeAtIndex(const QModelIndex& index) const;
+
+	std::unique_ptr<EntryTreeNode> root_;
+};
+
+class EntryTree : public QTreeView {
 	Q_OBJECT;
 
 	friend class LoadPackFileWorker;
@@ -29,22 +107,19 @@ public:
 
 	void selectSubItem(const QString& name);
 
-	void setSearchQuery(const QString& query);
+	void setSearchQuery(const QString& query) const;
 
 	void setAutoExpandDirectoryOnClick(bool enable);
 
-	void removeEntryByPath(const QString& path);
+	void removeEntryByPath(const QString& path) const;
 
-	void clearContents();
+	void clearContents() const;
 
-	void addEntry(const QString& path);
+	void addEntry(const QString& path, bool sort = true) const;
 
 	void extractEntries(const QStringList& paths, const QString& destination = QString());
 
 	void createDrag(const QStringList& paths);
-
-public slots:
-	void onCurrentItemChanged(QTreeWidgetItem* item /*, QTreeWidgetItem* previous*/) const;
 
 protected:
 	void keyPressEvent(QKeyEvent* event) override;
@@ -53,24 +128,20 @@ protected:
 
 	void mouseMoveEvent(QMouseEvent* event) override;
 
+private slots:
+	void onCurrentIndexChanged(const QModelIndex& index);
+
 private:
-	[[nodiscard]] QString getItemPath(QTreeWidgetItem* item) const;
-
-	[[nodiscard]] QTreeWidgetItem* getItemAtPath(const QString& path) const;
-
-	void addNestedEntryComponents(const QString& path) const;
-
-	void removeEntry(QTreeWidgetItem* item);
-
-	void removeEntryRecurse(QTreeWidgetItem* item);
+	[[nodiscard]] QString getIndexPath(const QModelIndex& index) const;
 
 	Window* window;
 
+	EntryTreeModel* model;
+
 	QPoint dragStartPos;
-	QList<QTreeWidgetItem*> dragSelectedItems;
+	QList<QModelIndex> dragSelectedIndexes;
 
 	QThread* workerThread;
-	QTreeWidgetItem* root;
 
 	bool autoExpandDirectories;
 };

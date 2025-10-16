@@ -1,3 +1,5 @@
+// ReSharper disable CppRedundantQualifier
+
 #include "EntryTree.h"
 
 #include <algorithm>
@@ -67,8 +69,7 @@ const QIcon& getIconForExtension(QString extension) {
 	}
 #endif
 	static QMimeDatabase mimeDatabase;
-	QList<QMimeType> mimeTypes = mimeDatabase.mimeTypesForFileName("_" + extension);
-	for (const auto& mimeType : mimeTypes) {
+	for (const auto& mimeType : mimeDatabase.mimeTypesForFileName("_" + extension)) {
 		if (auto icon = QIcon::fromTheme(mimeType.iconName()); !icon.isNull()) {
 			cachedExtensions[extension] = icon;
 			return cachedExtensions[extension];
@@ -80,106 +81,309 @@ const QIcon& getIconForExtension(QString extension) {
 	return cachedExtensions[extension];
 }
 
-QString join(const QStringList& list, const QString& separator) {
-	if (list.isEmpty()) {
-		return "";
-	}
-	QString result = list.first();
-	for (int i = 1; i < list.size(); ++i) {
-		result += separator + list[i];
-	}
-	return result;
-}
-
 } // namespace
 
-class EntryItem : public QTreeWidgetItem {
-public:
-	using QTreeWidgetItem::QTreeWidgetItem;
+EntryTreeNode::EntryTreeNode(EntryTreeNode* parent, QString name, bool isDirectory)
+		: parent_(parent)
+		, name_(std::move(name))
+		, isDirectory_(isDirectory) {}
 
-	bool operator<(const QTreeWidgetItem& other) const override {
-		// Directories should always go above files
-		if (!this->childCount() && other.childCount()) {
-			return false;
+EntryTreeNode* EntryTreeNode::findChild(const QString& name) const {
+	for (const auto& child : this->children_) {
+		if (child->name_ == name) {
+			return child.get();
 		}
-		if (this->childCount() && !other.childCount()) {
-			return true;
-		}
-
-		// Use QCollator to sort strings with numbers properly
-		static QCollator col;
-		col.setNumericMode(true);
-		return col.compare(this->text(0), other.text(0)) < 0;
 	}
-};
+	return nullptr;
+}
+
+void EntryTreeNode::sort() {
+	std::ranges::sort(this->children_, [](const auto& a, const auto& b) {
+		if (a->isDirectory_ != b->isDirectory_) {
+			return a->isDirectory_ > b->isDirectory_;
+		}
+		return a->name_ < b->name_;
+	});
+	for (const auto& child : this->children_) {
+		child->sort();
+	}
+}
+
+const EntryTreeNode* EntryTreeNode::parent() const {
+	return this->parent_;
+}
+
+EntryTreeNode* EntryTreeNode::parent() {
+	return this->parent_;
+}
+
+const QString& EntryTreeNode::name() const {
+	return this->name_;
+}
+
+void EntryTreeNode::setName(QString name) {
+	this->name_ = std::move(name);
+}
+
+const std::vector<std::unique_ptr<EntryTreeNode>>& EntryTreeNode::children() const {
+	return this->children_;
+}
+
+std::vector<std::unique_ptr<EntryTreeNode>> & EntryTreeNode::children() {
+	return this->children_;
+}
+
+bool EntryTreeNode::isDirectory() const {
+	return this->isDirectory_;
+}
+
+EntryTreeModel::EntryTreeModel(QObject* parent)
+		: QAbstractItemModel(parent)
+		, root_(std::make_unique<EntryTreeNode>(nullptr, "", true)) {}
+
+QModelIndex EntryTreeModel::index(int row, int column, const QModelIndex& parent) const {
+	if (!this->hasIndex(row, column, parent)) {
+		return {};
+	}
+
+	if (this->root()->name().isEmpty()) {
+		const auto* parentNode = parent.isValid() ? this->getNodeAtIndex(parent) : this->root();
+		if (row < 0 || row >= static_cast<int>(parentNode->children().size())) {
+			return {};
+		}
+		return this->createIndex(row, column, parentNode->children()[row].get());
+	}
+
+	if (!parent.isValid()) {
+		if (row == 0) {
+			return this->createIndex(row, column, this->root());
+		}
+		return {};
+	}
+
+	const auto* parentNode = this->getNodeAtIndex(parent);
+	if (parentNode == this->root()) {
+		if (row < 0 || row >= static_cast<int>(this->root()->children().size())) {
+			return {};
+		}
+		return this->createIndex(row, column, this->root()->children()[row].get());
+	}
+
+	if (row < 0 || row >= static_cast<int>(parentNode->children().size())) {
+		return {};
+	}
+	return this->createIndex(row, column, parentNode->children()[row].get());
+}
+
+QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
+	if (!index.isValid()) {
+		return {};
+	}
+
+	const auto* childNode = this->getNodeAtIndex(index);
+	if (childNode == this->root()) {
+		return {};
+	}
+
+	const auto* parentNode = childNode->parent();
+	if (parentNode == this->root()) {
+		return this->createIndex(0, 0, this->root());
+	}
+
+	const auto* grandparentNode = parentNode->parent();
+	for (int i = 0; i < grandparentNode->children().size(); i++) {
+		if (grandparentNode->children()[i].get() == parentNode) {
+			return this->createIndex(i, 0, parentNode);
+		}
+	}
+	return {};
+}
+
+int EntryTreeModel::rowCount(const QModelIndex& parent) const {
+	return static_cast<int>((parent.isValid() ? this->getNodeAtIndex(parent) : this->root())->children().size());
+}
+
+int EntryTreeModel::columnCount(const QModelIndex&) const {
+	return 1;
+}
+
+QVariant EntryTreeModel::data(const QModelIndex& index, int role) const {
+	if (!index.isValid()) {
+		return {};
+	}
+
+	const auto* node = this->getNodeAtIndex(index);
+	if (role == Qt::DisplayRole) {
+		return node->name();
+	}
+	if (role == Qt::DecorationRole) {
+		if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
+			if (node->isDirectory()) {
+				return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+			}
+			return ::getIconForExtension("." + QFileInfo{node->name()}.suffix());
+		}
+	}
+	return {};
+}
+
+Qt::ItemFlags EntryTreeModel::flags(const QModelIndex& index) const {
+	if (!index.isValid()) {
+		return Qt::NoItemFlags;
+	}
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+void EntryTreeModel::clear() {
+	this->beginResetModel();
+	this->root_ = std::make_unique<EntryTreeNode>(nullptr, "", true);
+	this->endResetModel();
+}
+
+void EntryTreeModel::addEntry(const QString& path, bool sort) {
+	QStringList components = path.split('/', Qt::SkipEmptyParts);
+	auto* current = this->root_.get();
+	for (int i = 0; i < components.size(); i++) {
+		auto* child = current->findChild(components[i]);
+		if (!child) {
+			bool isDir = i < components.size() - 1;
+			current->children().push_back(std::make_unique<EntryTreeNode>(current, components[i], isDir));
+			child = current->children().back().get();
+		}
+		current = child;
+	}
+	if (sort && current) {
+		current->parent()->sort();
+	}
+	this->layoutChanged();
+}
+
+void EntryTreeModel::removeEntry(const QString& path) {
+	auto* node = this->getNodeAtPath(path);
+	if (!node || !node->parent()) {
+		return;
+	}
+
+	if (const auto it = std::ranges::find_if(node->parent()->children(), [node](const auto& child) {
+		return child.get() == node;
+	}); it != node->parent()->children().end()) {
+		node->parent()->children().erase(it);
+	}
+
+	// Remove empty parent directories
+	auto* parent = node->parent();
+	while (parent && parent != this->root() && parent->children().empty()) {
+		auto* grandparent = parent->parent();
+		if (grandparent) {
+			if (const auto it = std::ranges::find_if(grandparent->children(), [parent](const auto& child) {
+				return child.get() == parent;
+			}); it != grandparent->children().end()) {
+				grandparent->children().erase(it);
+			}
+		}
+		parent = grandparent;
+	}
+	this->layoutChanged();
+}
+
+bool EntryTreeModel::hasEntry(const QString& path) const {
+	return !!this->getNodeAtPath(path);
+}
+
+EntryTreeNode* EntryTreeModel::getNodeAtPath(const QString& path) const {
+	auto* current = this->root_.get();
+	if (path.isEmpty() || path == '/') {
+		return current;
+	}
+	for (const auto& component : path.split('/')) {
+		current = current->findChild(component);
+		if (!current) {
+			return nullptr;
+		}
+	}
+	return current;
+}
+
+QString EntryTreeModel::getNodePath(const EntryTreeNode* node) const {
+	QString path;
+	while (node && node != this->root()) {
+		if (!path.isEmpty()) {
+			path.prepend('/');
+		}
+		path.prepend(node->name());
+		node = node->parent();
+	}
+	return path;
+}
+
+void EntryTreeModel::sort(int, Qt::SortOrder) {
+	this->sort();
+}
+
+void EntryTreeModel::sort() {
+	this->root_->sort();
+	this->layoutChanged();
+}
+
+const EntryTreeNode* EntryTreeModel::root() const {
+	return this->root_.get();
+}
+
+EntryTreeNode* EntryTreeModel::root() {
+	return this->root_.get();
+}
+
+EntryTreeNode* EntryTreeModel::getNodeAtIndex(const QModelIndex& index) const {
+	return static_cast<EntryTreeNode*>(index.internalPointer());
+}
 
 EntryTree::EntryTree(Window* window_, QWidget* parent)
-		: QTreeWidget(parent)
+		: QTreeView(parent)
 		, window(window_)
+		, workerThread(nullptr)
 		, autoExpandDirectories(false) {
 	this->setMinimumWidth(200);
 	this->setHeaderHidden(true);
-	this->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+	this->setSelectionMode(SelectionMode::ExtendedSelection);
+	this->setUniformRowHeights(true);
 
-	this->workerThread = nullptr;
-	this->root = nullptr;
+	this->model = new EntryTreeModel{this};
+	this->QTreeView::setModel(this->model);
 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	auto* contextMenuData = new EntryContextMenuData{true, this};
-	QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
+
+	QObject::connect(this, &QWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData->setReadOnly(this->window->isReadOnly());
-		if (this->selectedItems().length() == 1) {
-			auto path = this->getItemPath(this->selectedItems()[0]);
-			if (path.endsWith(".nuc") || path.endsWith(".ctx") || path.endsWith(".ekv")) {
-				contextMenuData->setEncryptDecryptVisible(false, true);
-			} else if (path.endsWith(".nut") || path.endsWith(".txt") || path.endsWith(".kv")) {
-				contextMenuData->setEncryptDecryptVisible(true, false);
-			} else {
-				contextMenuData->setEncryptDecryptVisible(false, false);
-			}
-		} else {
-			contextMenuData->setEncryptDecryptVisible(false, false);
-		}
-
-		if (this->selectedItems().length() > 1) {
-			// Show the selection context menu at the requested position
-			auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos));
-
+		contextMenuData->setEncryptDecryptVisible(false, false); // todo: remove me
+		if (const auto selectedIndexes = this->selectedIndexes(); selectedIndexes.length() > 1) {
 			// Handle the selected action
-			if (selectedSelectionAction == contextMenuData->extractSelectedAction) {
+			if (const auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos)); selectedSelectionAction == contextMenuData->extractSelectedAction) {
 				QStringList paths;
-				for (auto* item : this->selectedItems()) {
-					paths.push_back(this->getItemPath(item));
+				for (const auto& selectedIndex : selectedIndexes) {
+					paths.push_back(this->getIndexPath(selectedIndex));
 				}
 				this->extractEntries(paths);
 			} else if (selectedSelectionAction == contextMenuData->removeSelectedAction) {
-				for (auto* item : this->selectedItems()) {
-					if (item == this->root) {
-						continue;
+				for (const auto& selectedIndex : selectedIndexes) {
+					if (QString path = this->getIndexPath(selectedIndex); !path.isEmpty()) {
+						this->removeEntryByPath(path);
 					}
-					this->removeEntry(item);
 				}
 			}
-		} else if (auto* selectedItem = this->itemAt(pos)) {
-			QString path = this->getItemPath(selectedItem);
-			if (path.isEmpty()) {
-				// Show the root context menu at the requested position
-				auto* selectedAllAction = contextMenuData->contextMenuAll->exec(this->mapToGlobal(pos));
-
-				// Handle the selected action
-				if (selectedAllAction == contextMenuData->extractAllAction) {
-					this->window->extractAll();
-				} else if (selectedAllAction == contextMenuData->addFileToRootAction) {
-					this->window->addFiles(false);
-				} else if (selectedAllAction == contextMenuData->addDirToRootAction) {
-					this->window->addDir(false);
-				}
-			} else if (selectedItem->childCount() > 0) {
-				// Show the directory context menu at the requested position
-				auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos));
-
-				// Handle the selected action
-				if (selectedDirAction == contextMenuData->extractDirAction) {
+		} else if (const auto modelIndex = this->indexAt(pos); !modelIndex.isValid() || this->model->getNodeAtIndex(modelIndex) == this->model->root()) {
+			if (const auto* selectedAllAction = contextMenuData->contextMenuAll->exec(this->mapToGlobal(pos)); selectedAllAction == contextMenuData->extractAllAction) {
+				this->window->extractAll();
+			} else if (selectedAllAction == contextMenuData->addFileToRootAction) {
+				this->window->addFiles(false);
+			} else if (selectedAllAction == contextMenuData->addDirToRootAction) {
+				this->window->addDir(false);
+			}
+		} else {
+			const auto* node = this->model->getNodeAtIndex(modelIndex);
+			const QString path = this->getIndexPath(modelIndex);
+			if (node->isDirectory()) {
+				if (const auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos)); selectedDirAction == contextMenuData->extractDirAction) {
 					this->window->extractDir(path);
 				} else if (selectedDirAction == contextMenuData->addFileToDirAction) {
 					this->window->addFiles(false, path);
@@ -190,39 +394,32 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 				} else if (selectedDirAction == contextMenuData->copyDirPathAction) {
 					QGuiApplication::clipboard()->setText(path);
 				} else if (selectedDirAction == contextMenuData->removeDirAction) {
-					this->removeEntry(selectedItem);
+					this->removeEntryByPath(path);
 				}
 			} else {
-				// Show the file context menu at the requested position
-				auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos));
-
-				// Handle the selected action
-				if (selectedFileAction == contextMenuData->extractFileAction) {
+				if (const auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos)); selectedFileAction == contextMenuData->extractFileAction) {
 					this->window->extractFile(path);
 				} else if (selectedFileAction == contextMenuData->editFileAction) {
 					this->window->editFile(path);
-				} else if (selectedFileAction == contextMenuData->encryptFileAction) {
-					this->window->encryptFile(path);
-				} else if (selectedFileAction == contextMenuData->decryptFileAction) {
-					this->window->decryptFile(path);
 				} else if (selectedFileAction == contextMenuData->copyFilePathAction) {
 					QGuiApplication::clipboard()->setText(path);
 				} else if (selectedFileAction == contextMenuData->removeFileAction) {
-					this->removeEntry(selectedItem);
+					this->removeEntryByPath(path);
 				}
 			}
 		}
 	});
 
-	QObject::connect(this, &QTreeWidget::currentItemChanged, this, &EntryTree::onCurrentItemChanged);
+	QObject::connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this, &EntryTree::onCurrentIndexChanged);
 
-	QObject::connect(this, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item, int) {
-		if (item->childCount() > 0) {
+	QObject::connect(this, &QTreeView::doubleClicked, this, [this](const QModelIndex& index) {
+		const auto* node = this->model->getNodeAtIndex(index);
+		if (node->isDirectory()) {
 			return;
 		}
 		const TempDir tempDir;
-		const QString savePath = tempDir.dir().absoluteFilePath(item->text(0));
-		this->window->extractFile(this->getItemPath(item), savePath);
+		const QString savePath = tempDir.dir().absoluteFilePath(this->model->getNodePath(node));
+		this->window->extractFile(this->getIndexPath(index), savePath);
 		QDesktopServices::openUrl("file://" + savePath);
 	});
 
@@ -230,13 +427,8 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 }
 
 void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback) {
-	// Create root item
-	this->root = new EntryItem(this);
-	this->root->setText(0, packFile.getTruncatedFilestem().c_str());
-	if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
-		// Set the icon now even though its set later, that way it will be present while loading
-		this->root->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
-	}
+	// Set root item name to pakfile name
+	this->model->root()->setName(packFile.getTruncatedFilestem().c_str());
 
 	// Set up progress bar
 	progressBar->setMinimum(0);
@@ -245,7 +437,6 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 
 	// Don't let the user touch anything
 	this->setDisabled(true);
-	this->root->setDisabled(true);
 
 	// Set up thread
 	this->workerThread = new QThread(this);
@@ -254,9 +445,7 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 	QObject::connect(this->workerThread, &QThread::started, worker, [this, worker, &packFile] {
 		worker->run(this, packFile);
 	});
-	QObject::connect(worker, &LoadPackFileWorker::progressUpdated, this, [progressBar](int value) {
-		progressBar->setValue(value);
-	});
+	QObject::connect(worker, &LoadPackFileWorker::progressUpdated, progressBar, &QProgressBar::setValue);
 	QObject::connect(worker, &LoadPackFileWorker::taskFinished, this, [this, isSingleFile=static_cast<bool>(dynamic_cast<SingleFile*>(&packFile)), finishCallback] {
 		// Kill thread
 		this->workerThread->quit();
@@ -266,20 +455,16 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 
 		// Ok we've loaded let them touch it
 		this->setDisabled(false);
-		this->root->setDisabled(false);
 
 		// Fire the click manually to show the contents and expand the root
-		this->root->setSelected(true);
-		this->onCurrentItemChanged(this->root);
-		this->root->setExpanded(true);
+		const auto rootIndex = this->model->index(0, 0, {});
+		this->setCurrentIndex(rootIndex);
+		this->expand(rootIndex);
 
 		// Select the file inside if we're loading that specifically
-		if (isSingleFile && this->root->childCount() == 1) {
-			this->root->setSelected(false);
-			auto* child = this->root->child(0);
-			child->setSelected(true);
-			this->onCurrentItemChanged(child);
-			child->setExpanded(true);
+		if (isSingleFile && this->model->rowCount(rootIndex) == 1) {
+			const auto fileIndex = this->model->index(0, 0, rootIndex);
+			this->setCurrentIndex(fileIndex);
 		}
 
 		finishCallback();
@@ -288,119 +473,67 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 }
 
 bool EntryTree::hasEntry(const QString& path) const {
-	return static_cast<bool>(this->getItemAtPath(path));
+	return this->model->hasEntry(path);
 }
 
 void EntryTree::selectEntry(const QString& path) {
-	for (auto* selected : this->selectedItems()) {
-		selected->setSelected(false);
-	}
-	auto* entry = this->getItemAtPath(path);
-	if (!entry) {
-		return;
+	this->selectionModel()->clearSelection();
+	QStringList components = path.split('/');
+	QModelIndex currentIndex = this->model->index(0, 0, {});
+	for (const auto& component : components) {
+		const int rowCount = this->model->rowCount(currentIndex);
+		for (int i = 0; i < rowCount; ++i) {
+			QModelIndex childIndex = this->model->index(i, 0, currentIndex);
+			if (const auto* child = this->model->getNodeAtIndex(childIndex); child->name() == component) {
+				currentIndex = childIndex;
+				this->expand(currentIndex);
+				break;
+			}
+		}
 	}
 
-	auto* currentEntry = entry;
-	while (currentEntry != this->root) {
-		currentEntry->setExpanded(true);
-		currentEntry = currentEntry->parent();
-	}
-	this->root->setExpanded(true);
-
-	entry->setSelected(true);
-	this->onCurrentItemChanged(entry);
-	entry->setExpanded(true);
-	this->scrollToItem(entry, QAbstractItemView::ScrollHint::PositionAtCenter);
+	this->setCurrentIndex(currentIndex);
+	this->scrollTo(currentIndex, ScrollHint::PositionAtCenter);
 }
 
 void EntryTree::selectSubItem(const QString& name) {
-	for (auto* selected : this->selectedItems()) {
-		selected->setSelected(false);
-		selected->setExpanded(true);
-		for (int i = 0; i < selected->childCount(); ++i) {
-			auto* child = selected->child(i);
-			if (child->text(0) == name) {
-				child->setSelected(true);
-				this->onCurrentItemChanged(child);
-				child->setExpanded(true);
-				this->scrollToItem(child, QAbstractItemView::ScrollHint::PositionAtCenter);
-				return;
-			}
+	const auto selectedIndexes = this->selectedIndexes();
+	if (selectedIndexes.isEmpty()) {
+		return;
+	}
+
+	const QModelIndex parentIndex = selectedIndexes[0];
+	const int rowCount = this->model->rowCount(parentIndex);
+	for (int i = 0; i < rowCount; ++i) {
+		QModelIndex childIndex = this->model->index(i, 0, parentIndex);
+		if (const auto* child = this->model->getNodeAtIndex(childIndex); child && child->name() == name) {
+			this->expand(parentIndex);
+			this->setCurrentIndex(childIndex);
+			this->expand(childIndex);
+			this->scrollTo(childIndex, ScrollHint::PositionAtCenter);
+			return;
 		}
 	}
 }
 
-void EntryTree::setSearchQuery(const QString& query) {
-	// Set items that contain a word in the query visible
-	const auto words = query.split(' ');
-	for (QTreeWidgetItemIterator it(this); *it; ++it) {
-		QTreeWidgetItem* item = *it;
-		item->setHidden(false);
-		for (const auto& word : words) {
-			if (item->childCount() == 0 && !item->text(0).contains(word, Qt::CaseInsensitive)) {
-				item->setHidden(true);
-			}
-		}
-	}
-
-	// Hide directories that have no children
-	int dirsTouched;
-	do {
-		dirsTouched = 0;
-		for (QTreeWidgetItemIterator it(this); *it; ++it) {
-			QTreeWidgetItem* item = *it;
-			if (item->isHidden() || item->childCount() == 0) {
-				continue;
-			}
-			bool hasChildNotHidden = false;
-			for (int i = 0; i < item->childCount(); i++) {
-				if (!item->child(i)->isHidden()) {
-					hasChildNotHidden = true;
-				}
-			}
-			if (!hasChildNotHidden) {
-				dirsTouched++;
-				item->setHidden(true);
-			}
-		}
-	} while (dirsTouched != 0);
-
-	this->root->setHidden(false);
+void EntryTree::setSearchQuery(const QString& query) const {
+	// todo: reimplement search
 }
 
 void EntryTree::setAutoExpandDirectoryOnClick(bool enable) {
 	this->autoExpandDirectories = enable;
 }
 
-void EntryTree::removeEntryByPath(const QString& path) {
-	auto elements = path.split('/');
-	auto* currentEntry = this->root;
-
-	while (!elements.isEmpty()) {
-		auto* oldEntry = currentEntry;
-		for (int i = 0; i < currentEntry->childCount(); i++) {
-			if (currentEntry->child(i)->text(0) == elements[0]) {
-				elements.pop_front();
-				currentEntry = currentEntry->child(i);
-				break;
-			}
-		}
-		if (oldEntry == currentEntry) {
-			return;
-		}
-	}
-
-	this->removeEntry(currentEntry);
+void EntryTree::removeEntryByPath(const QString& path) const {
+	this->model->removeEntry(path);
 }
 
-void EntryTree::clearContents() {
-	this->root = nullptr;
-	this->clear();
+void EntryTree::clearContents() const {
+	this->model->clear();
 }
 
-void EntryTree::addEntry(const QString& path) {
-	this->addNestedEntryComponents(path);
-	this->sortItems(0, Qt::AscendingOrder);
+void EntryTree::addEntry(const QString& path, bool sort) const {
+	this->model->addEntry(path, sort);
 }
 
 void EntryTree::extractEntries(const QStringList& paths, const QString& destination) {
@@ -440,32 +573,37 @@ void EntryTree::extractEntries(const QStringList& paths, const QString& destinat
 			path.pop_front();
 		}
 	}
-	// Add one for separator
-	qsizetype rootDirLen = ::join(rootDirList, "/").length();
 
-	// Extract
-	std::function<void(QTreeWidgetItem*)> extractItemRecurse;
-	extractItemRecurse = [&](QTreeWidgetItem* item) {
-		if (item->childCount() > 0) {
-			for (int i = 0; i < item->childCount(); i++) {
-				extractItemRecurse(item->child(i));
+	qsizetype rootDirLen = 0;
+	for (const auto& rootDir : rootDirList) {
+		// Add one for separator
+		rootDirLen += rootDir.length() + 1;
+	}
+	rootDirLen--;
+
+	std::function<void(const QString&)> extractRecurse = [&](const QString& path) {
+		const auto* node = this->model->getNodeAtPath(path);
+		if (!node) return;
+		if (node->isDirectory()) {
+			for (const auto& child : node->children()) {
+				extractRecurse(model->getNodePath(child.get()));
 			}
 		} else {
-			const QString itemPath = saveDir + QDir::separator() + this->getItemPath(item).sliced(rootDirLen);
-			std::string itemPathStr = itemPath.toLocal8Bit().constData();
-			std::filesystem::path itemPathDir(itemPathStr);
-			QDir(saveDir).mkpath(itemPathDir.parent_path().string().c_str());
-
-			this->window->extractFile(this->getItemPath(item), itemPath);
+			const QString itemPath = saveDir + QDir::separator() + path.sliced(rootDirLen);
+			const std::string itemPathStr = itemPath.toLocal8Bit().constData();
+			const std::filesystem::path itemPathDir(itemPathStr);
+			std::ignore = QDir(saveDir).mkpath(itemPathDir.parent_path().string().c_str());
+			this->window->extractFile(path, itemPath);
 		}
 	};
+
 	for (const auto& path : paths) {
-		extractItemRecurse(this->getItemAtPath(path));
+		extractRecurse(path);
 	}
 }
 
 void EntryTree::createDrag(const QStringList& paths) {
-	TempDir tempDir;
+	const TempDir tempDir;
 
 	auto* drag = new QDrag(this);
 	auto* mimeData = new QMimeData();
@@ -488,27 +626,27 @@ void EntryTree::createDrag(const QStringList& paths) {
 	this->window->setDropEnabled(true);
 }
 
-void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
-	if (!item) {
+void EntryTree::onCurrentIndexChanged(const QModelIndex& index) {
+	if (!index.isValid()) {
 		return;
 	}
 
 	if (this->autoExpandDirectories) {
-		item->setExpanded(!item->isExpanded());
+		this->setExpanded(index, !this->isExpanded(index));
 	}
 
-	auto path = this->getItemPath(item);
-	if (item->childCount() == 0) {
+	const auto* node = this->model->getNodeAtIndex(index);
+	const QString path = this->getIndexPath(index);
+	if (!node->isDirectory()) {
 		this->window->selectEntryInFileViewer(path);
 	} else {
 		QList<QString> subfolders;
 		QList<QString> entryPaths;
-		for (int i = 0; i < item->childCount(); i++) {
-			auto* child = item->child(i);
-			if (child->childCount() == 0) {
-				entryPaths << this->getItemPath(child);
+		for (const auto& child : node->children()) {
+			if (child->isDirectory()) {
+				subfolders << child->name();
 			} else {
-				subfolders << child->text(0);
+				entryPaths << this->model->getNodePath(child.get());
 			}
 		}
 		this->window->selectDirInFileViewer(path, subfolders, entryPaths);
@@ -518,152 +656,59 @@ void EntryTree::onCurrentItemChanged(QTreeWidgetItem* item) const {
 void EntryTree::keyPressEvent(QKeyEvent* event) {
 	if (event->keyCombination().key() == Qt::Key_Delete) {
 		event->accept();
-		for (auto* item : this->selectedItems()) {
-			if (event->keyCombination().keyboardModifiers() != Qt::SHIFT) {
-				auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(this->getItemPath(item)), QMessageBox::Ok | QMessageBox::Cancel);
-				if (reply == QMessageBox::Cancel) {
-					continue;
+		for (const auto& selectedIndex : this->selectedIndexes()) {
+			if (QString path = this->getIndexPath(selectedIndex); !path.isEmpty()) {
+				if (event->keyCombination().keyboardModifiers() != Qt::SHIFT) {
+					if (const auto reply = QMessageBox::question(this, tr("Delete Entry"), tr("Are you sure you want to delete \"%1\"?\n(Hold Shift to skip this popup.)").arg(path), QMessageBox::Ok | QMessageBox::Cancel); reply == QMessageBox::Cancel) {
+						continue;
+					}
 				}
+				this->removeEntryByPath(path);
 			}
-			this->removeEntry(item);
 		}
 	}
-	QTreeWidget::keyPressEvent(event);
+	QTreeView::keyPressEvent(event);
 }
 
 void EntryTree::mousePressEvent(QMouseEvent* event) {
 	this->dragStartPos = event->pos();
-	this->dragSelectedItems = this->selectedItems();
+	this->dragSelectedIndexes = this->selectedIndexes();
 
-	QTreeWidget::mousePressEvent(event);
+	QTreeView::mousePressEvent(event);
 }
 
 void EntryTree::mouseMoveEvent(QMouseEvent* event) {
 	if (!(event->buttons() & Qt::LeftButton)) {
-		return QTreeWidget::mouseMoveEvent(event);
+		return QTreeView::mouseMoveEvent(event);
 	}
 	if ((event->pos() - this->dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
-		return QTreeWidget::mouseMoveEvent(event);
+		return QTreeView::mouseMoveEvent(event);
 	}
-	if (this->dragSelectedItems.isEmpty()) {
-		return QTreeWidget::mouseMoveEvent(event);
+	if (this->dragSelectedIndexes.isEmpty()) {
+		return QTreeView::mouseMoveEvent(event);
 	}
 	event->accept();
 
 	QStringList paths;
-	for (auto* item : this->dragSelectedItems) {
-		paths.push_back(this->getItemPath(item));
+	for (const auto& selectedIndex : this->dragSelectedIndexes) {
+		paths.push_back(this->getIndexPath(selectedIndex));
 	}
 	this->createDrag(paths);
 }
 
-QString EntryTree::getItemPath(QTreeWidgetItem* item) const {
-	// Traverse up the item hierarchy until reaching the root item
-	QString path;
-	for ( ; item && item != this->root; item = item->parent()) {
-		if (!path.isEmpty()) {
-			path.prepend('/');
-		}
-		path.prepend(item->text(0));
+QString EntryTree::getIndexPath(const QModelIndex& index) const {
+	if (!index.isValid()) {
+		return "";
 	}
-	return path;
-}
-
-QTreeWidgetItem* EntryTree::getItemAtPath(const QString& path) const {
-	if (path.isEmpty()) {
-		return this->root;
-	}
-
-	// Traverse down the item hierarchy until reaching the lowest item
-	auto pieces = path.split('/');
-	auto* currentEntry = this->root;
-	while (currentEntry && !pieces.isEmpty()) {
-		bool found = false;
-		for (int i = 0; i < currentEntry->childCount() && !found; i++) {
-			if (currentEntry->child(i)->text(0) == pieces[0]) {
-				currentEntry = currentEntry->child(i);
-				pieces.pop_front();
-				found = true;
-			}
-		}
-		if (!found) {
-			currentEntry = nullptr;
-		}
-	}
-	if (!pieces.isEmpty()) {
-		return nullptr;
-	}
-	return currentEntry;
-}
-
-void EntryTree::addNestedEntryComponents(const QString& path) const {
-	QStringList components = path.split('/', Qt::SkipEmptyParts);
-	QTreeWidgetItem* currentItem = nullptr;
-
-	for (int i = 0; i < components.size(); i++) {
-		QTreeWidgetItem* newItem = nullptr;
-
-		// Find the child item with the current component text under the current parent item
-		int childCount = currentItem ? currentItem->childCount() : this->root->childCount();
-		for (int j = 0; j < childCount; j++) {
-			QTreeWidgetItem* childItem = currentItem ? currentItem->child(j) : this->root->child(j);
-			if (childItem->text(0) == components[i]) {
-				newItem = childItem;
-				break;
-			}
-		}
-
-		// If the child item doesn't exist, create a new one
-		if (!newItem) {
-			if (currentItem) {
-				newItem = new EntryItem(currentItem, {components[i]});
-			} else {
-				newItem = new EntryItem(this->root, {components[i]});
-			}
-
-			if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
-				if (i != components.size() - 1) { // is a directory
-					newItem->setIcon(0, this->style()->standardIcon(QStyle::SP_DirIcon));
-				} else {
-					newItem->setIcon(0, ::getIconForExtension("." + QFileInfo(components[i]).suffix()));
-				}
-			}
-		}
-
-		currentItem = newItem;
-	}
-}
-
-void EntryTree::removeEntry(QTreeWidgetItem* item) {
-	auto* parent = item->parent();
-	this->removeEntryRecurse(item);
-
-	// Remove dead directories
-	while (parent && parent != this->root && parent->childCount() == 0) {
-		this->window->removeDir(this->getItemPath(parent));
-		auto* temp = parent->parent();
-		delete parent;
-		parent = temp;
-	}
-}
-
-// NOLINTNEXTLINE(*-no-recursion)
-void EntryTree::removeEntryRecurse(QTreeWidgetItem* item) {
-	if (item->childCount() == 0) {
-		this->window->removeFile(this->getItemPath(item));
-	}
-	while (item->childCount() > 0) {
-		this->removeEntryRecurse(item->child(0));
-	}
-	delete item;
+	return this->model->getNodePath(this->model->getNodeAtIndex(index));
 }
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
 	int progress = 0;
-	packFile.runForAllEntries([this, tree, &progress](const std::string& path, const Entry& entry) {
+	packFile.runForAllEntries([this, tree, &progress](const std::string& path, const Entry&) {
 		emit this->progressUpdated(++progress);
-		tree->addNestedEntryComponents(QString(path.c_str()));
+		tree->addEntry(path.c_str(), false);
 	});
-	tree->sortItems(0, Qt::AscendingOrder);
+	tree->model->sort();
 	emit taskFinished();
 }
