@@ -22,7 +22,7 @@ public:
 
 	[[nodiscard]] EntryTreeNode* findChild(const QString& name) const;
 
-	void sort();
+	void sort(Qt::SortOrder order);
 
 	[[nodiscard]] const EntryTreeNode* parent() const;
 
@@ -77,16 +77,14 @@ public:
 
 	[[nodiscard]] QString getNodePath(const EntryTreeNode* node) const;
 
-	void sort(int, Qt::SortOrder) override;
-
-	void sort();
+	void sort(int column, Qt::SortOrder order) override;
 
 	[[nodiscard]] const EntryTreeNode* root() const;
 
 	[[nodiscard]] EntryTreeNode* root();
 
 protected:
-	[[nodiscard]] EntryTreeNode* getNodeAtIndex(const QModelIndex& index) const;
+	[[nodiscard]] static EntryTreeNode* getNodeAtIndex(const QModelIndex& index);
 
 	std::unique_ptr<EntryTreeNode> root_;
 };

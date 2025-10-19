@@ -97,15 +97,24 @@ EntryTreeNode* EntryTreeNode::findChild(const QString& name) const {
 	return nullptr;
 }
 
-void EntryTreeNode::sort() {
-	std::ranges::sort(this->children_, [](const auto& a, const auto& b) {
-		if (a->isDirectory_ != b->isDirectory_) {
-			return a->isDirectory_ > b->isDirectory_;
-		}
-		return a->name_ < b->name_;
-	});
+void EntryTreeNode::sort(Qt::SortOrder order) {
+	if (order == Qt::AscendingOrder) {
+		std::ranges::sort(this->children_, [](const auto& a, const auto& b) {
+			if (a->isDirectory_ != b->isDirectory_) {
+				return a->isDirectory_ > b->isDirectory_;
+			}
+			return a->name_ < b->name_;
+		});
+	} else {
+		std::ranges::sort(this->children_, [](const auto& a, const auto& b) {
+			if (a->isDirectory_ != b->isDirectory_) {
+				return a->isDirectory_ > b->isDirectory_;
+			}
+			return a->name_ > b->name_;
+		});
+	}
 	for (const auto& child : this->children_) {
-		child->sort();
+		child->sort(order);
 	}
 }
 
@@ -161,7 +170,7 @@ QModelIndex EntryTreeModel::index(int row, int column, const QModelIndex& parent
 		return {};
 	}
 
-	const auto* parentNode = this->getNodeAtIndex(parent);
+	const auto* parentNode = EntryTreeModel::getNodeAtIndex(parent);
 	if (parentNode == this->root()) {
 		if (row < 0 || row >= static_cast<int>(this->root()->children().size())) {
 			return {};
@@ -180,7 +189,7 @@ QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
 		return {};
 	}
 
-	const auto* childNode = this->getNodeAtIndex(index);
+	const auto* childNode = EntryTreeModel::getNodeAtIndex(index);
 	if (childNode == this->root()) {
 		return {};
 	}
@@ -200,7 +209,11 @@ QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
 }
 
 int EntryTreeModel::rowCount(const QModelIndex& parent) const {
-	return static_cast<int>((parent.isValid() ? this->getNodeAtIndex(parent) : this->root())->children().size());
+	const auto* node = parent.isValid() ? EntryTreeModel::getNodeAtIndex(parent) : this->root();
+	if (!node) {
+		return 0;
+	}
+	return static_cast<int>(node->children().size());
 }
 
 int EntryTreeModel::columnCount(const QModelIndex&) const {
@@ -212,7 +225,11 @@ QVariant EntryTreeModel::data(const QModelIndex& index, int role) const {
 		return {};
 	}
 
-	const auto* node = this->getNodeAtIndex(index);
+	const auto* node = EntryTreeModel::getNodeAtIndex(index);
+	if (!node) {
+		return {};
+	}
+
 	if (role == Qt::DisplayRole) {
 		return node->name();
 	}
@@ -243,6 +260,9 @@ void EntryTreeModel::clear() {
 void EntryTreeModel::addEntry(const QString& path, bool sort) {
 	QStringList components = path.split('/', Qt::SkipEmptyParts);
 	auto* current = this->root_.get();
+	if (!current) {
+		return;
+	}
 	for (int i = 0; i < components.size(); i++) {
 		auto* child = current->findChild(components[i]);
 		if (!child) {
@@ -253,7 +273,7 @@ void EntryTreeModel::addEntry(const QString& path, bool sort) {
 		current = child;
 	}
 	if (sort && current) {
-		current->parent()->sort();
+		current->parent()->sort(Qt::AscendingOrder);
 	}
 	this->layoutChanged();
 }
@@ -264,14 +284,16 @@ void EntryTreeModel::removeEntry(const QString& path) {
 		return;
 	}
 
-	if (const auto it = std::ranges::find_if(node->parent()->children(), [node](const auto& child) {
-		return child.get() == node;
-	}); it != node->parent()->children().end()) {
-		node->parent()->children().erase(it);
+	auto* parent = node->parent();
+	if (parent) {
+		if (const auto it = std::ranges::find_if(parent->children(), [node](const auto& child) {
+			return child.get() == node;
+		}); it != parent->children().end()) {
+			parent->children().erase(it);
+		}
 	}
 
 	// Remove empty parent directories
-	auto* parent = node->parent();
 	while (parent && parent != this->root() && parent->children().empty()) {
 		auto* grandparent = parent->parent();
 		if (grandparent) {
@@ -292,7 +314,7 @@ bool EntryTreeModel::hasEntry(const QString& path) const {
 
 EntryTreeNode* EntryTreeModel::getNodeAtPath(const QString& path) const {
 	auto* current = this->root_.get();
-	if (path.isEmpty() || path == '/') {
+	if (!current || path.isEmpty() || path == '/') {
 		return current;
 	}
 	for (const auto& component : path.split('/')) {
@@ -316,12 +338,11 @@ QString EntryTreeModel::getNodePath(const EntryTreeNode* node) const {
 	return path;
 }
 
-void EntryTreeModel::sort(int, Qt::SortOrder) {
-	this->sort();
-}
-
-void EntryTreeModel::sort() {
-	this->root_->sort();
+void EntryTreeModel::sort(int column, Qt::SortOrder order) {
+	if (!this->root_ || column != 0) {
+		return;
+	}
+	this->root_->sort(order);
 	this->layoutChanged();
 }
 
@@ -333,7 +354,7 @@ EntryTreeNode* EntryTreeModel::root() {
 	return this->root_.get();
 }
 
-EntryTreeNode* EntryTreeModel::getNodeAtIndex(const QModelIndex& index) const {
+EntryTreeNode* EntryTreeModel::getNodeAtIndex(const QModelIndex& index) {
 	return static_cast<EntryTreeNode*>(index.internalPointer());
 }
 
@@ -370,7 +391,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 					}
 				}
 			}
-		} else if (const auto modelIndex = this->indexAt(pos); !modelIndex.isValid() || this->model->getNodeAtIndex(modelIndex) == this->model->root()) {
+		} else if (const auto modelIndex = this->indexAt(pos); !modelIndex.isValid() || EntryTreeModel::getNodeAtIndex(modelIndex) == this->model->root()) {
 			if (const auto* selectedAllAction = contextMenuData->contextMenuAll->exec(this->mapToGlobal(pos)); selectedAllAction == contextMenuData->extractAllAction) {
 				this->window->extractAll();
 			} else if (selectedAllAction == contextMenuData->addFileToRootAction) {
@@ -379,7 +400,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 				this->window->addDir(false);
 			}
 		} else {
-			const auto* node = this->model->getNodeAtIndex(modelIndex);
+			const auto* node = EntryTreeModel::getNodeAtIndex(modelIndex);
 			const QString path = this->getIndexPath(modelIndex);
 			if (node->isDirectory()) {
 				if (const auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos)); selectedDirAction == contextMenuData->extractDirAction) {
@@ -412,7 +433,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 	QObject::connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this, &EntryTree::onCurrentIndexChanged);
 
 	QObject::connect(this, &QTreeView::doubleClicked, this, [this](const QModelIndex& index) {
-		const auto* node = this->model->getNodeAtIndex(index);
+		const auto* node = EntryTreeModel::getNodeAtIndex(index);
 		if (node->isDirectory()) {
 			return;
 		}
@@ -483,7 +504,7 @@ void EntryTree::selectEntry(const QString& path) {
 		const int rowCount = this->model->rowCount(currentIndex);
 		for (int i = 0; i < rowCount; ++i) {
 			QModelIndex childIndex = this->model->index(i, 0, currentIndex);
-			if (const auto* child = this->model->getNodeAtIndex(childIndex); child->name() == component) {
+			if (const auto* child = EntryTreeModel::getNodeAtIndex(childIndex); child->name() == component) {
 				currentIndex = childIndex;
 				this->expand(currentIndex);
 				break;
@@ -505,7 +526,7 @@ void EntryTree::selectSubItem(const QString& name) {
 	const int rowCount = this->model->rowCount(parentIndex);
 	for (int i = 0; i < rowCount; ++i) {
 		QModelIndex childIndex = this->model->index(i, 0, parentIndex);
-		if (const auto* child = this->model->getNodeAtIndex(childIndex); child && child->name() == name) {
+		if (const auto* child = EntryTreeModel::getNodeAtIndex(childIndex); child && child->name() == name) {
 			this->expand(parentIndex);
 			this->setCurrentIndex(childIndex);
 			this->expand(childIndex);
@@ -634,7 +655,7 @@ void EntryTree::onCurrentIndexChanged(const QModelIndex& index) {
 		this->setExpanded(index, !this->isExpanded(index));
 	}
 
-	const auto* node = this->model->getNodeAtIndex(index);
+	const auto* node = EntryTreeModel::getNodeAtIndex(index);
 	const QString path = this->getIndexPath(index);
 	if (!node->isDirectory()) {
 		this->window->selectEntryInFileViewer(path);
@@ -699,7 +720,7 @@ QString EntryTree::getIndexPath(const QModelIndex& index) const {
 	if (!index.isValid()) {
 		return "";
 	}
-	return this->model->getNodePath(this->model->getNodeAtIndex(index));
+	return this->model->getNodePath(EntryTreeModel::getNodeAtIndex(index));
 }
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
@@ -708,6 +729,6 @@ void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
 		emit this->progressUpdated(++progress);
 		tree->addEntry(path.c_str(), false);
 	});
-	tree->model->sort();
+	tree->model->sort(0, Qt::AscendingOrder);
 	emit taskFinished();
 }
