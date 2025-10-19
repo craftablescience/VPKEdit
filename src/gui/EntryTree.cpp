@@ -259,7 +259,7 @@ void EntryTreeModel::clear() {
 	this->endResetModel();
 }
 
-void EntryTreeModel::addEntry(const QString& path, bool sort) {
+void EntryTreeModel::addEntry(const QString& path, bool incremental) {
 	QStringList components = path.split('/', Qt::SkipEmptyParts);
 	auto* current = this->root_.get();
 	if (!current) {
@@ -270,14 +270,18 @@ void EntryTreeModel::addEntry(const QString& path, bool sort) {
 		if (!child) {
 			bool isDir = i < components.size() - 1;
 			const auto row = static_cast<int>(current->children().size());
-			this->beginInsertRows(this->getIndexAtNode(current), row, row);
+			if (incremental) {
+				this->beginInsertRows(this->getIndexAtNode(current), row, row);
+			}
 			current->children().push_back(std::make_unique<EntryTreeNode>(current, components[i], isDir));
-			this->endInsertRows();
+			if (incremental) {
+				this->endInsertRows();
+			}
 			child = current->children().back().get();
 		}
 		current = child;
 	}
-	if (sort && current) {
+	if (incremental && current) {
 		current->parent()->sort(Qt::AscendingOrder);
 	}
 	this->layoutChanged();
@@ -498,9 +502,7 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 	this->model->root()->setName(packFile.getTruncatedFilestem().c_str());
 
 	// Set up progress bar
-	progressBar->setMinimum(0);
-	progressBar->setMaximum(static_cast<int>(packFile.getBakedEntries().size()));
-	progressBar->setValue(0);
+	progressBar->setRange(0, 0);
 
 	// Don't let the user touch anything
 	this->setDisabled(true);
@@ -512,7 +514,6 @@ void EntryTree::loadPackFile(PackFile& packFile, QProgressBar* progressBar, cons
 	QObject::connect(this->workerThread, &QThread::started, worker, [this, worker, &packFile] {
 		worker->run(this, packFile);
 	});
-	QObject::connect(worker, &LoadPackFileWorker::progressUpdated, progressBar, &QProgressBar::setValue);
 	QObject::connect(worker, &LoadPackFileWorker::taskFinished, this, [this, isSingleFile=static_cast<bool>(dynamic_cast<SingleFile*>(&packFile)), finishCallback] {
 		// Kill thread
 		this->workerThread->quit();
@@ -599,8 +600,8 @@ void EntryTree::clearContents() const {
 	this->model->clear();
 }
 
-void EntryTree::addEntry(const QString& path, bool sort) const {
-	this->model->addEntry(path, sort);
+void EntryTree::addEntry(const QString& path, bool incremental) const {
+	this->model->addEntry(path, incremental);
 }
 
 void EntryTree::extractEntries(const QStringList& paths, const QString& destination) {
@@ -771,11 +772,13 @@ QString EntryTree::getIndexPath(const QModelIndex& index) const {
 }
 
 void LoadPackFileWorker::run(EntryTree* tree, const PackFile& packFile) {
-	int progress = 0;
-	packFile.runForAllEntries([this, tree, &progress](const std::string& path, const Entry&) {
-		emit this->progressUpdated(++progress);
+	tree->model->beginResetModel();
+	tree->setUpdatesEnabled(false);
+	packFile.runForAllEntries([tree](const std::string& path, const Entry&) {
 		tree->addEntry(path.c_str(), false);
 	});
 	tree->model->sort(0, Qt::AscendingOrder);
+	tree->setUpdatesEnabled(true);
+	tree->model->endResetModel();
 	emit taskFinished();
 }

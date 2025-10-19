@@ -49,6 +49,7 @@ class EntryTreeModel : public QAbstractItemModel {
 	Q_OBJECT;
 
 	friend class EntryTree;
+	friend class LoadPackFileWorker;
 
 public:
 	explicit EntryTreeModel(QObject* parent = nullptr);
@@ -67,7 +68,7 @@ public:
 
 	void clear();
 
-	void addEntry(const QString& path, bool sort = true);
+	void addEntry(const QString& path, bool incremental = true);
 
 	void removeEntry(const QString& path);
 
@@ -115,7 +116,7 @@ public:
 
 	void clearContents() const;
 
-	void addEntry(const QString& path, bool sort = true) const;
+	void addEntry(const QString& path, bool incremental = true) const;
 
 	void extractEntries(const QStringList& paths, const QString& destination = QString());
 
@@ -155,6 +156,5 @@ public:
 	void run(EntryTree* tree, const vpkpp::PackFile& packFile);
 
 signals:
-	void progressUpdated(int value);
 	void taskFinished();
 };
