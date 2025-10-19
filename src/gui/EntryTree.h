@@ -84,6 +84,8 @@ public:
 	[[nodiscard]] EntryTreeNode* root();
 
 protected:
+	[[nodiscard]] QModelIndex getIndexAtNode(const EntryTreeNode* node) const;
+
 	[[nodiscard]] static EntryTreeNode* getNodeAtIndex(const QModelIndex& index);
 
 	std::unique_ptr<EntryTreeNode> root_;

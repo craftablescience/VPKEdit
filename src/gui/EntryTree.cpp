@@ -155,14 +155,6 @@ QModelIndex EntryTreeModel::index(int row, int column, const QModelIndex& parent
 		return {};
 	}
 
-	if (this->root()->name().isEmpty()) {
-		const auto* parentNode = parent.isValid() ? this->getNodeAtIndex(parent) : this->root();
-		if (row < 0 || row >= static_cast<int>(parentNode->children().size())) {
-			return {};
-		}
-		return this->createIndex(row, column, parentNode->children()[row].get());
-	}
-
 	if (!parent.isValid()) {
 		if (row == 0) {
 			return this->createIndex(row, column, this->root());
@@ -190,16 +182,19 @@ QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
 	}
 
 	const auto* childNode = EntryTreeModel::getNodeAtIndex(index);
-	if (childNode == this->root()) {
+	if (!childNode || childNode == this->root()) {
 		return {};
 	}
 
 	const auto* parentNode = childNode->parent();
-	if (parentNode == this->root()) {
+	if (!parentNode || parentNode == this->root()) {
 		return this->createIndex(0, 0, this->root());
 	}
 
 	const auto* grandparentNode = parentNode->parent();
+	if (!grandparentNode) {
+		return {};
+	}
 	for (int i = 0; i < grandparentNode->children().size(); i++) {
 		if (grandparentNode->children()[i].get() == parentNode) {
 			return this->createIndex(i, 0, parentNode);
@@ -209,11 +204,18 @@ QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
 }
 
 int EntryTreeModel::rowCount(const QModelIndex& parent) const {
-	const auto* node = parent.isValid() ? EntryTreeModel::getNodeAtIndex(parent) : this->root();
-	if (!node) {
+	if (!parent.isValid() && this->root()->children().empty()) {
+		// No pack file loaded
 		return 0;
 	}
-	return static_cast<int>(node->children().size());
+	if (!parent.isValid()) {
+		return 1;
+	}
+	const auto* parentNode = EntryTreeModel::getNodeAtIndex(parent);
+	if (!parentNode) {
+		return 0;
+	}
+	return static_cast<int>(parentNode->children().size());
 }
 
 int EntryTreeModel::columnCount(const QModelIndex&) const {
@@ -267,7 +269,10 @@ void EntryTreeModel::addEntry(const QString& path, bool sort) {
 		auto* child = current->findChild(components[i]);
 		if (!child) {
 			bool isDir = i < components.size() - 1;
+			const auto row = static_cast<int>(current->children().size());
+			this->beginInsertRows(this->getIndexAtNode(current), row, row);
 			current->children().push_back(std::make_unique<EntryTreeNode>(current, components[i], isDir));
+			this->endInsertRows();
 			child = current->children().back().get();
 		}
 		current = child;
@@ -289,7 +294,10 @@ void EntryTreeModel::removeEntry(const QString& path) {
 		if (const auto it = std::ranges::find_if(parent->children(), [node](const auto& child) {
 			return child.get() == node;
 		}); it != parent->children().end()) {
+			const auto row = static_cast<int>(std::distance(parent->children().begin(), it));
+			this->beginRemoveRows(this->getIndexAtNode(parent), row, row);
 			parent->children().erase(it);
+			this->endRemoveRows();
 		}
 	}
 
@@ -300,7 +308,10 @@ void EntryTreeModel::removeEntry(const QString& path) {
 			if (const auto it = std::ranges::find_if(grandparent->children(), [parent](const auto& child) {
 				return child.get() == parent;
 			}); it != grandparent->children().end()) {
+				const auto row = static_cast<int>(std::distance(grandparent->children().begin(), it));
+				this->beginRemoveRows(this->getIndexAtNode(grandparent), row, row);
 				grandparent->children().erase(it);
+				this->endRemoveRows();
 			}
 		}
 		parent = grandparent;
@@ -352,6 +363,27 @@ const EntryTreeNode* EntryTreeModel::root() const {
 
 EntryTreeNode* EntryTreeModel::root() {
 	return this->root_.get();
+}
+
+QModelIndex EntryTreeModel::getIndexAtNode(const EntryTreeNode* node) const {
+	if (!node) {
+		return {};
+	}
+	if (node == this->root()) {
+		return this->createIndex(0, 0, node);
+	}
+
+	const auto* parent = node->parent();
+	if (!parent) {
+		return {};
+	}
+
+	for (int i = 0; i < parent->children().size(); i++) {
+		if (parent->children()[i].get() == node) {
+			return this->createIndex(i, 0, node);
+		}
+	}
+	return {};
 }
 
 EntryTreeNode* EntryTreeModel::getNodeAtIndex(const QModelIndex& index) {
