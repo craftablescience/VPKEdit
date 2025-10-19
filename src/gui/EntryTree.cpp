@@ -475,6 +475,21 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 		QDesktopServices::openUrl("file://" + savePath);
 	});
 
+	QObject::connect(this->model, &QAbstractItemModel::rowsAboutToBeRemoved, this, [this](const QModelIndex& index, int start, int end) {
+		for (int i = start; i <= end; i++) {
+			if (const auto childIndex = this->model->index(i, 0, index); childIndex.isValid()) {
+				if (const auto* node = EntryTreeModel::getNodeAtIndex(childIndex)) {
+					const auto path = this->model->getNodePath(node);
+					if (node->isDirectory()) {
+						this->window->removeDir(path);
+					} else {
+						this->window->removeFile(path);
+					}
+				}
+			}
+		}
+	});
+
 	this->clearContents();
 }
 

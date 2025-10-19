@@ -975,8 +975,10 @@ bool Window::removeFile(const QString& path) {
 	return true;
 }
 
-void Window::removeDir(const QString& path) const {
+void Window::removeDir(const QString& path) {
+	this->packFile->removeDirectory(path.toLocal8Bit().constData());
 	this->fileViewer->removeDir(path);
+	this->markModified(true);
 }
 
 void Window::requestEntryRemoval(const QString& path) const {

@@ -51,7 +51,7 @@ class EntryTreeModel : public QAbstractItemModel {
 	friend class EntryTree;
 
 public:
-	explicit EntryTreeModel(QObject* parent);
+	explicit EntryTreeModel(QObject* parent = nullptr);
 
 	[[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 

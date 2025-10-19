@@ -73,7 +73,7 @@ public:
 
 	bool removeFile(const QString& path);
 
-	void removeDir(const QString& path) const;
+	void removeDir(const QString& path);
 
 	void requestEntryRemoval(const QString& path) const;
 
