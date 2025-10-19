@@ -17,6 +17,7 @@ class TexturePreview;
 
 namespace vpkpp {
 
+class Entry;
 class PackFile;
 
 } // namespace vpkpp
@@ -110,7 +111,7 @@ public:
 
 	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
-	void addEntry(const vpkpp::PackFile& packFile, const QString& path) const;
+	void addEntry(const vpkpp::Entry& entry, const QString& path) const;
 
 	void removeFile(const QString& path) const;
 

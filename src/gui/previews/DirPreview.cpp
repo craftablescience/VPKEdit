@@ -171,19 +171,21 @@ void DirPreview::setPath(const QString& currentDir, const QList<QString>& subfol
 		this->addRowForDir(subfolder);
 	}
 	for (const auto& path : entryPaths) {
-		this->addRowForFile(packFile, path);
+		if (const auto entry = packFile.findEntry(path.toLocal8Bit().constData())) {
+			this->addRowForFile(*entry, path);
+		}
 	}
 
 	// Make sure the active search query is applied
 	this->setSearchQuery(this->currentSearchQuery);
 }
 
-void DirPreview::addEntry(const PackFile& packFile, const QString& path) {
+void DirPreview::addEntry(const Entry& entry, const QString& path) {
 	// If the parent is identical to us then we're the direct parent, add the file
 	const auto lastIndex = path.lastIndexOf('/');
 	const QString parent = lastIndex < 0 ? "" : path.sliced(0, lastIndex);
 	if (parent == this->currentPath) {
-		this->addRowForFile(packFile, path);
+		this->addRowForFile(entry, path);
 		return;
 	}
 
@@ -330,13 +332,9 @@ void DirPreview::mouseMoveEvent(QMouseEvent* event) {
 	this->window->createDrag(paths);
 }
 
-void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
+void DirPreview::addRowForFile(const Entry& entry, const QString& path) {
 	// Note: does not check if the path is inside the directory being previewed
 	const auto fsPath = std::filesystem::path{path.toLocal8Bit().constData()};
-	auto entry = packFile.findEntry(fsPath.string());
-	if (!entry) {
-		return;
-	}
 
 	this->setRowCount(this->rowCount() + 1);
 
@@ -354,10 +352,10 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 
 	// LENGTH
 	QTableWidgetItem* sizeItem;
-	if (entry->length < KB_SIZE) {
-		sizeItem = new QTableWidgetItem(QString::number(entry->length) + ' ' + tr("b"));
+	if (entry.length < KB_SIZE) {
+		sizeItem = new QTableWidgetItem(QString::number(entry.length) + ' ' + tr("b"));
 	} else {
-		auto size = static_cast<double>(entry->length) / KB_SIZE;
+		auto size = static_cast<double>(entry.length) / KB_SIZE;
 		QString extension(' ' + tr("kb"));
 
 		if (size >= KB_SIZE) {
@@ -373,22 +371,22 @@ void DirPreview::addRowForFile(const PackFile& packFile, const QString& path) {
 	this->setItem(this->rowCount() - 1, Column::LENGTH, sizeItem);
 
 	// PRELOADED DATA LENGTH
-	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry->extraData.size()) + ' ' + tr("b"));
+	auto* preloadedSizeItem = new QTableWidgetItem(QString::number(entry.extraData.size()) + ' ' + tr("b"));
 	this->setItem(this->rowCount() - 1, Column::VPK_PRELOADED_DATA_LENGTH, preloadedSizeItem);
 
 	// ARCHIVE INDEX
-	auto archiveIndex = entry->archiveIndex;
+	auto archiveIndex = entry.archiveIndex;
 	// If the archive index is the dir index, it's included in the directory VPK
 	auto* archiveIndexItem = new QTableWidgetItem(archiveIndex == VPK_DIR_INDEX ? QString("N/A") : QString::number(archiveIndex));
 	this->setItem(this->rowCount() - 1, Column::ARCHIVE_INDEX, archiveIndexItem);
 
 	// CRC32
-	QByteArray crc32{reinterpret_cast<const char*>(&entry->crc32), sizeof(entry->crc32)};
+	QByteArray crc32{reinterpret_cast<const char*>(&entry.crc32), sizeof(entry.crc32)};
 	auto* crc32Item = new QTableWidgetItem("0x" + crc32.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::CRC32, crc32Item);
 
 	// MD5
-	QByteArray md5{reinterpret_cast<const char*>(entry->extraData.data()), static_cast<qsizetype>(entry->extraData.size())};
+	QByteArray md5{reinterpret_cast<const char*>(entry.extraData.data()), static_cast<qsizetype>(entry.extraData.size())};
 	auto* md5Item = new QTableWidgetItem("0x" + md5.toHex().toUpper());
 	this->setItem(this->rowCount() - 1, Column::PCK_MD5, md5Item);
 }

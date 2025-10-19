@@ -4,6 +4,7 @@
 
 namespace vpkpp {
 
+class Entry;
 class PackFile;
 
 } // namespace vpkpp
@@ -22,7 +23,7 @@ public:
 
 	void setPath(const QString& currentDir, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
-	void addEntry(const vpkpp::PackFile& packFile, const QString& path);
+	void addEntry(const vpkpp::Entry& entry, const QString& path);
 
 	void removeFile(const QString& path);
 
@@ -40,7 +41,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
-	void addRowForFile(const vpkpp::PackFile& packFile, const QString& path);
+	void addRowForFile(const vpkpp::Entry& entry, const QString& path);
 
 	void addRowForDir(const QString& name);
 

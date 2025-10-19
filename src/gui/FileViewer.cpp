@@ -416,8 +416,8 @@ void FileViewer::displayDir(const QString& path, const QList<QString>& subfolder
 	this->dirPreview->show();
 }
 
-void FileViewer::addEntry(const PackFile& packFile, const QString& path) const {
-	this->dirPreview->addEntry(packFile, path);
+void FileViewer::addEntry(const Entry& entry, const QString& path) const {
+	this->dirPreview->addEntry(entry, path);
 }
 
 void FileViewer::removeFile(const QString& path) const {

@@ -909,14 +909,15 @@ void Window::addFile(bool showOptions, const QString& startDir, const QString& f
 	this->packFile->removeEntry(entryPath.toLocal8Bit().constData());
 	this->packFile->addEntry(entryPath.toLocal8Bit().constData(), filepath.toLocal8Bit().constData(), options);
 	this->entryTree->addEntry(entryPath);
-	this->fileViewer->addEntry(*this->packFile, entryPath);
+	if (const auto entry = this->packFile->findEntry(entryPath.toLocal8Bit().constData())) {
+		this->fileViewer->addEntry(*entry, entryPath);
+	}
 	this->markModified(true);
 }
 
 void Window::addFiles(bool showOptions, const QString &startDir) {
 	// Add multiple files using the multiple file selector
-	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open Files"));
-	for (const QString& path : files) {
+	for (const QString& path : QFileDialog::getOpenFileNames(this, tr("Open Files"))) {
 		this->addFile(showOptions, startDir, path);
 	}
 }
@@ -960,7 +961,9 @@ void Window::addDir(bool showOptions, const QString& startDir, const QString& di
 		this->packFile->removeEntry(subEntryPath.toLocal8Bit().constData());
 		this->packFile->addEntry(subEntryPath.toLocal8Bit().constData(), subEntryPathFS.toLocal8Bit().constData(), options);
 		this->entryTree->addEntry(subEntryPath);
-		this->fileViewer->addEntry(*this->packFile, subEntryPath);
+		if (const auto entry = this->packFile->findEntry(subEntryPath.toLocal8Bit().constData())) {
+			this->fileViewer->addEntry(*entry, subEntryPath);
+		}
 	}
 	this->markModified(true);
 }
@@ -1022,7 +1025,9 @@ void Window::editFile(const QString& oldPath) {
 	// Add new file with the same info and data at the new path
 	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(data.value()), entryOptions);
 	this->entryTree->addEntry(newPath);
-	this->fileViewer->addEntry(*this->packFile, newPath);
+	if (const auto newEntry = this->packFile->findEntry(newPath.toLocal8Bit().constData())) {
+		this->fileViewer->addEntry(*newEntry, newPath);
+	}
 	this->markModified(true);
 }
 
@@ -1140,7 +1145,9 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 			.vpk_saveToDirectory = entry.archiveIndex == VPK_DIR_INDEX,
 		});
 		this->entryTree->addEntry(newEntryPath);
-		this->fileViewer->addEntry(*this->packFile, newEntryPath);
+		if (const auto newEntry = this->packFile->findEntry(newEntryPath.toLocal8Bit().constData())) {
+			this->fileViewer->addEntry(*newEntry, newEntryPath);
+		}
 
 		progressDialog.setValue(progressDialog.value() + 1);
 	}
