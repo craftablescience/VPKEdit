@@ -371,10 +371,10 @@ void VTFWidget::decodeImage(int mip, int frame, int face, int slice, bool alpha)
 
 	this->imageData = this->vtf->getImageDataAsRGBA8888(this->currentMip, this->currentFrame, this->currentFace, this->currentSlice);
 	if (this->imageData.empty()) {
-		this->image = QImage();
+		this->image = {};
 		return;
 	}
-	this->image = QImage(reinterpret_cast<uchar*>(this->imageData.data()), static_cast<int>(this->vtf->getWidth(this->currentMip)), static_cast<int>(this->vtf->getHeight(this->currentMip)), QImage::Format_RGBA8888);
+	this->image = QImage(reinterpret_cast<uchar*>(this->imageData.data()), this->vtf->getWidthWithoutPadding(this->currentMip), this->vtf->getHeightWithoutPadding(this->currentMip), QImage::Format_RGBA8888);
 	if (!this->alphaEnabled) {
 		this->image = this->image.convertedTo(QImage::Format_RGB888);
 	}
