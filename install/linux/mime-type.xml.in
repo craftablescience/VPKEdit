@@ -62,7 +62,7 @@
     </mime-type>
     <mime-type type="application/x-${PROJECT_NAME}-gma">
         <comment>Garry's Mod Addon</comment>
-        <icon name="x-${PROJECT_NAME}"/>
+        <icon name="${PROJECT_NAME}"/>
         <acronym>GMA</acronym>
         <expanded-acronym>Garry's Mod Addon</expanded-acronym>
         <glob-deleteall/>
