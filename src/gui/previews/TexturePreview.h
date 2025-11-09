@@ -214,9 +214,9 @@ public:
 
 	void setAlphaEnabled(bool alpha) override { this->decodeImage(this->currentMip, this->currentFrame, this->currentFace, this->currentSlice, alpha); }
 
-	[[nodiscard]] uint16_t getCurrentImageWidth() const override { return this->vtf->getWidthWithoutPadding(this->currentMip); }
+	[[nodiscard]] uint16_t getCurrentImageWidth() const override { return this->vtf->getWidth(this->currentMip); }
 
-	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->vtf->getHeightWithoutPadding(this->currentMip); }
+	[[nodiscard]] uint16_t getCurrentImageHeight() const override { return this->vtf->getHeight(this->currentMip); }
 
 	[[nodiscard]] uint16_t getCurrentImageDepth() const override { return this->vtf->getDepth(); }
 
