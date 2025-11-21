@@ -11,6 +11,8 @@
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
+#include <QQuaternion>
+#include <QVector3D>
 
 #include "../IVPKEditPreviewPlugin.h"
 
