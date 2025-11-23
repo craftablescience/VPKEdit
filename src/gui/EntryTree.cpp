@@ -476,7 +476,7 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 		const TempDir tempDir;
 		const QString savePath = tempDir.dir().absoluteFilePath(this->model->getNodePath(node));
 		this->window->extractFile(this->getIndexPath(index), savePath);
-		QDesktopServices::openUrl("file://" + savePath);
+		QDesktopServices::openUrl(QUrl::fromLocalFile(savePath));
 	});
 
 	QObject::connect(this->model, &QAbstractItemModel::rowsAboutToBeRemoved, this, [this](const QModelIndex& index, int start, int end) {
