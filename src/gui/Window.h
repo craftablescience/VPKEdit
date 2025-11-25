@@ -158,6 +158,7 @@ private:
 	QAction* extractAllAction;
 	QAction* addFileAction;
 	QAction* addDirAction;
+	QAction* markModifiedAction;
 	QAction* setPropertiesAction;
 	QMenu*   toolsGeneralMenu;
 	QMenu*   toolsVPKMenu;

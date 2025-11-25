@@ -190,6 +190,11 @@ Window::Window(QWidget* parent)
 	});
 	this->addDirAction->setDisabled(true);
 
+	this->markModifiedAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), tr("Mark Modified"), Qt::CTRL | Qt::Key_M, [this] {
+		this->markModified(true);
+	});
+	this->markModifiedAction->setDisabled(true);
+
 	editMenu->addSeparator();
 	this->setPropertiesAction = editMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Properties..."), Qt::CTRL | Qt::Key_P, [this] {
 		this->setProperties();
@@ -1386,6 +1391,7 @@ void Window::freezeActions(bool freeze, bool freezeCreationActions, bool freezeF
 	this->extractAllAction->setDisabled(freeze);
 	this->addFileAction->setDisabled(freeze);
 	this->addDirAction->setDisabled(freeze);
+	this->markModifiedAction->setDisabled(freeze);
 	this->setPropertiesAction->setDisabled(freeze);
 	this->toolsGeneralMenu->setDisabled(freeze);
 	this->toolsVPKMenu->setDisabled(freeze || (!this->packFile || !this->packFile->isInstanceOf<VPK>()));
@@ -1401,6 +1407,7 @@ void Window::freezeModifyActions(bool readOnly) const {
 		this->saveAsAction->setDisabled(readOnly);
 		this->addFileAction->setDisabled(readOnly);
 		this->addDirAction->setDisabled(readOnly);
+		this->markModifiedAction->setDisabled(readOnly);
 		this->setPropertiesAction->setDisabled(readOnly);
 	}
 }
