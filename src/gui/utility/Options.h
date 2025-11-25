@@ -7,6 +7,8 @@
 // Options
 constexpr std::string_view OPT_STYLE = "style";
 constexpr std::string_view OPT_ENTRY_TREE_AUTO_EXPAND = "entry_list_auto_expand";
+constexpr std::string_view OPT_ENTRY_TREE_ALLOW_DIR_DRAG = "entry_list_allow_dir_drag";
+constexpr std::string_view OPT_ENTRY_TREE_ALLOW_FILE_DRAG = "entry_list_allow_file_drag";
 constexpr std::string_view OPT_ENTRY_TREE_AUTO_COLLAPSE = "entry_list_auto_collapse";
 constexpr std::string_view OPT_ENTRY_TREE_HIDE_ICONS = "entry_tree_hide_icons";
 constexpr std::string_view OPT_ADVANCED_FILE_PROPS = "adv_mode";

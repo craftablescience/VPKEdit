@@ -657,7 +657,7 @@ void EntryTree::extractEntries(const QStringList& paths, const QString& destinat
 				extractRecurse(model->getNodePath(child.get()));
 			}
 		} else {
-			const QString itemPath = saveDir + QDir::separator() + path.sliced(rootDirLen);
+			const QString itemPath = saveDir + QDir::separator() + (rootDirLen > 0 ? path.sliced(rootDirLen) : path);
 			const std::string itemPathStr = itemPath.toLocal8Bit().constData();
 			const std::filesystem::path itemPathDir(itemPathStr);
 			std::ignore = QDir(saveDir).mkpath(itemPathDir.parent_path().string().c_str());
@@ -671,6 +671,22 @@ void EntryTree::extractEntries(const QStringList& paths, const QString& destinat
 }
 
 void EntryTree::createDrag(const QStringList& paths) {
+	const bool allowDirDrag = Options::get<bool>(OPT_ENTRY_TREE_ALLOW_DIR_DRAG);
+	const bool allowFileDrag = Options::get<bool>(OPT_ENTRY_TREE_ALLOW_FILE_DRAG);
+	if (!allowDirDrag && !allowFileDrag) {
+		return;
+	}
+	if (!allowDirDrag || !allowFileDrag) {
+		for (const auto& path : paths) {
+			if (
+				const bool isDir = this->model->getNodeAtPath(path)->isDirectory();
+				(!allowDirDrag && isDir) || (!allowFileDrag && !isDir)
+			) {
+				return;
+			}
+		}
+	}
+
 	const TempDir tempDir;
 
 	auto* drag = new QDrag(this);
@@ -679,9 +695,8 @@ void EntryTree::createDrag(const QStringList& paths) {
 	this->extractEntries(paths, tempDir.path());
 
 	QList<QUrl> extractedPaths;
-	QStringList extractedRawPaths = tempDir.dir().entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-	for (const auto& rawPath : extractedRawPaths) {
-		extractedPaths.push_back(QUrl::fromLocalFile(tempDir.path() + QDir::separator() + rawPath));
+	for (const auto& entryName : tempDir.dir().entryList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+		extractedPaths.push_back(QUrl::fromLocalFile(tempDir.path() + QDir::separator() + entryName));
 	}
 
 	// Set up drag

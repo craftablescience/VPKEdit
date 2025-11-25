@@ -331,6 +331,20 @@ Window::Window(QWidget* parent)
 	entryListMenuAutoExpandAction->setCheckable(true);
 	entryListMenuAutoExpandAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_AUTO_EXPAND));
 
+	auto* entryListMenuAllowDirDragAction = entryListMenu->addAction(tr("Allow Dragging To Extract Folders"), [this] {
+		Options::invert(OPT_ENTRY_TREE_ALLOW_DIR_DRAG);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_ALLOW_DIR_DRAG));
+	});
+	entryListMenuAllowDirDragAction->setCheckable(true);
+	entryListMenuAllowDirDragAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_ALLOW_DIR_DRAG));
+
+	auto* entryListMenuAllowFileDragAction = entryListMenu->addAction(tr("Allow Dragging To Extract Files"), [this] {
+		Options::invert(OPT_ENTRY_TREE_ALLOW_FILE_DRAG);
+		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_ALLOW_FILE_DRAG));
+	});
+	entryListMenuAllowFileDragAction->setCheckable(true);
+	entryListMenuAllowFileDragAction->setChecked(Options::get<bool>(OPT_ENTRY_TREE_ALLOW_FILE_DRAG));
+
 	auto* entryListMenuAutoCollapseAction = entryListMenu->addAction(tr("Start Collapsed"), [this] {
 		Options::invert(OPT_ENTRY_TREE_AUTO_COLLAPSE);
 		this->entryTree->setAutoExpandDirectoryOnClick(Options::get<bool>(OPT_ENTRY_TREE_AUTO_COLLAPSE));

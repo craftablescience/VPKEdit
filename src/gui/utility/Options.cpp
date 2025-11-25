@@ -22,6 +22,14 @@ void Options::setupOptions(QSettings& options) {
 		options.setValue(OPT_ENTRY_TREE_AUTO_EXPAND, false);
 	}
 
+	if (!options.contains(OPT_ENTRY_TREE_ALLOW_DIR_DRAG)) {
+		options.setValue(OPT_ENTRY_TREE_ALLOW_DIR_DRAG, true);
+	}
+
+	if (!options.contains(OPT_ENTRY_TREE_ALLOW_FILE_DRAG)) {
+		options.setValue(OPT_ENTRY_TREE_ALLOW_FILE_DRAG, true);
+	}
+
 	if (!options.contains(OPT_ENTRY_TREE_AUTO_COLLAPSE)) {
 		options.setValue(OPT_ENTRY_TREE_AUTO_COLLAPSE, false);
 	}
