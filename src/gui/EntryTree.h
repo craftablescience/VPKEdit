@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <vpkpp/vpkpp.h>
 
@@ -49,6 +50,7 @@ class EntryTreeModel : public QAbstractItemModel {
 	Q_OBJECT;
 
 	friend class EntryTree;
+	friend class EntryTreeFilterProxyModel;
 	friend class LoadPackFileWorker;
 
 public:
@@ -90,6 +92,16 @@ protected:
 	[[nodiscard]] static EntryTreeNode* getNodeAtIndex(const QModelIndex& index);
 
 	std::unique_ptr<EntryTreeNode> root_;
+};
+
+class EntryTreeFilterProxyModel : public QSortFilterProxyModel {
+	Q_OBJECT;
+
+public:
+	using QSortFilterProxyModel::QSortFilterProxyModel;
+
+protected:
+	[[nodiscard]] bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
 };
 
 class EntryTree : public QTreeView {
@@ -137,7 +149,8 @@ private:
 
 	Window* window;
 
-	EntryTreeModel* model;
+	EntryTreeModel* proxiedModel;
+	EntryTreeFilterProxyModel* model;
 
 	QPoint dragStartPos;
 	QList<QModelIndex> dragSelectedIndexes;
