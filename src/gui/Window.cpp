@@ -452,7 +452,7 @@ Window::Window(QWidget* parent)
 
 	this->searchBar = new QLineEdit(leftPane);
 	this->searchBar->setPlaceholderText(tr("Search..."));
-	QObject::connect(this->searchBar, &QLineEdit::editingFinished, this, [this] {
+	QObject::connect(this->searchBar, &QLineEdit::textChanged, this, [this] {
 		this->entryTree->setSearchQuery(this->searchBar->text());
 		this->fileViewer->setSearchQuery(this->searchBar->text());
 	});
