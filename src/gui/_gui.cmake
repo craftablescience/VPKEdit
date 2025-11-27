@@ -75,7 +75,6 @@ target_link_libraries(
         sourcepp::kvpp
         sourcepp::mdlpp
         sourcepp::steampp
-        sourcepp::vcryptpp
         sourcepp::vpkpp
         sourcepp::vtfpp)
 

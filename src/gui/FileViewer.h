@@ -107,7 +107,7 @@ public:
 
 	void requestNavigateNext() const;
 
-	void displayEntry(const QString& path, vpkpp::PackFile& packFile);
+	void displayEntry(const QString& path);
 
 	void displayDir(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths, const vpkpp::PackFile& packFile);
 
@@ -128,6 +128,8 @@ public:
 	[[nodiscard]] const QString& getDirPreviewCurrentPath() const;
 
 	void clearContents(bool resetHistory);
+
+	void showTextPreview(const QString& text, const QString& extension);
 
 	void showInfoPreview(const QPixmap& icon, const QString& text);
 

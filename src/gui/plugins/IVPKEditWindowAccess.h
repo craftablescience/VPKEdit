@@ -2,7 +2,9 @@
 
 #include <QObject>
 
+class QByteArray;
 class QSettings;
+class QString;
 
 class IVPKEditWindowAccess_V2 : public QObject {
 	Q_OBJECT;

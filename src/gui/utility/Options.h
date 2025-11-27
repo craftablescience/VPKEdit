@@ -20,8 +20,6 @@ constexpr std::string_view OPT_DISABLE_STEAM_SCANNER = "disable_steam_scanner";
 // Storage
 constexpr std::string_view STR_OPEN_RECENT = "open_recent";
 constexpr std::string_view STR_IGNORED_UPDATE_VERSION = "ignored_update_version";
-constexpr std::string_view STR_VICE_CODE_INDEX = "vice_dialog_code_index";
-constexpr std::string_view STR_VICE_CODE_VALUE = "vice_dialog_code_value";
 
 namespace Options {
 

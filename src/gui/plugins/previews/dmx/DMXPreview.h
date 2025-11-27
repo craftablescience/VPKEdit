@@ -4,10 +4,10 @@
 
 class QTreeWidget;
 
-class DMXPreview final : public IVPKEditPreviewPlugin_V1_1 {
+class DMXPreview final : public IVPKEditPreviewPlugin_V1_2 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_1_iid FILE "DMXPreview.json");
-	Q_INTERFACES(IVPKEditPreviewPlugin_V1_1);
+	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_2_iid FILE "DMXPreview.json");
+	Q_INTERFACES(IVPKEditPreviewPlugin_V1_2);
 
 public:
 	void initPlugin(IVPKEditWindowAccess_V2*) override;
@@ -15,6 +15,8 @@ public:
 	void initPreview(QWidget* parent) override;
 
 	[[nodiscard]] QWidget* getPreview() const override;
+
+	[[nodiscard]] const QSet<QString>& getPreviewExtensions() const override;
 
 	[[nodiscard]] QIcon getIcon() const override;
 

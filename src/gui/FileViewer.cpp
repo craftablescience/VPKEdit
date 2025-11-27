@@ -267,7 +267,7 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	for (const QString& dirPath : pluginLocations) {
 		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
 			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
-			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_1*>(loader->instance())) {
+			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_2*>(loader->instance())) {
 				if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
 					continue;
 				}
@@ -275,8 +275,9 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 				plugin->initPlugin(this->packFileAccess_V1);
 				plugin->initPreview(this);
 				layout->addWidget(plugin->getPreview());
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_1::showInfoPreview, this, &FileViewer::showInfoPreview);
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_1::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showTextPreview, this, &FileViewer::showTextPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showInfoPreview, this, &FileViewer::showInfoPreview);
+				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
 			} else {
 				loader->deleteLater();
 			}
@@ -309,7 +310,7 @@ void FileViewer::requestNavigateNext() const {
 	this->navbar->navigateNext();
 }
 
-void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
+void FileViewer::displayEntry(const QString& path) {
 	// Get extension
 	std::filesystem::path helperPath(path.toLower().toLocal8Bit().constData());
 	QString extension(helperPath.has_extension() ? helperPath.extension().string().c_str() : helperPath.stem().string().c_str());
@@ -319,19 +320,14 @@ void FileViewer::displayEntry(const QString& path, PackFile& packFile) {
 
 	// Check plugins first
 	for (auto* pluginLoader : this->previewPlugins) {
-		const auto& metadata = pluginLoader->metaData().value("MetaData").toObject();
-		if (!metadata.contains("extensions") || !metadata.value("extensions").isArray()) {
-			continue;
-		}
-		for (const auto extensionArray = metadata.value("extensions").toArray(); const auto& pluginExtension : extensionArray) {
-			if (pluginExtension.isString() && pluginExtension.toString() == extension) {
+		for (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_2*>(pluginLoader->instance()); const auto& pluginExtension : plugin->getPreviewExtensions()) {
+			if (pluginExtension == extension) {
 				const auto binary = this->window->readBinaryEntry(path);
 				if (!binary) {
 					this->showFileLoadErrorPreview();
 					return;
 				}
 				this->hideAllPreviews();
-				auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_1*>(pluginLoader->instance());
 				plugin->getPreview()->show();
 				plugin->setData(path, reinterpret_cast<const quint8*>(binary->data()), binary->size());
 				return;
@@ -458,6 +454,12 @@ void FileViewer::clearContents(bool resetHistory) {
 	this->emptyPreview->show();
 }
 
+void FileViewer::showTextPreview(const QString& text, const QString& extension) {
+	this->hideAllPreviews();
+	this->textPreview->show();
+	this->textPreview->setText(text, extension);
+}
+
 void FileViewer::showInfoPreview(const QPixmap& icon, const QString& text) {
 	this->hideAllPreviews();
 	this->infoPreview->show();
@@ -474,7 +476,7 @@ void FileViewer::showFileLoadErrorPreview() {
 
 void FileViewer::hideAllPreviews() {
 	for (auto* pluginLoader : this->previewPlugins) {
-		qobject_cast<IVPKEditPreviewPlugin_V1_1*>(pluginLoader->instance())->getPreview()->hide();
+		qobject_cast<IVPKEditPreviewPlugin_V1_2*>(pluginLoader->instance())->getPreview()->hide();
 	}
 	this->dirPreview->hide();
 	this->infoPreview->hide();

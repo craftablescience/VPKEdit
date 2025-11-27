@@ -1225,7 +1225,7 @@ void Window::selectEntryInEntryTree(const QString& path) const {
 }
 
 void Window::selectEntryInFileViewer(const QString& path) const {
-	this->fileViewer->displayEntry(path, *this->packFile);
+	this->fileViewer->displayEntry(path);
 }
 
 void Window::selectDirInFileViewer(const QString& path, const QList<QString>& subfolders, const QList<QString>& entryPaths) const {

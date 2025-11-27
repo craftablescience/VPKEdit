@@ -630,12 +630,24 @@ QWidget * MDLPreview::getPreview() const {
 	return this->preview;
 }
 
+const QSet<QString>& MDLPreview::getPreviewExtensions() const {
+	static const QSet<QString> EXTENSIONS{
+		".mdl",
+		".vtx",
+		".vvd",
+		".phy",
+		".ani",
+		".vta",
+	};
+	return EXTENSIONS;
+}
+
 QIcon MDLPreview::getIcon() const {
 	// todo: cool icon
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_1::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_2::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
 	this->mdl->clearMeshes();
 
 	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();

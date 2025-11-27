@@ -26,12 +26,46 @@ QWidget* DMXPreview::getPreview() const {
 	return this->preview;
 }
 
+const QSet<QString>& DMXPreview::getPreviewExtensions() const {
+	static const QSet<QString> EXTENSIONS{
+		".dmx",
+		".movieobjects",
+		".sfm",
+		".sfm_settings",
+		".sfm_session",
+		".sfm_trackgroup",
+		".pcf",
+		".gui",
+		".schema",
+		".preset",
+		".facial_animation",
+		".model",
+		".ved",
+		".mks",
+		".vmks",
+		".mp_preprocess",
+		".mp_root",
+		".mp_model",
+		".mp_anim",
+		".mp_physics",
+		".mp_hitbox",
+		".mp_materialgroup",
+		".mp_keyvalues",
+		".mp_eyes",
+		".mp_bonemask",
+		".tex",
+		".world",
+		".worldnode",
+	};
+	return EXTENSIONS;
+}
+
 QIcon DMXPreview::getIcon() const {
 	// todo: cool icon
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_1::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_2::Error DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	this->preview->clear();
 
 	std::unique_ptr<DMX> dmx;

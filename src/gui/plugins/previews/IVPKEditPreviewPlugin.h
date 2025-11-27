@@ -1,8 +1,14 @@
 #pragma once
 
+#include <QIcon>
+#include <QSet>
+#include <QString>
+
 #include "../IVPKEditWindowAccess.h"
 
-class IVPKEditPreviewPlugin_V1_1 : public QObject {
+class QWidget;
+
+class IVPKEditPreviewPlugin_V1_2 : public QObject {
 	Q_OBJECT;
 
 public:
@@ -11,6 +17,8 @@ public:
 	virtual void initPreview(QWidget* parent) = 0;
 
 	[[nodiscard]] virtual QWidget* getPreview() const = 0;
+
+	[[nodiscard]] virtual const QSet<QString>& getPreviewExtensions() const = 0;
 
 	[[nodiscard]] virtual QIcon getIcon() const = 0;
 
@@ -24,10 +32,12 @@ public:
 	virtual Error setData(const QString& path, const quint8* dataPtr, quint64 length) = 0;
 
 signals:
+	void showTextPreview(const QString& text, const QString& extension);
+
 	bool showInfoPreview(const QPixmap& icon, const QString& text);
 
 	void showGenericErrorPreview(const QString& text);
 };
 
-#define IVPKEditPreviewPlugin_V1_1_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.1"
-Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V1_1, IVPKEditPreviewPlugin_V1_1_iid)
+#define IVPKEditPreviewPlugin_V1_2_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.2"
+Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V1_2, IVPKEditPreviewPlugin_V1_2_iid)

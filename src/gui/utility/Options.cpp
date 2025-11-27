@@ -4,9 +4,6 @@
 #include <QFileInfo>
 #include <QMetaType>
 #include <QStyle>
-#include <vcryptpp/vcryptpp.h>
-
-using namespace vcryptpp;
 
 Q_DECLARE_METATYPE(QStringList)
 
@@ -43,7 +40,7 @@ void Options::setupOptions(QSettings& options) {
 	}
 
 	if (!options.contains(OPT_LANGUAGE_OVERRIDE)) {
-		options.setValue(OPT_LANGUAGE_OVERRIDE, QString());
+		options.setValue(OPT_LANGUAGE_OVERRIDE, QString{});
 	}
 
 	if (!options.contains(OPT_DISABLE_STARTUP_UPDATE_CHECK)) {
@@ -63,15 +60,7 @@ void Options::setupOptions(QSettings& options) {
 	}
 
 	if (!options.contains(STR_IGNORED_UPDATE_VERSION)) {
-		options.setValue(STR_IGNORED_UPDATE_VERSION, QString());
-	}
-
-	if (!options.contains(STR_VICE_CODE_INDEX)) {
-		options.setValue(STR_VICE_CODE_INDEX, 0);
-	}
-
-	if (!options.contains(STR_VICE_CODE_VALUE)) {
-		options.setValue(STR_VICE_CODE_VALUE, QString(VICE::KnownCodes::DEFAULT.data()));
+		options.setValue(STR_IGNORED_UPDATE_VERSION, QString{});
 	}
 
 	opts = &options;
