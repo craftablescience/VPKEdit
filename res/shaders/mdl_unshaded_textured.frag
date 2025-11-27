@@ -9,10 +9,11 @@ in float fDepth;
 in vec2  fUVMesh;
 in vec2  fUVMatCap;
 
+layout (location = 0) out vec4 fragColor;
+
 void main() {
-    vec4 texColor = texture2D(uMeshTexture, fUVMesh);
-    if (texColor.a < uAlphaTestReference) {
+    fragColor = texture(uMeshTexture, fUVMesh);
+    if (fragColor.a < uAlphaTestReference) {
         discard;
     }
-    gl_FragColor = texColor;
 }

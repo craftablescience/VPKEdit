@@ -21,8 +21,11 @@ void main() {
     fUVMesh = vUV;
 
     // https://www.clicktorelease.com/blog/creating-spherical-environment-mapping-shader
-    vec4 eyePos = vec4(uEyePosition, 1.0);
-    vec3 e = normalize(vec3(uMV * eyePos));
+
+    // Note this is technically incorrect for a spheremap, but I think it looks better.
+    // Correct code is commented out
+    //vec3 e = normalize(-vec3(uMV * vec4(vPos, 1.0)));
+    vec3 e = normalize(vec3(uMV * vec4(uEyePosition, 1.0)));
     vec3 n = normalize(uNormalMatrix * vNormal);
     vec3 r = reflect(e, n);
     r.z += 1.0;

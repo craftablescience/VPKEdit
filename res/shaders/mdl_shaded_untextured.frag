@@ -9,6 +9,8 @@ in float fDepth;
 in vec2  fUVMesh;
 in vec2  fUVMatCap;
 
+layout (location = 0) out vec4 fragColor;
+
 void main() {
-    gl_FragColor = texture2D(uMatCapTexture, fUVMatCap);
+    fragColor = texture(uMatCapTexture, fUVMatCap);
 }

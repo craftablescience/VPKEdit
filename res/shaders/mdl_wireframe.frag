@@ -9,7 +9,9 @@ in float fDepth;
 in vec2  fUVMesh;
 in vec2  fUVMatCap;
 
+layout (location = 0) out vec4 fragColor;
+
 void main() {
     // Works in light and dark mode
-    gl_FragColor = vec4(vec3(0.5), 1.0);
+    fragColor = vec4(vec3(0.5), 1.0);
 }
