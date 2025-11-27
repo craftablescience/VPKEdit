@@ -416,27 +416,29 @@ void MDLWidget::paintGL() {
 		}
 	}
 	for (const auto& currentMeshes : {opaqueMeshes, alphaTestMeshes, translucentMeshes}) {
-		for (auto& mesh : currentMeshes) {
-			currentShaderProgram->setUniformValue("uAlphaTestReference", mesh.second.second.alphaTestReference);
+		for (const auto& [subMesh, textureData] : currentMeshes) {
+			currentShaderProgram->setUniformValue("uAlphaTestReference", textureData.second.alphaTestReference);
 
-			if (this->shadingMode != MDLShadingMode::WIREFRAME && mesh.second.second.transparencyMode == MDLTextureSettings::TransparencyMode::TRANSLUCENT) {
+			if (this->shadingMode != MDLShadingMode::WIREFRAME && textureData.second.transparencyMode == MDLTextureSettings::TransparencyMode::TRANSLUCENT) {
 				this->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				this->glEnable(GL_BLEND);
 			} else {
 				this->glDisable(GL_BLEND);
 			}
 
-			mesh.second.first->bind(0);
+			this->glActiveTexture(GL_TEXTURE0);
+			textureData.first->bind();
+			this->glActiveTexture(GL_TEXTURE1);
+			this->matCapTexture.bind();
 
-			this->matCapTexture.bind(1);
+			subMesh->vao->bind();
+			this->glDrawElements(GL_TRIANGLES, subMesh->indexCount, GL_UNSIGNED_SHORT, nullptr);
+			subMesh->vao->release();
 
-			mesh.first->vao->bind();
-			this->glDrawElements(GL_TRIANGLES, mesh.first->indexCount, GL_UNSIGNED_SHORT, nullptr);
-			mesh.first->vao->release();
-
-			this->matCapTexture.release(1);
-
-			mesh.second.first->release(0);
+			this->glActiveTexture(GL_TEXTURE1);
+			this->matCapTexture.release();
+			this->glActiveTexture(GL_TEXTURE0);
+			textureData.first->release();
 		}
 	}
 
