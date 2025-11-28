@@ -37,6 +37,8 @@ public:
 
 	void newBMZ(bool fromDirectory, const QString& startPath = QString());
 
+	void newFGP(bool fromDirectory, const QString& startPath = QString());
+
 	void newFPX(bool fromDirectory, const QString& startPath = QString());
 
 	void newPAK(bool fromDirectory, const QString& startPath = QString());

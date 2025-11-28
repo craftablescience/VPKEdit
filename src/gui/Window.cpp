@@ -79,6 +79,9 @@ Window::Window(QWidget* parent)
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "BMZ", [this] {
 		this->newBMZ(false);
 	});
+	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FGP", [this] {
+		this->newFGP(false);
+	});
 	this->createEmptyMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX", [this] {
 		this->newFPX(false);
 	});
@@ -104,6 +107,9 @@ Window::Window(QWidget* parent)
 	this->createFromDirMenu = fileMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("Create from Folder..."));
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "BMZ", [this] {
 		this->newBMZ(true);
+	});
+	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FGP", [this] {
+		this->newFGP(true);
 	});
 	this->createFromDirMenu->addAction(this->style()->standardIcon(QStyle::SP_FileIcon), "FPX", [this] {
 		this->newFPX(true);
@@ -642,6 +648,10 @@ void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QS
 
 void Window::newBMZ(bool fromDirectory, const QString& startPath) {
 	return this->newPackFile(ZIP::GUID, fromDirectory, startPath, "BMZ", ".bmz");
+}
+
+void Window::newFGP(bool fromDirectory, const QString& startPath) {
+	return this->newPackFile(FGP::GUID, fromDirectory, startPath, "FGP", ".grp");
 }
 
 void Window::newFPX(bool fromDirectory, const QString& startPath) {

@@ -36,7 +36,7 @@ macOS (arm64), and has been packaged for multiple Linux distributions.
   | BEE_PACK | BEE2.4 Package                                    |   ✅    |  ✅   |   ✅   |
   | BMZ      | Bonus Map Zip (Source Engine)                     |   ✅    |  ✅   |   ✅   |
   | BSP      | Source 1 Map                                      |  N/A   |  ✅   |   ✅   |
-  | FGP      | File group (PS3, The Orange Box)                  |   ❌    |  ✅   |   ✅   |
+  | FGP      | File group (PS3, The Orange Box)                  |   ✅    |  ✅   |   ✅   |
   | FPX      | VPK modification (Tactical Intervention)          |   ✅    |  ✅   |   ✅   |
   | GCF      | Game Cache File (Pre-SteamPipe Steam games)       |   ❌    |  ✅   |   ❌   |
   | GMA      | Garry's Mod Addon                                 |   ❌    |  ✅   |   ✅   |
