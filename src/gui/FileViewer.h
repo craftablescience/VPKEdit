@@ -21,7 +21,7 @@ class PackFile;
 } // namespace vpkpp
 
 class Window;
-class VPKEditWindowAccess_V2;
+class VPKEditWindowAccess_V3;
 
 class NavBar : public QWidget {
 	Q_OBJECT;
@@ -122,7 +122,7 @@ private:
 	Window* window;
 	NavBar* navbar;
 
-	VPKEditWindowAccess_V2* packFileAccess_V2;
+	VPKEditWindowAccess_V3* packFileAccess_V3;
 	QList<QPluginLoader*> previewPlugins;
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;

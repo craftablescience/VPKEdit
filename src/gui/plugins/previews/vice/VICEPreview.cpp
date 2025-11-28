@@ -53,7 +53,7 @@ QList<std::pair<QString, std::string_view>> VICEDialog::CODES{
 	{"Zombie Panic Source",                    VICE::KnownCodes::ZOMBIE_PANIC_SOURCE},
 };
 
-VICEDialog::VICEDialog(QString path_, bool encrypt, IVPKEditWindowAccess_V2* windowAccess_, QWidget* parent)
+VICEDialog::VICEDialog(QString path_, bool encrypt, IVPKEditWindowAccess_V3* windowAccess_, QWidget* parent)
 		: QDialog(parent)
 		, path(std::move(path_))
 		, encrypting(encrypt)
@@ -117,7 +117,7 @@ std::optional<std::vector<std::byte>> VICEDialog::getData() const {
 	return VICE::decrypt({reinterpret_cast<const std::byte*>(data.data()), static_cast<std::span<const std::byte>::size_type>(data.size())}, code.toLocal8Bit().constData());
 }
 
-std::optional<std::vector<std::byte>> VICEDialog::encrypt(const QString& path, IVPKEditWindowAccess_V2* windowAccess, QWidget* parent) {
+std::optional<std::vector<std::byte>> VICEDialog::encrypt(const QString& path, IVPKEditWindowAccess_V3* windowAccess, QWidget* parent) {
 	auto* dialog = new VICEDialog(path, true, windowAccess, parent);
 	const int ret = dialog->exec();
 	dialog->deleteLater();
@@ -127,7 +127,7 @@ std::optional<std::vector<std::byte>> VICEDialog::encrypt(const QString& path, I
 	return dialog->getData();
 }
 
-std::optional<std::vector<std::byte>> VICEDialog::decrypt(const QString& path, IVPKEditWindowAccess_V2* windowAccess, QWidget* parent) {
+std::optional<std::vector<std::byte>> VICEDialog::decrypt(const QString& path, IVPKEditWindowAccess_V3* windowAccess, QWidget* parent) {
 	auto* dialog = new VICEDialog(path, false, windowAccess, parent);
 	const int ret = dialog->exec();
 	dialog->deleteLater();
@@ -137,7 +137,7 @@ std::optional<std::vector<std::byte>> VICEDialog::decrypt(const QString& path, I
 	return dialog->getData();
 }
 
-void VICEPreview::initPlugin(IVPKEditWindowAccess_V2* windowAccess_) {
+void VICEPreview::initPlugin(IVPKEditWindowAccess_V3* windowAccess_) {
 	this->windowAccess = windowAccess_;
 
 	auto* opts = this->windowAccess->getOptions();
@@ -192,7 +192,7 @@ QIcon VICEPreview::getIcon() const {
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_2::Error VICEPreview::setData(const QString& path, const quint8*, quint64) {
+IVPKEditPreviewPlugin_V1_3::Error VICEPreview::setData(const QString& path, const quint8*, quint64) {
 	this->preview->setDisabled(this->windowAccess->isReadOnly());
 	this->selectedPath = path;
 	return ERROR_SHOWED_THIS_PREVIEW;

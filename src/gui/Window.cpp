@@ -1879,23 +1879,47 @@ void ScanSteamGamesWorker::run() {
 	emit this->taskFinished(sourceGames);
 }
 
-VPKEditWindowAccess_V2::VPKEditWindowAccess_V2(Window* window_)
-		: IVPKEditWindowAccess_V2(window_)
+VPKEditWindowAccess_V3::VPKEditWindowAccess_V3(Window* window_)
+		: IVPKEditWindowAccess_V3(window_)
 		, window(window_) {}
 
-QSettings* VPKEditWindowAccess_V2::getOptions() const {
+QSettings* VPKEditWindowAccess_V3::getOptions() const {
 	return Options::getOptions();
 }
 
-bool VPKEditWindowAccess_V2::isReadOnly() const {
+bool VPKEditWindowAccess_V3::isReadOnly() const {
 	return this->window->isReadOnly();
 }
 
-bool VPKEditWindowAccess_V2::hasEntry(const QString& entryPath) const {
-	return this->window->hasEntry(entryPath);
+void VPKEditWindowAccess_V3::addFile(bool showOptions, const QString& startDir, const QString& filePath) const {
+	return this->window->addFile(showOptions, startDir, filePath);
 }
 
-bool VPKEditWindowAccess_V2::readBinaryEntry(const QString& entryPath, QByteArray& data) const {
+void VPKEditWindowAccess_V3::addDir(bool showOptions, const QString& startDir, const QString& dirPath) const {
+	return this->window->addDir(showOptions, startDir, dirPath);
+}
+
+bool VPKEditWindowAccess_V3::removeFile(const QString& path) const {
+	return this->window->removeFile(path);
+}
+
+void VPKEditWindowAccess_V3::removeDir(const QString& path) const {
+	return this->window->removeDir(path);
+}
+
+void VPKEditWindowAccess_V3::editFileContents(const QString& path, const QByteArray& data) const {
+	return this->window->editFileContents(path, std::vector<std::byte>{reinterpret_cast<const std::byte*>(data.data()), reinterpret_cast<const std::byte*>(data.data()) + data.size()});
+}
+
+void VPKEditWindowAccess_V3::editFileContents(const QString& path, const QString& data) const {
+	return this->window->editFileContents(path, data);
+}
+
+void VPKEditWindowAccess_V3::renameDir(const QString& oldPath, const QString& newPath) const {
+	return this->window->renameDir(oldPath, newPath);
+}
+
+bool VPKEditWindowAccess_V3::readBinaryEntry(const QString& entryPath, QByteArray& data) const {
 	const auto file = this->window->readBinaryEntry(entryPath);
 	if (!file) {
 		return false;
@@ -1904,7 +1928,7 @@ bool VPKEditWindowAccess_V2::readBinaryEntry(const QString& entryPath, QByteArra
 	return true;
 }
 
-bool VPKEditWindowAccess_V2::readTextEntry(const QString& entryPath, QString& data) const {
+bool VPKEditWindowAccess_V3::readTextEntry(const QString& entryPath, QString& data) const {
 	const auto file = this->window->readTextEntry(entryPath);
 	if (!file) {
 		return false;
@@ -1913,6 +1937,30 @@ bool VPKEditWindowAccess_V2::readTextEntry(const QString& entryPath, QString& da
 	return true;
 }
 
-void VPKEditWindowAccess_V2::selectEntryInEntryTree(const QString& entryPath) const {
-	this->window->selectEntryInEntryTree(entryPath);
+void VPKEditWindowAccess_V3::selectEntryInEntryTree(const QString& entryPath) const {
+	return this->window->selectEntryInEntryTree(entryPath);
+}
+
+bool VPKEditWindowAccess_V3::hasEntry(const QString& entryPath) const {
+	return this->window->hasEntry(entryPath);
+}
+
+void VPKEditWindowAccess_V3::selectSubItemInDir(const QString& path) const {
+	return this->window->selectSubItemInDir(path);
+}
+
+void VPKEditWindowAccess_V3::extractFile(const QString& path, QString savePath) const {
+	return this->window->extractFile(path, savePath);
+}
+
+void VPKEditWindowAccess_V3::extractDir(const QString& path, const QString& saveDir) const {
+	return this->window->extractDir(path, saveDir);
+}
+
+void VPKEditWindowAccess_V3::extractPaths(const QStringList& paths, const QString& saveDir) const {
+	return this->window->extractPaths(paths, saveDir);
+}
+
+void VPKEditWindowAccess_V3::extractAll(QString saveDir) const {
+	return this->window->extractAll(saveDir);
 }

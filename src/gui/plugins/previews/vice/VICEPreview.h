@@ -19,13 +19,13 @@ class VICEDialog : public QDialog {
 	Q_OBJECT;
 
 public:
-	VICEDialog(QString path_, bool encrypt, IVPKEditWindowAccess_V2* windowAccess_, QWidget* parent = nullptr);
+	VICEDialog(QString path_, bool encrypt, IVPKEditWindowAccess_V3* windowAccess_, QWidget* parent = nullptr);
 
 	[[nodiscard]] std::optional<std::vector<std::byte>> getData() const;
 
-	static std::optional<std::vector<std::byte>> encrypt(const QString& path, IVPKEditWindowAccess_V2* windowAccess, QWidget* parent = nullptr);
+	static std::optional<std::vector<std::byte>> encrypt(const QString& path, IVPKEditWindowAccess_V3* windowAccess, QWidget* parent = nullptr);
 
-	static std::optional<std::vector<std::byte>> decrypt(const QString& path, IVPKEditWindowAccess_V2* windowAccess, QWidget* parent = nullptr);
+	static std::optional<std::vector<std::byte>> decrypt(const QString& path, IVPKEditWindowAccess_V3* windowAccess, QWidget* parent = nullptr);
 
 private:
 	QComboBox* codes;
@@ -33,18 +33,18 @@ private:
 
 	QString path;
 	bool encrypting;
-	IVPKEditWindowAccess_V2* windowAccess;
+	IVPKEditWindowAccess_V3* windowAccess;
 
 	static QList<std::pair<QString, std::string_view>> CODES;
 };
 
-class VICEPreview final : public IVPKEditPreviewPlugin_V1_2 {
+class VICEPreview final : public IVPKEditPreviewPlugin_V1_3 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_2_iid FILE "VICEPreview.json");
-	Q_INTERFACES(IVPKEditPreviewPlugin_V1_2);
+	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_3_iid FILE "VICEPreview.json");
+	Q_INTERFACES(IVPKEditPreviewPlugin_V1_3);
 
 public:
-	void initPlugin(IVPKEditWindowAccess_V2* windowAccess_) override;
+	void initPlugin(IVPKEditWindowAccess_V3* windowAccess_) override;
 
 	void initPreview(QWidget* parent) override;
 
@@ -60,5 +60,5 @@ private:
 	QWidget* preview = nullptr;
 
 	QString selectedPath;
-	IVPKEditWindowAccess_V2* windowAccess = nullptr;
+	IVPKEditWindowAccess_V3* windowAccess = nullptr;
 };

@@ -8,11 +8,11 @@
 
 class QWidget;
 
-class IVPKEditPreviewPlugin_V1_2 : public QObject {
+class IVPKEditPreviewPlugin_V1_3 : public QObject {
 	Q_OBJECT;
 
 public:
-	virtual void initPlugin(IVPKEditWindowAccess_V2* windowAccess) = 0;
+	virtual void initPlugin(IVPKEditWindowAccess_V3* windowAccess) = 0;
 
 	virtual void initPreview(QWidget* parent) = 0;
 
@@ -39,5 +39,5 @@ signals:
 	void showGenericErrorPreview(const QString& text);
 };
 
-#define IVPKEditPreviewPlugin_V1_2_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.2"
-Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V1_2, IVPKEditPreviewPlugin_V1_2_iid)
+#define IVPKEditPreviewPlugin_V1_3_iid "info.craftablescience.vpkedit.IPreviewPlugin/1.3"
+Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V1_3, IVPKEditPreviewPlugin_V1_3_iid)

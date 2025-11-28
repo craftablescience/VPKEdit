@@ -32,7 +32,7 @@ using namespace vtfpp;
 
 namespace {
 
-std::unique_ptr<MDLTextureData> getTextureDataForMaterial(IVPKEditWindowAccess_V2* windowAccess, const std::string& materialPath) {
+std::unique_ptr<MDLTextureData> getTextureDataForMaterial(IVPKEditWindowAccess_V3* windowAccess, const std::string& materialPath) {
 	QString materialFile;
 	if (!windowAccess->readTextEntry(materialPath.c_str(), materialFile)) {
 		return nullptr;
@@ -532,7 +532,7 @@ void MDLWidget::timerEvent(QTimerEvent* /*event*/) {
 constexpr int TOOLBAR_SPACE_SIZE = 48;
 constexpr int SHADING_MODE_BUTTON_SIZE = 24;
 
-void MDLPreview::initPlugin(IVPKEditWindowAccess_V2* windowAccess_) {
+void MDLPreview::initPlugin(IVPKEditWindowAccess_V3* windowAccess_) {
 	this->windowAccess = windowAccess_;
 }
 
@@ -647,7 +647,7 @@ QIcon MDLPreview::getIcon() const {
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_2::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
+IVPKEditPreviewPlugin_V1_3::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
 	this->mdl->clearMeshes();
 
 	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();
