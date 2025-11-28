@@ -388,6 +388,8 @@ void pack(const argparse::ArgumentParser& cli, std::string inputPath) {
 	std::unique_ptr<PackFile> packFile;
 	if (type == "bmz" || type == "zip") {
 		packFile = ZIP::create(outputPath);
+	} else if (type == "fgp") {
+		packFile = FGP::create(outputPath);
 	} else if (type == "fpx") {
 		packFile = FPX::create(outputPath);
 		if (auto* fpx = dynamic_cast<FPX*>(packFile.get())) {
@@ -526,7 +528,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_P(TYPE))
 		.help("(Pack) The type of the output pack file.")
 		.default_value("vpk")
-		.choices("bmz", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "wad3", "zip")
+		.choices("bmz", "fgp", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "wad3", "zip")
 		.nargs(1);
 
 	cli.add_argument(ARG_L(NO_PROGRESS))
