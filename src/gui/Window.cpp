@@ -362,6 +362,10 @@ Window::Window(QWidget* parent)
 	// Tools menu
 	auto* toolsMenu = this->menuBar()->addMenu(tr("Tools"));
 
+	this->toolsPluginInformationMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Plugin Information"));
+	// populated later in Window::registerPlugin
+	toolsMenu->addSeparator();
+
 	this->toolsGeneralMenu = toolsMenu->addMenu(this->style()->standardIcon(QStyle::SP_FileIcon), tr("General"));
 	this->toolsGeneralMenu->addAction(this->style()->standardIcon(QStyle::SP_FileDialogContentsView), tr("Verify Checksums"), [this] {
 		VerifyChecksumsDialog::showDialog(*this->packFile, this);
@@ -1424,6 +1428,61 @@ void Window::freezeModifyActions(bool readOnly) const {
 		this->markModifiedAction->setDisabled(readOnly);
 		this->setPropertiesAction->setDisabled(readOnly);
 	}
+}
+
+void Window::registerPlugin(const QString& path, QIcon icon, const QJsonObject& metadata) {
+	const QString nameWithVersion = tr("%1 v%2.%3.%4")
+		.arg(metadata["name"].toString("<Unknown Name>"))
+		.arg(metadata["versionMajor"].toInt(0))
+		.arg(metadata["versionMinor"].toInt(0))
+		.arg(metadata["versionPatch"].toInt(0));
+
+	static constexpr auto snakeCaseToHuman = [](const QString& in) {
+		QString out;
+		bool caps = true;
+		for (auto c : in) {
+			if (c == '_') {
+				c = ' ';
+				caps = true;
+			} else if (caps) {
+				c = c.toUpper();
+				caps = false;
+			}
+			out += c;
+		}
+		return out;
+	};
+
+	QString linksList;
+	for (const auto& linkName : metadata["links"].toObject({}).keys()) {
+		if (const auto& link = metadata["links"][linkName]; link.isString()) {
+			if (linksList.isEmpty()) {
+				linksList += tr("#### Links\n");
+			}
+			linksList += QString{"- [%1](%2)\n"}.arg(snakeCaseToHuman(linkName), link.toString());
+		}
+	}
+
+	this->toolsPluginInformationMenu->addAction(icon, nameWithVersion, [
+		this,
+		path,
+		pixmap = (icon.isNull() ? QIcon{":/icons/missing.png"} : icon).pixmap({128, 128}),
+		nameWithVersion,
+		author = metadata["author"].toString("<Unknown Author>"),
+		description = metadata["description"].toString("<Empty description.>"),
+		linksList
+	] {
+		QMessageBox box{
+			QMessageBox::NoIcon,
+			tr("Plugin Information"),
+			tr("## %1\n\n*Authored by %5*\n\n%6\n\n%7\n\n#### Location\n`%8`").arg(nameWithVersion).arg(author).arg(description).arg(linksList).arg(path),
+			QMessageBox::Close,
+			this,
+		};
+		box.setIconPixmap(pixmap);
+		box.setTextFormat(Qt::MarkdownText);
+		box.exec();
+	});
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {

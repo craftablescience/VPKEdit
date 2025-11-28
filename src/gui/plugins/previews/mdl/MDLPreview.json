@@ -1,6 +1,12 @@
 {
   "name": "MDL",
   "versionMajor": 1,
-  "versionMinor": 0,
-  "versionPatch": 0
+  "versionMinor": 1,
+  "versionPatch": 0,
+  "author": "craftablescience",
+  "description": "Previews Source engine models.",
+  "links": {
+    "homepage": "https://github.com/craftablescience/VPKEdit",
+    "issue_tracker": "https://github.com/craftablescience/VPKEdit/issues"
+  }
 }

@@ -226,6 +226,8 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showTextPreview, this, &FileViewer::showTextPreview);
 			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showInfoPreview, this, &FileViewer::showInfoPreview);
 			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+
+			this->window->registerPlugin(libraryPath, plugin->getIcon(), loader->metaData()["MetaData"].toObject());
 		} else {
 			loader->deleteLater();
 		}

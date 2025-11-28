@@ -11,6 +11,7 @@
 #include "plugins/previews/IVPKEditPreviewPlugin.h"
 
 class QAction;
+class QJsonObject;
 class QLabel;
 class QLineEdit;
 class QMenu;
@@ -128,6 +129,8 @@ public:
 
 	void freezeModifyActions(bool readOnly) const;
 
+	void registerPlugin(const QString& path, QIcon icon, const QJsonObject& metadata);
+
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 
@@ -161,6 +164,7 @@ private:
 	QAction* addDirAction;
 	QAction* markModifiedAction;
 	QAction* setPropertiesAction;
+	QMenu*   toolsPluginInformationMenu;
 	QMenu*   toolsGeneralMenu;
 	QMenu*   toolsVPKMenu;
 

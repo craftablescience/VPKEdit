@@ -2,5 +2,11 @@
   "name": "DMX",
   "versionMajor": 1,
   "versionMinor": 0,
-  "versionPatch": 0
+  "versionPatch": 0,
+  "author": "craftablescience",
+  "description": "Previews Source Engine DMX (datamodel exchange) files.",
+  "links": {
+    "homepage": "https://github.com/craftablescience/VPKEdit",
+    "issue_tracker": "https://github.com/craftablescience/VPKEdit/issues"
+  }
 }
