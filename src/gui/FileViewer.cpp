@@ -8,7 +8,6 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPluginLoader>
-#include <QStandardPaths>
 #include <QTimer>
 #include <QToolButton>
 
@@ -18,7 +17,7 @@
 #include "previews/InfoPreview.h"
 #include "previews/TextPreview.h"
 #include "previews/TexturePreview.h"
-#include "utility/Options.h"
+#include "utility/PluginFinder.h"
 #include "utility/ThemedIcon.h"
 #include "Window.h"
 
@@ -200,44 +199,6 @@ void NavBar::processPathChanged(const QString& newPath, bool addToHistory, bool 
 	}
 }
 
-VPKEditWindowAccess_V2::VPKEditWindowAccess_V2(FileViewer* fileViewer_)
-		: IVPKEditWindowAccess_V2(fileViewer_)
-		, fileViewer(fileViewer_) {}
-
-QSettings* VPKEditWindowAccess_V2::getOptions() const {
-	return Options::getOptions();
-}
-
-bool VPKEditWindowAccess_V2::isReadOnly() const {
-	return this->fileViewer->window->isReadOnly();
-}
-
-bool VPKEditWindowAccess_V2::hasEntry(const QString& entryPath) const {
-	return this->fileViewer->window->hasEntry(entryPath);
-}
-
-bool VPKEditWindowAccess_V2::readBinaryEntry(const QString& entryPath, QByteArray& data) const {
-	const auto file = this->fileViewer->window->readBinaryEntry(entryPath);
-	if (!file) {
-		return false;
-	}
-	data = QByteArray{reinterpret_cast<const char*>(file->data()), static_cast<qlonglong>(file->size())};
-	return true;
-}
-
-bool VPKEditWindowAccess_V2::readTextEntry(const QString& entryPath, QString& data) const {
-	const auto file = this->fileViewer->window->readTextEntry(entryPath);
-	if (!file) {
-		return false;
-	}
-	data = *file;
-	return true;
-}
-
-void VPKEditWindowAccess_V2::selectEntryInEntryTree(const QString& entryPath) const {
-	this->fileViewer->window->selectEntryInEntryTree(entryPath);
-}
-
 FileViewer::FileViewer(Window* window_, QWidget* parent)
 		: QWidget(parent)
 		, window(window_) {
@@ -250,39 +211,25 @@ FileViewer::FileViewer(Window* window_, QWidget* parent)
 	});
 	layout->addWidget(this->navbar);
 
-	this->packFileAccess_V1 = new VPKEditWindowAccess_V2{this};
+	this->packFileAccess_V2 = new VPKEditWindowAccess_V2{this->window};
 
-	QStringList pluginLocations{QApplication::applicationDirPath()};
-#if defined(_WIN32)
-	for (const auto& path : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)) {
-		pluginLocations << path + "/" + QString{PROJECT_NAME.data()};
-	}
-#elif defined(__APPLE__)
-	pluginLocations << QDir{"../PlugIns"}.absolutePath();
-#elif defined(__linux__)
-	pluginLocations << "/usr/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()};
-	pluginLocations << QDir{"~/.local/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()}}.canonicalPath();
-#endif
-	qDebug() << pluginLocations;
-	for (const QString& dirPath : pluginLocations) {
-		for (const QDir dir{dirPath + "/previews"}; const QString& libraryName : dir.entryList(QDir::Files)) {
-			auto* loader = new QPluginLoader{dir.absoluteFilePath(libraryName), this};
-			if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_2*>(loader->instance())) {
-				if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
-					continue;
-				}
-				this->previewPlugins.push_back(loader);
-				plugin->initPlugin(this->packFileAccess_V1);
-				plugin->initPreview(this);
-				layout->addWidget(plugin->getPreview());
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showTextPreview, this, &FileViewer::showTextPreview);
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showInfoPreview, this, &FileViewer::showInfoPreview);
-				QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
-			} else {
-				loader->deleteLater();
+	PluginFinder::doTheThing("previews", [this, layout](const QString& libraryPath) {
+		auto* loader = new QPluginLoader{libraryPath, this};
+		if (auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_2*>(loader->instance())) {
+			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
+				return;
 			}
+			this->previewPlugins.push_back(loader);
+			plugin->initPlugin(this->packFileAccess_V2);
+			plugin->initPreview(this);
+			layout->addWidget(plugin->getPreview());
+			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showTextPreview, this, &FileViewer::showTextPreview);
+			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showInfoPreview, this, &FileViewer::showInfoPreview);
+			QObject::connect(plugin, &IVPKEditPreviewPlugin_V1_2::showGenericErrorPreview, this, &FileViewer::showGenericErrorPreview);
+		} else {
+			loader->deleteLater();
 		}
-	}
+	});
 
 	this->dirPreview = new DirPreview{this, this->window, this};
 	layout->addWidget(this->dirPreview);

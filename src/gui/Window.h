@@ -8,6 +8,7 @@
 #include <vpkpp/vpkpp.h>
 
 #include "dialogs/PackFileOptionsDialog.h"
+#include "plugins/previews/IVPKEditPreviewPlugin.h"
 
 class QAction;
 class QLabel;
@@ -240,4 +241,24 @@ public:
 
 signals:
 	void taskFinished(const QList<std::tuple<QString, QIcon, QDir>>& sourceGames);
+};
+
+class VPKEditWindowAccess_V2 final : public IVPKEditWindowAccess_V2 {
+public:
+	explicit VPKEditWindowAccess_V2(Window* window_);
+
+	[[nodiscard]] QSettings* getOptions() const override;
+
+	[[nodiscard]] bool isReadOnly() const override;
+
+	[[nodiscard]] bool hasEntry(const QString& entryPath) const override;
+
+	[[nodiscard]] bool readBinaryEntry(const QString& entryPath, QByteArray& data) const override;
+
+	[[nodiscard]] bool readTextEntry(const QString& entryPath, QString& data) const override;
+
+	void selectEntryInEntryTree(const QString& entryPath) const override;
+
+private:
+	Window* window;
 };

@@ -1809,3 +1809,41 @@ void ScanSteamGamesWorker::run() {
 	});
 	emit this->taskFinished(sourceGames);
 }
+
+VPKEditWindowAccess_V2::VPKEditWindowAccess_V2(Window* window_)
+		: IVPKEditWindowAccess_V2(window_)
+		, window(window_) {}
+
+QSettings* VPKEditWindowAccess_V2::getOptions() const {
+	return Options::getOptions();
+}
+
+bool VPKEditWindowAccess_V2::isReadOnly() const {
+	return this->window->isReadOnly();
+}
+
+bool VPKEditWindowAccess_V2::hasEntry(const QString& entryPath) const {
+	return this->window->hasEntry(entryPath);
+}
+
+bool VPKEditWindowAccess_V2::readBinaryEntry(const QString& entryPath, QByteArray& data) const {
+	const auto file = this->window->readBinaryEntry(entryPath);
+	if (!file) {
+		return false;
+	}
+	data = QByteArray{reinterpret_cast<const char*>(file->data()), static_cast<qlonglong>(file->size())};
+	return true;
+}
+
+bool VPKEditWindowAccess_V2::readTextEntry(const QString& entryPath, QString& data) const {
+	const auto file = this->window->readTextEntry(entryPath);
+	if (!file) {
+		return false;
+	}
+	data = *file;
+	return true;
+}
+
+void VPKEditWindowAccess_V2::selectEntryInEntryTree(const QString& entryPath) const {
+	this->window->selectEntryInEntryTree(entryPath);
+}

@@ -45,6 +45,8 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 		"${CMAKE_CURRENT_LIST_DIR}/utility/ImageLoader.h"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/Options.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/Options.h"
+		"${CMAKE_CURRENT_LIST_DIR}/utility/PluginFinder.cpp"
+		"${CMAKE_CURRENT_LIST_DIR}/utility/PluginFinder.h"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.cpp"
 		"${CMAKE_CURRENT_LIST_DIR}/utility/TempDir.h"
         "${CMAKE_CURRENT_LIST_DIR}/utility/ThemedIcon.h"

@@ -3,8 +3,6 @@
 #include <QPluginLoader>
 #include <QWidget>
 
-#include "plugins/previews/IVPKEditPreviewPlugin.h"
-
 class QAction;
 class QLineEdit;
 class QToolButton;
@@ -23,6 +21,7 @@ class PackFile;
 } // namespace vpkpp
 
 class Window;
+class VPKEditWindowAccess_V2;
 
 class NavBar : public QWidget {
 	Q_OBJECT;
@@ -73,32 +72,8 @@ private:
 	void processPathChanged(const QString& newPath, bool addToHistory = true, bool firePathChanged = true);
 };
 
-class FileViewer;
-
-class VPKEditWindowAccess_V2 final : public IVPKEditWindowAccess_V2 {
-public:
-	explicit VPKEditWindowAccess_V2(FileViewer* fileViewer_);
-
-	[[nodiscard]] QSettings* getOptions() const override;
-
-	[[nodiscard]] bool isReadOnly() const override;
-
-	[[nodiscard]] bool hasEntry(const QString& entryPath) const override;
-
-	[[nodiscard]] bool readBinaryEntry(const QString& entryPath, QByteArray& data) const override;
-
-	[[nodiscard]] bool readTextEntry(const QString& entryPath, QString& data) const override;
-
-	void selectEntryInEntryTree(const QString& entryPath) const override;
-
-private:
-	FileViewer* fileViewer;
-};
-
 class FileViewer : public QWidget {
 	Q_OBJECT;
-
-	friend VPKEditWindowAccess_V2;
 
 public:
 	explicit FileViewer(Window* window_, QWidget* parent = nullptr);
@@ -147,7 +122,7 @@ private:
 	Window* window;
 	NavBar* navbar;
 
-	VPKEditWindowAccess_V2* packFileAccess_V1;
+	VPKEditWindowAccess_V2* packFileAccess_V2;
 	QList<QPluginLoader*> previewPlugins;
 	DirPreview* dirPreview;
 	EmptyPreview* emptyPreview;
