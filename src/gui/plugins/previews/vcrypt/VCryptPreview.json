@@ -1,10 +1,10 @@
 {
-  "name": "VICE",
+  "name": "VCrypt",
   "versionMajor": 1,
   "versionMinor": 0,
   "versionPatch": 0,
   "author": "craftablescience",
-  "description": "Adds utilities to decrypt/encrypt VICE-encoded files, as well as convert between VFONT and TTF font files.",
+  "description": "Adds utilities to decrypt/encrypt files with ICE encryption, as well as convert between VFONT and TTF font files.",
   "links": {
     "homepage": "https://github.com/craftablescience/VPKEdit",
     "issue_tracker": "https://github.com/craftablescience/VPKEdit/issues"

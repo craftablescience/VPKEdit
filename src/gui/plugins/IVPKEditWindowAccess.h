@@ -28,6 +28,8 @@ public:
 
 	virtual void editFileContents(const QString& path, const QString& data) const = 0;
 
+	virtual void renameFile(const QString& oldPath, const QString& newPath = QString()) const = 0;
+
 	virtual void renameDir(const QString& oldPath, const QString& newPath = QString()) const = 0;
 
 	[[nodiscard]] virtual bool readBinaryEntry(const QString& entryPath, QByteArray& data) const = 0;

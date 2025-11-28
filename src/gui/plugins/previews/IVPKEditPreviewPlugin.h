@@ -6,6 +6,7 @@
 
 #include "../IVPKEditWindowAccess.h"
 
+class QMenu;
 class QWidget;
 
 class IVPKEditPreviewPlugin_V1_3 : public QObject {
@@ -22,14 +23,25 @@ public:
 
 	[[nodiscard]] virtual QIcon getIcon() const = 0;
 
-	enum Error {
+	enum Error : int {
 		ERROR_SHOWED_THIS_PREVIEW  = 0,
 		ERROR_SHOWED_OTHER_PREVIEW = 1,
 		ERROR_SHOWED_NO_PREVIEW    = 2,
 	};
 
 	// Sorry, QSpan is too new
-	virtual Error setData(const QString& path, const quint8* dataPtr, quint64 length) = 0;
+	[[nodiscard]] virtual int setData(const QString& path, const quint8* dataPtr, quint64 length) = 0;
+
+	enum ContextMenuType : int {
+		CONTEXT_MENU_TYPE_FILE  = 0,
+		CONTEXT_MENU_TYPE_DIR   = 1,
+		CONTEXT_MENU_TYPE_ROOT  = 2,
+		CONTEXT_MENU_TYPE_MIXED = 3,
+	};
+
+	virtual void initContextMenu(int contextMenuType, QMenu* contextMenu) = 0;
+
+	virtual void updateContextMenu(int contextMenuType, const QStringList& paths) = 0;
 
 signals:
 	void showTextPreview(const QString& text, const QString& extension);

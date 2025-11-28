@@ -20,7 +20,11 @@ public:
 
 	[[nodiscard]] QIcon getIcon() const override;
 
-	Error setData(const QString&, const quint8* dataPtr, quint64 length) override;
+	[[nodiscard]] int setData(const QString&, const quint8* dataPtr, quint64 length) override;
+
+	void initContextMenu(int, QMenu*) override {}
+
+	void updateContextMenu(int, const QStringList&) override {}
 
 private:
 	QTreeWidget* preview = nullptr;

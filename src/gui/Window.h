@@ -21,6 +21,7 @@ class QProgressBar;
 class QSettings;
 class QThread;
 
+struct EntryContextMenuData;
 class EntryTree;
 class FileViewer;
 
@@ -87,6 +88,8 @@ public:
 
 	void editFileContents(const QString& path, const QString& data);
 
+	void renameFile(const QString& oldPath, const QString& newPath_ = QString());
+
 	void renameDir(const QString& oldPath, const QString& newPath_ = QString());
 
 	void generateKeyPairFiles(const QString& name = QString());
@@ -132,6 +135,10 @@ public:
 	void freezeModifyActions(bool readOnly) const;
 
 	void registerPlugin(const QString& path, QIcon icon, const QJsonObject& metadata);
+
+	void pluginsInitContextMenu(const EntryContextMenuData* contextMenu) const;
+
+	void pluginsUpdateContextMenu(int contextMenuType, const QStringList& paths) const;
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -268,6 +275,8 @@ public:
 	void editFileContents(const QString& path, const QByteArray& data) const override;
 
 	void editFileContents(const QString& path, const QString& data) const override;
+
+	void renameFile(const QString& oldPath, const QString& newPath = QString()) const override;
 
 	void renameDir(const QString& oldPath, const QString& newPath = QString()) const override;
 

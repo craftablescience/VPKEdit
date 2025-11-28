@@ -1,6 +1,7 @@
 // ReSharper disable CppDFAMemoryLeak
+// ReSharper disable CppRedundantQualifier
 
-#include "VICEPreview.h"
+#include "VCryptPreview.h"
 
 #include <ranges>
 #include <utility>
@@ -10,8 +11,8 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QSettings>
 #include <QVBoxLayout>
 #include <vcryptpp/vcryptpp.h>
@@ -137,7 +138,7 @@ std::optional<std::vector<std::byte>> VICEDialog::decrypt(const QString& path, I
 	return dialog->getData();
 }
 
-void VICEPreview::initPlugin(IVPKEditWindowAccess_V3* windowAccess_) {
+void VCryptPreview::initPlugin(IVPKEditWindowAccess_V3* windowAccess_) {
 	this->windowAccess = windowAccess_;
 
 	auto* opts = this->windowAccess->getOptions();
@@ -151,49 +152,154 @@ void VICEPreview::initPlugin(IVPKEditWindowAccess_V3* windowAccess_) {
 	}
 }
 
-void VICEPreview::initPreview(QWidget* parent) {
+void VCryptPreview::initPreview(QWidget* parent) {
 	this->preview = new QWidget{parent};
 	this->preview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	auto* layout = new QHBoxLayout{this->preview};
 
-	auto* group = new QWidget{this->preview};
-	group->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-	layout->addWidget(group);
-	auto* groupLayout = new QVBoxLayout{group};
-
 	auto* label = new QLabel{tr("Decrypt file to view contents"), parent};
 	label->setAlignment(Qt::AlignCenter);
-	groupLayout->addWidget(label);
-
-	auto* decryptButton = new QPushButton{tr("Decrypt"), parent};
-	groupLayout->addWidget(decryptButton);
-	QObject::connect(decryptButton, &QPushButton::clicked, this, [this] {
-		//const auto data = VICEDialog::decrypt(this->selectedPath, this->windowAccess, this->preview);
-		// todo: write data to pack file with remapped extension, remove existing file
-		QMessageBox::information(this->preview, tr("Unimplemented"), tr("This function has not been reimplemented yet."));
-	});
+	label->setDisabled(true);
+	layout->addWidget(label);
 }
 
-QWidget* VICEPreview::getPreview() const {
+QWidget* VCryptPreview::getPreview() const {
 	return this->preview;
 }
 
-const QSet<QString>& VICEPreview::getPreviewExtensions() const {
+const QSet<QString>& VCryptPreview::getPreviewExtensions() const {
 	static const QSet<QString> EXTENSIONS{
 		".ctx",
 		".ekv",
 		".nuc",
+		".vfont",
 	};
 	return EXTENSIONS;
 }
 
-QIcon VICEPreview::getIcon() const {
+QIcon VCryptPreview::getIcon() const {
 	// todo: cool icon
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_3::Error VICEPreview::setData(const QString& path, const quint8*, quint64) {
-	this->preview->setDisabled(this->windowAccess->isReadOnly());
-	this->selectedPath = path;
+int VCryptPreview::setData(const QString& path, const quint8*, quint64) {
 	return ERROR_SHOWED_THIS_PREVIEW;
+}
+
+void VCryptPreview::initContextMenu(int contextMenuType, QMenu* contextMenu) {
+	if (contextMenuType != CONTEXT_MENU_TYPE_FILE) {
+		return;
+	}
+
+	this->encryptionMenu = contextMenu->addMenu(this->getIcon(), "VCrypt");
+	this->encryptICEAction = this->encryptionMenu->addAction(this->getIcon(), tr("Encrypt ICE"), [this] {
+		for (const auto path : this->selectedPaths) {
+			if (path.endsWith(".txt") || path.endsWith(".kv") || path.endsWith(".nut")) {
+				this->encryptICE(path);
+			}
+		}
+	});
+	this->decryptICEAction = this->encryptionMenu->addAction(this->getIcon(), tr("Decrypt ICE"), [this] {
+		for (const auto path : this->selectedPaths) {
+			if (path.endsWith(".ctx") || path.endsWith(".ekv") || path.endsWith(".nuc")) {
+				this->decryptICE(path);
+			}
+		}
+	});
+	this->encryptFontAction = this->encryptionMenu->addAction(this->getIcon(), tr("Encrypt Font"), [this] {
+		for (const auto path : this->selectedPaths) {
+			if (path.endsWith(".ttf")) {
+				this->encryptFont(path);
+			}
+		}
+	});
+	this->decryptFontAction = this->encryptionMenu->addAction(this->getIcon(), tr("Decrypt Font"), [this] {
+		for (const auto path : this->selectedPaths) {
+			if (path.endsWith(".vfont")) {
+				this->decryptFont(path);
+			}
+		}
+	});
+}
+
+void VCryptPreview::updateContextMenu(int contextMenuType, const QStringList& paths) {
+	if (contextMenuType != CONTEXT_MENU_TYPE_FILE) {
+		return;
+	}
+	this->selectedPaths = paths;
+
+	this->encryptICEAction->setVisible(false);
+	this->decryptICEAction->setVisible(false);
+	this->encryptFontAction->setVisible(false);
+	this->decryptFontAction->setVisible(false);
+
+	for (const auto& path : paths) {
+		if (path.endsWith(".txt") || path.endsWith(".kv") || path.endsWith(".nut")) {
+			this->encryptICEAction->setVisible(true);
+		} else if (path.endsWith(".ctx") || path.endsWith(".ekv") || path.endsWith(".nuc")) {
+			this->decryptICEAction->setVisible(true);
+		} else if (path.endsWith(".ttf")) {
+			this->encryptFontAction->setVisible(true);
+		} else if (path.endsWith(".vfont")) {
+			this->decryptFontAction->setVisible(true);
+		}
+	}
+
+	this->encryptionMenu->menuAction()->setVisible(this->encryptICEAction->isVisible() || this->decryptICEAction->isVisible() || this->encryptFontAction->isVisible() || this->decryptFontAction->isVisible());
+}
+
+void VCryptPreview::encryptICE(const QString& path) const {
+	if (const auto data = VICEDialog::encrypt(path, this->windowAccess, this->preview)) {
+		QString newPath;
+		if (path.endsWith(".txt")) {
+			newPath = path.sliced(0, path.size() - 4) + ".ctx";
+		} else if (path.endsWith(".kv")) {
+			newPath = path.sliced(0, path.size() - 4) + ".ekv";
+		} else if (path.endsWith(".nut")) {
+			newPath = path.sliced(0, path.size() - 4) + ".nuc";
+		}
+		this->windowAccess->renameFile(path, newPath);
+		this->windowAccess->editFileContents(newPath, {reinterpret_cast<const char*>(data->data()), static_cast<qsizetype>(data->size())});
+	}
+}
+
+void VCryptPreview::decryptICE(const QString& path) const {
+	if (const auto data = VICEDialog::decrypt(path, this->windowAccess, this->preview)) {
+		QString newPath;
+		if (path.endsWith(".ctx")) {
+			newPath = path.sliced(0, path.size() - 4) + ".txt";
+		} else if (path.endsWith(".ekv")) {
+			newPath = path.sliced(0, path.size() - 4) + ".kv";
+		} else if (path.endsWith(".nuc")) {
+			newPath = path.sliced(0, path.size() - 4) + ".nut";
+		}
+		this->windowAccess->renameFile(path, newPath);
+		this->windowAccess->editFileContents(newPath, {reinterpret_cast<const char*>(data->data()), static_cast<qsizetype>(data->size())});
+	}
+}
+
+void VCryptPreview::encryptFont(const QString& path) const {
+	QByteArray decryptedData;
+	if (!this->windowAccess->readBinaryEntry(path, decryptedData)) {
+		return;
+	}
+	const auto data = VFONT::encrypt({reinterpret_cast<const std::byte*>(decryptedData.data()), static_cast<std::span<const std::byte>::size_type>(decryptedData.size())});
+	if (!data.empty()) {
+		const QString newPath = path.sliced(0, path.size() - 4) + ".vfont";
+		this->windowAccess->renameFile(path, newPath);
+		this->windowAccess->editFileContents(newPath, {reinterpret_cast<const char*>(data.data()), static_cast<qsizetype>(data.size())});
+	}
+}
+
+void VCryptPreview::decryptFont(const QString& path) const {
+	QByteArray encryptedData;
+	if (!this->windowAccess->readBinaryEntry(path, encryptedData)) {
+		return;
+	}
+	const auto data = VFONT::decrypt({reinterpret_cast<const std::byte*>(encryptedData.data()), static_cast<std::span<const std::byte>::size_type>(encryptedData.size())});
+	if (!data.empty()) {
+		const QString newPath = path.sliced(0, path.size() - 6) + ".ttf";
+		this->windowAccess->renameFile(path, newPath);
+		this->windowAccess->editFileContents(newPath, {reinterpret_cast<const char*>(data.data()), static_cast<qsizetype>(data.size())});
+	}
 }

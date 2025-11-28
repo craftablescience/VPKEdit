@@ -8,6 +8,7 @@ class QLineEdit;
 class QToolButton;
 
 class DirPreview;
+struct EntryContextMenuData;
 class EmptyPreview;
 class InfoPreview;
 class TextPreview;
@@ -114,9 +115,11 @@ public:
 
 	void hideAllPreviews();
 
-	[[nodiscard]] NavBar* getNavBar() const {
-		return this->navbar;
-	}
+	[[nodiscard]] NavBar* getNavBar() const;
+
+	void pluginsInitContextMenu(const EntryContextMenuData* contextMenu) const;
+
+	void pluginsUpdateContextMenu(int contextMenuType, const QStringList& paths) const;
 
 private:
 	Window* window;

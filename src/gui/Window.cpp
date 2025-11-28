@@ -4,6 +4,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <ranges>
 
 #include <bsppp/PakLump.h>
 #include <kvpp/kvpp.h>
@@ -1120,6 +1121,53 @@ void Window::editFileContents(const QString& path, const QString& data) {
 	this->markModified(true);
 }
 
+void Window::renameFile(const QString& oldPath, const QString& newPath_) {
+	// Get new path
+	QString newPath = newPath_;
+	if (newPath.isEmpty()) {
+		bool ok;
+		newPath = QInputDialog::getText(this, tr("Rename File"), tr("The new path:"), QLineEdit::Normal, oldPath, &ok);
+		if (!ok || newPath.isEmpty()) {
+			return;
+		}
+	}
+
+	// Get data
+	auto entry = this->packFile->findEntry(oldPath.toLocal8Bit().constData());
+	if (!entry) {
+		return;
+	}
+	auto entryData = this->packFile->readEntry(oldPath.toLocal8Bit().constData());
+	if (!entryData) {
+		return;
+	}
+
+	// Load existing properties
+	auto compressionType = EntryCompressionType::NO_COMPRESS;
+	int16_t compressionStrength = 5;
+	if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
+		if (const auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
+			compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
+			compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
+		}
+	}
+
+	// Remove file
+	this->requestEntryRemoval(oldPath);
+
+	// Add new file with the same info and data at the new path
+	this->packFile->addEntry(newPath.toLocal8Bit().constData(), std::move(entryData.value()), {
+		.zip_compressionType = compressionType,
+		.zip_compressionStrength = compressionStrength,
+		.vpk_preloadBytes = static_cast<uint16_t>(entry->extraData.size()),
+		.vpk_saveToDirectory = entry->archiveIndex == VPK_DIR_INDEX,
+	});
+	this->entryTree->addEntry(newPath);
+	if (const auto newEntry = this->packFile->findEntry(newPath.toLocal8Bit().constData())) {
+		this->fileViewer->addEntry(*newEntry, newPath);
+	}
+}
+
 void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 	// Get new path
 	QString newPath = newPath_;
@@ -1140,49 +1188,14 @@ void Window::renameDir(const QString& oldPath, const QString& newPath_) {
 		}
 	});
 
-	QProgressDialog progressDialog(tr("Renaming folder... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, static_cast<int>(entriesToRename.size()), this);
+	QProgressDialog progressDialog(tr("Renaming folder... Aborting this process will not roll back changes made so far."), tr("Abort"), 0, 0, this);
 	progressDialog.setWindowTitle(tr("Rename Folder"));
 	progressDialog.setWindowModality(Qt::WindowModal);
-	for (const auto& [path, entry] : entriesToRename) {
+	for (const auto& path : entriesToRename | std::views::keys) {
 		if (progressDialog.wasCanceled()) {
 			break;
 		}
-
-		// Get data
-		auto entryData = this->packFile->readEntry(path);
-		if (!entryData) {
-			continue;
-		}
-
-		// Load existing properties
-		EntryCompressionType compressionType = EntryCompressionType::NO_COMPRESS;
-		int16_t compressionStrength = 5;
-		if (this->packFile->isInstanceOf<BSP>() || this->packFile->isInstanceOf<ZIP>()) {
-			if (auto* zip = dynamic_cast<ZIP*>(this->packFile.get())) {
-				compressionType = zip->getEntryCompressionType(oldPath.toLocal8Bit().constData());
-				compressionStrength = zip->getEntryCompressionStrength(oldPath.toLocal8Bit().constData());
-			}
-		}
-
-		// Remove file
-		this->requestEntryRemoval(path.c_str());
-
-		// Calculate new path
-		QString newEntryPath = newPath + path.substr(oldPath.length()).c_str();
-
-		// Add new file with the same info and data at the new path
-		this->packFile->addEntry(newEntryPath.toLocal8Bit().constData(), std::move(entryData.value()), {
-			.zip_compressionType = compressionType,
-			.zip_compressionStrength = compressionStrength,
-			.vpk_preloadBytes = static_cast<uint16_t>(entry.extraData.size()),
-			.vpk_saveToDirectory = entry.archiveIndex == VPK_DIR_INDEX,
-		});
-		this->entryTree->addEntry(newEntryPath);
-		if (const auto newEntry = this->packFile->findEntry(newEntryPath.toLocal8Bit().constData())) {
-			this->fileViewer->addEntry(*newEntry, newEntryPath);
-		}
-
-		progressDialog.setValue(progressDialog.value() + 1);
+		this->renameFile(path.c_str(), newPath + path.substr(oldPath.length()).c_str());
 	}
 	this->markModified(true);
 }
@@ -1493,6 +1506,14 @@ void Window::registerPlugin(const QString& path, QIcon icon, const QJsonObject& 
 		box.setTextFormat(Qt::MarkdownText);
 		box.exec();
 	});
+}
+
+void Window::pluginsInitContextMenu(const EntryContextMenuData* contextMenu) const {
+	this->fileViewer->pluginsInitContextMenu(contextMenu);
+}
+
+void Window::pluginsUpdateContextMenu(int contextMenuType, const QStringList& paths) const {
+	this->fileViewer->pluginsUpdateContextMenu(contextMenuType, paths);
 }
 
 void Window::mousePressEvent(QMouseEvent* event) {
@@ -1913,6 +1934,10 @@ void VPKEditWindowAccess_V3::editFileContents(const QString& path, const QByteAr
 
 void VPKEditWindowAccess_V3::editFileContents(const QString& path, const QString& data) const {
 	return this->window->editFileContents(path, data);
+}
+
+void VPKEditWindowAccess_V3::renameFile(const QString& oldPath, const QString& newPath) const {
+	return this->window->renameFile(oldPath, newPath);
 }
 
 void VPKEditWindowAccess_V3::renameDir(const QString& oldPath, const QString& newPath) const {

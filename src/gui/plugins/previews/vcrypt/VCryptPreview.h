@@ -9,8 +9,10 @@
 
 #include "../IVPKEditPreviewPlugin.h"
 
+class QAction;
 class QComboBox;
 class QLineEdit;
+class QMenu;
 
 constexpr std::string_view STR_VICE_CODE_INDEX = "vice_dialog_code_index";
 constexpr std::string_view STR_VICE_CODE_VALUE = "vice_dialog_code_value";
@@ -38,9 +40,9 @@ private:
 	static QList<std::pair<QString, std::string_view>> CODES;
 };
 
-class VICEPreview final : public IVPKEditPreviewPlugin_V1_3 {
+class VCryptPreview final : public IVPKEditPreviewPlugin_V1_3 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_3_iid FILE "VICEPreview.json");
+	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V1_3_iid FILE "VCryptPreview.json");
 	Q_INTERFACES(IVPKEditPreviewPlugin_V1_3);
 
 public:
@@ -54,11 +56,30 @@ public:
 
 	[[nodiscard]] QIcon getIcon() const override;
 
-	Error setData(const QString& path, const quint8*, quint64) override;
+	[[nodiscard]] int setData(const QString& path, const quint8*, quint64) override;
+
+	void initContextMenu(int contextMenuType, QMenu* contextMenu) override;
+
+	void updateContextMenu(int contextMenuType, const QStringList& paths) override;
+
+public slots:
+	void encryptICE(const QString& path) const;
+
+	void decryptICE(const QString& path) const;
+
+	void encryptFont(const QString& path) const;
+
+	void decryptFont(const QString& path) const;
 
 private:
 	QWidget* preview = nullptr;
 
-	QString selectedPath;
 	IVPKEditWindowAccess_V3* windowAccess = nullptr;
+
+	QStringList selectedPaths;
+	QMenu* encryptionMenu = nullptr;
+	QAction* encryptICEAction = nullptr;
+	QAction* decryptICEAction = nullptr;
+	QAction* encryptFontAction = nullptr;
+	QAction* decryptFontAction = nullptr;
 };

@@ -19,6 +19,7 @@
 #include "previews/TexturePreview.h"
 #include "utility/PluginFinder.h"
 #include "utility/ThemedIcon.h"
+#include "EntryContextMenuData.h"
 #include "Window.h"
 
 using namespace vpkpp;
@@ -432,4 +433,30 @@ void FileViewer::hideAllPreviews() {
 	this->emptyPreview->hide();
 	this->textPreview->hide();
 	this->texturePreview->hide();
+}
+
+NavBar* FileViewer::getNavBar() const {
+	return this->navbar;
+}
+
+void FileViewer::pluginsInitContextMenu(const EntryContextMenuData* contextMenu) const {
+	contextMenu->contextMenuFile->addSection(tr("Plugins"));
+	contextMenu->contextMenuDir->addSection(tr("Plugins"));
+	contextMenu->contextMenuAll->addSection(tr("Plugins"));
+	contextMenu->contextMenuSelection->addSection(tr("Plugins"));
+
+	for (auto* pluginLoader : this->previewPlugins) {
+		auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_3*>(pluginLoader->instance());
+		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_FILE,  contextMenu->contextMenuFile);
+		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_DIR,   contextMenu->contextMenuDir);
+		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_ROOT,  contextMenu->contextMenuAll);
+		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_MIXED, contextMenu->contextMenuSelection);
+	}
+}
+
+void FileViewer::pluginsUpdateContextMenu(int contextMenuType, const QStringList& paths) const {
+	for (auto* pluginLoader : this->previewPlugins) {
+		auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_3*>(pluginLoader->instance());
+		plugin->updateContextMenu(contextMenuType, paths);
+	}
 }

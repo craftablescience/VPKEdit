@@ -22,6 +22,7 @@
 #include <QSortFilterProxyModel>
 #include <QStyle>
 #include <QThread>
+#include <QTimer>
 
 #include "extensions/SingleFile.h"
 #include "previews/TextPreview.h"
@@ -429,24 +430,33 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	auto* contextMenuData = new EntryContextMenuData{true, this};
 
+	// Delay this a bit so the widget actually exists
+	// todo: fix this with a plugin manager?
+	QTimer::singleShot(1, [this, contextMenuData] { this->window->pluginsInitContextMenu(contextMenuData); });
+
 	QObject::connect(this, &QWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData->setReadOnly(this->window->isReadOnly());
 		if (const auto selectedIndexes = this->selectedIndexes(); selectedIndexes.length() > 1) {
-			// Handle the selected action
+			QStringList paths;
+			for (const auto& selectedIndex : selectedIndexes) {
+				paths.push_back(this->getIndexPath(selectedIndex));
+			}
+			// Update plugins
+			this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_MIXED, paths);
+			// Handle the selected action if stock
 			if (const auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos)); selectedSelectionAction == contextMenuData->extractSelectedAction) {
-				QStringList paths;
-				for (const auto& selectedIndex : selectedIndexes) {
-					paths.push_back(this->getIndexPath(selectedIndex));
-				}
 				this->extractEntries(paths);
 			} else if (selectedSelectionAction == contextMenuData->removeSelectedAction) {
-				for (const auto& selectedIndex : selectedIndexes) {
-					if (QString path = this->getIndexPath(selectedIndex); !path.isEmpty()) {
+				for (const auto& path : paths) {
+					if (!path.isEmpty()) {
 						this->removeEntryByPath(path);
 					}
 				}
 			}
 		} else if (const auto modelIndex = this->indexAt(pos); !modelIndex.isValid() || EntryTreeModel::getNodeAtIndex(this->model->mapToSource(modelIndex)) == this->proxiedModel->root()) {
+			// Update plugins
+			this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_ROOT, {""});
+			// Handle the selected action if stock
 			if (const auto* selectedAllAction = contextMenuData->contextMenuAll->exec(this->mapToGlobal(pos)); selectedAllAction == contextMenuData->extractAllAction) {
 				this->window->extractAll();
 			} else if (selectedAllAction == contextMenuData->addFileToRootAction) {
@@ -458,6 +468,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 			const auto* node = EntryTreeModel::getNodeAtIndex(this->model->mapToSource(modelIndex));
 			const QString path = this->getIndexPath(modelIndex);
 			if (node->isDirectory()) {
+				// Update plugins
+				this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_DIR, {path});
+				// Handle the selected action if stock
 				if (const auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos)); selectedDirAction == contextMenuData->extractDirAction) {
 					this->window->extractDir(path);
 				} else if (selectedDirAction == contextMenuData->addFileToDirAction) {
@@ -472,6 +485,9 @@ EntryTree::EntryTree(Window* window_, QWidget* parent)
 					this->removeEntryByPath(path);
 				}
 			} else {
+				// Update plugins
+				this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_FILE, {path});
+				// Handle the selected action if stock
 				if (const auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos)); selectedFileAction == contextMenuData->extractFileAction) {
 					this->window->extractFile(path);
 				} else if (selectedFileAction == contextMenuData->editFileAction) {

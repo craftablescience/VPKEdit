@@ -647,7 +647,7 @@ QIcon MDLPreview::getIcon() const {
 	return {};
 }
 
-IVPKEditPreviewPlugin_V1_3::Error MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
+int MDLPreview::setData(const QString& path, const quint8* dataPtr, quint64 length) {
 	this->mdl->clearMeshes();
 
 	std::string basePath = std::filesystem::path{path.toLocal8Bit().constData()}.replace_extension().string();
