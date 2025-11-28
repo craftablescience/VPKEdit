@@ -2,6 +2,7 @@
 
 #include "VICEPreview.h"
 
+#include <ranges>
 #include <utility>
 
 #include <QComboBox>
