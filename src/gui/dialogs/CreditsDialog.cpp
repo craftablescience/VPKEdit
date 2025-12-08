@@ -55,6 +55,7 @@ CreditsDialog::CreditsDialog(QWidget* parent)
 
 	auto* creditsLabel = new QLabel(QString("## %1\n*Created by [craftablescience](https://github.com/craftablescience)*\n<br/>\n").arg(PROJECT_TITLE.data()), this);
 	creditsLabel->setTextFormat(Qt::MarkdownText);
+	creditsLabel->setOpenExternalLinks(true);
 	creditsLabel->setAlignment(Qt::AlignBottom);
 	headerLayout->addWidget(creditsLabel, Qt::AlignLeft);
 
@@ -62,6 +63,7 @@ CreditsDialog::CreditsDialog(QWidget* parent)
 	for (const auto& [name, content] : ::getCreditsTexts().asKeyValueRange()) {
 		auto* tabContent = new QLabel(content, tabs);
 		tabContent->setTextFormat(Qt::MarkdownText);
+		tabContent->setOpenExternalLinks(true);
 		auto* tabScroll = new QScrollArea(this);
 		tabScroll->setWidget(tabContent);
 		tabs->addTab(tabScroll, name);
