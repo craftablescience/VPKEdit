@@ -440,17 +440,17 @@ NavBar* FileViewer::getNavBar() const {
 }
 
 void FileViewer::pluginsInitContextMenu(const EntryContextMenuData* contextMenu) const {
-	contextMenu->contextMenuFile->addSection(tr("Plugins"));
-	contextMenu->contextMenuDir->addSection(tr("Plugins"));
-	contextMenu->contextMenuAll->addSection(tr("Plugins"));
-	contextMenu->contextMenuSelection->addSection(tr("Plugins"));
+	if (contextMenu->contextMenuFile)      contextMenu->contextMenuFile->addSection(tr("Plugins"));
+	if (contextMenu->contextMenuDir)       contextMenu->contextMenuDir->addSection(tr("Plugins"));
+	if (contextMenu->contextMenuAll)       contextMenu->contextMenuAll->addSection(tr("Plugins"));
+	if (contextMenu->contextMenuSelection) contextMenu->contextMenuSelection->addSection(tr("Plugins"));
 
 	for (auto* pluginLoader : this->previewPlugins) {
 		auto* plugin = qobject_cast<IVPKEditPreviewPlugin_V1_3*>(pluginLoader->instance());
-		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_FILE,  contextMenu->contextMenuFile);
-		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_DIR,   contextMenu->contextMenuDir);
-		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_ROOT,  contextMenu->contextMenuAll);
-		plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_MIXED, contextMenu->contextMenuSelection);
+		if (contextMenu->contextMenuFile)      plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_FILE,  contextMenu->contextMenuFile);
+		if (contextMenu->contextMenuDir)       plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_DIR,   contextMenu->contextMenuDir);
+		if (contextMenu->contextMenuAll)       plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_ROOT,  contextMenu->contextMenuAll);
+		if (contextMenu->contextMenuSelection) plugin->initContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_MIXED, contextMenu->contextMenuSelection);
 	}
 }
 

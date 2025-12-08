@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QTimer>
 #include <QtGlobal>
 #include <vpkpp/format/VPK.h>
 
@@ -100,18 +101,22 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	auto* contextMenuData = new EntryContextMenuData{false, this};
+
+	// Delay this a bit so the widget actually exists
+	// todo: fix this with a plugin manager?
+	QTimer::singleShot(1, [this, contextMenuData] { this->window->pluginsInitContextMenu(contextMenuData); });
+
 	QObject::connect(this, &QTableWidget::customContextMenuRequested, this, [this, contextMenuData](const QPoint& pos) {
 		contextMenuData->setReadOnly(this->window->isReadOnly());
 		if (this->selectedItems().length() > this->columnCount()) {
-			// Show the selection context menu at the requested position
-			auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos));
-
+			QStringList paths;
+			for (auto* selectedItem : this->selectedItems()) {
+				paths.push_back(this->getItemPath(selectedItem));
+			}
+			// Update plugins
+			this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_MIXED, paths);
 			// Handle the selected action
-			if (selectedSelectionAction == contextMenuData->extractSelectedAction) {
-				QStringList paths;
-				for (auto* item : this->selectedItems()) {
-					paths.push_back(this->getItemPath(item));
-				}
+			if (const auto* selectedSelectionAction = contextMenuData->contextMenuSelection->exec(this->mapToGlobal(pos)); selectedSelectionAction == contextMenuData->extractSelectedAction) {
 				this->window->extractPaths(paths);
 			} else if (selectedSelectionAction == contextMenuData->removeSelectedAction) {
 				this->removeSelectedRows(false);
@@ -119,11 +124,10 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 		} else if (auto* selectedItem = this->itemAt(pos)) {
 			QString path = this->getItemPath(selectedItem);
 			if (this->item(selectedItem->row(), Column::TYPE)->text() == DIR_TYPE_NAME) {
-				// Show the directory context menu at the requested position
-				auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos));
-
+				// Update plugins
+				this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_DIR, {path});
 				// Handle the selected action
-				if (selectedDirAction == contextMenuData->extractDirAction) {
+				if (const auto* selectedDirAction = contextMenuData->contextMenuDir->exec(this->mapToGlobal(pos)); selectedDirAction == contextMenuData->extractDirAction) {
 					this->window->extractDir(path);
 				} else if (selectedDirAction == contextMenuData->addFileToDirAction) {
 					this->window->addFiles(false, path);
@@ -138,11 +142,10 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 					this->removeDir(path);
 				}
 			} else {
-				// Show the file context menu at the requested position
-				auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos));
-
+				// Update plugins
+				this->window->pluginsUpdateContextMenu(IVPKEditPreviewPlugin_V1_3::CONTEXT_MENU_TYPE_FILE, {path});
 				// Handle the selected action
-				if (selectedFileAction == contextMenuData->extractFileAction) {
+				if (const auto* selectedFileAction = contextMenuData->contextMenuFile->exec(this->mapToGlobal(pos)); selectedFileAction == contextMenuData->extractFileAction) {
 					this->window->extractFile(path);
 				} else if (selectedFileAction == contextMenuData->editFileAction) {
 					this->window->editFile(path);
