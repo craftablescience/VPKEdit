@@ -427,6 +427,9 @@ QModelIndex EntryTreeModel::getIndexAtNode(const EntryTreeNode* node) const {
 }
 
 EntryTreeNode* EntryTreeModel::getNodeAtIndex(const QModelIndex& index) {
+	if (!index.isValid()) {
+		return nullptr;
+	}
 	return static_cast<EntryTreeNode*>(index.internalPointer());
 }
 
@@ -654,7 +657,8 @@ void EntryTree::setAutoExpandDirectoryOnClick(bool enable) {
 	this->autoExpandDirectories = enable;
 }
 
-void EntryTree::removeEntryByPath(const QString& path) const {
+void EntryTree::removeEntryByPath(const QString& path) {
+	this->setCurrentIndex(QModelIndex{});
 	this->proxiedModel->removeEntry(path);
 }
 

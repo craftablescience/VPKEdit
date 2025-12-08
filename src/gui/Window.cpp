@@ -1062,6 +1062,7 @@ void Window::editFile(const QString& oldPath) {
 	if (const auto newEntry = this->packFile->findEntry(newPath.toLocal8Bit().constData())) {
 		this->fileViewer->addEntry(*newEntry, newPath);
 	}
+	this->entryTree->selectEntry(newPath);
 	this->markModified(true);
 }
 
