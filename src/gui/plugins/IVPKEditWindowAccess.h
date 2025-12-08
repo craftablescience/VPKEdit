@@ -20,7 +20,7 @@ public:
 
 	virtual void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString()) const = 0;
 
-	virtual bool removeFile(const QString& path) const = 0;
+	virtual void removeFile(const QString& path) const = 0;
 
 	virtual void removeDir(const QString& path) const = 0;
 

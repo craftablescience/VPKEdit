@@ -31,6 +31,6 @@ function(vpkedit_add_preview_plugin)
 endfunction()
 
 # Add preview plugins
-vpkedit_add_preview_plugin(NAME "dmx"    CLASS_NAME "DMXPreview"    DEPS sourcepp::dmxpp)
+vpkedit_add_preview_plugin(NAME "dmx"    CLASS_NAME "DMXPreview"    DEPS sourcepp::kvpp)
 vpkedit_add_preview_plugin(NAME "mdl"    CLASS_NAME "MDLPreview"    DEPS sourcepp::kvpp sourcepp::mdlpp sourcepp::vtfpp)
 vpkedit_add_preview_plugin(NAME "vcrypt" CLASS_NAME "VCryptPreview" DEPS sourcepp::vcryptpp)

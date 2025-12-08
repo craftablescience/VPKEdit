@@ -7,18 +7,18 @@
 #include <functional>
 #include <span>
 
-#include <dmxpp/dmxpp.h>
+#include <kvpp/DMX.h>
 #include <QTreeWidget>
 
-using namespace dmxpp;
+using namespace kvpp;
 
 void DMXPreview::initPlugin(IVPKEditWindowAccess_V3*) {}
 
 void DMXPreview::initPreview(QWidget* parent) {
 	this->preview = new QTreeWidget{parent};
 	this->preview->setColumnCount(3);
-	this->preview->setColumnWidth(0, 250);
-	this->preview->setColumnWidth(1, 75);
+	this->preview->setColumnWidth(0, 300);
+	this->preview->setColumnWidth(1, 120);
 	this->preview->setHeaderLabels({tr("Key"), tr("Value Type"), tr("Value")});
 }
 
@@ -70,15 +70,30 @@ int DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 
 	std::unique_ptr<DMX> dmx;
 	try {
-		dmx = std::make_unique<DMX>(dataPtr, length);
+		dmx = std::make_unique<DMX>(std::span{reinterpret_cast<const std::byte*>(dataPtr), length});
 	} catch (const std::overflow_error&) {}
-	if (!dmx) {
+	if (!dmx || !*dmx) {
 		emit this->showInfoPreview({":/icons/error.png"}, tr("Failed to parse DMX file."));
 		return ERROR_SHOWED_OTHER_PREVIEW;
 	}
 
 	auto* root = new QTreeWidgetItem{this->preview};
 	root->setText(0, QString{"%1 v%2"}.arg(QString{dmx->getFormatType().data()}.toUpper()).arg(dmx->getFormatVersion()));
+	this->preview->addTopLevelItem(root);
+
+	for (int i = 0; i < dmx->getPrefixAttributeContainerCount(); i++) {
+		const auto& prefixContainer = dmx->getPrefixAttributeContainers()[i];
+
+		auto* name = new QTreeWidgetItem{root};
+		name->setText(0, tr("Prefix Attribute Container #%1").arg(i + 1));
+
+		for (const auto& attribute : prefixContainer.getAttributes()) {
+			auto* item = new QTreeWidgetItem{name};
+			item->setText(0, attribute.getKey().data());
+			item->setText(1, DMXValue::idToString(attribute.getValueType()).c_str());
+			item->setText(2, attribute.getValueString().c_str());
+		}
+	}
 
 	const auto& elements = dmx->getElements();
 	QVector<std::array<std::byte, 16>> referencedElements;
@@ -87,29 +102,27 @@ int DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	addElement = [&](int elementIndex, QTreeWidgetItem* parent, std::vector<int>& seenElements) {
 		const auto& element = elements[elementIndex];
 
-		if (parent == root && std::ranges::find(referencedElements, element.guid) != referencedElements.end()) {
+		if (parent == root && std::ranges::find(referencedElements, element.getUUID()) != referencedElements.end()) {
 			return;
 		}
-		referencedElements.push_back(element.guid);
+		referencedElements.push_back(element.getUUID());
 
 		auto* name = new QTreeWidgetItem{parent};
-		name->setText(0, element.name.c_str());
+		name->setText(0, element.getKey().data());
 		auto* type = new QTreeWidgetItem{name};
 		type->setText(0, tr("Type"));
-		type->setText(1, Value::IDToString(Value::ID::STRING).c_str());
-		type->setText(2, element.type.c_str());
-		auto* guid = new QTreeWidgetItem{name};
-		guid->setText(0, tr("GUID"));
-		guid->setText(1, Value::IDToString(Value::ID::BYTEARRAY).c_str());
-		guid->setText(2, QByteArray{reinterpret_cast<const char*>(element.guid.data()), static_cast<qsizetype>(element.guid.size())}.toHex());
+		type->setText(1, DMXValue::idToString(DMXValue::ID::STRING).c_str());
+		type->setText(2, element.getType().data());
+		auto* uuid = new QTreeWidgetItem{name};
+		uuid->setText(0, tr("ID"));
+		uuid->setText(1, DMXValue::idToString(DMXValue::ID::UUID).c_str());
+		uuid->setText(2, QByteArray{reinterpret_cast<const char*>(element.getUUID().data()), static_cast<qsizetype>(element.getUUID().size())}.toHex());
 
-		auto* attributeParent = new QTreeWidgetItem{name};
-		attributeParent->setText(0, tr("Attributes"));
-		for (const auto& attribute : element.attributes) {
-			auto* item = new QTreeWidgetItem{attributeParent};
-			item->setText(0, attribute.name.c_str());
-			item->setText(1, Value::IDToString(attribute.type).c_str());
-			item->setText(2, attribute.getValue().c_str());
+		for (const auto& attribute : element.getAttributes()) {
+			auto* item = new QTreeWidgetItem{name};
+			item->setText(0, attribute.getKey().data());
+			item->setText(1, DMXValue::idToString(attribute.getValueType()).c_str());
+			item->setText(2, attribute.getValueString().c_str());
 
 			if (std::ranges::find(seenElements, elementIndex) != seenElements.end()) {
 				auto* dotdotdot = new QTreeWidgetItem{item};
@@ -117,21 +130,21 @@ int DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 				continue;
 			}
 
-			if (attribute.type == Value::ID::ELEMENT) {
-				if (const auto elementValue = attribute.getValueAs<Value::Element>(); elementValue.index != -2 && elementValue.index < elements.size()) {
+			if (attribute.getValueType() == DMXValue::ID::ELEMENT) {
+				if (const auto elementValue = attribute.getValue<DMXValue::Element>(); elementValue.index != -2 && elementValue.index < elements.size()) {
 					if (parent != root) {
 						seenElements.push_back(elementIndex);
 					}
-					addElement(static_cast<int>(elementValue.index), item, seenElements);
+					addElement(elementValue.index, item, seenElements);
 					std::erase(seenElements, elementIndex);
 				}
-			} else if (attribute.type == Value::ID::ARRAY_ELEMENT) {
-				for (const auto elementsValue = attribute.getValueAs<std::vector<Value::Element>>(); const auto& elementValue : elementsValue) {
+			} else if (attribute.getValueType() == DMXValue::ID::ARRAY_ELEMENT) {
+				for (const auto& elementValue : attribute.getValue<std::vector<DMXValue::Element>>()) {
 					if (elementValue.index != -2 && elementValue.index < elements.size()) {
 						if (parent != root) {
 							seenElements.push_back(elementIndex);
 						}
-						addElement(static_cast<int>(elementValue.index), item, seenElements);
+						addElement(elementValue.index, item, seenElements);
 						std::erase(seenElements, elementIndex);
 					}
 				}
@@ -145,5 +158,9 @@ int DMXPreview::setData(const QString&, const quint8* dataPtr, quint64 length) {
 	}
 
 	root->setExpanded(true);
+	for (int i = 0; i < root->childCount(); i++) {
+		root->child(i)->setExpanded(true);
+	}
+
 	return ERROR_SHOWED_THIS_PREVIEW;
 }

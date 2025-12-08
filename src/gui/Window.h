@@ -268,7 +268,7 @@ public:
 
 	void addDir(bool showOptions, const QString& startDir = QString(), const QString& dirPath = QString()) const override;
 
-	bool removeFile(const QString& path) const override;
+	void removeFile(const QString& path) const override;
 
 	void removeDir(const QString& path) const override;
 

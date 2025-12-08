@@ -1920,8 +1920,8 @@ void VPKEditWindowAccess_V3::addDir(bool showOptions, const QString& startDir, c
 	return this->window->addDir(showOptions, startDir, dirPath);
 }
 
-bool VPKEditWindowAccess_V3::removeFile(const QString& path) const {
-	return this->window->removeFile(path);
+void VPKEditWindowAccess_V3::removeFile(const QString& path) const {
+	return this->window->requestEntryRemoval(path);
 }
 
 void VPKEditWindowAccess_V3::removeDir(const QString& path) const {
