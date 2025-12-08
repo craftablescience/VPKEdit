@@ -520,7 +520,7 @@ Window::Window(QWidget* parent)
 }
 
 void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension) {
-	if (typeGUID != FPX::GUID && typeGUID != PAK::GUID && typeGUID != PCK::GUID && typeGUID != VPK::GUID && typeGUID != VPK_VTMB::GUID && typeGUID != WAD3::GUID && typeGUID != ZIP::GUID) {
+	if (typeGUID != FPX::GUID && typeGUID != FGP::GUID && typeGUID != PAK::GUID && typeGUID != PCK::GUID && typeGUID != VPK::GUID && typeGUID != VPK_VTMB::GUID && typeGUID != WAD3::GUID && typeGUID != ZIP::GUID) {
 		return;
 	}
 	if (this->isWindowModified() && this->promptUserToKeepModifications()) {
@@ -558,6 +558,8 @@ void Window::newPackFile(std::string_view typeGUID, bool fromDirectory, const QS
 		if (auto* fpx = dynamic_cast<FPX*>(out.get())) {
 			fpx->setChunkSize(options->vpk_chunkSize);
 		}
+	} else if (typeGUID == FGP::GUID) {
+		out = FGP::create(packFilePath.toLocal8Bit().constData());
 	} else if (typeGUID == PAK::GUID) {
 		out = PAK::create(packFilePath.toLocal8Bit().constData());
 	} else if (typeGUID == PCK::GUID) {
