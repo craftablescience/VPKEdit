@@ -206,10 +206,6 @@ QModelIndex EntryTreeModel::parent(const QModelIndex& index) const {
 }
 
 int EntryTreeModel::rowCount(const QModelIndex& parent) const {
-	if (!parent.isValid() && this->root()->children().empty()) {
-		// No pack file loaded
-		return 0;
-	}
 	if (!parent.isValid()) {
 		return 1;
 	}
