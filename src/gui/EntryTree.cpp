@@ -265,7 +265,7 @@ void EntryTreeModel::clear() {
 
 void EntryTreeModel::addEntry(const QString& path, bool incremental) {
 	QStringList components = path.split('/', Qt::SkipEmptyParts);
-	auto* current = this->root_.get();
+	auto* current = this->root();
 	if (!current) {
 		return;
 	}
@@ -276,7 +276,15 @@ void EntryTreeModel::addEntry(const QString& path, bool incremental) {
 			const auto row = static_cast<int>(current->children().size());
 			if (incremental) {
 				emit this->layoutAboutToBeChanged();
-				this->beginInsertRows(this->getIndexAtNode(current), row, row);
+
+				QModelIndex parentIndex;
+				if (current == this->root()) {
+					parentIndex = this->createIndex(0, 0, this->root());
+				} else {
+					parentIndex = this->getIndexAtNode(current);
+				}
+
+				this->beginInsertRows(parentIndex, row, row);
 			}
 			current->children().push_back(std::make_unique<EntryTreeNode>(current, components[i], isDir));
 			if (incremental) {
@@ -288,7 +296,10 @@ void EntryTreeModel::addEntry(const QString& path, bool incremental) {
 		current = child;
 	}
 	if (incremental && current) {
-		current->parent()->sort(Qt::AscendingOrder);
+		if (auto* parent = current->parent()) {
+			parent->sort(Qt::AscendingOrder);
+			emit this->dataChanged(this->getIndexAtNode(parent), this->getIndexAtNode(parent));
+		}
 	}
 }
 
@@ -306,7 +317,15 @@ void EntryTreeModel::removeEntry(const QString& path) {
 			return child.get() == node;
 		}); it != parent->children().end()) {
 			const auto row = static_cast<int>(std::distance(parent->children().begin(), it));
-			this->beginRemoveRows(this->getIndexAtNode(parent), row, row);
+
+			QModelIndex parentIndex;
+			if (parent == this->root()) {
+				parentIndex = this->createIndex(0, 0, this->root());
+			} else {
+				parentIndex = this->getIndexAtNode(parent);
+			}
+
+			this->beginRemoveRows(parentIndex, row, row);
 			parent->children().erase(it);
 			this->endRemoveRows();
 		}
@@ -320,7 +339,15 @@ void EntryTreeModel::removeEntry(const QString& path) {
 				return child.get() == parent;
 			}); it != grandparent->children().end()) {
 				const auto row = static_cast<int>(std::distance(grandparent->children().begin(), it));
-				this->beginRemoveRows(this->getIndexAtNode(grandparent), row, row);
+
+				QModelIndex grandparentIndex;
+				if (grandparent == this->root()) {
+					grandparentIndex = this->createIndex(0, 0, this->root());
+				} else {
+					grandparentIndex = this->getIndexAtNode(grandparent);
+				}
+
+				this->beginRemoveRows(grandparentIndex, row, row);
 				grandparent->children().erase(it);
 				this->endRemoveRows();
 			}
