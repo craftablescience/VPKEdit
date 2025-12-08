@@ -96,6 +96,7 @@ DirPreview::DirPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent
 	this->setSelectionBehavior(QAbstractItemView::SelectRows);
 	this->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
 	this->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	this->setSortingEnabled(true);
 
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	auto* contextMenuData = new EntryContextMenuData{false, this};
