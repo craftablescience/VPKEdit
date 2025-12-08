@@ -191,35 +191,35 @@ void VCryptPreview::initContextMenu(int contextMenuType, QMenu* contextMenu) {
 		return;
 	}
 
-	this->encryptionMenu = contextMenu->addMenu(this->getIcon(), "VCrypt");
-	this->encryptICEAction = this->encryptionMenu->addAction(this->getIcon(), tr("Encrypt ICE"), [this] {
-		for (const auto path : this->selectedPaths) {
+	this->encryptionMenus.push_back(contextMenu->addMenu(this->getIcon(), "VCrypt"));
+	this->encryptICEActions.push_back(this->encryptionMenus.back()->addAction(this->getIcon(), tr("Encrypt ICE"), [this] {
+		for (const auto& path : this->selectedPaths) {
 			if (path.endsWith(".txt") || path.endsWith(".kv") || path.endsWith(".nut")) {
 				this->encryptICE(path);
 			}
 		}
-	});
-	this->decryptICEAction = this->encryptionMenu->addAction(this->getIcon(), tr("Decrypt ICE"), [this] {
-		for (const auto path : this->selectedPaths) {
+	}));
+	this->decryptICEActions.push_back(this->encryptionMenus.back()->addAction(this->getIcon(), tr("Decrypt ICE"), [this] {
+		for (const auto& path : this->selectedPaths) {
 			if (path.endsWith(".ctx") || path.endsWith(".ekv") || path.endsWith(".nuc")) {
 				this->decryptICE(path);
 			}
 		}
-	});
-	this->encryptFontAction = this->encryptionMenu->addAction(this->getIcon(), tr("Encrypt Font"), [this] {
-		for (const auto path : this->selectedPaths) {
+	}));
+	this->encryptFontActions.push_back(this->encryptionMenus.back()->addAction(this->getIcon(), tr("Encrypt Font"), [this] {
+		for (const auto& path : this->selectedPaths) {
 			if (path.endsWith(".ttf")) {
 				this->encryptFont(path);
 			}
 		}
-	});
-	this->decryptFontAction = this->encryptionMenu->addAction(this->getIcon(), tr("Decrypt Font"), [this] {
-		for (const auto path : this->selectedPaths) {
+	}));
+	this->decryptFontActions.push_back(this->encryptionMenus.back()->addAction(this->getIcon(), tr("Decrypt Font"), [this] {
+		for (const auto& path : this->selectedPaths) {
 			if (path.endsWith(".vfont")) {
 				this->decryptFont(path);
 			}
 		}
-	});
+	}));
 }
 
 void VCryptPreview::updateContextMenu(int contextMenuType, const QStringList& paths) {
@@ -228,24 +228,29 @@ void VCryptPreview::updateContextMenu(int contextMenuType, const QStringList& pa
 	}
 	this->selectedPaths = paths;
 
-	this->encryptICEAction->setVisible(false);
-	this->decryptICEAction->setVisible(false);
-	this->encryptFontAction->setVisible(false);
-	this->decryptFontAction->setVisible(false);
+	bool encryptICEAction = false;
+	bool decryptICEAction = false;
+	bool encryptFontAction = false;
+	bool decryptFontAction = false;
 
 	for (const auto& path : paths) {
 		if (path.endsWith(".txt") || path.endsWith(".kv") || path.endsWith(".nut")) {
-			this->encryptICEAction->setVisible(true);
+			encryptICEAction = true;
 		} else if (path.endsWith(".ctx") || path.endsWith(".ekv") || path.endsWith(".nuc")) {
-			this->decryptICEAction->setVisible(true);
+			decryptICEAction = true;
 		} else if (path.endsWith(".ttf")) {
-			this->encryptFontAction->setVisible(true);
+			encryptFontAction = true;
 		} else if (path.endsWith(".vfont")) {
-			this->decryptFontAction->setVisible(true);
+			decryptFontAction = true;
 		}
 	}
 
-	this->encryptionMenu->menuAction()->setVisible(this->encryptICEAction->isVisible() || this->decryptICEAction->isVisible() || this->encryptFontAction->isVisible() || this->decryptFontAction->isVisible());
+	for (auto* action : this->encryptICEActions) { action->setVisible(encryptICEAction); }
+	for (auto* action : this->decryptICEActions) { action->setVisible(decryptICEAction); }
+	for (auto* action : this->encryptFontActions) { action->setVisible(encryptFontAction); }
+	for (auto* action : this->decryptFontActions) { action->setVisible(decryptFontAction); }
+
+	for (const auto* menu : this->encryptionMenus) { menu->menuAction()->setVisible(encryptICEAction || decryptICEAction || encryptFontAction || decryptFontAction); }
 }
 
 void VCryptPreview::encryptICE(const QString& path) const {

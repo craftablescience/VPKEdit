@@ -77,9 +77,9 @@ private:
 	IVPKEditWindowAccess_V3* windowAccess = nullptr;
 
 	QStringList selectedPaths;
-	QMenu* encryptionMenu = nullptr;
-	QAction* encryptICEAction = nullptr;
-	QAction* decryptICEAction = nullptr;
-	QAction* encryptFontAction = nullptr;
-	QAction* decryptFontAction = nullptr;
+	QList<QMenu*> encryptionMenus;
+	QList<QAction*> encryptICEActions;
+	QList<QAction*> decryptICEActions;
+	QList<QAction*> encryptFontActions;
+	QList<QAction*> decryptFontActions;
 };
