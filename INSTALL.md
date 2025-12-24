@@ -92,6 +92,6 @@ as I don't use Arch Linux personally and don't know how that system works. (I us
 
 #### NixOS:
 
-VPKEdit is available in NixOS 25.05 and nixpkgs unstable thanks to [@Seraphim Pardee](https://github.com/SeraphimRP).
+VPKEdit is available in NixOS 25.05 and nixpkgs unstable thanks to [@Seraphim Pardee](https://github.com/RdrSeraphim).
 Add it to your system by placing `vpkedit` in the appropriate `environment.systemPackages = with pkgs; [];` section 
 in your Nix configuration. If you want to use it temporarily, run `nix-shell -p vpkedit` then `vpkedit` (for gui) or `vpkeditcli`.
