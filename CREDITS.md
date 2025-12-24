@@ -8,7 +8,6 @@
 - [Nbc66](https://github.com/Nbc66): added some extra info to the installation guide
 - [OzxyBox](https://github.com/ozxybox): WAD3 parser
 - [Rythyrix](https://github.com/Rythyrix): minor library bugfix
-- [SeraphimRP](https://github.com/SeraphimRP): Nixpkgs maintainer
 - [sour-dani](https://github.com/sour-dani): initial CLI response file implementation
 - [Tholp](https://github.com/Tholp1): major BSP stability improvements
 - [Trico Everfire](https://github.com/Trico-Everfire): open pack files based on Steam game install locations
