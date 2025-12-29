@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=${PROJECT_NAME_PRETTY}
 Comment=${PROJECT_DESCRIPTION}
-Exec=${PROJECT_NAME} %f
+Exec=sh -c 'if [ -n "$__NV_PRIME_RENDER_OFFLOAD" ]; then export QT_QPA_PLATFORM=xcb; fi; exec ${PROJECT_NAME} "$@"' _ %f
 Icon=${PROJECT_NAME}
 Terminal=false
 Type=Application
