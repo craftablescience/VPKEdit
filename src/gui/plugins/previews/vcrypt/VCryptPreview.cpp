@@ -34,6 +34,7 @@ QList<std::pair<QString, std::string_view>> VICEDialog::CODES{
 	{"DotA 2 (Level Configs)",                 VICE::KnownCodes::GPU_DOTA_2},
 	{"Dystopia (1.2)",                         VICE::KnownCodes::DYSTOPIA_1_2},
 	{"Dystopia (1.3)",                         VICE::KnownCodes::DYSTOPIA_1_3},
+	{"Fairy Tale Busters",                     VICE::KnownCodes::FAIRY_TALE_BUSTERS},
 	{"Fortress Forever (Pre-Greenlight)",      VICE::KnownCodes::FORTRESS_FOREVER_PRE_GREENLIGHT},
 	{"Golden-Eye Source",                      VICE::KnownCodes::GOLDEN_EYE_SOURCE},
 	{"Half-Life 2: Capture The Flag",          VICE::KnownCodes::HALF_LIFE_2_CTF},
@@ -51,6 +52,7 @@ QList<std::pair<QString, std::string_view>> VICEDialog::CODES{
 	{"Team Fortress 2 (Items)",                VICE::KnownCodes::TEAM_FORTRESS_2_ITEMS},
 	{"Team Fortress 2 (Level Configs)",        VICE::KnownCodes::GPU_TEAM_FORTRESS_2},
 	{"The Ship",                               VICE::KnownCodes::THE_SHIP},
+	{"Valve Tracker",                          VICE::KnownCodes::VALVE_TRACKER},
 	{"Zombie Panic Source",                    VICE::KnownCodes::ZOMBIE_PANIC_SOURCE},
 };
 
