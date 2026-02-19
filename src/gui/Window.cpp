@@ -1836,8 +1836,8 @@ void ScanSteamGamesWorker::run() {
 		}
 		sourceGames.emplace_back(
 				steam.getAppName(appID).data(),
-				QIcon{QPixmap::fromImage(ImageLoader::load(steam.getAppIconPath(appID).c_str()))},
-				steam.getAppInstallDir(appID).c_str());
+				QIcon{QPixmap::fromImage(ImageLoader::load(steam.getAppIconPath(appID).string().c_str()))},
+				steam.getAppInstallDir(appID).string().c_str());
 	}
 
 	// Add mods in the sourcemods directory
