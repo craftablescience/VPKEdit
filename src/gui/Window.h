@@ -69,7 +69,7 @@ public:
 			saveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
 			saveFilePath += QDir::separator();
 			if constexpr (std::same_as<T, vpkpp::FPX> || std::same_as<T, vpkpp::VPK>) {
-				saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + ((options->vpk_saveSingleFile || dirPath.endsWith("_dir") ? "" : "_dir") + extension);
+				saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string() + (options->vpk_saveSingleFile || dirPath.endsWith("_dir") ? "" : "_dir") + extension.data();
 			} else {
 				saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + extension;
 			}
