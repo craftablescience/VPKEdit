@@ -33,6 +33,7 @@ macOS (arm64), and has been packaged for multiple Linux distributions.
   | Format   | Description                                       | Create | Read | Write |
   |----------|---------------------------------------------------|:------:|:----:|:-----:|
   | 007      | Asset pack (007 - Nightfire)                      |   ❌    |  ✅   |   ❌   |
+  | APK      | Axiom PacK file (Fairy Tale Busters)              |   ✅    |  ✅   |   ✅   |
   | BEE_PACK | BEE2.4 Package                                    |   ✅    |  ✅   |   ✅   |
   | BMZ      | Bonus Map Zip (Source Engine)                     |   ✅    |  ✅   |   ✅   |
   | BSP      | Source 1 Map                                      |  N/A   |  ✅   |   ✅   |

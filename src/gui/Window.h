@@ -3,8 +3,12 @@
 #include <functional>
 #include <vector>
 
-#include <QDir>
+#include <QFileDialog>
+#include <QLabel>
 #include <QMainWindow>
+#include <QProgressBar>
+#include <QStatusBar>
+#include <QThread>
 #include <vpkpp/vpkpp.h>
 
 #include "dialogs/PackFileOptionsDialog.h"
@@ -12,18 +16,27 @@
 
 class QAction;
 class QJsonObject;
-class QLabel;
 class QLineEdit;
 class QMenu;
 class QNetworkAccessManager;
 class QNetworkReply;
-class QProgressBar;
 class QSettings;
-class QThread;
 
 struct EntryContextMenuData;
 class EntryTree;
 class FileViewer;
+
+class IndeterminateProgressWorker : public QObject {
+	Q_OBJECT;
+
+public:
+	IndeterminateProgressWorker() = default;
+
+	void run(const std::function<void()>& fn);
+
+	signals:
+		void taskFinished();
+};
 
 class Window : public QMainWindow {
 	Q_OBJECT;
@@ -34,25 +47,108 @@ class Window : public QMainWindow {
 public:
 	explicit Window(QWidget* parent = nullptr);
 
-	void newPackFile(std::string_view typeGUID, bool fromDirectory, const QString& startPath, const QString& name, const QString& extension);
+	template<typename T>
+	requires requires { {T::create("")} -> std::same_as<std::unique_ptr<vpkpp::PackFile>>; }
+	void newPackFile(bool fromDirectory, const QString& startPath, const QString& name, std::string_view extension, PackFileOptionsShowForTypeFlags flags = PackFileOptionsShowForTypeFlags::ORDINARY) {
+		if (this->isWindowModified() && this->promptUserToKeepModifications()) {
+			return;
+		}
 
-	void newBMZ(bool fromDirectory, const QString& startPath = QString());
+		auto options = PackFileOptionsDialog::getForNew(flags, fromDirectory, this);
+		if (!options) {
+			return;
+		}
 
-	void newFGP(bool fromDirectory, const QString& startPath = QString());
+		auto dirPath = fromDirectory ? QFileDialog::getExistingDirectory(this, QObject::tr("Use This Folder"), startPath) : "";
+		if (fromDirectory && dirPath.isEmpty()) {
+			return;
+		}
 
-	void newFPX(bool fromDirectory, const QString& startPath = QString());
+		QString saveFilePath;
+		if (fromDirectory) {
+			saveFilePath = std::filesystem::path{dirPath.toLocal8Bit().constData()}.parent_path().string().c_str();
+			saveFilePath += QDir::separator();
+			if constexpr (std::same_as<T, vpkpp::FPX> || std::same_as<T, vpkpp::VPK>) {
+				saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + ((options->vpk_saveSingleFile || dirPath.endsWith("_dir") ? "" : "_dir") + extension);
+			} else {
+				saveFilePath += std::filesystem::path{dirPath.toLocal8Bit().constData()}.stem().string().c_str() + extension;
+			}
+		}
+		auto packFilePath = QFileDialog::getSaveFileName(this, QObject::tr("Save New Pack File"), fromDirectory ? saveFilePath : startPath, name + " (*" + extension.data() + ")");
+		if (packFilePath.isEmpty()) {
+			return;
+		}
 
-	void newPAK(bool fromDirectory, const QString& startPath = QString());
+		std::unique_ptr<vpkpp::PackFile> out;
+		if constexpr (std::same_as<T, vpkpp::VPK_VTMB>) {
+			const auto basePath = std::filesystem::path{packFilePath.toLocal8Bit().constData()};
+			const auto packFilePathStr = basePath.parent_path().string() + "/pack000" + std::string{vpkpp::VPK_VTMB_EXTENSION};
+			packFilePath = packFilePathStr.c_str();
+		}
+		out = T::create(packFilePath.toLocal8Bit().constData());
 
-	void newPCK(bool fromDirectory, const QString& startPath = QString());
+		if constexpr (std::same_as<T, vpkpp::FPX> || std::same_as<T, vpkpp::VPK>) {
+			if (auto* vpk = dynamic_cast<vpkpp::VPK*>(out.get())) {
+				vpk->setChunkSize(options->vpk_chunkSize);
+			}
+		}
 
-	void newVPK(bool fromDirectory, const QString& startPath = QString());
+		if (!fromDirectory) {
+			this->loadPackFile(packFilePath, std::move(out));
+			return;
+		}
 
-	void newVPK_VTMB(bool fromDirectory, const QString& startPath = QString());
+		// Set up progress bar
+		this->statusText->hide();
+		this->statusProgressBar->show();
+		this->statusBar()->show();
 
-	void newWAD3(bool fromDirectory, const QString& startPath = QString());
+		// Show progress bar is busy
+		this->statusProgressBar->setValue(0);
+		this->statusProgressBar->setRange(0, 0);
 
-	void newZIP(bool fromDirectory, const QString& startPath = QString());
+		this->freezeActions(true);
+
+		// Set up thread
+		this->createPackFileFromDirWorkerThread = new QThread(this);
+		auto* worker = new IndeterminateProgressWorker();
+		worker->moveToThread(this->createPackFileFromDirWorkerThread);
+		QObject::connect(this->createPackFileFromDirWorkerThread, &QThread::started, worker, [worker, packFilePath, dirPath, options_=*options] {
+			worker->run([packFilePath, dirPath, options_] {
+				if (const auto packFile = vpkpp::PackFile::open(packFilePath.toLocal8Bit().constData())) {
+					if constexpr (std::same_as<T, vpkpp::FPX> || std::same_as<T, vpkpp::VPK>) {
+						if (auto* vpk = dynamic_cast<vpkpp::VPK*>(packFile.get())) {
+							vpk->setChunkSize(options_.vpk_chunkSize);
+						}
+					}
+					packFile->addDirectory("", dirPath.toLocal8Bit().constData(), {
+						.zip_compressionType = vpkpp::EntryCompressionType::NO_COMPRESS,
+						.zip_compressionStrength = 0,
+						.vpk_preloadBytes = 0,
+						.vpk_saveToDirectory = options_.vpk_saveSingleFile,
+					});
+					packFile->bake("", {}, nullptr);
+				}
+			});
+		});
+		QObject::connect(worker, &IndeterminateProgressWorker::taskFinished, this, [this, packFilePath, options_=*options] {
+			// Kill thread
+			this->createPackFileFromDirWorkerThread->quit();
+			this->createPackFileFromDirWorkerThread->wait();
+			delete this->createPackFileFromDirWorkerThread;
+			this->createPackFileFromDirWorkerThread = nullptr;
+
+			// loadPackFile freezes them right away again
+			// this->freezeActions(false);
+			this->loadPackFile(packFilePath);
+			if constexpr (std::same_as<T, vpkpp::FPX> || std::same_as<T, vpkpp::VPK>) {
+				if (auto* vpk = dynamic_cast<vpkpp::VPK*>(packFile.get())) {
+					vpk->setChunkSize(options_.vpk_chunkSize);
+				}
+			}
+		});
+		this->createPackFileFromDirWorkerThread->start();
+	}
 
 	void openDir(const QString& startPath = QString(), const QString& dirPath = QString());
 
@@ -204,18 +300,6 @@ private:
 	bool writeEntryToFile(const QString& entryPath, const QString& filepath);
 
 	void resetStatusBar();
-};
-
-class IndeterminateProgressWorker : public QObject {
-	Q_OBJECT;
-
-public:
-	IndeterminateProgressWorker() = default;
-
-	void run(const std::function<void()>& fn);
-
-signals:
-	void taskFinished();
 };
 
 class SavePackFileWorker : public QObject {

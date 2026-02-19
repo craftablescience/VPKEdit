@@ -86,12 +86,12 @@ namespace {
 /// Right now, just used for getting a decryption key
 [[nodiscard]] PackFile::OpenPropertyRequest getOpenPropertyRequestor(const argparse::ArgumentParser& cli) {
 	return [&cli](PackFile* packFile, PackFile::OpenProperty property) -> std::vector<std::byte> {
-		if (packFile->getGUID() == GCF::GUID && property == PackFile::OpenProperty::DECRYPTION_KEY) {
+		if (const auto* gcf = dynamic_cast<GCF*>(packFile); gcf && property == PackFile::OpenProperty::DECRYPTION_KEY) {
 			std::string hex;
 			if (cli.is_used(ARG_L(DECRYPTION_KEY))) {
 				hex = cli.get(ARG_L(DECRYPTION_KEY));
 			} else {
-				std::cout << "Decryption key for depot ID " << dynamic_cast<GCF*>(packFile)->getAppID() << ": ";
+				std::cout << "Decryption key for depot ID " << gcf->getAppID() << ": ";
 				std::getline(std::cin, hex);
 			}
 			auto bytes = sourcepp::crypto::decodeHexString(hex);
@@ -386,7 +386,9 @@ void pack(const argparse::ArgumentParser& cli, std::string inputPath) {
 	}
 
 	std::unique_ptr<PackFile> packFile;
-	if (type == "bmz" || type == "zip") {
+	if (type == "apk") {
+		packFile = APK::create(outputPath);
+	} else if (type == "bmz" || type == "zip") {
 		packFile = ZIP::create(outputPath);
 	} else if (type == "fgp") {
 		packFile = FGP::create(outputPath);
@@ -528,7 +530,7 @@ int main(int argc, const char* const* argv) {
 	cli.add_argument(ARG_P(TYPE))
 		.help("(Pack) The type of the output pack file.")
 		.default_value("vpk")
-		.choices("bmz", "fgp", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "wad3", "zip")
+		.choices("apk", "bmz", "fgp", "fpx", "pak", "pck", "vpk_vtmb", "vpk", "wad3", "zip")
 		.nargs(1);
 
 	cli.add_argument(ARG_L(NO_PROGRESS))

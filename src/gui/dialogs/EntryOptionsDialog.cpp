@@ -40,13 +40,14 @@ EntryCompressionType comboIndexToCompressionType(int index) {
 		case 1: return EntryCompressionType::LZMA;
 		case 4: return EntryCompressionType::ZSTD;
 		case 5: return EntryCompressionType::XZ;
+		default: break;
 	}
 	return EntryCompressionType::NO_COMPRESS;
 }
 
 } // namespace
 
-EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, std::string_view typeGUID, EntryOptions options, QWidget* parent)
+EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& prefilledPath, PackFileOptionsShowForTypeFlags flags, EntryOptions options, QWidget* parent)
 		: QDialog(parent) {
 	const bool advancedFileProps = Options::get<bool>(OPT_ADVANCED_FILE_PROPS);
 
@@ -102,11 +103,11 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 	this->useArchiveVPK = nullptr;
 	this->preloadBytes = nullptr;
 	if (advancedFileProps) {
-		if (typeGUID == bsppp::PakLump::GUID || typeGUID == ZIP::GUID) {
+		if (static_cast<bool>(flags & PackFileOptionsShowForTypeFlags::BSP) || static_cast<bool>(flags & PackFileOptionsShowForTypeFlags::ZIP)) {
 			this->compressionType = new QComboBox(this);
 			this->compressionType->addItem(tr("None"));
 			this->compressionType->addItem("LZMA");
-			if (typeGUID == ZIP::GUID) {
+			if (static_cast<bool>(flags & PackFileOptionsShowForTypeFlags::ZIP)) {
 				this->compressionType->addItem("DEFLATE");
 				this->compressionType->addItem("BZIP2");
 				this->compressionType->addItem("ZSTD");
@@ -119,7 +120,7 @@ EntryOptionsDialog::EntryOptionsDialog(bool edit, bool isDir, const QString& pre
 			this->compressionStrength->setMaximum(9);
 			this->compressionStrength->setValue(options.zip_compressionStrength);
 			layout->addRow(tr("Compression Strength Override:"), this->compressionStrength);
-		} else if (typeGUID == FPX::GUID || typeGUID == VPK::GUID) {
+		} else if (static_cast<bool>(flags & PackFileOptionsShowForTypeFlags::FPX) || static_cast<bool>(flags & PackFileOptionsShowForTypeFlags::VPK)) {
 			auto* useArchiveVPKLabel = new QLabel(isDir ?
 					tr("Save each file to a new numbered archive\ninstead of the directory:") :
 					tr("Save the file to a new numbered archive\ninstead of the directory:"), this);
@@ -154,9 +155,9 @@ EntryOptions EntryOptionsDialog::getEntryOptions() const {
 	};
 }
 
-std::optional<std::tuple<QString, EntryOptions>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, std::string_view typeGUID, EntryOptions options, QWidget* parent) {
-	auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, typeGUID, options, parent);
-	int ret = dialog->exec();
+std::optional<std::tuple<QString, EntryOptions>> EntryOptionsDialog::getEntryOptions(bool edit, bool isDir, const QString& prefilledPath, PackFileOptionsShowForTypeFlags flags, EntryOptions options, QWidget* parent) {
+	auto* dialog = new EntryOptionsDialog(edit, isDir, prefilledPath, flags, options, parent);
+	const int ret = dialog->exec();
 	dialog->deleteLater();
 	if (ret != QDialog::Accepted) {
 		return std::nullopt;

@@ -7,12 +7,6 @@ public:
 	/// Open a previewable file
 	[[nodiscard]] static std::unique_ptr<PackFile> open(const std::string& path, const EntryCallback& callback = nullptr);
 
-	static constexpr inline std::string_view GUID = "13DBA85EDC294BA6A6979EAF071246DE";
-
-	[[nodiscard]] constexpr std::string_view getGUID() const override {
-		return SingleFile::GUID;
-	}
-
 	[[nodiscard]] std::optional<std::vector<std::byte>> readEntry(const std::string& path_) const override;
 
 protected:
