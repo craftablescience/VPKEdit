@@ -15,6 +15,7 @@ void PluginFinder::doTheThing(const QString& subdir, const std::function<void(co
 #elif defined(__APPLE__)
 	pluginLocations << QDir{"../PlugIns"}.absolutePath();
 #elif defined(__linux__)
+	pluginLocations << "/app/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()};
 	pluginLocations << "/usr/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()};
 	pluginLocations << QDir{"~/.local/" VPKEDIT_LIBDIR "/" + QString{PROJECT_NAME.data()}}.canonicalPath();
 #endif

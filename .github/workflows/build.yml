@@ -299,6 +299,28 @@ jobs:
             ${{env.BUILD_DIR}}/VPKEdit-*-Linux.deb
           retention-days: 7
 
+  build-flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
+      options: --privileged
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: 'Build Flatpak'
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6.6
+        with:
+          bundle: vpkedit.flatpak
+          manifest-path: .build-aux/flatpak/info.craftablescience.VPKEdit.yml
+      - name: 'Upload Flatpak'
+        uses: actions/upload-artifact@v4
+        with:
+          name: VPKEdit-Linux-Flatpak-gcc-Release
+          path: vpkedit.flatpak
+          retention-days: 7
+
   build-macos:
     strategy:
       matrix:
@@ -348,6 +370,7 @@ jobs:
     needs:
       - build-windows
       - build-linux
+      - build-flatpak
       - build-macos
     runs-on: ubuntu-latest
     steps:
