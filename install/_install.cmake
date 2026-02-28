@@ -54,7 +54,7 @@ elseif(APPLE)
     install(TARGETS ${PROJECT_NAME}
             BUNDLE DESTINATION .
             RENAME ${PROJECT_NAME_PRETTY})
-    
+
     install(TARGETS ${PROJECT_NAME}cli
             DESTINATION "Command Line Utilities")
 
@@ -87,28 +87,35 @@ elseif(UNIX)
     install(FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/CREDITS.md"
             "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${PROJECT_NAME}")
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/${VPKEDIT_APPLICATION_ID}")
 
     install(TARGETS ${VPKEDIT_PLUGIN_PREVIEW_TARGETS}
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/previews")
 
     # Use system Qt - no install rules
 
+    # Wrapper
+    configure_file(
+        "${CMAKE_CURRENT_LIST_DIR}/linux/wrapper.in"
+        "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}-wrapper"
+        @ONLY
+    )
+    install(PROGRAMS "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}-wrapper"
+            DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
     # Desktop file
     configure_file(
             "${CMAKE_CURRENT_LIST_DIR}/linux/desktop.in"
-            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop")
-    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${PROJECT_NAME}.desktop"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${VPKEDIT_APPLICATION_ID}.desktop")
+    install(PROGRAMS "${CMAKE_CURRENT_LIST_DIR}/linux/generated/${VPKEDIT_APPLICATION_ID}.desktop"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo_16.png"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/16x16/apps"
-            RENAME "${PROJECT_NAME}.png")
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_128.png"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps"
-            RENAME "${PROJECT_NAME}.png")
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_512.png"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/512x512/apps"
-            RENAME "${PROJECT_NAME}.png")
+
+    # Icons
+    foreach(x IN ITEMS 48 64 128 256 512)
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/brand/logo$<$<CONFIG:Debug>:_alt>_${x}.png"
+                DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${x}x${x}/apps"
+                RENAME "${VPKEDIT_APPLICATION_ID}.png" OPTIONAL)
+    endforeach()
 
     # MIME type info
     configure_file(
@@ -116,7 +123,15 @@ elseif(UNIX)
             "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml")
     install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/mime-type.xml"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/mime/packages"
-            RENAME "${PROJECT_NAME}.xml")
+            RENAME "${VPKEDIT_APPLICATION_ID}.xml")
+
+    # MetaInfo
+    configure_file(
+            "${CMAKE_CURRENT_LIST_DIR}/linux/metainfo.xml.in"
+            "${CMAKE_CURRENT_LIST_DIR}/linux/generated/metainfo.xml.in")
+    install(FILES "${CMAKE_CURRENT_LIST_DIR}/linux/generated/metainfo.xml.in"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo"
+            RENAME "${VPKEDIT_APPLICATION_ID}.metainfo.xml")
 else()
     message(FATAL_ERROR "No install rules for selected platform.")
 endif()
@@ -174,7 +189,7 @@ else()
             set(CPACK_RPM_COMPRESSION_TYPE "zstd")
         endif()
     else()
-        message(FATAL_ERROR "CPACK_GENERATOR is unset! Only DEB and RPM generators are supported.")
+        message(WARNING "CPACK_GENERATOR is unset! Only DEB and RPM generators are supported.")
     endif()
 endif()
 include(CPack)

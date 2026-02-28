@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/refs/heads/main/data/flatpak-manifest.schema.json
+id: info.craftablescience.VPKEdit
+runtime: org.kde.Platform
+runtime-version: "6.10"
+sdk: org.kde.Sdk
+command: vpkedit-wrapper
+desktop-file-name-suffix: " (Nightly)"
+finish-args:
+  - --share=ipc
+  # Qt + Nvidia systems displays an empty window in wayland
+  # Re-test in Qt 6.11
+  - --socket=x11
+  - --socket=wayland
+  - --device=dri
+  # Needed for opening multi-chunk files unfortunately
+  - --filesystem=host
+  # Explicit set in case one day we remove access to host
+  # Not only to access the files in games but also for the open in game folder feature
+  - --filesystem=~/.var/app/com.valvesoftware.Steam
+  - --filesystem=~/.local/share/Steam
+  - --filesystem=~/.steam
+  - --filesystem=~/snap/steam
+  - --filesystem=~/.snap/data/steam
+  # Discord RPC
+  - --filesystem=xdg-run/app/com.discordapp.Discord:create
+
+modules:
+  - name: vpkedit
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - -DVPKEDIT_USE_LTO=ON
+      - -DFLATPAK=ON
+
+      - -DFETCHCONTENT_SOURCE_DIR_BUFFERSTREAM=../_deps/bufferstream
+      - -DFETCHCONTENT_SOURCE_DIR_CMP_COMPRESSONATOR=../_deps/cmp_compressonator
+      - -DFETCHCONTENT_SOURCE_DIR_CRYPTOPP-CMAKE=../_deps/cryptopp-cmake
+      - -DCRYPTOPP_SOURCES=../_deps/cryptopp
+      - -DFETCHCONTENT_SOURCE_DIR_TSL_HAT_TRIE=../_deps/tsl_hat_trie
+      - -DFETCHCONTENT_SOURCE_DIR_MINIZ=../_deps/miniz
+      - -DFETCHCONTENT_SOURCE_DIR_MINIZIP-NG=../_deps/minizip-ng
+      - -DFETCHCONTENT_SOURCE_DIR_ZLIB=../_deps/zlib
+      - -DFETCHCONTENT_SOURCE_DIR_BZIP2=../_deps/bzip2
+      - -DFETCHCONTENT_SOURCE_DIR_LIBLZMA=../_deps/liblzma
+      - -DFETCHCONTENT_SOURCE_DIR_ZSTD=../_deps/zstd
+      - -DFETCHCONTENT_SOURCE_DIR_QOI=../_deps/qoi
+      - -DFETCHCONTENT_SOURCE_DIR_WEBP=../_deps/webp
+    sources:
+      - type: dir
+        path: ../../
+
+      - dependencies.yml
