@@ -28,30 +28,22 @@ void LineNumberArea::paintEvent(QPaintEvent* event) {
 KeyValuesHighlighter::KeyValuesHighlighter(QTextDocument* document)
 		: QSyntaxHighlighter(document) {
 	HighlightingRule rule;
+	QTextCharFormat format;
 
-	QTextCharFormat pragmaFormat;
-	pragmaFormat.setForeground(Qt::darkMagenta);
-	rule.pattern = QRegularExpression("\\b#[A-Za-z_]+");
-	rule.format = pragmaFormat;
-	this->highlightingRules.append(rule);
+	#define VPKEDIT_ADD_FORMAT_RULE(color, regex) \
+        format.setForeground(color); \
+        rule.pattern = QRegularExpression(regex); \
+        rule.format = format; \
+        this->highlightingRules.append(rule);
 
-	QTextCharFormat variableFormat;
-	pragmaFormat.setForeground(Qt::magenta);
-	rule.pattern = QRegularExpression(R"(\[\s*!?\$[A-Za-z0-9_&|!]+\s*\])");
-	rule.format = pragmaFormat;
-	this->highlightingRules.append(rule);
-
-	QTextCharFormat quotationFormat;
-	quotationFormat.setForeground(Qt::darkGreen);
-	rule.pattern = QRegularExpression("\".*\"");
-	rule.format = quotationFormat;
-	this->highlightingRules.append(rule);
-
-	QTextCharFormat singleLineCommentFormat;
-	singleLineCommentFormat.setForeground(Qt::gray);
-	rule.pattern = QRegularExpression("//[^\n]*");
-	rule.format = singleLineCommentFormat;
-	this->highlightingRules.append(rule);
+	// Rule for pragmas
+	VPKEDIT_ADD_FORMAT_RULE(Qt::darkMagenta, "\\b#[A-Za-z_]+");
+	// Rule for variables
+	VPKEDIT_ADD_FORMAT_RULE(Qt::magenta, R"(\[\s*!?\$[A-Za-z0-9_&|!]+\s*\])");
+	// Rule for quotations/strings
+	VPKEDIT_ADD_FORMAT_RULE(Qt::darkGreen, "\".*\"");
+	// Rule for single line comments
+	VPKEDIT_ADD_FORMAT_RULE(Qt::gray, "//[^\n]*")
 }
 
 void KeyValuesHighlighter::highlightBlock(const QString& text) {
