@@ -82,6 +82,10 @@ Please read [this file](https://github.com/craftablescience/VPKEdit/blob/main/CO
 
 A separate application with no external dependencies (`vpkeditcli`) provides a command-line interface.
 
+> [!NOTE]
+> If you need to edit files for a Source 2 game, consider using [Source 2 Viewer](https://s2v.app) instead.
+> This application targets GoldSrc and Source 1, and will not parse any Source 2 filetypes.
+
 ## Planned Features
 
 See [the open issues on this repository marked as an enhancement](https://github.com/craftablescience/VPKEdit/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement).
