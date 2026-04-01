@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component type="desktop-application">
+    <id>${VPKEDIT_APPLICATION_ID}</id>
+    <name>${PROJECT_NAME_PRETTY}</name>
+    <summary>Create, read, and write several games file formats</summary>
+    <developer id="info.${PROJECT_ORGANIZATION_NAME}">
+        <name>Laura Lewis</name>
+    </developer>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+    <description>
+        <p>VPKEdit is a utility tool for developers and modders that allows creation, reading, modification of several games file formats.</p>
+        <p>It also features previews of images, audios, text (any enconding), and Source 1 assets without extracting them.</p>
+
+        <p>Supported file formats:</p>
+        <ul>
+            <li>Source Engine: APK, BMZ, BPS, FGP, FPX, GCF, GMA, VPK, XZP</li>
+            <li>Quake and adjacent: PAK, PK3, PK4, PKZ</li>
+            <li>GoldSrc Engine: 007, OL, WAD</li>
+            <li>Miscellaneous: HOG, ORE, SIN, VPP, ZIP</li>
+        </ul>
+
+        <p>A separate application with no external dependencies (<code>vpkeditcli</code>) provides a command-line interface.</p>
+    </description>
+    <screenshots>
+        <screenshot type="default">
+            <image type="source" width="900" height="880">https://raw.githubusercontent.com/craftablescience/VPKEdit/refs/heads/main/res/brand/screenshot1.png</image>
+        </screenshot>
+        <screenshot>
+            <image type="source" width="900" height="880">https://raw.githubusercontent.com/craftablescience/VPKEdit/refs/heads/main/res/brand/screenshot2.png</image>
+        </screenshot>
+        <screenshot>
+            <image type="source" width="900" height="880">https://raw.githubusercontent.com/craftablescience/VPKEdit/refs/heads/main/res/brand/screenshot3.png</image>
+        </screenshot>
+        <screenshot>
+            <image type="source" width="900" height="880">https://raw.githubusercontent.com/craftablescience/VPKEdit/refs/heads/main/res/brand/screenshot4.png</image>
+        </screenshot>
+    </screenshots>
+    <url type="homepage">${PROJECT_HOMEPAGE_URL}</url>
+    <url type="vcs-browser">${PROJECT_HOMEPAGE_URL}</url>
+    <url type="bugtracker">${PROJECT_HOMEPAGE_URL}/issues</url>
+    <url type="donation">https://ko-fi.com/craftablescience</url>
+    <url type="translate">https://poeditor.com/join/project/yxR9MLc9X2</url>
+    <releases>
+        <release version="4.4.2" date="2025-03-09" />
+    </releases>
+    <launchable type="desktop-id">${VPKEDIT_APPLICATION_ID}.desktop</launchable>
+    <provides>
+        <binary>${PROJECT_NAME}</binary>
+        <binary>${PROJECT_NAME}cli</binary>
+    </provides>
+    <content_rating type="oars-1.1" />
+</component>

@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -eu
+
+if [ -c /dev/nvidia0 ] && [ -z "${QT_QPA_PLATFORM+x}" ]; then
+    echo "Nvidia detected! Exporting \"QT_QPA_PLATFORM=xcb\" to workaround issue."
+    export QT_QPA_PLATFORM=xcb
+elif [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    # Prevent X11 access just in case
+    unset -v DISPLAY
+fi
+
+# Flatpak Discord RPC support
+if [ -f "/.flatpak-info" ]; then
+    i=0
+    while [ "${i}" -le 9 ]; do
+        test -S "$XDG_RUNTIME_DIR"/discord-ipc-$i || \
+            ln -sf app/com.discordapp.Discord/discord-ipc-$i "$XDG_RUNTIME_DIR"/discord-ipc-$i
+        i=$((i + 1))
+    done
+fi
+
+exec @PROJECT_NAME@ "$@"
