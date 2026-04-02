@@ -54,7 +54,7 @@ elseif(APPLE)
     install(TARGETS ${PROJECT_NAME}
             BUNDLE DESTINATION .
             RENAME ${PROJECT_NAME_PRETTY})
-    
+
     install(TARGETS ${PROJECT_NAME}cli
             DESTINATION "Command Line Utilities")
 

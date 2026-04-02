@@ -1,3 +1,5 @@
-cs_include_directory(ext/cli)
-cs_include_directory(ext/gui)
 cs_include_directory(ext/shared)
+cs_include_directory(ext/cli)
+if(VPKEDIT_BUILD_GUI)
+    cs_include_directory(ext/gui)
+endif()

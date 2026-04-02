@@ -8,10 +8,6 @@ project(vpkedit
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# options
-option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build VPKEdit with the intent of the CLI/GUI going into the bin folder of a Strata Source game" OFF)
-option(VPKEDIT_BUILD_INSTALLER "Build installer for VPKEdit GUI application" ON)
-
 # add helpers
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/helpers")
 include(CS_All)
@@ -22,6 +18,11 @@ set(PROJECT_NAME_PRETTY "VPKEdit")
 cs_version_pretty() # PROJECT_VERSION_PRETTY
 set(PROJECT_ORGANIZATION_NAME "craftablescience" CACHE INTERNAL "" FORCE)
 set(PROJECT_HOMEPAGE_URL_API "https://api.github.com/repos/craftablescience/VPKEdit" CACHE INTERNAL "" FORCE)
+
+# options
+option(VPKEDIT_BUILD_FOR_STRATA_SOURCE "Build ${PROJECT_NAME_PRETTY} for Strata Source games" OFF)
+option(VPKEDIT_BUILD_GUI               "Build ${PROJECT_NAME_PRETTY} GUI"                      ON)
+option(VPKEDIT_BUILD_INSTALLER         "Build ${PROJECT_NAME_PRETTY} installer"                ON)
 
 # initial VS integration
 cs_setup_vs_defaults(STARTUP_PROJECT "${PROJECT_NAME}")
@@ -76,15 +77,17 @@ endfunction()
 cs_include_directory(src/cli)
 
 # vpkedit
-cs_include_directory(src/gui)
+if(VPKEDIT_BUILD_GUI)
+    cs_include_directory(src/gui)
 
-# installer
-if(VPKEDIT_BUILD_INSTALLER)
-    cs_include_directory(install)
+    # installer
+    if(VPKEDIT_BUILD_INSTALLER)
+        cs_include_directory(install)
+    endif()
 endif()
 
 # VS setup
-if(WIN32)
+if(WIN32 AND VPKEDIT_BUILD_GUI)
     set_target_properties(
             ${PROJECT_NAME} PROPERTIES
             VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
