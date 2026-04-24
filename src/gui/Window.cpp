@@ -33,7 +33,6 @@
 #include <QStyleFactory>
 #include <QThread>
 #include <QTimer>
-#include <sourcepp/crypto/String.h>
 #include <steampp/steampp.h>
 #include <vpkpp/vpkpp.h>
 
@@ -1441,7 +1440,7 @@ bool Window::loadPackFile(const QString& path) {
 			while (text.length() < 32) {
 				text.prepend('0');
 			}
-			return sourcepp::crypto::decodeHexString(text.toUtf8().constData());
+			return sourcepp::string::decodeHex(text.toUtf8().constData());
 		}
 		return {};
 	}));
