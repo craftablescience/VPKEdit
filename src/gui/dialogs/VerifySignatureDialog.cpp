@@ -11,7 +11,7 @@ VerifySignatureDialog::VerifySignatureDialog(PackFile& packFile, QWidget* parent
 
 	if (!packFile.hasPackFileSignature()) {
 		this->setText(tr("File does not have a signature."));
-	} else if (packFile.verifyPackFileChecksum()) {
+	} else if (packFile.verifyPackFileSignature()) {
 		this->setText(u8"✅ " + tr("File signature is valid."));
 	} else {
 		this->setText(u8"❌ " + tr("File signature is invalid!"));
