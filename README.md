@@ -102,10 +102,10 @@ This tool is powered by a collection of open-source C++20 Source engine parsers 
 
 ## Star History
 
-<a href="https://www.star-history.com/#craftablescience/VPKEdit&Date">
+<a href="https://star-history.dera.page/#craftablescience/VPKEdit&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=craftablescience/VPKEdit&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=craftablescience/VPKEdit&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=craftablescience/VPKEdit&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=craftablescience/VPKEdit&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=craftablescience/VPKEdit&type=Date" />
+   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=craftablescience/VPKEdit&type=Date" />
  </picture>
 </a>
