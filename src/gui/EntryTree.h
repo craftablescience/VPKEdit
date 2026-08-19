@@ -110,6 +110,9 @@ class EntryTree : public QTreeView {
 	friend class LoadPackFileWorker;
 
 public:
+	// Icons are style dependent, so drop them when the theme changes.
+	static void clearIconCaches();
+
 	explicit EntryTree(Window* window_, QWidget* parent = nullptr);
 
 	void loadPackFile(vpkpp::PackFile& packFile, QProgressBar* progressBar, const std::function<void()>& finishCallback);

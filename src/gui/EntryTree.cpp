@@ -52,6 +52,20 @@ QIcon getIconForExtensionWin(const QString& extension) {
 }
 #endif
 
+// Style dependent, so it is reset when the theme changes.
+QIcon cachedDirIcon;
+
+const QIcon& getIconForDirectory() {
+	// Uncached this is a platform icon lookup for every visible directory row on
+	// every repaint, which costs ~4ms per call on Windows.
+	if (cachedDirIcon.isNull()) {
+		cachedDirIcon = QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+	}
+	return cachedDirIcon;
+}
+
+QMap<QString, QIcon> cachedExtensions;
+
 const QIcon& getIconForExtension(QString extension) {
 	// Convert text extensions to .txt so they don't use the unknown icon
 	if (TextPreview::EXTENSIONS.contains(extension)) {
@@ -59,7 +73,6 @@ const QIcon& getIconForExtension(QString extension) {
 	}
 
 	// Memoize so we're not constantly searching for an icon that's already been found
-	static QMap<QString, QIcon> cachedExtensions;
 	if (cachedExtensions.contains(extension)) {
 		return cachedExtensions[extension];
 	}
@@ -84,6 +97,11 @@ const QIcon& getIconForExtension(QString extension) {
 }
 
 } // namespace
+
+void EntryTree::clearIconCaches() {
+	cachedDirIcon = {};
+	cachedExtensions.clear();
+}
 
 EntryTreeNode::EntryTreeNode(EntryTreeNode* parent, QString name, bool isDirectory)
 		: parent_(parent)
@@ -236,7 +254,7 @@ QVariant EntryTreeModel::data(const QModelIndex& index, int role) const {
 	if (role == Qt::DecorationRole) {
 		if (!Options::get<bool>(OPT_ENTRY_TREE_HIDE_ICONS)) {
 			if (node->isDirectory()) {
-				return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+				return ::getIconForDirectory();
 			}
 			return ::getIconForExtension("." + QFileInfo{node->name()}.suffix());
 		}
