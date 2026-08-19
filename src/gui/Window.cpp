@@ -263,6 +263,7 @@ Window::Window(QWidget* parent)
 		auto* action = themeMenu->addAction(themeName, [this, themeName] {
 			QApplication::setStyle(themeName);
 			Options::set(OPT_STYLE, themeName);
+			EntryTree::clearIconCaches();
 			emit this->themeUpdated();
 		});
 		action->setCheckable(true);
