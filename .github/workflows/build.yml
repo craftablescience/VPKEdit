@@ -32,12 +32,12 @@ jobs:
         shell: cmd
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: TheMrMilchmann/setup-msvc-dev@v4
         with:
           arch: x64
           spectre: true
@@ -78,7 +78,7 @@ jobs:
 
       - name: Upload Standalone [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-Standalone-msvc-${{matrix.build_type}}'
           path: |
@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload Standalone [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-Binaries-msvc-${{matrix.build_type}}'
           path: |
@@ -111,7 +111,7 @@ jobs:
 
       - name: Upload Installer [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-Installer-msvc-${{matrix.build_type}}'
           path: |
@@ -147,7 +147,7 @@ jobs:
 
       - name: Upload Standalone Compatibility [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-Standalone-Compatibility-msvc-${{matrix.build_type}}'
           path: |
@@ -169,7 +169,7 @@ jobs:
 
       - name: Upload Compatibility Installer [build_type:Release][target:VPKEdit]
         if: ${{matrix.build_type == 'Release' && matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-Installer-Compatibility-msvc-${{matrix.build_type}}'
           path: |
@@ -178,7 +178,7 @@ jobs:
 
       - name: Upload Standalone PDBs [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Windows-PDBs-msvc-${{matrix.build_type}}'
           path: |
@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -253,7 +253,7 @@ jobs:
 
       - name: Upload Standalone [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Linux-Standalone-gcc-${{matrix.build_type}}'
           path: |
@@ -276,7 +276,7 @@ jobs:
 
       - name: Upload Standalone [target:StrataSource]
         if: ${{matrix.target == 'StrataSource'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Linux-Binaries-gcc-${{matrix.build_type}}'
           path: |
@@ -292,7 +292,7 @@ jobs:
 
       - name: Upload Installer [target:VPKEdit]
         if: ${{matrix.target == 'VPKEdit'}}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-Linux-Installer-gcc-${{matrix.build_type}}'
           path: |
@@ -307,7 +307,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -337,7 +337,7 @@ jobs:
         run: cpack
 
       - name: Upload Installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: '${{matrix.target}}-macOS-Installer-Clang-${{matrix.build_type}}'
           path: |
@@ -376,7 +376,7 @@ jobs:
             console.log("Artifact download complete!");
 
       - name: Upload Release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Release-Artifacts
           path: |
