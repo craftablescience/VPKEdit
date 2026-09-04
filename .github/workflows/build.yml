@@ -352,33 +352,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
-        uses: actions/github-script@v7
+        uses: actions/download-artifact@v8
         with:
-          script: |
-            const artifacts = (await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: ${{github.run_id}},
-            })).data.artifacts;
-            const filteredArtifacts = artifacts.filter(artifact => artifact.name.includes("Release"));
-            console.log(`Found ${artifacts.length} artifacts - ${filteredArtifacts.length} qualify for upload.`);
-            for (const artifact of filteredArtifacts) {
-              console.log(`Downloading "${artifact.name}.zip"...`);
-              let download = await github.rest.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: artifact.id,
-                archive_format: 'zip',
-              });
-              let fs = require('fs');
-              fs.writeFileSync(`${{github.workspace}}/${artifact.name}.zip`, Buffer.from(download.data));
-            }
-            console.log("Artifact download complete!");
+          skip-decompress: true
+          merge-multiple: true
+          pattern: '*Release*'
 
       - name: Upload Release
         uses: actions/upload-artifact@v7
         with:
           name: Release-Artifacts
           path: |
-            ${{github.workspace}}/*.zip
+            ${{github.workspace}}/*Release*.zip
           retention-days: 7
