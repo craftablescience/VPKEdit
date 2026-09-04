@@ -4,6 +4,7 @@
 .vscode/
 CMakeSettings.json
 *.user
+*.autosave
 
 # Project exclude paths
 build/
