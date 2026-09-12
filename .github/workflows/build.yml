@@ -1,0 +1,318 @@
+name: Build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    # nothing here
+
+env:
+  BUILD_DIR: '${{github.workspace}}/build'
+
+jobs:
+  build-windows-vpkedit:
+    strategy:
+      matrix:
+        build_type:
+          - Debug
+          - Release
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          cache: true
+
+      - name: Install NSIS
+        uses: negrutiu/nsis-install@v3
+        with:
+          arch: x64
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR=NSIS -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON -DVPKEDIT_BUILD_INSTALLER=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
+
+      - name: Upload Standalone
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Windows-Standalone-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/styles/*.dll
+            ${{env.BUILD_DIR}}/tls/*.dll
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.dll
+          retention-days: 7
+
+      - name: Create Installer
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Windows-Installer-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
+          retention-days: 7
+
+      - name: Create Standalone Compatibility [build_type:Release]
+        if: ${{matrix.build_type == 'Release'}}
+        working-directory: ${{env.BUILD_DIR}}
+        run: |
+          curl -L -o "__qt__.7z" "https://github.com/crystalidea/qt6windows7/releases/download/v6.8.3/qt6_x64_to_run_on_windows7.7z"
+          7z x __qt__.7z -o__qt__ -y
+          REM Overwrite the already copied binaries for standalone version
+          xcopy /y __qt__\platforms\qwindows.dll            platforms\qwindows.dll
+          xcopy /y /c __qt__\styles\qmodernwindowsstyle.dll styles\qmodernwindowsstyle.dll
+          xcopy /y /c __qt__\styles\qwindowsvistastyle.dll  styles\qwindowsvistastyle.dll
+          xcopy /y __qt__\Qt6Core.dll                       Qt6Core.dll
+          xcopy /y __qt__\Qt6Gui.dll                        Qt6Gui.dll
+          xcopy /y __qt__\Qt6Network.dll                    Qt6Network.dll
+          xcopy /y __qt__\Qt6OpenGL.dll                     Qt6OpenGL.dll
+          xcopy /y __qt__\Qt6OpenGLWidgets.dll              Qt6OpenGLWidgets.dll
+          xcopy /y __qt__\Qt6Widgets.dll                    Qt6Widgets.dll
+          REM Overwrite the source of the binaries for installer version
+          xcopy /y __qt__\platforms\qwindows.dll            "${{env.QT_ROOT_DIR}}\plugins\platforms\qwindows.dll"
+          xcopy /y /c __qt__\styles\qmodernwindowsstyle.dll "${{env.QT_ROOT_DIR}}\plugins\styles\qmodernwindowsstyle.dll"
+          xcopy /y /c __qt__\styles\qwindowsvistastyle.dll  "${{env.QT_ROOT_DIR}}\plugins\styles\qwindowsvistastyle.dll"
+          xcopy /y __qt__\Qt6Core.dll                       "${{env.QT_ROOT_DIR}}\bin\Qt6Core.dll"
+          xcopy /y __qt__\Qt6Gui.dll                        "${{env.QT_ROOT_DIR}}\bin\Qt6Gui.dll"
+          xcopy /y __qt__\Qt6Network.dll                    "${{env.QT_ROOT_DIR}}\bin\Qt6Network.dll"
+          xcopy /y __qt__\Qt6OpenGL.dll                     "${{env.QT_ROOT_DIR}}\bin\Qt6OpenGL.dll"
+          xcopy /y __qt__\Qt6OpenGLWidgets.dll              "${{env.QT_ROOT_DIR}}\bin\Qt6OpenGLWidgets.dll"
+          xcopy /y __qt__\Qt6Widgets.dll                    "${{env.QT_ROOT_DIR}}\bin\Qt6Widgets.dll"
+
+      - name: Upload Standalone Compatibility [build_type:Release]
+        if: ${{matrix.build_type == 'Release'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Windows-Standalone-Compatibility-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/CREDITS
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/*.dll
+            ${{env.BUILD_DIR}}/platforms/*.dll
+            ${{env.BUILD_DIR}}/styles/*.dll
+            ${{env.BUILD_DIR}}/tls/*.dll
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.dll
+          retention-days: 7
+
+      - name: Create Compatibility Installer [build_type:Release]
+        if: ${{matrix.build_type == 'Release'}}
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Compatibility Installer [build_type:Release]
+        if: ${{matrix.build_type == 'Release'}}
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Windows-Installer-Compatibility-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-win64.exe
+          retention-days: 7
+
+      - name: Upload Standalone PDBs
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Windows-PDBs-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli.pdb
+            ${{env.BUILD_DIR}}/vpkedit.pdb
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.pdb
+          retention-days: 7
+
+  build-windows-stratasource:
+    strategy:
+      matrix:
+        build_type:
+          - Release
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j%NUMBER_OF_PROCESSORS%
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j%NUMBER_OF_PROCESSORS%
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'StrataSource-Windows-Binaries-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli.exe
+            ${{env.BUILD_DIR}}/vpkedit.exe
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.dll
+          retention-days: 7
+
+      - name: Upload Binary PDBs
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'StrataSource-Windows-PDBs-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli.pdb
+            ${{env.BUILD_DIR}}/vpkedit.pdb
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.pdb
+          retention-days: 7
+
+  build-linux-vpkedit:
+    strategy:
+      matrix:
+        build_type:
+          - Debug
+          - Release
+        cpack_generator:
+          - AppImage
+          - DEB
+          - RPM
+          - TZST
+    runs-on: ubuntu-22.04
+    env:
+      APPIMAGE_EXTRACT_AND_RUN: 1
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install appimagetool
+        if: matrix.cpack_generator == 'AppImage'
+        run: |
+          wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+          chmod a+x appimagetool
+          echo "$PWD" >> "$GITHUB_PATH"
+
+      - name: Install Latest CMake
+        uses: ssrobins/install-cmake@v1
+
+      - name: Install Newer GCC
+        uses: egor-tensin/setup-gcc@v2
+        with:
+          version: 13
+          platform: x64
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.4.2'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCPACK_GENERATOR=${{matrix.cpack_generator}} -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON -DVPKEDIT_BUILD_INSTALLER=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+
+      - name: Create Installer
+        working-directory: ${{env.BUILD_DIR}}
+        run: cpack
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'VPKEdit-Linux-${{matrix.cpack_generator}}-gcc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/VPKEdit-*-Linux.*
+          retention-days: 7
+
+  build-linux-stratasource:
+    strategy:
+      matrix:
+        build_type:
+          - Release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Newer GCC
+        uses: egor-tensin/setup-gcc@v2
+        with:
+          version: 13
+          platform: x64
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.5.3'
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          cache: true
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DQT_BASEDIR="${{env.QT_ROOT_DIR}}" -DVPKEDIT_USE_LTO=ON -DVPKEDIT_BUILD_FOR_STRATA_SOURCE=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t vpkeditcli -- -j$(nproc)
+          cmake --build . --config ${{matrix.build_type}} -t vpkedit -- -j$(nproc)
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'StrataSource-Linux-Binaries-gcc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/vpkeditcli
+            ${{env.BUILD_DIR}}/vpkedit
+            ${{env.BUILD_DIR}}/vpkedit_thumbnails/*.so
+          retention-days: 7

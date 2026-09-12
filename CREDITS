@@ -1,0 +1,44 @@
+## Contributors
+- BreakinBenny: Bloody Good Time ICE key
+- witch and ymgve: GCF parser
+- Charles-Bao and EricZhang456: macOS platform support
+- erysdren: HOG parser, VPP parser
+- HurricanePootis: AUR maintainer, file associations for Linux
+- JJL772: Linux compatibility bugfixes
+- Nbc66: added some extra info to the installation guide
+- OzxyBox: WAD3 parser
+- Rythyrix: minor library bugfix
+- sour-dani: initial CLI response file implementation
+- Tholp: major BSP stability improvements
+- Trico Everfire: open pack files based on Steam game install locations
+
+## Honorable Mentions
+- Alhexx: 007 parser is based on their reverse-engineering work
+- erysdren: OL and ORE parsers are based on its reverse-engineering work
+
+## Translators
+- Bosanski: Nbc66
+- 简体中文: lysenty-jay
+- Hrvatski: N0one
+- Nederlands: Trico Everfire
+- Deutsch: Nilten
+- Italiano: enderzombi102
+- 日本語: Annie Miyajima, craftablescience, poropopo
+- 한국인: hamn
+- Polski: Enderek, Patrxgt
+- Português (Brasil): Jean Trindade Pereira, vivizinho64minecraft
+- Русский: Michael Soyka
+- Slovenian: Andrew Pozenel
+- Español: Samuel, craftablescience
+- Svenska: BreakinBenny, TheDudeWhosNameIsAce
+- Tiếng Việt: Barnacl437
+
+## Libraries
+- Common:
+  - [SourcePP](https://sourcepp.org)
+- GUI:
+  - [Discord RPC](https://github.com/craftablescience/discord-rpc-clean)
+  - [Qt](https://www.qt.io)
+  - Default MatCap texture is from [nidorx/matcaps](https://github.com/nidorx/matcaps/blob/master/PAGE-15.md#706962_24211e_bcb6af_aca494)
+- CLI:
+  - [argparse](https://github.com/p-ranav/argparse)

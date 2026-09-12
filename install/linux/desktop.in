@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=${PROJECT_NAME_PRETTY}
+Comment=${PROJECT_DESCRIPTION}
+Exec=${PROJECT_NAME} %F
+Icon=${PROJECT_NAME}
+Terminal=false
+Type=Application
+Categories=Qt;Development;Utility;
+MimeType=image/x-vtf;image/x-xtf;

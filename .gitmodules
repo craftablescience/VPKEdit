@@ -1,0 +1,12 @@
+[submodule "cmake/helpers"]
+	path = cmake/helpers
+	url = https://github.com/craftablescience/cmake-helpers
+[submodule "ext/argparse"]
+	path = ext/argparse
+	url = https://github.com/p-ranav/argparse
+[submodule "ext/discord"]
+	path = ext/discord
+	url = https://github.com/craftablescience/discord-rpc-clean
+[submodule "ext/sourcepp"]
+	path = ext/sourcepp
+	url = https://github.com/craftablescience/sourcepp

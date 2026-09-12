@@ -1,0 +1,12 @@
+{
+  "name": "VTF",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
+  "author": "craftablescience",
+  "description": "Provides thumbnails for VTF v7.0-7.6, XTF v5 (XBOX), VTFX v8 (PS3, X360), VTF3 v8 (PS3) files.",
+  "links": {
+    "homepage": "https://github.com/craftablescience/VPKEdit",
+    "issue_tracker": "https://github.com/craftablescience/VPKEdit/issues"
+  }
+}

@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/attribution">
+        <file alias="CREDITS">../../CREDITS</file>
+        <file alias="LICENSE_ARGPARSE">../../ext/argparse/LICENSE</file>
+        <file alias="LICENSE_RAPIDJSON">../../ext/discord/thirdparty/rapidjson/license.txt</file>
+        <file alias="LICENSE_DISCORD_RPC">../../ext/discord/LICENSE</file>
+        <file alias="LICENSE_SOURCEPP">../../ext/sourcepp/LICENSE</file>
+        <file alias="LICENSE_SOURCEPP_THIRDPARTY">../../ext/sourcepp/THIRDPARTY_LEGAL_NOTICES.txt</file>
+    </qresource>
+</RCC>

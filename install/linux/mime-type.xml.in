@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="image/x-vtf">
+        <alias type="image/vnd.valve.source.texture"/>
+        <comment>Valve Texture Format File</comment>
+        <icon name="${PROJECT_NAME}"/>
+        <acronym>VTF</acronym>
+        <expanded-acronym>Valve Texture Format</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.vtf"/>
+        <glob pattern="*.VTF"/>
+        <magic priority="50">
+            <!-- PC -->
+            <match value="VTF\0" type="string" offset="0">
+                <match value="0x07000000" type="little32" offset="4">
+                    <match value="0x00000000" type="little32" offset="8"/>
+                    <match value="0x01000000" type="little32" offset="8"/>
+                    <match value="0x02000000" type="little32" offset="8"/>
+                    <match value="0x03000000" type="little32" offset="8"/>
+                    <match value="0x04000000" type="little32" offset="8"/>
+                    <match value="0x05000000" type="little32" offset="8"/>
+                    <match value="0x06000000" type="little32" offset="8"/>
+                </match>
+            </match>
+
+            <!-- X360, PS3 Orange Box -->
+            <match value="VTFX" type="string" offset="0">
+                <match value="0x60030000" type="little32" offset="4">
+                    <match value="0x08000000" type="little32" offset="8"/>
+                </match>
+                <match value="0x33030000" type="little32" offset="4">
+                    <match value="0x08000000" type="little32" offset="8"/>
+                </match>
+            </match>
+
+            <!-- PS3 Portal 2, CS:GO -->
+            <match value="VTF3" type="string" offset="0">
+                <match value="0x33030000" type="little32" offset="4">
+                    <match value="0x08000000" type="little32" offset="8"/>
+                </match>
+            </match>
+        </magic>
+    </mime-type>
+    <mime-type type="image/x-xtf">
+        <comment>Valve Xbox Texture Format File</comment>
+        <icon name="${PROJECT_NAME}"/>
+        <acronym>XTF</acronym>
+        <expanded-acronym>Valve Xbox Texture Format</expanded-acronym>
+        <glob-deleteall/>
+        <glob pattern="*.xtf"/>
+        <glob pattern="*.XTF"/>
+        <magic priority="50">
+            <match value="XTF\0" type="string" offset="0">
+                <match value="0x05000000" type="little32" offset="4">
+                    <match value="0x00000000" type="little32" offset="8"/>
+                </match>
+            </match>
+        </magic>
+    </mime-type>
+</mime-info>

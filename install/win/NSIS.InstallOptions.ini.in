@@ -1,0 +1,72 @@
+[Settings]
+NumFields=30
+
+[Field 1]
+Type=label
+Text=By default @CPACK_PACKAGE_INSTALL_DIRECTORY@ does not add its directory to the system PATH.
+Left=0
+Right=-1
+Top=0
+Bottom=10
+
+[Field 2]
+Type=radiobutton
+Text=Do not add @CPACK_PACKAGE_NAME@ to the system PATH
+Left=0
+Right=-1
+Top=15
+Bottom=25
+State=1
+
+[Field 3]
+Type=radiobutton
+Text=Add @CPACK_PACKAGE_NAME@ to the system PATH for all users
+Left=0
+Right=-1
+Top=25
+Bottom=35
+State=0
+
+[Field 4]
+Type=radiobutton
+Text=Add @CPACK_PACKAGE_NAME@ to the system PATH for current user
+Left=0
+Right=-1
+Top=35
+Bottom=45
+State=0
+
+[Field 5]
+Type=CheckBox
+Text=Create @CPACK_PACKAGE_NAME@ Desktop Icon
+Left=0
+Right=-1
+Top=50
+Bottom=60
+State=0
+
+[Field 6]
+Type=label
+Text=File Associations:
+Left=0
+Right=140
+Top=70
+Bottom=80
+
+[Field 7]
+Type=CheckBox
+Text=.vtf
+Left=0
+Right=55
+Top=85
+Bottom=95
+State=1
+
+[Field 8]
+Type=CheckBox
+Text=.xtf
+Left=0
+Right=55
+Top=95
+Bottom=105
+State=1

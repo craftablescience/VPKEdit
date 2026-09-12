@@ -1,0 +1,24 @@
+# IDE
+.idea/
+.vs/
+.vscode/
+CMakeSettings.json
+
+
+# Build
+.cache/
+build*/
+dist*/
+cmake-build-*/
+out*/
+*.dll
+*.ilk
+*.pdb
+*.pyd
+*.so*
+*.user
+
+
+# Generated
+**/generated/
+src/common/Config.hpp

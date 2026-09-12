@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# copied from cpack, we need to install this manually to fix a permissions issue
+set -e
+this_dir="$(readlink -f "$(dirname "$0")")"
+exec "$this_dir"/${PROJECT_NAME} "$@"
