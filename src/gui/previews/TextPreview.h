@@ -77,24 +77,28 @@ class TextPreview : public QWidget {
 public:
 	// Reminder if you add a format that should be highlighted to change that list too!
 	static inline const QStringList EXTENSIONS {
-		".txt", ".md", // Text
-		".nut", ".gnut", ".lua", ".gm", ".py", ".js", ".ts", // Scripting
+		".txt", ".md", ".log", // Text
+		".nut", ".gnut", ".lua", ".gm", ".py", ".js", ".ts", ".script", // Scripting
 		".map", ".vmf", ".vmm", ".vmx", ".vmt", // Maps
 		".vcd", ".fgd", ".qc", ".qci", ".qcx", ".smd", // Models / FGD
 		".kv", ".kv3", ".res", ".vdf", ".acf", ".bns", // KeyValues
-		".vbsp", ".rad", ".gam", ".gi", ".rc", ".lst", // Valve
-		".cfg", ".ini", ".yml", ".yaml", ".toml", ".json", // Config
+		".vbsp", ".rad", ".gam", ".gi", ".rc", ".lst", ".sc", // Valve
+		".cfg", ".config", ".ini", ".yml", ".yaml", ".toml", ".json", // Config
 		".html", ".htm", ".xml", ".css", ".scss", ".sass", // Web
 		"authors", "credits", "license", "readme", // Metadata
 		".gitignore", ".gitattributes", ".gitmodules", // Git
 		".gd", ".gdshader", ".tscn", ".tres", ".import", ".remap", // Godot
 		".zpc", ".zpdata", // Zombie Panic Survival
+		".mat", // Condition Zero Deleted Scenes, Quake II Remaster
 		".pop", // Team Fortress 2
 		".edt", // Synergy
 		".set", // Titanfall & Apex Legends
 		".scr", ".dlg", ".lip", ".vfe", // Vampire: The Masquerade - Bloodlines
 		".tbl", // Red Faction
 		".vint_doc", ".vint_proj", // Saints Row 2
+		".shader", ".skin", ".arena", // IdTech 3
+		".objdata", // Wolfenstein: Enemy Territory
+		".icarus", ".efx" // Raven Software IdTech 3 games
 	};
 
 	TextPreview(FileViewer* fileViewer_, Window* window_, QWidget* parent = nullptr);
