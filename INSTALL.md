@@ -11,6 +11,8 @@ platforms:
 
 ###### Automatic (Windows 10+):
 
+![WinGet Package Version](https://img.shields.io/winget/v/craftablescience.VPKEdit)
+
 VPKEdit is on the Windows package registry, so you only need to run one command to install VPKEdit or update to the latest version:
 1. Press `Win + R`
 2. In the popup window, enter `winget install vpkedit` into the prompt and press "Ok".
@@ -45,6 +47,7 @@ Installation on Linux will vary depending on your distro. On all distros you sho
 application without any issues.
 
 [![Packaging Status](https://repology.org/badge/vertical-allrepos/vpkedit.svg?header=Packaging%20Status)](https://repology.org/project/vpkedit/versions)
+![AUR Version](https://img.shields.io/aur/version/vpkedit)
 
 > [!TIP]
 > If you prefer or need to use a standalone version, you can run one or both of the following commands to add the standalone binaries to the PATH:
@@ -64,7 +67,7 @@ There are two ways of *installing* VPKEdit specific to the following distros:
 
 ###### Automatic:
 
-1. Visit https://craftablescience.info/ppa/ and follow the instructions.
+1. Visit [https://craftablescience.info/ppa/](https://craftable.science/ppa/) and follow the instructions.
 2. VPKEdit should now be installable and upgradable from `apt` (the package name being `vpkedit`).
 
 ###### Manual:
