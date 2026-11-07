@@ -17,7 +17,7 @@ class VPreviewPlugin_V6_0 : public QObject {
 public:
 	virtual void initPlugin(VWindowAccess_V6_0* windowAccess) = 0;
 
-	[[nodiscard]] virtual const QSet<QString>& getPreviewExtensions() const = 0;
+	[[nodiscard]] virtual const QSet<QString>& getFileExtensions() const = 0;
 
 	[[nodiscard]] virtual int getPriority() const = 0;
 

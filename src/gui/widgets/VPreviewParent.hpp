@@ -2,7 +2,10 @@
 
 #include "VEntryTreeView.hpp"
 
+#include <QPluginLoader>
 #include <QStackedWidget>
+
+#include "plugins/previews/VPreviewPlugin.hpp"
 
 class VPreviewDirectoryParent;
 class VPreviewInfo;
@@ -30,4 +33,7 @@ protected:
 	VPreviewNone* previewNone;
 	VPreviewInfo* previewInfo;
 	VPreviewDirectoryParent* previewDirectory;
+
+	QList<QPluginLoader*> previewPluginLoaders;
+	QMap<QString, QPair<int, VPreviewPlugin_V6_0*>> previewPlugins;
 };

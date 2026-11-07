@@ -12,7 +12,7 @@ class DMXPreview final : public VPreviewPlugin_V6_0 {
 public:
 	void initPlugin(VWindowAccess_V6_0*) override;
 
-	[[nodiscard]] const QSet<QString>& getPreviewExtensions() const override;
+	[[nodiscard]] const QSet<QString>& getFileExtensions() const override;
 
 	[[nodiscard]] int getPriority() const override;
 
