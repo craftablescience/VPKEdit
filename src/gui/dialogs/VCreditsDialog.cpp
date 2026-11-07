@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QScrollArea>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -109,10 +110,13 @@ VCreditsDialog::VCreditsDialog(QWidget* parent) : QDialog{parent} {
 
 	for (const auto& [name, content] : ::getCreditsTexts()) {
 		auto* tabContent = new QLabel{content, tabs};
+		tabContent->setAlignment(Qt::AlignTop);
+		tabContent->setWordWrap(true);
 		tabContent->setTextFormat(Qt::MarkdownText);
 		tabContent->setOpenExternalLinks(true);
 		auto* tabScroll = new QScrollArea{this};
 		tabScroll->setWidget(tabContent);
+		tabScroll->setWidgetResizable(true);
 		tabs->addTab(tabScroll, name);
 	}
 
@@ -122,8 +126,11 @@ VCreditsDialog::VCreditsDialog(QWidget* parent) : QDialog{parent} {
 	licenseTabs->tabBar()->setStyle(new VLicenseTabStyle);
 	for (const auto& [name, content] : ::getLicenseTexts()) {
 		auto* tabContent = new QLabel{content, licenseTabs};
+		tabContent->setAlignment(Qt::AlignTop);
+		tabContent->setWordWrap(true);
 		auto* tabScroll = new QScrollArea{this};
 		tabScroll->setWidget(tabContent);
+		tabScroll->setWidgetResizable(true);
 		licenseTabs->addTab(tabScroll, name);
 	}
 	tabs->addTab(licenseTabs, "Licenses");
