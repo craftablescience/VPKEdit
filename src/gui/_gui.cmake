@@ -7,16 +7,19 @@ set(${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VCreditsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VCreditsDialog.hpp"
 
-        "${CMAKE_CURRENT_LIST_DIR}/plugins/thumbnails/IVPKEditThumbnailPlugin.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/plugins/thumbnails/IVPKEditThumbnailPlugin.hpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/previews/VPreviewPlugin.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/previews/VPreviewPlugin.hpp"
 
-        "${CMAKE_CURRENT_LIST_DIR}/plugins/IVPKEditWindowAccess.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/plugins/IVPKEditWindowAccess.hpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/thumbnails/VThumbnailPlugin.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/thumbnails/VThumbnailPlugin.hpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/VPluginLoader.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/VPluginLoader.hpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/VWindowAccess.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/plugins/VWindowAccess.hpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/VDiscordPresence.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VDiscordPresence.hpp"
-        "${CMAKE_CURRENT_LIST_DIR}/utility/VPluginLoader.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/utility/VPluginLoader.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VSettings.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VSettings.hpp"
 

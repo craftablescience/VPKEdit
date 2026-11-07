@@ -7,15 +7,15 @@
 #include <QString>
 #include <QWidget>
 
-#include "../IVPKEditWindowAccess.hpp"
+#include "../VWindowAccess.hpp"
 
 class QWidget;
 
-class IVPKEditPreviewPlugin_V6_0 : public QObject {
+class VPreviewPlugin_V6_0 : public QObject {
 	Q_OBJECT;
 
 public:
-	virtual void initPlugin(IVPKEditWindowAccess_V6_0* windowAccess) = 0;
+	virtual void initPlugin(VWindowAccess_V6_0* windowAccess) = 0;
 
 	[[nodiscard]] virtual const QSet<QString>& getPreviewExtensions() const = 0;
 
@@ -34,5 +34,5 @@ signals:
 	void showTextPreview(const QString& extension, const QString& text);
 };
 
-#define IVPKEditPreviewPlugin_V6_0_iid "app.vpkedit.IPreviewPlugin/6.0"
-Q_DECLARE_INTERFACE(IVPKEditPreviewPlugin_V6_0, IVPKEditPreviewPlugin_V6_0_iid)
+#define VPreviewPlugin_V6_0_iid "app.vpkedit.VPreviewPlugin/6.0"
+Q_DECLARE_INTERFACE(VPreviewPlugin_V6_0, VPreviewPlugin_V6_0_iid)

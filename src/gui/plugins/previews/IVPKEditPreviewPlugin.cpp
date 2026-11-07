@@ -1,1 +1,0 @@
-#include "IVPKEditPreviewPlugin.hpp"

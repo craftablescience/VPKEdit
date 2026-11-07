@@ -2,7 +2,7 @@
 
 #include <vtfpp/VTF.h>
 
-void VTFThumbnail::initPlugin(IVPKEditWindowAccess_V6_0*) {}
+void VTFThumbnail::initPlugin(VWindowAccess_V6_0*) {}
 
 const QSet<QString>& VTFThumbnail::getFileExtensions() const {
 	static const QSet<QString> EXTENSIONS{

@@ -10,7 +10,7 @@
 #include <kvpp/DMX.h>
 #include <QTreeWidget>
 
-void DMXPreview::initPlugin(IVPKEditWindowAccess_V6_0*) {}
+void DMXPreview::initPlugin(VWindowAccess_V6_0*) {}
 
 const QSet<QString>& DMXPreview::getPreviewExtensions() const {
 	static const QSet<QString> EXTENSIONS{

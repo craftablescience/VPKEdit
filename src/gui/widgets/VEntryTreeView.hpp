@@ -9,7 +9,7 @@
 #include <QTreeView>
 #include <vpkpp/PackFile.h>
 
-#include "plugins/thumbnails/IVPKEditThumbnailPlugin.hpp"
+#include "plugins/thumbnails/VThumbnailPlugin.hpp"
 
 class QThread;
 
@@ -144,7 +144,7 @@ protected:
 	QThread* processingThread;
 
 	QList<QPluginLoader*> thumbnailPluginLoaders;
-	QMap<QString, IVPKEditThumbnailPlugin_V6_0*> thumbnailPlugins;
+	QMap<QString, VThumbnailPlugin_V6_0*> thumbnailPlugins;
 };
 
 class VEntryTreeThumbnailProviderWorker : public QObject {
@@ -159,7 +159,7 @@ signals:
 	void processingComplete();
 
 public slots:
-	void processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, IVPKEditThumbnailPlugin_V6_0*>& thumbnailPlugins);
+	void processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, VThumbnailPlugin_V6_0*>& thumbnailPlugins);
 
 	void cancel();
 

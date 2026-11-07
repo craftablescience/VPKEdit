@@ -11,10 +11,10 @@ function(vpkedit_add_preview_plugin)
     set(PLUGIN_DIR "${PROJECT_NAME}_previews")
     set(PLUGIN_TARGET "${PROJECT_NAME}_${OPTIONS_NAME}_previews")
     qt_add_plugin(${PLUGIN_TARGET} CLASS_NAME "${OPTIONS_CLASS_NAME}"
-            "${CMAKE_CURRENT_LIST_DIR}/../IVPKEditWindowAccess.cpp"
-            "${CMAKE_CURRENT_LIST_DIR}/../IVPKEditWindowAccess.hpp"
-            "${CMAKE_CURRENT_LIST_DIR}/IVPKEditPreviewPlugin.cpp"
-            "${CMAKE_CURRENT_LIST_DIR}/IVPKEditPreviewPlugin.hpp"
+            "${CMAKE_CURRENT_LIST_DIR}/../VWindowAccess.cpp"
+            "${CMAKE_CURRENT_LIST_DIR}/../VWindowAccess.hpp"
+            "${CMAKE_CURRENT_LIST_DIR}/VPreviewPlugin.cpp"
+            "${CMAKE_CURRENT_LIST_DIR}/VPreviewPlugin.hpp"
             "${CMAKE_CURRENT_LIST_DIR}/${OPTIONS_NAME}/${OPTIONS_CLASS_NAME}.cpp"
             "${CMAKE_CURRENT_LIST_DIR}/${OPTIONS_NAME}/${OPTIONS_CLASS_NAME}.hpp")
     cs_configure_target(${PLUGIN_TARGET})

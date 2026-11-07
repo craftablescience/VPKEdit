@@ -6,7 +6,7 @@ class QByteArray;
 class QSettings;
 class QString;
 
-class IVPKEditWindowAccess_V6_0 : public QObject {
+class VWindowAccess_V6_0 : public QObject {
 	Q_OBJECT;
 
 public:

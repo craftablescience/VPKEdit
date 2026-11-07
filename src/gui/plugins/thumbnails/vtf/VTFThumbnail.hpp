@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../IVPKEditThumbnailPlugin.hpp"
+#include "../VThumbnailPlugin.hpp"
 
-class VTFThumbnail final : public IVPKEditThumbnailPlugin_V6_0 {
+class VTFThumbnail final : public VThumbnailPlugin_V6_0 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditThumbnailPlugin_V6_0_iid FILE "VTFThumbnail.json");
-	Q_INTERFACES(IVPKEditThumbnailPlugin_V6_0);
+	Q_PLUGIN_METADATA(IID VThumbnailPlugin_V6_0_iid FILE "VTFThumbnail.json");
+	Q_INTERFACES(VThumbnailPlugin_V6_0);
 
 public:
-	void initPlugin(IVPKEditWindowAccess_V6_0*) override;
+	void initPlugin(VWindowAccess_V6_0*) override;
 
 	[[nodiscard]] const QSet<QString>& getFileExtensions() const override;
 

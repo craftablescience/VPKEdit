@@ -1,16 +1,16 @@
 #pragma once
 
-#include "../IVPKEditPreviewPlugin.hpp"
+#include "../VPreviewPlugin.hpp"
 
 class QTreeWidget;
 
-class DMXPreview final : public IVPKEditPreviewPlugin_V6_0 {
+class DMXPreview final : public VPreviewPlugin_V6_0 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID IVPKEditPreviewPlugin_V6_0_iid FILE "DMXPreview.json");
-	Q_INTERFACES(IVPKEditPreviewPlugin_V6_0);
+	Q_PLUGIN_METADATA(IID VPreviewPlugin_V6_0_iid FILE "DMXPreview.json");
+	Q_INTERFACES(VPreviewPlugin_V6_0);
 
 public:
-	void initPlugin(IVPKEditWindowAccess_V6_0*) override;
+	void initPlugin(VWindowAccess_V6_0*) override;
 
 	[[nodiscard]] const QSet<QString>& getPreviewExtensions() const override;
 

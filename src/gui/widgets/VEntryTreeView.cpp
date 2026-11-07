@@ -8,8 +8,7 @@
 
 #include "Config.hpp"
 
-#include "plugins/thumbnails/IVPKEditThumbnailPlugin.hpp"
-#include "utility/VPluginLoader.hpp"
+#include "plugins/VPluginLoader.hpp"
 #include "utility/VSettings.hpp"
 
 #ifdef Q_OS_WIN
@@ -342,7 +341,7 @@ VEntryTreeThumbnailProvider::VEntryTreeThumbnailProvider(QObject* parent) : QObj
 
 	VPluginLoader::iterate(PROJECT_NAME "_thumbnails", [this](const QString& libraryPath) {
 		auto* loader = new QPluginLoader{libraryPath, this};
-		if (auto* plugin = qobject_cast<IVPKEditThumbnailPlugin_V6_0*>(loader->instance())) {
+		if (auto* plugin = qobject_cast<VThumbnailPlugin_V6_0*>(loader->instance())) {
 			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
 				return;
 			}
@@ -375,7 +374,7 @@ void VEntryTreeThumbnailProvider::startProcessingThumbnails(std::shared_ptr<vpkp
 	QMetaObject::invokeMethod(worker, "processThumbnails", Qt::QueuedConnection, std::move(packFile), std::move(packFilePath), std::move(paths), size, this->thumbnailPlugins);
 }
 
-void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, IVPKEditThumbnailPlugin_V6_0*>& thumbnailPlugins) {
+void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, VThumbnailPlugin_V6_0*>& thumbnailPlugins) {
 	this->cancelPending = false;
 
 	if (!packFile) {
