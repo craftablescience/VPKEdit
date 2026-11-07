@@ -61,6 +61,7 @@ endif()
 
 # vpkedit plugins
 if(VPKEDIT_BUILD_GUI_PLUGINS)
+    cs_include_directory(src/gui/plugins/previews)
     cs_include_directory(src/gui/plugins/thumbnails)
 endif()
 
