@@ -17,7 +17,7 @@ struct Metadata {
 	QString description;
 	QMap<QString, QString> links;
 
-	[[nodiscard]] static Metadata get(const QPluginLoader* loader, const QString& defaultName = {});
+	[[nodiscard]] static Metadata get(QPluginLoader* loader);
 };
 
 } // namespace PluginFinder
@@ -34,9 +34,9 @@ public:
 
 	[[nodiscard]] QPixmap getThumbnail(const QString& path, const quint8* dataPtr, quint64 dataLen) const;
 
-signals:
-	// todo: hook these up
+	[[nodiscard]] QList<VPluginLoader::Metadata> getPluginMetadata();
 
+signals:
 	void clearedThumbnailPlugins();
 
 	void addedThumbnailPlugin(const VPluginLoader::Metadata& metadata);

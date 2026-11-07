@@ -9,10 +9,13 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QVBoxLayout>
 
 #include "Config.hpp"
+
+#include "utility/VHorizontalTabStyle.hpp"
 
 namespace {
 
@@ -60,26 +63,6 @@ namespace {
 
 } // namespace
 
-QSize VLicenseTabStyle::sizeFromContents(ContentsType type, const QStyleOption* option, const QSize& size, const QWidget* widget) const {
-	QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
-	if (type == QStyle::CT_TabBarTab) {
-		s.transpose();
-	}
-	return s;
-}
-
-void VLicenseTabStyle::drawControl(ControlElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget) const {
-	if (element == CE_TabBarTabLabel) {
-		if (const auto* tab = qstyleoption_cast<const QStyleOptionTab*>(option)) {
-			QStyleOptionTab opt{*tab};
-			opt.shape = QTabBar::RoundedNorth;
-			QProxyStyle::drawControl(element, &opt, painter, widget);
-			return;
-		}
-	}
-	QProxyStyle::drawControl(element, option, painter, widget);
-}
-
 VCreditsDialog::VCreditsDialog(QWidget* parent) : QDialog{parent} {
 	this->setWindowTitle(tr("Credits"));
 	this->setModal(true);
@@ -123,7 +106,7 @@ VCreditsDialog::VCreditsDialog(QWidget* parent) : QDialog{parent} {
 	auto* licenseTabs = new QTabWidget{tabs};
 	licenseTabs->setDocumentMode(true);
 	licenseTabs->setTabPosition(QTabWidget::TabPosition::West);
-	licenseTabs->tabBar()->setStyle(new VLicenseTabStyle);
+	licenseTabs->tabBar()->setStyle(new VHorizontalTabStyle);
 	for (const auto& [name, content] : ::getLicenseTexts()) {
 		auto* tabContent = new QLabel{content, licenseTabs};
 		tabContent->setAlignment(Qt::AlignTop);

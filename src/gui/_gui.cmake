@@ -6,6 +6,8 @@ set(${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VCreditsDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/dialogs/VCreditsDialog.hpp"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VPluginDialog.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/dialogs/VPluginDialog.hpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/plugins/previews/VPreviewPlugin.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/plugins/previews/VPreviewPlugin.hpp"
@@ -20,6 +22,8 @@ set(${PROJECT_NAME}_SOURCES
 
         "${CMAKE_CURRENT_LIST_DIR}/utility/VDiscordPresence.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VDiscordPresence.hpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/VHorizontalTabStyle.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/utility/VHorizontalTabStyle.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VSettings.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/utility/VSettings.hpp"
 

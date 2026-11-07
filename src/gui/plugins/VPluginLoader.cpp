@@ -29,9 +29,9 @@ void VPluginLoader::iterate(const QString& subdir, const std::function<void(cons
 	}
 }
 
-VPluginLoader::Metadata VPluginLoader::Metadata::get(const QPluginLoader* loader, const QString& defaultName) {
+VPluginLoader::Metadata VPluginLoader::Metadata::get(QPluginLoader* loader) {
 	Metadata metadata{
-		.name = defaultName,
+		.name = loader->instance()->metaObject()->className(),
 	};
 
 	if (!loader->metaData().value("MetaData").isObject()) {
@@ -49,12 +49,12 @@ VPluginLoader::Metadata VPluginLoader::Metadata::get(const QPluginLoader* loader
 		metadata.version = "0";
 	}
 	if (pluginData.contains("versionMinor")) {
-		metadata.version += QString{"%1"}.arg(pluginData.value("versionMinor").toInt(0));
+		metadata.version += QString{".%1"}.arg(pluginData.value("versionMinor").toInt(0));
 	} else {
 		metadata.version += ".0";
 	}
 	if (pluginData.contains("versionPatch")) {
-		metadata.version += QString{"%1"}.arg(pluginData.value("versionPatch").toInt(1));
+		metadata.version += QString{".%1"}.arg(pluginData.value("versionPatch").toInt(1));
 	} else {
 		metadata.version += ".1";
 	}
@@ -120,7 +120,7 @@ void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 				}
 			}
 			plugin->initPlugin(windowAccess);
-			emit this->addedThumbnailPlugin(VPluginLoader::Metadata::get(loader, plugin->metaObject()->className()));
+			emit this->addedThumbnailPlugin(VPluginLoader::Metadata::get(loader));
 		} else {
 			loader->deleteLater();
 		}
@@ -143,4 +143,12 @@ QPixmap VThumbnailPluginLoader::getThumbnail(const QString& path, const quint8* 
 		}
 	}
 	return {};
+}
+
+QList<VPluginLoader::Metadata> VThumbnailPluginLoader::getPluginMetadata() {
+	QList<VPluginLoader::Metadata> out;
+	for (auto* loader : this->thumbnailPluginLoaders) {
+		out.push_back(VPluginLoader::Metadata::get(loader));
+	}
+	return out;
 }

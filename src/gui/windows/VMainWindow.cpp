@@ -20,6 +20,7 @@
 #include "Config.hpp"
 
 #include "dialogs/VCreditsDialog.hpp"
+#include "dialogs/VPluginDialog.hpp"
 #include "utility/VDiscordPresence.hpp"
 #include "utility/VSettings.hpp"
 #include "widgets/previews/VPreviewDirectoryParent.hpp"
@@ -66,6 +67,16 @@ VMainWindow::VMainWindow() {
 
 	fileMenu->addAction(this->style()->standardIcon(QStyle::SP_DialogCancelButton), tr("&Quit"), QKeySequence::Quit, [this] {
 		this->close();
+	});
+
+	// --- Edit menu ---
+
+	auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
+
+	editMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("View Active Plugins…"), [this] {
+		QMap<QString, QList<VPluginLoader::Metadata>> pluginMetadata;
+		pluginMetadata[tr("Thumbnails")] = this->entryTreeView->thumbnailProvider()->thumbnailPluginLoader()->getPluginMetadata();
+		VPluginDialog::showPlugins(pluginMetadata);
 	});
 
 	// --- Options menu ---
