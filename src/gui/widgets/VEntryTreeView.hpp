@@ -5,11 +5,10 @@
 #include <variant>
 
 #include <QApplication>
-#include <QPluginLoader>
 #include <QTreeView>
 #include <vpkpp/PackFile.h>
 
-#include "plugins/thumbnails/VThumbnailPlugin.hpp"
+#include "plugins/VPluginLoader.hpp"
 
 class QThread;
 
@@ -134,6 +133,11 @@ class VEntryTreeThumbnailProvider : public QObject {
 public:
 	explicit VEntryTreeThumbnailProvider(QObject* parent = nullptr);
 
+	template<typename Self>
+	[[nodiscard]] auto* thumbnailPluginLoader(this Self&& self) {
+		return self.thumbnailPlugins;
+	}
+
 signals:
 	void processedThumbnail(const QString& path, const QIcon& thumbnail);
 
@@ -142,9 +146,7 @@ public slots:
 
 protected:
 	QThread* processingThread;
-
-	QList<QPluginLoader*> thumbnailPluginLoaders;
-	QMap<QString, VThumbnailPlugin_V6_0*> thumbnailPlugins;
+	VThumbnailPluginLoader* thumbnailPlugins;
 };
 
 class VEntryTreeThumbnailProviderWorker : public QObject {
@@ -159,7 +161,7 @@ signals:
 	void processingComplete();
 
 public slots:
-	void processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, VThumbnailPlugin_V6_0*>& thumbnailPlugins);
+	void processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, VThumbnailPluginLoader* thumbnailPlugins);
 
 	void cancel();
 

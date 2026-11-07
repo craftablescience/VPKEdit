@@ -6,9 +6,6 @@
 #include <QThread>
 #include <vtfpp/VTF.h>
 
-#include "Config.hpp"
-
-#include "plugins/VPluginLoader.hpp"
 #include "utility/VSettings.hpp"
 
 #ifdef Q_OS_WIN
@@ -339,28 +336,9 @@ VEntryTreeThumbnailProvider::VEntryTreeThumbnailProvider(QObject* parent) : QObj
 	this->processingThread->setObjectName("Thumbnail Thread");
 	this->processingThread->start();
 
-	VPluginLoader::iterate(PROJECT_NAME "_thumbnails", [this](const QString& libraryPath) {
-		auto* loader = new QPluginLoader{libraryPath, this};
-		if (auto* plugin = qobject_cast<VThumbnailPlugin_V6_0*>(loader->instance())) {
-			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
-				return;
-			}
-			this->thumbnailPluginLoaders.push_back(loader);
-
-			for (const auto& ext : plugin->getFileExtensions()) {
-				if (!this->thumbnailPlugins.contains(ext) || this->thumbnailPlugins[ext]->getPriority() < plugin->getPriority()) {
-					this->thumbnailPlugins[ext] = plugin;
-				}
-			}
-
-			// todo: provide window access
-			plugin->initPlugin(nullptr);
-			// todo: register the plugin somewhere in the ui
-			//this->window->registerPlugin(libraryPath, plugin->getIcon(), loader->metaData()["MetaData"].toObject());
-		} else {
-			loader->deleteLater();
-		}
-	});
+	this->thumbnailPlugins = new VThumbnailPluginLoader{this};
+	// todo: provide window access
+	this->thumbnailPlugins->reloadPlugins(nullptr);
 }
 
 // NOLINTNEXTLINE(*-unnecessary-value-param)
@@ -374,7 +352,9 @@ void VEntryTreeThumbnailProvider::startProcessingThumbnails(std::shared_ptr<vpkp
 	QMetaObject::invokeMethod(worker, "processThumbnails", Qt::QueuedConnection, std::move(packFile), std::move(packFilePath), std::move(paths), size, this->thumbnailPlugins);
 }
 
-void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, const QMap<QString, VThumbnailPlugin_V6_0*>& thumbnailPlugins) {
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+// (Qt MOC doesn't like const on VThumbnailPluginLoader*)
+void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<vpkpp::PackFile>& packFile, const QString& packFilePath, const QStringList& paths, uint16_t size, VThumbnailPluginLoader* thumbnailPlugins) {
 	this->cancelPending = false;
 
 	if (!packFile) {
@@ -386,8 +366,7 @@ void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<
 			break;
 		}
 
-		const auto ext = QFileInfo{path}.suffix();
-		if (!thumbnailPlugins.contains(ext)) {
+		if (!thumbnailPlugins->hasThumbnail(path)) {
 			continue;
 		}
 
@@ -399,7 +378,7 @@ void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<
 #ifndef DEBUG
 		try {
 #endif
-			const auto thumb = thumbnailPlugins[ext]->getThumbnail(path, reinterpret_cast<const quint8*>(data->data()), data->size());
+			const auto thumb = thumbnailPlugins->getThumbnail(path, reinterpret_cast<const quint8*>(data->data()), data->size());
 			if (thumb.isNull()) {
 				continue;
 			}
