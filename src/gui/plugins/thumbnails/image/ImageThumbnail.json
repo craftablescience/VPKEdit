@@ -1,0 +1,12 @@
+{
+  "name": "Image",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
+  "author": "craftablescience",
+  "description": "Provides thumbnails for all images supported by the [SourcePP](https://sourcepp.org) library.",
+  "links": {
+    "Homepage": "https://github.com/craftablescience/VPKEdit",
+    "Issue Tracker": "https://github.com/craftablescience/VPKEdit/issues"
+  }
+}

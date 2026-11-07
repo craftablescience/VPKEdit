@@ -128,12 +128,12 @@ void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 }
 
 bool VThumbnailPluginLoader::hasThumbnail(const QString& path) const {
-	const auto ext = QFileInfo{path}.suffix();
+	const auto ext = QFileInfo{path}.suffix().toLower();
 	return this->thumbnailPlugins.contains(ext);
 }
 
 QPixmap VThumbnailPluginLoader::getThumbnail(const QString& path, const quint8* dataPtr, quint64 dataLen) const {
-	const auto ext = QFileInfo{path}.suffix();
+	const auto ext = QFileInfo{path}.suffix().toLower();
 	if (!this->thumbnailPlugins.contains(ext)) {
 		return {};
 	}

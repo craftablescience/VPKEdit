@@ -44,7 +44,7 @@ VPluginDialog::VPluginDialog(const QMap<QString, QList<VPluginLoader::Metadata>>
 				tr("Links")
 			);
 			for (const auto& [linkName, linkURL] : metadata.links.asKeyValueRange()) {
-				text += QString{"\n- **%1:**: %2"}.arg(linkName, linkURL);
+				text += QString{"\n- **%1:** %2"}.arg(linkName, linkURL);
 			}
 			tabContent->setText(text);
 
