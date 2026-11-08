@@ -93,6 +93,9 @@ const QSet<QString>& TextureThumbnail::getFileExtensions() const {
 		"tga",
 		"webp",
 
+		// FRAMES
+		"frames",
+
 		// PPL
 		"ppl",
 
@@ -121,6 +124,13 @@ QPixmap TextureThumbnail::getThumbnail(const QString& path, const quint8* dataPt
 			if (auto image = ppl.getImageAs(vtfpp::ImageFormat::RGBA8888)) {
 				return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(image->data.data()), static_cast<int>(image->width), static_cast<int>(image->height), QImage::Format_RGBA8888});
 			}
+		}
+		return {};
+	} else if (pathLower.endsWith("frames")) {
+		// FRAMES loader
+		if (const auto frames = vtfpp::PSFrames{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}}; frames && frames.getFrameCount() > 0) {
+			auto imageData = frames.getImageDataAs(vtfpp::ImageFormat::RGBA8888, 0);
+			return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(imageData.data()), static_cast<int>(frames.getWidth(0)), static_cast<int>(frames.getHeight(0)), QImage::Format_RGBA8888});
 		}
 		return {};
 	}

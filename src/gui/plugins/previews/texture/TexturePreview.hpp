@@ -24,6 +24,8 @@ public:
 
 	[[nodiscard]] bool loadPPL(const quint8* dataPtr, quint64 dataLen);
 
+	[[nodiscard]] bool loadPSFrames(const quint8* dataPtr, quint64 dataLen);
+
 	[[nodiscard]] bool loadVTF(const quint8* dataPtr, quint64 dataLen);
 
 	void reloadCurrentTexture();
@@ -93,7 +95,7 @@ protected:
 		[[nodiscard]] std::vector<std::byte> getImageDataAs(vtfpp::ImageFormat imageFormat, uint16_t frame = 0) const;
 	};
 
-	std::variant<std::monostate, Image, vtfpp::PPL, vtfpp::VTF> textureFile;
+	std::variant<std::monostate, Image, vtfpp::PPL, vtfpp::PSFrames, vtfpp::VTF> textureFile;
 	std::vector<std::byte> textureCurrentData;
 	QImage textureCurrent;
 	QPointF textureOffset;

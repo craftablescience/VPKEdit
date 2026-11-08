@@ -104,6 +104,20 @@ bool MareTF::QMareTextureWidget::loadPPL(const quint8* dataPtr, quint64 dataLen)
 	return true;
 }
 
+bool MareTF::QMareTextureWidget::loadPSFrames(const quint8* dataPtr, quint64 dataLen) {
+	try {
+		auto tmpPSFrames = vtfpp::PSFrames{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}};
+		if (!tmpPSFrames || tmpPSFrames.getFrameCount() == 0) {
+			return false;
+		}
+		this->textureFile = std::move(tmpPSFrames);
+		this->reloadCurrentTexture();
+	} catch (const std::overflow_error&) {
+		return false;
+	}
+	return true;
+}
+
 bool MareTF::QMareTextureWidget::loadVTF(const quint8* dataPtr, quint64 dataLen) {
 	try {
 		auto tmpVTF = vtfpp::VTF{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}};
@@ -205,6 +219,27 @@ void MareTF::QMareTextureWidget::reloadCurrentTexture() {
 
 		processImageData();
 		this->update();
+	} else if (std::holds_alternative<vtfpp::PSFrames>(this->textureFile) && std::get<vtfpp::PSFrames>(this->textureFile)) {
+		const auto& frames = std::get<vtfpp::PSFrames>(this->textureFile);
+
+		if (this->a) {
+			if (!this->r && !this->g && !this->b && !this->aMask) {
+				format = vtfpp::ImageFormat::A8;
+				formatQt = QImage::Format_Grayscale8;
+			} else {
+				format = vtfpp::ImageFormat::BGRA8888;
+				formatQt = QImage::Format_ARGB32_Premultiplied;
+			}
+		} else {
+			format = vtfpp::ImageFormat::RGB888;
+			formatQt = QImage::Format_RGB888;
+		}
+
+		this->textureCurrentData = frames.getImageDataAs(format, this->currentFrame);
+		this->textureCurrent = {reinterpret_cast<const uchar*>(this->textureCurrentData.data()), static_cast<int>(frames.getWidth(this->currentFrame)), static_cast<int>(frames.getHeight(this->currentFrame)), formatQt};
+
+		processImageData();
+		this->update();
 	} else if (std::holds_alternative<vtfpp::VTF>(this->textureFile) && std::get<vtfpp::VTF>(this->textureFile)) {
 		const auto& vtf = std::get<vtfpp::VTF>(this->textureFile);
 
@@ -276,6 +311,9 @@ uint16_t MareTF::QMareTextureWidget::getCurrentFrame() const {
 void MareTF::QMareTextureWidget::setCurrentFrame(uint16_t frame) {
 	if (std::holds_alternative<vtfpp::PPL>(this->textureFile)) {
 		this->currentFrame = std::clamp<uint16_t>(frame, 0, std::get<vtfpp::PPL>(this->textureFile).getImageLODs().size() - 1);
+		this->reloadCurrentTexture();
+	} else if (std::holds_alternative<vtfpp::PSFrames>(this->textureFile)) {
+		this->currentFrame = std::clamp<uint16_t>(frame, 0, std::get<vtfpp::PSFrames>(this->textureFile).getFrameCount() - 1);
 		this->reloadCurrentTexture();
 	} else if (std::holds_alternative<vtfpp::VTF>(this->textureFile)) {
 		this->currentFrame = std::clamp<uint16_t>(frame, 0, std::get<vtfpp::VTF>(this->textureFile).getFrameCount() - 1);
@@ -545,6 +583,9 @@ const QSet<QString>& TexturePreview::getFileExtensions() const {
 		"qoi",
 		"tga",
 		"webp",
+
+		// FRAMES
+		"frames",
 
 		// PPL
 		"ppl",

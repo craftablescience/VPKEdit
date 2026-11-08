@@ -4,7 +4,7 @@
   "versionMinor": 0,
   "versionPatch": 0,
   "author": "craftablescience",
-  "description": "Provides previews for PPL v0, VTF v7.0-7.6, XTF v5 (XBOX), VTFX v8 (PS3, X360), VTF3 v8 (PS3) files, and all image formats supported by the [SourcePP](https://sourcepp.org) library.",
+  "description": "Provides previews for FRAMES (PS3), PPL v0, VTF v7.0-7.6, XTF v5 (XBOX), VTFX v8 (PS3, X360), VTF3 v8 (PS3) files, and all image formats supported by the [SourcePP](https://sourcepp.org) library.",
   "links": {
     "Homepage": "https://github.com/craftablescience/VPKEdit",
     "Issue Tracker": "https://github.com/craftablescience/VPKEdit/issues"
