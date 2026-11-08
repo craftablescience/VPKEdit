@@ -241,21 +241,23 @@ VEntryTreeView::VEntryTreeView(QWidget* parent) : QTreeView{parent} {
 		}
 
 		auto* item = static_cast<VEntryTreeItem*>(current.internalPointer());
-		if (item->isPackFile()) {
-			// todo: provide data
-			return;
-		}
 
 		// The full path in the tree needs to be truncated to load the file from the parent pack file
 		QString internalItemPath = item->filename();
 		auto* itemPackFileParent = item->parentItem();
-		while (itemPackFileParent && !itemPackFileParent->isPackFile()) {
-			internalItemPath = itemPackFileParent->filename() + '/' + internalItemPath;
-			itemPackFileParent = itemPackFileParent->parentItem();
-		}
-		if (!itemPackFileParent || !itemPackFileParent->isPackFile()) {
-			// todo: error (should never see this?)
-			return;
+		if (item->isPackFile()) {
+			// todo: should we provide any other data? would like to have a bsp preview!!
+			internalItemPath = "";
+			itemPackFileParent = item;
+		} else {
+			while (itemPackFileParent && !itemPackFileParent->isPackFile()) {
+				internalItemPath = itemPackFileParent->filename() + '/' + internalItemPath;
+				itemPackFileParent = itemPackFileParent->parentItem();
+			}
+			if (!itemPackFileParent || !itemPackFileParent->isPackFile()) {
+				// todo: error (should never see this?)
+				return;
+			}
 		}
 
 		const auto packFile = item->packFile().lock();
@@ -272,7 +274,7 @@ VEntryTreeView::VEntryTreeView(QWidget* parent) : QTreeView{parent} {
 				if (const auto* itemChild = item->child(i); itemChild->isDirectory()) {
 					subdirs.append(itemChild->filename());
 				} else {
-					filepaths.append(internalItemPath + '/' + itemChild->filename());
+					filepaths.append(internalItemPath + (internalItemPath.isEmpty() ? "" : "/") + itemChild->filename());
 					subfiles[itemChild->filename()] = packFile->findEntry(filepaths.last().toUtf8().constData());
 				}
 			}
@@ -372,6 +374,7 @@ void VEntryTreeThumbnailProviderWorker::processThumbnails(const std::shared_ptr<
 
 		const auto data = packFile->readEntry(path.toUtf8().constData());
 		if (!data) {
+			emit this->processedThumbnail(packFilePath + '/' + path, QIcon{QPixmap{":/icons/error_greyscale.png"}.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation)});
 			continue;
 		}
 

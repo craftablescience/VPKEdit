@@ -2,9 +2,9 @@
 
 #include "../VThumbnailPlugin.hpp"
 
-class VTFThumbnail final : public VThumbnailPlugin_V6_0 {
+class TextureThumbnail final : public VThumbnailPlugin_V6_0 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID VThumbnailPlugin_V6_0_iid FILE "VTFThumbnail.json");
+	Q_PLUGIN_METADATA(IID VThumbnailPlugin_V6_0_iid FILE "TextureThumbnail.json");
 	Q_INTERFACES(VThumbnailPlugin_V6_0);
 
 public:

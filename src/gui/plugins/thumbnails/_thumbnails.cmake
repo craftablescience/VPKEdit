@@ -34,5 +34,4 @@ endfunction()
 # todo: installer
 
 # Add thumbnail plugins
-vpkedit_add_thumbnail_plugin(NAME "image" CLASS_NAME "ImageThumbnail" DEPS sourcepp::vtfpp)
-vpkedit_add_thumbnail_plugin(NAME "vtf"   CLASS_NAME "VTFThumbnail"   DEPS sourcepp::vtfpp)
+vpkedit_add_thumbnail_plugin(NAME "texture" CLASS_NAME "TextureThumbnail" DEPS sourcepp::vtfpp)

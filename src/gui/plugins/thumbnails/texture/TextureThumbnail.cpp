@@ -1,7 +1,7 @@
-#include "VTFThumbnail.hpp"
+#include "TextureThumbnail.hpp"
 
 #include <QPainter>
-#include <vtfpp/VTF.h>
+#include <vtfpp/vtfpp.h>
 
 // Code in this block modified from the MareTF thumbnailer. Thanks, Laura!!! Love you 💙
 namespace MareTF {
@@ -9,7 +9,7 @@ namespace MareTF {
 namespace {
 
 [[nodiscard]] std::vector<std::byte> drawCubemapNetCentered(int& faceWidth, int& faceHeight, const QImage& xp, const QImage& xn, const QImage& yp, const QImage& yn, const QImage& zp, const QImage& zn, const QImage& sm) {
-	QImage net{faceWidth * 4, faceHeight * 3, QImage::Format_ARGB32_Premultiplied};
+	QImage net{faceWidth * 4, faceHeight * 3, QImage::Format_RGBA8888};
 	net.fill(Qt::transparent);
 
 	QPainter painter{&net};
@@ -61,34 +61,83 @@ std::vector<std::byte> createThumbnail(const vtfpp::VTF& vtf, int& width, int& h
 	}
 	if (vtf.getFlags() & vtfpp::VTF::FLAG_V0_NORMAL || (vtf.getVersion() >= 3 && vtf.getFlags() & vtfpp::VTF::FLAG_V3_SSBUMP)) {
 		// Regular texture where alpha is a mask
-		return vtfpp::ImageConversion::convertImageDataToFormat(vtf.getImageDataAs(vtfpp::ImageFormat::RGB888), vtfpp::ImageFormat::RGB888, vtfpp::ImageFormat::BGRA8888, width, height);
+		return vtfpp::ImageConversion::convertImageDataToFormat(vtf.getImageDataAs(vtfpp::ImageFormat::RGB888), vtfpp::ImageFormat::RGB888, vtfpp::ImageFormat::RGBA8888, width, height);
 	}
 	// Regular texture where alpha is alpha
-	return vtfpp::ImageConversion::convertImageDataToFormat(vtf.getImageDataAsRGBA8888(), vtfpp::ImageFormat::BGRA8888, vtfpp::ImageFormat::RGBA8888, width, height);
+	return vtf.getImageDataAsRGBA8888();
 }
 
 } // namespace
 
 } // namespace MareTF
 
-void VTFThumbnail::initPlugin(VWindowAccess_V6_0*) {}
+void TextureThumbnail::initPlugin(VWindowAccess_V6_0*) {}
 
-const QSet<QString>& VTFThumbnail::getFileExtensions() const {
+const QSet<QString>& TextureThumbnail::getFileExtensions() const {
 	static const QSet<QString> EXTENSIONS{
+		// Images
+		"apng",
+		"bmp",
+		"exr",
+		"gif",
+		"hdr",
+		"jpeg",
+		"jpg",
+		"jxl",
+		"pic",
+		"png",
+		"pgm",
+		"ppm",
+		"psd",
+		"qoi",
+		"tga",
+		"webp",
+
+		// PPL
+		"ppl",
+
+		// VTF
 		"vtf",
 		"xtf",
 	};
 	return EXTENSIONS;
 }
 
-int VTFThumbnail::getPriority() const {
+int TextureThumbnail::getPriority() const {
 	return 50;
 }
 
-QPixmap VTFThumbnail::getThumbnail(const QString&, const quint8* dataPtr, quint64 dataLen) {
-	int width = 0, height = 0;
-	if (auto imageData = MareTF::createThumbnail(vtfpp::VTF{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}}, width, height); !imageData.empty() && width > 0 && height > 0) {
-		return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(imageData.data()), width, height, QImage::Format_ARGB32});
+QPixmap TextureThumbnail::getThumbnail(const QString& path, const quint8* dataPtr, quint64 dataLen) {
+	if (const auto pathLower = path.toLower(); pathLower.endsWith("vtf") || pathLower.endsWith("xtf")) {
+		// VTF loader
+		int width = 0, height = 0;
+		if (auto imageData = MareTF::createThumbnail(vtfpp::VTF{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}}, width, height); !imageData.empty() && width > 0 && height > 0) {
+			return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(imageData.data()), width, height, QImage::Format_RGBA8888});
+		}
+		return {};
+	} else if (pathLower.endsWith("ppl")) {
+		// PPL loader
+		if (const auto ppl = vtfpp::PPL{{reinterpret_cast<const std::byte*>(dataPtr), dataLen}}) {
+			if (auto image = ppl.getImageAs(vtfpp::ImageFormat::RGBA8888)) {
+				return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(image->data.data()), static_cast<int>(image->width), static_cast<int>(image->height), QImage::Format_RGBA8888});
+			}
+		}
+		return {};
 	}
-	return {};
+
+	// Image loader
+	vtfpp::ImageFormat imageFormat;
+	int width, height, frameCount;
+	auto imageData = vtfpp::ImageConversion::convertFileToImageData({reinterpret_cast<const std::byte*>(dataPtr), dataLen}, imageFormat, width, height, frameCount);
+	if (imageData.empty() || width <= 0 || height <= 0 || frameCount <= 0) {
+		return {};
+	}
+	if (frameCount > 1) {
+		imageData.resize(imageData.size() / frameCount);
+	}
+	if (imageFormat == vtfpp::ImageFormat::RGBA8888) {
+		return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(imageData.data()), width, height, QImage::Format_RGBA8888});
+	}
+	imageData = vtfpp::ImageConversion::convertImageDataToFormat(imageData, imageFormat, vtfpp::ImageFormat::RGBA8888, width, height);
+	return QPixmap::fromImage(QImage{reinterpret_cast<uchar*>(imageData.data()), width, height, QImage::Format_RGBA8888});
 }
