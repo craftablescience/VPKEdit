@@ -6,7 +6,6 @@
 
 class VPreviewDirectoryParent;
 class VPreviewInfo;
-class VPreviewNone;
 
 class VPreviewParent : public QStackedWidget {
 	Q_OBJECT;
@@ -32,7 +31,7 @@ public slots:
 	void onFileSelected(const QString& path, const QByteArray& data);
 
 protected:
-	VPreviewNone* previewNone;
+	VPreviewInfo* previewNone;
 	VPreviewInfo* previewInfo;
 	VPreviewDirectoryParent* previewDirectory;
 	VPreviewPluginLoader* previewPlugins;

@@ -3,14 +3,20 @@
 #include <QFileInfo>
 #include <QPlainTextEdit>
 
+#include "Config.hpp"
+
 #include "plugins/VPluginLoader.hpp"
 #include "widgets/previews/VPreviewDirectoryParent.hpp"
 #include "widgets/previews/VPreviewInfo.hpp"
-#include "widgets/previews/VPreviewNone.hpp"
 
 VPreviewParent::VPreviewParent(QWidget* parent) : QStackedWidget{parent} {
-	this->addWidget(this->previewNone = new VPreviewNone{this});
+	this->addWidget(this->previewNone = new VPreviewInfo{this});
+	this->previewNone->setIcon({":/logo.png"});
+	this->previewNone->setText(PROJECT_TITLE);
+	this->previewNone->setDisabled(true);
+
 	this->addWidget(this->previewInfo = new VPreviewInfo{this});
+
 	this->addWidget(this->previewDirectory = new VPreviewDirectoryParent{this});
 
 	this->previewPlugins = new VPreviewPluginLoader{this};

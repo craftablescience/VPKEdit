@@ -36,8 +36,6 @@ set(${PROJECT_NAME}_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/widgets/previews/VPreviewDirectoryParent.hpp"
         "${CMAKE_CURRENT_LIST_DIR}/widgets/previews/VPreviewInfo.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/widgets/previews/VPreviewInfo.hpp"
-        "${CMAKE_CURRENT_LIST_DIR}/widgets/previews/VPreviewNone.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/widgets/previews/VPreviewNone.hpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/widgets/VEntryTreeView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/widgets/VEntryTreeView.hpp"
