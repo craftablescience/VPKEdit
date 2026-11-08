@@ -74,7 +74,7 @@ QString KeyValuesPreview::setData(QWidget* preview_, const QString&, const quint
 		dmx = std::make_unique<kvpp::DMX>(std::span{reinterpret_cast<const std::byte*>(dataPtr), dataLen});
 	} catch (const std::overflow_error&) {}
 	if (!dmx || !*dmx) {
-		return tr("Failed to parse DMX file.");
+		return tr("Failed to parse KeyValues file contents.");
 	}
 
 	auto* root = new QTreeWidgetItem{preview};

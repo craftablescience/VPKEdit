@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <vtfpp/vtfpp.h>
 
-// Code in this block modified from the MareTF thumbnailer. Thanks, Laura!!! Love you 💙
+// Code in this block is modified from the MareTF thumbnailer. Thanks, Laura!!! Love you 💙
 namespace MareTF {
 
 namespace {

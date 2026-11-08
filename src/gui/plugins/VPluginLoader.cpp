@@ -172,7 +172,7 @@ std::optional<QString> VPreviewPluginLoader::loadPreview(const QString& path, co
 		errorMsg = plugin->setData(this->previewWidgets[plugin], path, dataPtr, dataLen);
 		if (errorMsg.isEmpty()) {
 			this->previewStackedWidget()->setCurrentWidget(this->previewWidgets[plugin]);
-			return errorMsg;
+			return std::nullopt;
 		}
 	}
 	return errorMsg;
