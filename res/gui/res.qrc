@@ -3,5 +3,6 @@
         <file alias="logo.png">../brand/logo.png</file>
         <file>icons/button_kofi.png</file>
         <file>icons/error.png</file>
+        <file>icons/error_greyscale.png</file>
     </qresource>
 </RCC>

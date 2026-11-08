@@ -1,7 +1,7 @@
 // ReSharper disable CppDFAMemoryLeak
 // ReSharper disable CppUseStructuredBinding
 
-#include "DMXPreview.hpp"
+#include "KeyValuesPreview.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -10,9 +10,11 @@
 #include <kvpp/DMX.h>
 #include <QTreeWidget>
 
-void DMXPreview::initPlugin(VWindowAccess_V6_0*) {}
+void KeyValuesPreview::initPlugin(VWindowAccess_V6_0*) {}
 
-const QSet<QString>& DMXPreview::getFileExtensions() const {
+// todo: support KV1 binary
+
+const QSet<QString>& KeyValuesPreview::getFileExtensions() const {
 	static const QSet<QString> EXTENSIONS{
 		"dmx",
 		"facial_animation",
@@ -46,11 +48,11 @@ const QSet<QString>& DMXPreview::getFileExtensions() const {
 	return EXTENSIONS;
 }
 
-int DMXPreview::getPriority() const {
+int KeyValuesPreview::getPriority() const {
 	return 50;
 }
 
-QWidget* DMXPreview::getPreview(QWidget* parent) const {
+QWidget* KeyValuesPreview::getPreview(QWidget* parent) const {
 	auto* preview = new QTreeWidget{parent};
 	preview->setColumnCount(3);
 	preview->setColumnWidth(0, 300);
@@ -59,10 +61,10 @@ QWidget* DMXPreview::getPreview(QWidget* parent) const {
 	return preview;
 }
 
-bool DMXPreview::setData(QWidget* preview_, const QString&, const quint8* dataPtr, quint64 dataLen) {
+QString KeyValuesPreview::setData(QWidget* preview_, const QString&, const quint8* dataPtr, quint64 dataLen) {
 	auto* preview = qobject_cast<QTreeWidget*>(preview_);
 	if (!preview) {
-		return false;
+		return UNEXPECTED_ERROR_MSG.toString();
 	}
 
 	preview->clear();
@@ -72,8 +74,7 @@ bool DMXPreview::setData(QWidget* preview_, const QString&, const quint8* dataPt
 		dmx = std::make_unique<kvpp::DMX>(std::span{reinterpret_cast<const std::byte*>(dataPtr), dataLen});
 	} catch (const std::overflow_error&) {}
 	if (!dmx || !*dmx) {
-		emit this->showInfoPreview({":/icons/error.png"}, tr("Failed to parse DMX file."));
-		return false;
+		return tr("Failed to parse DMX file.");
 	}
 
 	auto* root = new QTreeWidgetItem{preview};
@@ -178,5 +179,5 @@ bool DMXPreview::setData(QWidget* preview_, const QString&, const quint8* dataPt
 	for (int i = 0; i < root->childCount(); i++) {
 		root->child(i)->setExpanded(true);
 	}
-	return true;
+	return {};
 }

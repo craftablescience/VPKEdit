@@ -23,15 +23,10 @@ public:
 
 	[[nodiscard]] virtual QWidget* getPreview(QWidget* parent) const = 0;
 
+	static constexpr QStringView UNEXPECTED_ERROR_MSG{u"???"};
+
 	// Sorry, QSpan is too new
-	[[nodiscard]] virtual bool setData(QWidget* preview, const QString& path, const quint8* dataPtr, quint64 length) = 0;
-
-signals:
-	void showErrorPreview(const QString& text);
-
-	bool showInfoPreview(const QPixmap& icon, const QString& text);
-
-	void showTextPreview(const QString& extension, const QString& text);
+	[[nodiscard]] virtual QString setData(QWidget* preview, const QString& path, const quint8* dataPtr, quint64 length) = 0;
 };
 
 #define VPreviewPlugin_V6_0_iid "app.vpkedit.VPreviewPlugin/6.0"

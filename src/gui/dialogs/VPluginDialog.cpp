@@ -10,7 +10,7 @@
 
 #include "utility/VHorizontalTabStyle.hpp"
 
-VPluginDialog::VPluginDialog(const QMap<QString, QList<VPluginLoader::Metadata>>& pluginMetadata, QWidget* parent) : QDialog{parent} {
+VPluginDialog::VPluginDialog(const QMap<QString, QList<VPluginMetadata>>& pluginMetadata, QWidget* parent) : QDialog{parent} {
 	this->setWindowTitle(tr("Plugins"));
 	this->setModal(true);
 	this->setMinimumSize(600, 600);
@@ -71,7 +71,7 @@ VPluginDialog::VPluginDialog(const QMap<QString, QList<VPluginLoader::Metadata>>
 	this->resize(600, 600);
 }
 
-void VPluginDialog::showPlugins(const QMap<QString, QList<VPluginLoader::Metadata>>& pluginMetadata, QWidget* parent) {
+void VPluginDialog::showPlugins(const QMap<QString, QList<VPluginMetadata>>& pluginMetadata, QWidget* parent) {
 	auto* dialog = new VPluginDialog{pluginMetadata, parent};
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->open();

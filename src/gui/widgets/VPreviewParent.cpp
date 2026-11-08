@@ -3,8 +3,6 @@
 #include <QFileInfo>
 #include <QPlainTextEdit>
 
-#include "Config.hpp"
-
 #include "plugins/VPluginLoader.hpp"
 #include "widgets/previews/VPreviewDirectoryParent.hpp"
 #include "widgets/previews/VPreviewInfo.hpp"
@@ -15,33 +13,10 @@ VPreviewParent::VPreviewParent(QWidget* parent) : QStackedWidget{parent} {
 	this->addWidget(this->previewInfo = new VPreviewInfo{this});
 	this->addWidget(this->previewDirectory = new VPreviewDirectoryParent{this});
 
-	// todo: handle previews better lol
-	this->addWidget(new QPlainTextEdit{this});
-
-	// todo: move somewhere else
-	VPluginLoader::iterate(PROJECT_NAME "_previews", [this](const QString& libraryPath) {
-		auto* loader = new QPluginLoader{libraryPath, this};
-		if (auto* plugin = qobject_cast<VPreviewPlugin_V6_0*>(loader->instance())) {
-			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
-				return;
-			}
-			this->previewPluginLoaders.push_back(loader);
-
-			for (const auto& ext : plugin->getFileExtensions()) {
-				if (!this->previewPlugins.contains(ext) || this->previewPlugins[ext].second->getPriority() < plugin->getPriority()) {
-					this->previewPlugins[ext] = {this->count(), plugin};
-				}
-			}
-
-			// todo: provide window access
-			plugin->initPlugin(nullptr);
-			this->addWidget(plugin->getPreview(this));
-			// todo: register the plugin somewhere in the ui
-			//this->window->registerPlugin(libraryPath, plugin->getIcon(), loader->metaData()["MetaData"].toObject());
-		} else {
-			loader->deleteLater();
-		}
-	});
+	this->previewPlugins = new VPreviewPluginLoader{this};
+	this->addWidget(this->previewPlugins->previewStackedWidget());
+	// todo: provide window access
+	this->previewPlugins->reloadPlugins(nullptr);
 
 	this->clearPreview();
 }
@@ -56,17 +31,17 @@ void VPreviewParent::onDirSelected(const QString& path, vpkpp::Attribute attrs, 
 }
 
 void VPreviewParent::onFileSelected(const QString& path, const QByteArray& data) {
-	if (path.isEmpty() && data.isEmpty()) {
-		this->clearPreview();
+	if ((path.isEmpty() && data.isEmpty()) || !this->previewPluginLoader()->hasPreview(path)) {
+		this->previewInfo->setIcon({":/icons/error_greyscale.png"});
+		this->previewInfo->setText(tr("No available preview for this file type."));
+		this->setCurrentWidget(this->previewInfo);
 		return;
 	}
-
-	if (const auto ext = QFileInfo{path}.suffix(); this->previewPlugins.contains(ext)) {
-		this->setCurrentIndex(this->previewPlugins[ext].first);
-		(void) this->previewPlugins[ext].second->setData(this->currentWidget(), path, reinterpret_cast<const quint8*>(data.data()), data.size());
+	if (const auto errorMsg = this->previewPluginLoader()->loadPreview(path, reinterpret_cast<const quint8*>(data.data()), data.size())) {
+		this->previewInfo->setIcon({":/icons/error.png"});
+		this->previewInfo->setText(*errorMsg);
+		this->setCurrentWidget(this->previewInfo);
 	} else {
-		// todo: lol
-		this->setCurrentIndex(3);
-		qobject_cast<QPlainTextEdit*>(this->currentWidget())->setPlainText(data);
+		this->setCurrentWidget(this->previewPluginLoader()->previewStackedWidget());
 	}
 }

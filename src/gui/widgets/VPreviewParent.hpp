@@ -2,10 +2,7 @@
 
 #include "VEntryTreeView.hpp"
 
-#include <QPluginLoader>
 #include <QStackedWidget>
-
-#include "plugins/previews/VPreviewPlugin.hpp"
 
 class VPreviewDirectoryParent;
 class VPreviewInfo;
@@ -22,6 +19,11 @@ public:
 		return self.previewDirectory;
 	}
 
+	template<typename Self>
+	[[nodiscard]] auto* previewPluginLoader(this Self&& self) {
+		return self.previewPlugins;
+	}
+
 	void clearPreview();
 
 public slots:
@@ -33,7 +35,5 @@ protected:
 	VPreviewNone* previewNone;
 	VPreviewInfo* previewInfo;
 	VPreviewDirectoryParent* previewDirectory;
-
-	QList<QPluginLoader*> previewPluginLoaders;
-	QMap<QString, QPair<int, VPreviewPlugin_V6_0*>> previewPlugins;
+	VPreviewPluginLoader* previewPlugins;
 };

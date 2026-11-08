@@ -2,35 +2,21 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QStackedWidget>
 #include <QStandardPaths>
 
 #include "Config.hpp"
 
-void VPluginLoader::iterate(const QString& subdir, const std::function<void(const QString&)>& callback) {
-	auto pluginLocations = QCoreApplication::libraryPaths();
-	pluginLocations << QApplication::applicationDirPath() + QDir::separator() + PROJECT_NAME;
-	pluginLocations << QApplication::applicationDirPath() + QDir::separator() + ".." + QDir::separator() + "plugins";
-#if defined(Q_OS_WIN)
-	for (const auto& path : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)) {
-		pluginLocations << path + "/" + QString{PROJECT_NAME};
-	}
-#elif defined(Q_OS_APPLE)
-	pluginLocations << QDir{"../PlugIns"}.absolutePath();
-#elif defined(Q_OS_LINUX)
-	pluginLocations << "/usr/lib/" + QString{PROJECT_NAME};
-	pluginLocations << "/usr/lib64/" + QString{PROJECT_NAME};
-	pluginLocations << "~/.local/lib/" + QString{PROJECT_NAME};
-	pluginLocations << "~/.local/lib64/" + QString{PROJECT_NAME};
-#endif
-	for (const QString& dirPath : pluginLocations) {
-		for (const QDir dir{dirPath + QDir::separator() + subdir}; const QString& libraryName : dir.entryList(QDir::Files)) {
-			callback(dir.absoluteFilePath(libraryName));
-		}
-	}
+namespace {
+
+[[nodiscard]] QString getExtensionFromPath(const QString& path) {
+	return QFileInfo{path}.suffix().toLower();
 }
 
-VPluginLoader::Metadata VPluginLoader::Metadata::get(QPluginLoader* loader) {
-	Metadata metadata{
+} // namespace
+
+VPluginMetadata VPluginMetadata::get(QPluginLoader* loader) {
+	VPluginMetadata metadata{
 		.name = loader->instance()->metaObject()->className(),
 	};
 
@@ -78,6 +64,120 @@ VPluginLoader::Metadata VPluginLoader::Metadata::get(QPluginLoader* loader) {
 	return metadata;
 }
 
+QList<VPluginMetadata> VPluginLoaderBase::getPluginMetadata() {
+	QList<VPluginMetadata> out;
+	for (auto* loader : this->pluginLoaders) {
+		out.push_back(VPluginMetadata::get(loader));
+	}
+	return out;
+}
+
+void VPluginLoaderBase::iterate(const QString& subdir, const std::function<void(const QString&)>& callback) {
+	auto pluginLocations = QCoreApplication::libraryPaths();
+	pluginLocations << QApplication::applicationDirPath() + QDir::separator() + PROJECT_NAME;
+	pluginLocations << QApplication::applicationDirPath() + QDir::separator() + ".." + QDir::separator() + "plugins";
+#if defined(Q_OS_WIN)
+	for (const auto& path : QStandardPaths::standardLocations(QStandardPaths::AppDataLocation)) {
+		pluginLocations << path + "/" + QString{PROJECT_NAME};
+	}
+#elif defined(Q_OS_APPLE)
+	pluginLocations << QDir{"../PlugIns"}.absolutePath();
+#elif defined(Q_OS_LINUX)
+	pluginLocations << "/usr/lib/" + QString{PROJECT_NAME};
+	pluginLocations << "/usr/lib64/" + QString{PROJECT_NAME};
+	pluginLocations << "~/.local/lib/" + QString{PROJECT_NAME};
+	pluginLocations << "~/.local/lib64/" + QString{PROJECT_NAME};
+#endif
+	for (const QString& dirPath : pluginLocations) {
+		for (const QDir dir{dirPath + QDir::separator() + subdir}; const QString& libraryName : dir.entryList(QDir::Files)) {
+			callback(dir.absoluteFilePath(libraryName));
+		}
+	}
+}
+
+VPreviewPluginLoader::VPreviewPluginLoader(QWidget* parent) : VPluginLoaderBase{parent} {
+	this->previewStackedWidget_ = new QStackedWidget{parent};
+}
+
+void VPreviewPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
+	while (this->previewStackedWidget()->count() > 0) {
+		auto* widget = this->previewStackedWidget()->widget(0);
+		this->previewStackedWidget()->removeWidget(widget);
+		delete widget;
+	}
+	this->previewWidgets.clear();
+
+	for (const auto& [name, pluginList] : this->previewPlugins.asKeyValueRange()) {
+		for (const auto plugin : pluginList) {
+			delete plugin;
+		}
+	}
+	this->previewPlugins.clear();
+
+	for (const auto* pluginLoader : this->pluginLoaders) {
+		delete pluginLoader;
+	}
+	this->pluginLoaders.clear();
+
+	emit this->clearedPlugins();
+
+	VPluginLoaderBase::iterate(PROJECT_NAME "_previews", [this, windowAccess](const QString& libraryPath) {
+		auto* loader = new QPluginLoader{libraryPath, this};
+		if (auto* plugin = qobject_cast<VPreviewPlugin_V6_0*>(loader->instance())) {
+			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
+				return;
+			}
+			this->pluginLoaders.push_back(loader);
+
+			for (const auto& ext : plugin->getFileExtensions()) {
+				if (!this->previewPlugins.contains(ext)) {
+					this->previewPlugins[ext] = {plugin};
+				} else {
+					auto& pluginList = this->previewPlugins[ext];
+					bool addedPlugin = false;
+					for (int i = 0; i < pluginList.size(); i++) {
+						if (pluginList.at(i)->getPriority() < plugin->getPriority()) {
+							pluginList.insert(i, plugin);
+							addedPlugin = true;
+							break;
+						}
+					}
+					if (!addedPlugin) {
+						pluginList.push_back(plugin);
+					}
+				}
+			}
+			plugin->initPlugin(windowAccess);
+			this->previewWidgets[plugin] = plugin->getPreview(this->previewStackedWidget());
+			this->previewStackedWidget()->addWidget(this->previewWidgets[plugin]);
+			emit this->addedPlugin(VPluginMetadata::get(loader));
+		} else {
+			loader->deleteLater();
+		}
+	});
+}
+
+bool VPreviewPluginLoader::hasPreview(const QString& path) const {
+	return this->previewPlugins.contains(::getExtensionFromPath(path));
+}
+
+std::optional<QString> VPreviewPluginLoader::loadPreview(const QString& path, const quint8* dataPtr, quint64 dataLen) const {
+	const auto ext = ::getExtensionFromPath(path);
+	if (!this->previewPlugins.contains(ext)) {
+		return std::nullopt;
+	}
+	QString errorMsg;
+	for (int i = 0; i < this->previewPlugins[ext].size(); i++) {
+		auto* plugin = this->previewPlugins[ext][i];
+		errorMsg = plugin->setData(this->previewWidgets[plugin], path, dataPtr, dataLen);
+		if (errorMsg.isEmpty()) {
+			this->previewStackedWidget()->setCurrentWidget(this->previewWidgets[plugin]);
+			return errorMsg;
+		}
+	}
+	return errorMsg;
+}
+
 void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 	for (const auto& [name, pluginList] : this->thumbnailPlugins.asKeyValueRange()) {
 		for (const auto* plugin : pluginList) {
@@ -86,20 +186,20 @@ void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 	}
 	this->thumbnailPlugins.clear();
 
-	for (const auto* pluginLoader : this->thumbnailPluginLoaders) {
+	for (const auto* pluginLoader : this->pluginLoaders) {
 		delete pluginLoader;
 	}
-	this->thumbnailPluginLoaders.clear();
+	this->pluginLoaders.clear();
 
-	emit this->clearedThumbnailPlugins();
+	emit this->clearedPlugins();
 
-	VPluginLoader::iterate(PROJECT_NAME "_thumbnails", [this, windowAccess](const QString& libraryPath) {
+	VPluginLoaderBase::iterate(PROJECT_NAME "_thumbnails", [this, windowAccess](const QString& libraryPath) {
 		auto* loader = new QPluginLoader{libraryPath, this};
 		if (auto* plugin = qobject_cast<VThumbnailPlugin_V6_0*>(loader->instance())) {
 			if (!loader->metaData().contains("MetaData") || !loader->metaData().value("MetaData").isObject()) {
 				return;
 			}
-			this->thumbnailPluginLoaders.push_back(loader);
+			this->pluginLoaders.push_back(loader);
 
 			for (const auto& ext : plugin->getFileExtensions()) {
 				if (!this->thumbnailPlugins.contains(ext)) {
@@ -120,7 +220,7 @@ void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 				}
 			}
 			plugin->initPlugin(windowAccess);
-			emit this->addedThumbnailPlugin(VPluginLoader::Metadata::get(loader));
+			emit this->addedPlugin(VPluginMetadata::get(loader));
 		} else {
 			loader->deleteLater();
 		}
@@ -128,12 +228,11 @@ void VThumbnailPluginLoader::reloadPlugins(VWindowAccess_V6_0* windowAccess) {
 }
 
 bool VThumbnailPluginLoader::hasThumbnail(const QString& path) const {
-	const auto ext = QFileInfo{path}.suffix().toLower();
-	return this->thumbnailPlugins.contains(ext);
+	return this->thumbnailPlugins.contains(::getExtensionFromPath(path));
 }
 
 QPixmap VThumbnailPluginLoader::getThumbnail(const QString& path, const quint8* dataPtr, quint64 dataLen) const {
-	const auto ext = QFileInfo{path}.suffix().toLower();
+	const auto ext = ::getExtensionFromPath(path);
 	if (!this->thumbnailPlugins.contains(ext)) {
 		return {};
 	}
@@ -143,12 +242,4 @@ QPixmap VThumbnailPluginLoader::getThumbnail(const QString& path, const quint8* 
 		}
 	}
 	return {};
-}
-
-QList<VPluginLoader::Metadata> VThumbnailPluginLoader::getPluginMetadata() {
-	QList<VPluginLoader::Metadata> out;
-	for (auto* loader : this->thumbnailPluginLoaders) {
-		out.push_back(VPluginLoader::Metadata::get(loader));
-	}
-	return out;
 }

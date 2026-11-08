@@ -34,4 +34,4 @@ endfunction()
 # todo: installer
 
 # Add preview plugins
-vpkedit_add_preview_plugin(NAME "dmx" CLASS_NAME "DMXPreview" DEPS sourcepp::kvpp)
+vpkedit_add_preview_plugin(NAME "keyvalues" CLASS_NAME "KeyValuesPreview" DEPS sourcepp::kvpp)

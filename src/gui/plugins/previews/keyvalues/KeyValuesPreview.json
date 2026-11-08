@@ -1,10 +1,10 @@
 {
-  "name": "DMX",
+  "name": "KeyValues",
   "versionMajor": 1,
   "versionMinor": 0,
   "versionPatch": 0,
   "author": "craftablescience",
-  "description": "Previews Source Engine DMX (datamodel exchange) files.",
+  "description": "Provides previews for KeyValues 1 binary and DMX (datamodel exchange) files.",
   "links": {
     "Homepage": "https://github.com/craftablescience/VPKEdit",
     "Issue Tracker": "https://github.com/craftablescience/VPKEdit/issues"

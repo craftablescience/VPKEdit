@@ -74,7 +74,8 @@ VMainWindow::VMainWindow() {
 	auto* editMenu = this->menuBar()->addMenu(tr("&Edit"));
 
 	editMenu->addAction(this->style()->standardIcon(QStyle::SP_ComputerIcon), tr("View Active Plugins…"), [this] {
-		QMap<QString, QList<VPluginLoader::Metadata>> pluginMetadata;
+		QMap<QString, QList<VPluginMetadata>> pluginMetadata;
+		pluginMetadata[tr("Previews")] = this->previewParent->previewPluginLoader()->getPluginMetadata();
 		pluginMetadata[tr("Thumbnails")] = this->entryTreeView->thumbnailProvider()->thumbnailPluginLoader()->getPluginMetadata();
 		VPluginDialog::showPlugins(pluginMetadata);
 	});
