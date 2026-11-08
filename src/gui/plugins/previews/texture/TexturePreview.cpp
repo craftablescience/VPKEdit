@@ -619,9 +619,15 @@ QString TexturePreview::setData(QWidget* preview_, const QString& path, const qu
 			return tr("Failed to parse texture file contents.");
 		}
 		return {};
-	} else if (pathLower.endsWith(".ppl")) {
+	} else if (pathLower.endsWith("ppl")) {
 		// PPL loader
 		if (!preview->loadPPL(dataPtr, dataLen)) {
+			return tr("Failed to parse texture file contents.");
+		}
+		return {};
+	} else if (pathLower.endsWith("frames")) {
+		// FRAMES loader
+		if (!preview->loadPSFrames(dataPtr, dataLen)) {
 			return tr("Failed to parse texture file contents.");
 		}
 		return {};
