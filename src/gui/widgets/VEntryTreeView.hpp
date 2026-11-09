@@ -121,7 +121,9 @@ public slots:
 
 	void addPackFile(const QString& path) const;
 
-	void onThemeUpdated() const;
+	void updateSelection(const QModelIndex& current, const QModelIndex&);
+
+	void onThemeUpdated();
 
 protected:
 	VEntryTreeThumbnailProvider* thumbnailProvider_;

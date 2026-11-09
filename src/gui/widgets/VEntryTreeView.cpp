@@ -35,8 +35,8 @@ constexpr auto STYLE_DIR_ICON = QStyle::SP_DirIcon;
 }
 #endif
 
-[[nodiscard]] const QIcon& cachedFileIcon(const QString& filename) {
-	const auto extension = '.' + QFileInfo{filename}.suffix();
+[[nodiscard]] QIcon& cachedFileIcon(const QString& filename) {
+	const auto extension = '.' + QFileInfo{filename}.completeSuffix();
 
 	// Memoize so we're not constantly searching for an icon that's already been found
 	static QMap<QString, QIcon> cachedExtensions;
@@ -136,7 +136,7 @@ QVariant VEntryTreeModel::data(const QModelIndex& index, int role) const {
 			if (VSettings::get<bool>(VSettings::BOOL_ENTRY_TREE_HIDE_ICONS)) {
 				return {};
 			}
-			if (item->childCount() > 0) {
+			if (!item->isPackFile() && item->childCount() > 0) {
 				return ::cachedDirIcon();
 			}
 			return ::cachedFileIcon(item->filename());
@@ -234,62 +234,7 @@ VEntryTreeView::VEntryTreeView(QWidget* parent) : QTreeView{parent} {
 
 	this->thumbnailProvider_ = new VEntryTreeThumbnailProvider{this};
 
-	connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex& current, const QModelIndex& /*previous*/) {
-		if (!current.isValid()) {
-			emit this->fileSelected("", {});
-			return;
-		}
-
-		auto* item = static_cast<VEntryTreeItem*>(current.internalPointer());
-
-		// The full path in the tree needs to be truncated to load the file from the parent pack file
-		QString internalItemPath = item->filename();
-		auto* itemPackFileParent = item->parentItem();
-		if (item->isPackFile()) {
-			// todo: should we provide any other data? would like to have a bsp preview!!
-			internalItemPath = "";
-			itemPackFileParent = item;
-		} else {
-			while (itemPackFileParent && !itemPackFileParent->isPackFile()) {
-				internalItemPath = itemPackFileParent->filename() + '/' + internalItemPath;
-				itemPackFileParent = itemPackFileParent->parentItem();
-			}
-			if (!itemPackFileParent || !itemPackFileParent->isPackFile()) {
-				// todo: error (should never see this?)
-				return;
-			}
-		}
-
-		const auto packFile = item->packFile().lock();
-		if (!packFile) {
-			// todo: error (failed to lock pack file)
-			return;
-		}
-
-		if (item->isDirectory()) {
-			QStringList subdirs;
-			QMap<QString, std::optional<vpkpp::Entry>> subfiles;
-			QStringList filepaths;
-			for (int i = 0; i < item->childCount(); i++) {
-				if (const auto* itemChild = item->child(i); itemChild->isDirectory()) {
-					subdirs.append(itemChild->filename());
-				} else {
-					filepaths.append(internalItemPath + (internalItemPath.isEmpty() ? "" : "/") + itemChild->filename());
-					subfiles[itemChild->filename()] = packFile->findEntry(filepaths.last().toUtf8().constData());
-				}
-			}
-			emit this->dirSelected(item->path(), packFile->getSupportedEntryAttributes(), subdirs, subfiles);
-			this->thumbnailProvider()->startProcessingThumbnails(packFile, itemPackFileParent->path(), filepaths, 128);
-		} else {
-			const auto fileData = packFile->readEntry(internalItemPath.toUtf8().constData());
-			if (!fileData) {
-				// todo: error (failed to load file)
-				return;
-			}
-			const auto fullPath = QString{"%1/%2"}.arg(packFile->getFilename().c_str(), internalItemPath);
-			emit this->fileSelected(fullPath, QByteArray::fromRawData(reinterpret_cast<const char*>(fileData->data()), static_cast<qsizetype>(fileData->size())));
-		}
-	});
+	connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this, &VEntryTreeView::updateSelection);
 }
 
 const QIcon& VEntryTreeView::cachedDirIcon() {
@@ -327,9 +272,66 @@ void VEntryTreeView::addPackFile(const QString& path) const {
 	dynamic_cast<VEntryTreeModel*>(this->model())->addPackFile(path);
 }
 
+void VEntryTreeView::updateSelection(const QModelIndex& current, const QModelIndex&) {
+	if (!current.isValid()) {
+		emit this->fileSelected("", {});
+		return;
+	}
+
+	auto* item = static_cast<VEntryTreeItem*>(current.internalPointer());
+
+	// The full path in the tree needs to be truncated to load the file from the parent pack file
+	QString internalItemPath = item->filename();
+	auto* itemPackFileParent = item->parentItem();
+	if (item->isPackFile()) {
+		// todo: should we provide any other data? would like to have a bsp preview!!
+		internalItemPath = "";
+		itemPackFileParent = item;
+	} else {
+		while (itemPackFileParent && !itemPackFileParent->isPackFile()) {
+			internalItemPath = itemPackFileParent->filename() + '/' + internalItemPath;
+			itemPackFileParent = itemPackFileParent->parentItem();
+		}
+		if (!itemPackFileParent || !itemPackFileParent->isPackFile()) {
+			// todo: error (should never see this?)
+			return;
+		}
+	}
+
+	const auto packFile = item->packFile().lock();
+	if (!packFile) {
+		// todo: error (failed to lock pack file)
+		return;
+	}
+
+	if (item->isDirectory()) {
+		QStringList subdirs;
+		QMap<QString, std::optional<vpkpp::Entry>> subfiles;
+		QStringList filepaths;
+		for (int i = 0; i < item->childCount(); i++) {
+			if (const auto* itemChild = item->child(i); itemChild->isDirectory()) {
+				subdirs.append(itemChild->filename());
+			} else {
+				filepaths.append(internalItemPath + (internalItemPath.isEmpty() ? "" : "/") + itemChild->filename());
+				subfiles[itemChild->filename()] = packFile->findEntry(filepaths.last().toUtf8().constData());
+			}
+		}
+		emit this->dirSelected(item->path(), packFile->getSupportedEntryAttributes(), subdirs, subfiles);
+		this->thumbnailProvider()->startProcessingThumbnails(packFile, itemPackFileParent->path(), filepaths, 128);
+	} else {
+		const auto fileData = packFile->readEntry(internalItemPath.toUtf8().constData());
+		if (!fileData) {
+			// todo: error (failed to load file)
+			return;
+		}
+		const auto fullPath = QString{"%1/%2"}.arg(packFile->getFilename().c_str(), internalItemPath);
+		emit this->fileSelected(fullPath, QByteArray::fromRawData(reinterpret_cast<const char*>(fileData->data()), static_cast<qsizetype>(fileData->size())));
+	}
+}
+
 // ReSharper disable once CppMemberFunctionMayBeStatic
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
-void VEntryTreeView::onThemeUpdated() const {
+void VEntryTreeView::onThemeUpdated() {
 	::cachedDirIcon() = QApplication::style()->standardIcon(STYLE_DIR_ICON);
 }
 
