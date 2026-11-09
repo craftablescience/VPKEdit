@@ -22,6 +22,8 @@ VPreviewDirectoryDetails::VPreviewDirectoryDetails(QWidget* parent) : QTableWidg
 	this->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
 	this->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	this->setSortingEnabled(true);
+
+	this->setIconSize({24, 24});
 }
 
 void VPreviewDirectoryDetails::populate(const QString& path_, vpkpp::Attribute attrs, const QStringList& subdirs, const QMap<QString, std::optional<vpkpp::Entry>>& subfiles) {

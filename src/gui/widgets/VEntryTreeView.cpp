@@ -231,6 +231,7 @@ VEntryTreeView::VEntryTreeView(QWidget* parent) : QTreeView{parent} {
 	this->QTreeView::setModel(new VEntryTreeModel{this});
 	this->setHeaderHidden(true);
 	this->setAlternatingRowColors(true);
+	this->setIconSize({24, 24});
 
 	this->thumbnailProvider_ = new VEntryTreeThumbnailProvider{this};
 
