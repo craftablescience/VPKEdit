@@ -334,6 +334,49 @@ void VEntryTreeView::updateSelection(const QModelIndex& current, const QModelInd
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 void VEntryTreeView::onThemeUpdated() {
 	::cachedDirIcon() = QApplication::style()->standardIcon(STYLE_DIR_ICON);
+
+	//region dev_icons
+	const std::string devIconsDir{(QApplication::applicationDirPath() + "/dev_icons").toUtf8().constData()};
+	if (!std::filesystem::exists(devIconsDir)) {
+		return;
+	}
+
+	for (const auto& file : std::filesystem::directory_iterator{devIconsDir, std::filesystem::directory_options::follow_directory_symlink | std::filesystem::directory_options::skip_permission_denied}) {
+		if (!file.is_directory()) {
+			continue;
+		}
+		auto& icon = ::cachedFileIcon((file.path().parent_path() / ("file." + file.path().filename().string())).string().c_str());
+		icon = QIcon{};
+		if (std::filesystem::exists(file.path() / "24.png")) {
+			icon.addFile((file.path() / "24.png").string().c_str(), {24, 24});
+		}
+		if (std::filesystem::exists(file.path() / "48.png")) {
+			icon.addFile((file.path() / "48.png").string().c_str(), {48, 48});
+		}
+		if (std::filesystem::exists(file.path() / "96.png")) {
+			icon.addFile((file.path() / "96.png").string().c_str(), {96, 96});
+		}
+	}
+
+	std::function<void(const QModelIndex&, const VEntryTreeItem*)> recurse;
+	recurse = [this, &recurse](const QModelIndex& parentIndex, const VEntryTreeItem* parentItem) {
+		for (int i = 0; i < parentItem->childCount(); i++) {
+			auto currentIndex = this->model()->index(i, 0, parentIndex);
+			// ReSharper disable once CppTooWideScopeInitStatement
+			const auto* currentItem = static_cast<VEntryTreeItem*>(currentIndex.internalPointer());
+			if (currentItem->isPackFile() || !currentItem->isDirectory()) {
+				this->model()->setData(currentIndex, ::cachedFileIcon(currentItem->filename()), Qt::DecorationRole);
+			} else {
+				recurse(currentIndex, currentItem);
+			}
+		}
+	};
+	recurse(QModelIndex{}, qobject_cast<VEntryTreeModel*>(this->model())->root());
+
+	if (!this->selectedIndexes().empty()) {
+		this->updateSelection(this->selectedIndexes().at(0), QModelIndex{});
+	}
+	//endregion
 }
 
 VEntryTreeThumbnailProvider::VEntryTreeThumbnailProvider(QObject* parent) : QObject{parent} {

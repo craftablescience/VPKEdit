@@ -80,6 +80,14 @@ VMainWindow::VMainWindow() {
 		VPluginDialog::showPlugins(pluginMetadata);
 	});
 
+#ifdef DEBUG
+	editMenu->addSeparator();
+
+	editMenu->addAction(this->style()->standardIcon(QStyle::SP_BrowserReload), "[DEV] RELOAD THEME", Qt::CTRL | Qt::Key_R, [this] {
+		emit this->themeUpdated();
+	});
+#endif
+
 	// --- Options menu ---
 
 	auto* optionsMenu = this->menuBar()->addMenu(tr("&Options"));
@@ -247,6 +255,10 @@ VMainWindow::VMainWindow() {
 	connect(this, &VMainWindow::themeUpdated, this->entryTreeView, &VEntryTreeView::onThemeUpdated);
 
 	// --- Finalize ---
+
+	//region dev_icons
+	QTimer::singleShot(20, this, &VMainWindow::themeUpdated);
+	//endregion
 
 	auto* discordUpdateTimer = new QTimer{this};
 	connect(discordUpdateTimer, &QTimer::timeout, this, &VDiscordPresence::update);
