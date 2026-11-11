@@ -4,9 +4,9 @@
 
 class QTreeWidget;
 
-class KeyValuesPreview final : public VPreviewPlugin_V6_0 {
+class VKeyValuesPreview final : public VPreviewPlugin_V6_0 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID VPreviewPlugin_V6_0_iid FILE "KeyValuesPreview.json");
+	Q_PLUGIN_METADATA(IID VPreviewPlugin_V6_0_iid FILE "VKeyValuesPreview.json");
 	Q_INTERFACES(VPreviewPlugin_V6_0);
 
 public:

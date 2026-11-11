@@ -34,5 +34,6 @@ endfunction()
 # todo: installer
 
 # Add preview plugins
-vpkedit_add_preview_plugin(NAME "keyvalues" CLASS_NAME "KeyValuesPreview" DEPS sourcepp::kvpp)
-vpkedit_add_preview_plugin(NAME "texture"   CLASS_NAME "TexturePreview"   DEPS sourcepp::vtfpp)
+vpkedit_add_preview_plugin(NAME "audio"     CLASS_NAME "VAudioPreview"     DEPS SDL3::SDL3 SndFile::sndfile sourcepp::sndpp)
+vpkedit_add_preview_plugin(NAME "keyvalues" CLASS_NAME "VKeyValuesPreview" DEPS sourcepp::kvpp)
+vpkedit_add_preview_plugin(NAME "texture"   CLASS_NAME "VTexturePreview"   DEPS sourcepp::vtfpp)

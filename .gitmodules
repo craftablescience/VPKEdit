@@ -10,3 +10,9 @@
 [submodule "ext/sourcepp"]
 	path = ext/sourcepp
 	url = https://github.com/craftablescience/sourcepp
+[submodule "ext/sdl"]
+	path = ext/sdl
+	url = https://github.com/libsdl-org/SDL
+[submodule "ext/libsndfile"]
+	path = ext/libsndfile
+	url = https://github.com/libsndfile/libsndfile

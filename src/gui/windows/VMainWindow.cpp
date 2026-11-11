@@ -271,6 +271,7 @@ VMainWindow::VMainWindow() {
 	//this->addPackFile("/home/lxlewis/Downloads/Reduced_CSDK_12/game/core/shaders_vulkan_dir.vpk");
 	this->addPackFile("/home/lxlewis/Steam/steamapps/common/Half-Life 2/hl2/hl2_textures_dir.vpk");
 	//this->addPackFile("/home/lxlewis/Steam/steamapps/common/Counter-Strike Global Offensive/game/csgo/pak01_dir.vpk");
+	this->addPackFile("/home/lxlewis/Downloads/Alan Walker - Spectre.zip");
 }
 
 void VMainWindow::addPackFile(const QString& path) const {

@@ -1,0 +1,12 @@
+{
+  "name": "Audio",
+  "versionMajor": 1,
+  "versionMinor": 0,
+  "versionPatch": 0,
+  "author": "craftablescience",
+  "description": "Provides previews for FLAC, MP3, OGG, WAV, XWV v0 (XBOX), XWV v1-4 (PS3, X360).",
+  "links": {
+    "Homepage": "https://github.com/craftablescience/VPKEdit",
+    "Issue Tracker": "https://github.com/craftablescience/VPKEdit/issues"
+  }
+}

@@ -1,6 +1,6 @@
 // ReSharper disable CppUnusedIncludeDirective
 
-#include "TexturePreview.hpp"
+#include "VTexturePreview.hpp"
 
 #include <cmath>
 #include <stdexcept>
@@ -562,9 +562,9 @@ std::vector<std::byte> MareTF::QMareTextureWidget::Image::getImageDataAs(vtfpp::
 	return this->format == imageFormat ? this->imageData : vtfpp::ImageConversion::convertImageDataToFormat(this->imageData, this->format, imageFormat, this->width, this->height);
 }
 
-void TexturePreview::initPlugin(VWindowAccess_V6_0*) {}
+void VTexturePreview::initPlugin(VWindowAccess_V6_0*) {}
 
-const QSet<QString>& TexturePreview::getFileExtensions() const {
+const QSet<QString>& VTexturePreview::getFileExtensions() const {
 	static const QSet<QString> EXTENSIONS{
 		// Images
 		"apng",
@@ -597,17 +597,17 @@ const QSet<QString>& TexturePreview::getFileExtensions() const {
 	return EXTENSIONS;
 }
 
-int TexturePreview::getPriority() const {
+int VTexturePreview::getPriority() const {
 	return 50;
 }
 
-QWidget* TexturePreview::getPreview(QWidget* parent) const {
+QWidget* VTexturePreview::getPreview(QWidget* parent) const {
 	return new MareTF::QMareTextureWidget{parent};
 }
 
 // todo: there needs to be a panel with gizmos that say all the information and controls for changing the preview
 
-QString TexturePreview::setData(QWidget* preview_, const QString& path, const quint8* dataPtr, quint64 dataLen) {
+QString VTexturePreview::setData(QWidget* preview_, const QString& path, const quint8* dataPtr, quint64 dataLen) {
 	auto* preview = qobject_cast<MareTF::QMareTextureWidget*>(preview_);
 	if (!preview) {
 		return UNEXPECTED_ERROR_MSG.toString();

@@ -1,7 +1,7 @@
 // ReSharper disable CppDFAMemoryLeak
 // ReSharper disable CppUseStructuredBinding
 
-#include "KeyValuesPreview.hpp"
+#include "VKeyValuesPreview.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -10,11 +10,11 @@
 #include <kvpp/DMX.h>
 #include <QTreeWidget>
 
-void KeyValuesPreview::initPlugin(VWindowAccess_V6_0*) {}
+void VKeyValuesPreview::initPlugin(VWindowAccess_V6_0*) {}
 
 // todo: support KV1 binary
 
-const QSet<QString>& KeyValuesPreview::getFileExtensions() const {
+const QSet<QString>& VKeyValuesPreview::getFileExtensions() const {
 	static const QSet<QString> EXTENSIONS{
 		"dmx",
 		"facial_animation",
@@ -48,11 +48,11 @@ const QSet<QString>& KeyValuesPreview::getFileExtensions() const {
 	return EXTENSIONS;
 }
 
-int KeyValuesPreview::getPriority() const {
+int VKeyValuesPreview::getPriority() const {
 	return 50;
 }
 
-QWidget* KeyValuesPreview::getPreview(QWidget* parent) const {
+QWidget* VKeyValuesPreview::getPreview(QWidget* parent) const {
 	auto* preview = new QTreeWidget{parent};
 	preview->setColumnCount(3);
 	preview->setColumnWidth(0, 300);
@@ -61,7 +61,7 @@ QWidget* KeyValuesPreview::getPreview(QWidget* parent) const {
 	return preview;
 }
 
-QString KeyValuesPreview::setData(QWidget* preview_, const QString&, const quint8* dataPtr, quint64 dataLen) {
+QString VKeyValuesPreview::setData(QWidget* preview_, const QString&, const quint8* dataPtr, quint64 dataLen) {
 	auto* preview = qobject_cast<QTreeWidget*>(preview_);
 	if (!preview) {
 		return UNEXPECTED_ERROR_MSG.toString();

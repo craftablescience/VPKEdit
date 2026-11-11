@@ -117,9 +117,9 @@ protected:
 
 } // namespace MareTF
 
-class TexturePreview final : public VPreviewPlugin_V6_0 {
+class VTexturePreview final : public VPreviewPlugin_V6_0 {
 	Q_OBJECT;
-	Q_PLUGIN_METADATA(IID VPreviewPlugin_V6_0_iid FILE "TexturePreview.json");
+	Q_PLUGIN_METADATA(IID VPreviewPlugin_V6_0_iid FILE "VTexturePreview.json");
 	Q_INTERFACES(VPreviewPlugin_V6_0);
 
 public:
